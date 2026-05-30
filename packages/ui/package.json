@@ -1,0 +1,22 @@
+{
+  "name": "@bezon/ui",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Shared UI component library for Bezon apps",
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "scripts": {
+    "lint": "eslint . --ext js,jsx"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "eslint-plugin-react": "^7.34.3"
+  }
+}
