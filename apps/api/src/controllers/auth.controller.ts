@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import prisma from '../db/client.js';
 import { loginSchema, registerSchema } from '@bezon/validation';
-import { UserRole } from '@bezon/types';
+import type { UserRole } from '@bezon/types';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'bezon-jwt-secret-key';
 const COOKIE_SECRET = process.env.COOKIE_SECRET || 'bezon-cookie-secret';
@@ -25,7 +25,8 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
     }
 
     // Determine target registration role
-    const userRole = Object.values(UserRole).includes(role) ? (role as UserRole) : UserRole.customer;
+    const VALID_ROLES = ['customer', 'seller', 'delivery', 'admin'];
+    const userRole = VALID_ROLES.includes(role) ? (role as UserRole) : 'customer';
 
     // Check email uniqueness
     const existingUser = await prisma.user.findUnique({
@@ -57,7 +58,7 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
       });
 
       // Automatically provision auxiliary profiles
-      if (userRole === UserRole.seller) {
+      if (userRole === 'seller') {
         const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Math.random().toString(36).substring(2, 6);
         await tx.seller.create({
           data: {
@@ -67,7 +68,7 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
             status: 'pending',
           },
         });
-      } else if (userRole === UserRole.delivery) {
+      } else if (userRole === 'delivery') {
         await tx.deliveryPartner.create({
           data: {
             userId: user.id,

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../lib/api';
+import { API_ENDPOINTS } from '../../config/api.config';
 import { useToast } from '../../context/ToastContext';
 import { registerSchema } from '@bezon/validation';
 import { Button } from '@/components/ui/button';
@@ -28,7 +29,7 @@ export const RegisterPage: React.FC = () => {
 
     setLoading(true);
     try {
-      const response = await axios.post('/api/v1/auth/register', {
+      const response = await api.post(API_ENDPOINTS.auth.register, {
         name,
         email,
         phone: phone || undefined,

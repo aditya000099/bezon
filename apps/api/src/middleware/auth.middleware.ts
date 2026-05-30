@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import prisma from '../db/client.js';
-import { UserRole } from '@bezon/types';
+import type { UserRole } from '@bezon/types';
 
 // Extend Express Request type to include authenticated user
 declare global {
