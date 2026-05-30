@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../lib/api';
+import { API_ENDPOINTS } from '../config/api.config';
 import { useAuth } from './AuthContext';
 
 export interface CartItem {
@@ -47,7 +48,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     setLoading(true);
     try {
-      const response = await axios.get('/api/v1/cart');
+      const response = await api.get(API_ENDPOINTS.cart.base);
       if (response.data.success) {
         setItems(response.data.data.items || []);
       }
@@ -63,7 +64,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
     try {
-      const response = await axios.post('/api/v1/cart/items', { productId, variantId, qty, priceSnapshot });
+      const response = await api.post(API_ENDPOINTS.cart.items, { productId, variantId, qty, priceSnapshot });
       if (response.data.success) {
         await fetchCart();
       }
@@ -75,7 +76,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateQty = async (itemId: string, qty: number) => {
     try {
-      const response = await axios.put(`/api/v1/cart/items/${itemId}`, { qty });
+      const response = await api.put(API_ENDPOINTS.cart.itemById(itemId), { qty });
       if (response.data.success) {
         await fetchCart();
       }
@@ -87,7 +88,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const removeItem = async (itemId: string) => {
     try {
-      const response = await axios.delete(`/api/v1/cart/items/${itemId}`);
+      const response = await api.delete(API_ENDPOINTS.cart.itemById(itemId));
       if (response.data.success) {
         await fetchCart();
       }

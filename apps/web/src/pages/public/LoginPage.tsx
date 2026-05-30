@@ -2,7 +2,11 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import { Store, LogIn, KeyRound, Mail, Info } from 'lucide-react';
+import { loginSchema } from '@bezon/validation';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { Store, Mail, KeyRound, Info } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
   const { login } = useAuth();
@@ -17,10 +21,13 @@ export const LoginPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) {
-      toast.warning('Please enter your email and password');
+
+    const validationResult = loginSchema.safeParse({ email, password });
+    if (!validationResult.success) {
+      toast.warning(validationResult.error.issues[0].message);
       return;
     }
+
     setLoading(true);
     try {
       await login(email, password);
@@ -39,86 +46,58 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
-      {/* Left Banner */}
-      <div className="hidden md:flex md:w-1/2 bg-slate-900 text-white flex-col justify-between p-12">
-        <Link to="/" className="flex items-center gap-2 font-bold text-2xl text-white">
-          <Store className="h-8 w-8 text-primary" />
-          <span>Bezon</span>
-        </Link>
-        <div>
-          <h2 className="text-4xl font-extrabold mb-4 leading-tight">Unified Login for the Entire Ecosystem</h2>
-          <p className="text-slate-400 text-lg">One portal for Customers, Sellers, Couriers, and Platform Operators. Connect your operations in real time.</p>
-        </div>
-        <p className="text-slate-500 text-sm">Powered by TypeScript, Express, Prisma, and PostgreSQL.</p>
-      </div>
-
-      {/* Right Form */}
-      <div className="flex-1 flex flex-col items-center justify-center p-8 bg-slate-50">
-        <div className="w-full max-w-md bg-white border border-slate-200 rounded-2xl shadow-xl p-8">
-          <div className="flex flex-col items-center text-center mb-8">
-            <div className="md:hidden flex items-center gap-2 font-bold text-2xl text-primary mb-4">
-              <Store className="h-7 w-7 text-primary" />
-              <span>Bezon</span>
-            </div>
-            <h1 className="text-2xl font-bold text-slate-800">Welcome Back</h1>
-            <p className="text-sm text-slate-500 mt-1">Sign in to manage your e-commerce operations</p>
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+      <Card className="w-full max-w-md border border-slate-200 shadow-lg bg-white">
+        <CardHeader className="space-y-1 flex flex-col items-center text-center">
+          <div className="flex items-center gap-2 font-bold text-2xl text-primary mb-2">
+            <Store className="h-7 w-7 text-primary" />
+            <span>Bezon</span>
           </div>
-
-          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Email Address</label>
+          <CardTitle className="text-2xl font-bold tracking-tight">Welcome back</CardTitle>
+          <CardDescription>Sign in to manage your e-commerce operations</CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid gap-2">
+              <label className="text-sm font-semibold text-slate-700">Email Address</label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
-                  <Mail className="h-5 w-5" />
+                  <Mail className="h-4 w-4" />
                 </span>
-                <input
+                <Input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-white border border-slate-200 pl-10 pr-4 py-2.5 rounded-xl text-slate-800 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+                  className="pl-9"
                   placeholder="name@bezon.app"
                   required
                 />
               </div>
             </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Password</label>
+            <div className="grid gap-2">
+              <label className="text-sm font-semibold text-slate-700">Password</label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
-                  <KeyRound className="h-5 w-5" />
+                  <KeyRound className="h-4 w-4" />
                 </span>
-                <input
+                <Input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-white border border-slate-200 pl-10 pr-4 py-2.5 rounded-xl text-slate-800 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+                  className="pl-9"
                   placeholder="••••••••"
                   required
                 />
               </div>
             </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-primary hover:bg-primary/95 text-white py-3 px-4 rounded-xl text-sm font-bold shadow-md shadow-primary/10 hover:shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-            >
-              {loading ? (
-                <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
-              ) : (
-                <>
-                  <LogIn className="h-5 w-5" />
-                  <span>Sign In</span>
-                </>
-              )}
-            </button>
+            <Button type="submit" className="w-full font-bold mt-2" disabled={loading}>
+              {loading ? 'Signing in...' : 'Sign In'}
+            </Button>
           </form>
 
           {/* Quick Demo Accounts */}
-          <div className="mt-8 pt-6 border-t border-slate-100">
-            <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 mb-3">
+          <div className="mt-4 pt-4 border-t border-slate-100">
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 mb-2">
               <Info className="h-4 w-4 text-slate-400" />
               <span>Click to auto-fill demo credentials:</span>
             </div>
@@ -139,7 +118,7 @@ export const LoginPage: React.FC = () => {
                 onClick={() => fillCredentials('delivery1@bezon.app', 'Delivery@1234')}
                 className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-2.5 py-1.5 rounded-lg font-medium transition-colors text-left"
               >
-                Delivery Courier
+                Delivery Partner
               </button>
               <button
                 onClick={() => fillCredentials('admin@bezon.app', 'Admin@1234')}
@@ -149,12 +128,16 @@ export const LoginPage: React.FC = () => {
               </button>
             </div>
           </div>
-
-          <p className="text-center text-xs text-slate-500 mt-6">
-            New customer? <Link to="/register" className="text-primary font-semibold hover:underline">Create account</Link>
+        </CardContent>
+        <CardFooter className="flex flex-col gap-2 border-t border-slate-100 pt-4 text-center">
+          <p className="text-xs text-slate-500">
+            New customer?{' '}
+            <Link to="/register" className="text-primary font-semibold hover:underline">
+              Create account
+            </Link>
           </p>
-        </div>
-      </div>
+        </CardFooter>
+      </Card>
     </div>
   );
 };

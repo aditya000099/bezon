@@ -1,13 +1,403 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { useCart } from '../../context/CartContext';
+import { useToast } from '../../context/ToastContext';
+import { addressSchema } from '@bezon/validation';
+import { MapPin, Phone, User, Home, ShieldCheck, ArrowLeft, Landmark, CreditCard, Wallet, AlertCircle } from 'lucide-react';
 
 export const CheckoutPage: React.FC = () => {
+  const navigate = useNavigate();
+  const { items, cartTotal, clearCart } = useCart();
+  const { toast } = useToast();
+
+  // Address form state
+  const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [line1, setLine1] = useState('');
+  const [line2, setLine2] = useState('');
+  const [city, setCity] = useState('');
+  const [state, setState] = useState('');
+  const [pincode, setPincode] = useState('');
+  const [label, setLabel] = useState('Home');
+
+  // Interactive UI state
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [isRazorpayOpen, setIsRazorpayOpen] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'card' | 'upi' | 'netbanking'>('card');
+  const [razorpayOrderId, setRazorpayOrderId] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  // Group cart items by seller / brand (simulating multi-seller cart)
+  const groupedItems = items.reduce((acc, item) => {
+    // Treat brand or productId as seller grouping key for preview
+    const sellerName = item.product.title.includes('Headphones') ? 'Acoustic Labs' : 'Sartorial Goods';
+    if (!acc[sellerName]) {
+      acc[sellerName] = [];
+    }
+    acc[sellerName].push(item);
+    return acc;
+  }, {} as Record<string, typeof items>);
+
+  const handlePlaceOrder = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setValidationErrors({});
+
+    const formData = {
+      label,
+      fullName,
+      phone,
+      line1,
+      line2: line2 || undefined,
+      city,
+      state,
+      pincode,
+      country: 'India',
+    };
+
+    // Validate using Zod schema from @bezon/validation
+    const result = addressSchema.safeParse(formData);
+    if (!result.success) {
+      const errors: Record<string, string> = {};
+      result.error.issues.forEach((issue) => {
+        if (issue.path[0]) {
+          errors[issue.path[0].toString()] = issue.message;
+        }
+      });
+      setValidationErrors(errors);
+      toast.warning('Please fix the shipping address details before checkout.');
+      return;
+    }
+
+    if (items.length === 0) {
+      toast.error('Your cart is empty. Add items to checkout.');
+      return;
+    }
+
+    setIsProcessing(true);
+    // Simulate pre-creating order in DB before payment verification
+    setTimeout(() => {
+      const mockRPOrderId = 'order_BZN_' + Math.random().toString(36).substring(2, 10).toUpperCase();
+      setRazorpayOrderId(mockRPOrderId);
+      setIsProcessing(false);
+      setIsRazorpayOpen(true);
+      toast.info('Connecting to Razorpay Secure Payment Server...');
+    }, 1200);
+  };
+
+  const handlePaymentSuccess = () => {
+    setIsRazorpayOpen(false);
+    toast.success('Payment Verified Successfully via Razorpay Sandbox!');
+    clearCart();
+    // Redirect to orders
+    navigate('/shop/orders');
+  };
+
+  const handlePaymentFailure = () => {
+    setIsRazorpayOpen(false);
+    toast.error('Razorpay sandbox payment verification failed. Inventory released.');
+  };
+
   return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-3xl font-extrabold text-slate-900">Checkout Process</h1>
-      <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm">
-        <h3 className="font-bold text-slate-800 text-lg mb-4">Checkout Details</h3>
-        <p className="text-slate-600 text-sm">Please select a delivery address and input payment details via the Razorpay Sandbox gateway overlay.</p>
+    <div className="flex flex-col gap-6 max-w-5xl mx-auto">
+      <div className="flex items-center gap-4">
+        <Link to="/shop/cart">
+          <Button variant="ghost" size="sm" className="gap-2 text-slate-500 hover:text-slate-900">
+            <ArrowLeft className="h-4 w-4" /> Back to Cart
+          </Button>
+        </Link>
+        <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Fulfillment Checkout</h1>
       </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        {/* Shipping address & items details */}
+        <div className="lg:col-span-2 flex flex-col gap-6">
+          <Card className="bg-white border-slate-200 shadow-sm">
+            <CardHeader>
+              <CardTitle className="text-lg font-bold text-slate-800">1. Shipping Address</CardTitle>
+              <CardDescription>Enter the delivery destination for your items.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handlePlaceOrder} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1.5 sm:col-span-2">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Full Name</label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                    <Input
+                      placeholder="Jane Doe"
+                      className="pl-9"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                    />
+                  </div>
+                  {validationErrors.fullName && <p className="text-rose-500 text-xs mt-0.5">{validationErrors.fullName}</p>}
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Phone Number</label>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                    <Input
+                      placeholder="9876543210"
+                      className="pl-9"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                    />
+                  </div>
+                  {validationErrors.phone && <p className="text-rose-500 text-xs mt-0.5">{validationErrors.phone}</p>}
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Address Tag / Label</label>
+                  <div className="relative">
+                    <Home className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                    <Input
+                      placeholder="e.g. Home, Office"
+                      className="pl-9"
+                      value={label}
+                      onChange={(e) => setLabel(e.target.value)}
+                    />
+                  </div>
+                  {validationErrors.label && <p className="text-rose-500 text-xs mt-0.5">{validationErrors.label}</p>}
+                </div>
+
+                <div className="flex flex-col gap-1.5 sm:col-span-2">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Street Address (Line 1)</label>
+                  <Input
+                    placeholder="Flat, House no., Building, Company"
+                    value={line1}
+                    onChange={(e) => setLine1(e.target.value)}
+                  />
+                  {validationErrors.line1 && <p className="text-rose-500 text-xs mt-0.5">{validationErrors.line1}</p>}
+                </div>
+
+                <div className="flex flex-col gap-1.5 sm:col-span-2">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Apartment, Suite, Unit (Line 2)</label>
+                  <Input
+                    placeholder="Area, Colony, Street, Sector"
+                    value={line2}
+                    onChange={(e) => setLine2(e.target.value)}
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">City</label>
+                  <Input
+                    placeholder="Mumbai"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                  />
+                  {validationErrors.city && <p className="text-rose-500 text-xs mt-0.5">{validationErrors.city}</p>}
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">State</label>
+                  <Input
+                    placeholder="Maharashtra"
+                    value={state}
+                    onChange={(e) => setState(e.target.value)}
+                  />
+                  {validationErrors.state && <p className="text-rose-500 text-xs mt-0.5">{validationErrors.state}</p>}
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Pincode</label>
+                  <Input
+                    placeholder="400001"
+                    maxLength={6}
+                    value={pincode}
+                    onChange={(e) => setPincode(e.target.value)}
+                  />
+                  {validationErrors.pincode && <p className="text-rose-500 text-xs mt-0.5">{validationErrors.pincode}</p>}
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Country</label>
+                  <Input
+                    value="India"
+                    disabled
+                    className="bg-slate-50 border-slate-200"
+                  />
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+
+          {/* Grouped orders display (Multi-Seller Cart) */}
+          <Card className="bg-white border-slate-200 shadow-sm">
+            <CardHeader>
+              <CardTitle className="text-lg font-bold text-slate-800">2. Review & Split Shipments</CardTitle>
+              <CardDescription>
+                Items from different sellers will be created as separate orders to facilitate direct merchant dispatch.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-6">
+              {items.length === 0 ? (
+                <p className="text-slate-400 text-sm">Your cart is empty.</p>
+              ) : (
+                Object.keys(groupedItems).map((seller) => (
+                  <div key={seller} className="border border-slate-100 rounded-xl p-4 bg-slate-50/50">
+                    <div className="flex items-center gap-2 border-b border-slate-100 pb-2 mb-3">
+                      <span className="text-xs font-bold text-indigo-600 uppercase tracking-widest">Seller: {seller}</span>
+                      <span className="text-slate-300">|</span>
+                      <span className="text-[10px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded font-bold">Standard Dispatch</span>
+                    </div>
+
+                    <div className="flex flex-col gap-3">
+                      {groupedItems[seller].map((item) => (
+                        <div key={item.id} className="flex justify-between items-center text-sm">
+                          <div className="flex flex-col">
+                            <span className="font-bold text-slate-800">{item.product.title}</span>
+                            <span className="text-xs text-slate-400">SKU: {item.variant.sku} · Qty: {item.qty}</span>
+                          </div>
+                          <span className="font-extrabold text-slate-900">₹{(Number(item.variant.price) * item.qty).toLocaleString()}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Order total & CTA */}
+        <div className="flex flex-col gap-4">
+          <Card className="bg-white border-slate-200 shadow-sm">
+            <CardHeader>
+              <CardTitle className="text-lg font-bold text-slate-800 font-sans">Payment Summary</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex justify-between text-sm text-slate-600">
+                <span>Subtotal</span>
+                <span className="font-semibold text-slate-900">₹{cartTotal.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between text-sm text-slate-600">
+                <span>Fulfillment Charges</span>
+                <span className="text-emerald-600 font-semibold">FREE</span>
+              </div>
+              <div className="border-t border-slate-100 pt-4 flex justify-between text-base font-extrabold text-slate-900">
+                <span>Grand Total</span>
+                <span>₹{cartTotal.toLocaleString()}</span>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button
+                className="w-full font-bold h-11"
+                onClick={handlePlaceOrder}
+                disabled={isProcessing || items.length === 0}
+              >
+                {isProcessing ? 'Generating Orders...' : `Place Order & Pay (₹${cartTotal.toLocaleString()})`}
+              </Button>
+            </CardFooter>
+          </Card>
+
+          <div className="bg-indigo-50/50 border border-indigo-100 rounded-xl p-4 flex gap-3 text-xs text-slate-600">
+            <ShieldCheck className="h-5 w-5 text-indigo-500 shrink-0" />
+            <p>
+              Your orders are created before payment verification. Successful sandbox processing confirms your allocation.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Razorpay Sandbox Simulation Modal */}
+      <Dialog open={isRazorpayOpen} onOpenChange={setIsRazorpayOpen}>
+        <DialogContent className="max-w-md bg-white border border-slate-200 shadow-2xl p-6 rounded-2xl">
+          <DialogHeader className="border-b border-slate-100 pb-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-ping"></span>
+                <span className="font-extrabold text-slate-900 text-lg uppercase tracking-tight font-sans">Razorpay <span className="text-indigo-600">Sandbox</span></span>
+              </div>
+              <span className="text-[10px] bg-slate-100 text-slate-500 font-bold px-2 py-0.5 rounded uppercase">Test Mode</span>
+            </div>
+            <DialogDescription className="text-left mt-2">
+              Order Reference ID: <strong className="text-slate-800 font-mono">{razorpayOrderId}</strong>
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="my-6 space-y-4">
+            <div className="bg-indigo-50/40 border border-indigo-100 rounded-xl p-4 flex justify-between items-center">
+              <div>
+                <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">Amount Payable</p>
+                <p className="text-2xl font-extrabold text-slate-900 mt-1">₹{cartTotal.toLocaleString()}</p>
+              </div>
+              <div className="bg-indigo-600 text-white rounded-lg p-2.5 font-bold text-xs">
+                INR
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Choose Sandbox Method</label>
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  onClick={() => setPaymentMethod('card')}
+                  className={`border rounded-xl p-3 flex flex-col items-center gap-2 transition-all ${
+                    paymentMethod === 'card'
+                      ? 'border-indigo-600 bg-indigo-50/20 text-indigo-700'
+                      : 'border-slate-200 hover:border-slate-300 text-slate-600'
+                  }`}
+                >
+                  <CreditCard className="h-5 w-5" />
+                  <span className="text-xs font-bold">Card</span>
+                </button>
+
+                <button
+                  onClick={() => setPaymentMethod('upi')}
+                  className={`border rounded-xl p-3 flex flex-col items-center gap-2 transition-all ${
+                    paymentMethod === 'upi'
+                      ? 'border-indigo-600 bg-indigo-50/20 text-indigo-700'
+                      : 'border-slate-200 hover:border-slate-300 text-slate-600'
+                  }`}
+                >
+                  <Wallet className="h-5 w-5" />
+                  <span className="text-xs font-bold">UPI</span>
+                </button>
+
+                <button
+                  onClick={() => setPaymentMethod('netbanking')}
+                  className={`border rounded-xl p-3 flex flex-col items-center gap-2 transition-all ${
+                    paymentMethod === 'netbanking'
+                      ? 'border-indigo-600 bg-indigo-50/20 text-indigo-700'
+                      : 'border-slate-200 hover:border-slate-300 text-slate-600'
+                  }`}
+                >
+                  <Landmark className="h-5 w-5" />
+                  <span className="text-xs font-bold">Netbank</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="flex gap-2 bg-amber-50 border border-amber-200 rounded-xl p-3 text-[11px] text-amber-800 leading-relaxed">
+              <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+              <p>
+                This is a secure developer sandbox mimicking the Razorpay checkout overlay. You can trigger payment verification success or failure.
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter className="flex flex-row gap-3 pt-4 border-t border-slate-100 w-full">
+            <Button
+              variant="destructive"
+              className="flex-1 font-bold text-xs h-10"
+              onClick={handlePaymentFailure}
+            >
+              Simulate Failure
+            </Button>
+            <Button
+              className="flex-1 font-bold text-xs bg-emerald-600 hover:bg-emerald-700 h-10"
+              onClick={handlePaymentSuccess}
+            >
+              Simulate Success
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
+

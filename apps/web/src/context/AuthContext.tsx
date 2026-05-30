@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../lib/api';
+import { API_ENDPOINTS } from '../config/api.config';
 
 export interface User {
   id: string;
@@ -27,7 +28,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const checkAuth = async () => {
     try {
-      const response = await axios.get('/api/v1/auth/me');
+      const response = await api.get(API_ENDPOINTS.auth.me);
       if (response.data.success) {
         setUser(response.data.data);
       } else {
@@ -41,14 +42,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const login = async (email: string, password: string) => {
-    const response = await axios.post('/api/v1/auth/login', { email, password });
+    const response = await api.post(API_ENDPOINTS.auth.login, { email, password });
     if (response.data.success) {
       setUser(response.data.data);
     }
   };
 
   const logout = async () => {
-    await axios.post('/api/v1/auth/logout');
+    await api.post(API_ENDPOINTS.auth.logout);
     setUser(null);
   };
 
@@ -68,3 +69,4 @@ export const useAuth = () => {
   if (!context) throw new Error('useAuth must be used within AuthProvider');
   return context;
 };
+
