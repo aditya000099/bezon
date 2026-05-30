@@ -20,3 +20,5 @@ Branches Overview
 main - stable code for deployment
 
 staging - all merges happens here before merging into main
+
+dev-* - developers specific branches
