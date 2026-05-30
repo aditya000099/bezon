@@ -2,23 +2,17 @@
   "name": "bezon",
   "version": "1.0.0",
   "private": true,
-  "description": "Bezon ecommerce monorepo",
+  "description": "Bezon ecommerce monorepo — single unified frontend + API",
   "workspaces": [
     "apps/*",
     "packages/*"
   ],
   "scripts": {
-    "dev:customer": "npm run dev --workspace=apps/customer",
-    "dev:seller": "npm run dev --workspace=apps/seller",
-    "dev:delivery": "npm run dev --workspace=apps/delivery",
-    "dev:admin": "npm run dev --workspace=apps/admin",
+    "dev": "npm run dev --workspace=apps/web & npm run dev --workspace=apps/api",
+    "dev:web": "npm run dev --workspace=apps/web",
     "dev:api": "npm run dev --workspace=apps/api",
-    "dev:all": "npm run dev --workspaces --if-present",
-    "build:customer": "npm run build --workspace=apps/customer",
-    "build:seller": "npm run build --workspace=apps/seller",
-    "build:delivery": "npm run build --workspace=apps/delivery",
-    "build:admin": "npm run build --workspace=apps/admin",
-    "build:all": "npm run build --workspaces --if-present",
+    "build": "npm run build --workspace=@bezon/api && npm run build --workspace=apps/web",
+    "build:web": "npm run build --workspace=apps/web",
     "lint": "npm run lint --workspaces --if-present",
     "clean": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +"
   },
