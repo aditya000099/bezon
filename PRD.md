@@ -46,7 +46,7 @@
 | **Database** | **PostgreSQL** | Mapped and queried via **Prisma ORM** |
 | **Auth** | JWT (httpOnly cookies) + bcryptjs | Access tokens only (simplified auth, no refresh tokens) |
 | **Payments** | **Razorpay (Sandbox)** | Pre-creation of orders in database before validation |
-| **File uploads** | Cloudinary v2 | Multer → Cloudinary stream |
+| **File uploads** | AWS S3 | Multer → AWS SDK S3 Upload |
 | **Email** | Nodemailer (SMTP) | Order notifications |
 | **Monorepo** | npm workspaces | Workspaces config in root package.json |
 | **Orchestration** | **Docker & Docker Compose** | Multi-container application setup |
@@ -336,7 +336,7 @@ model ProductImage {
   id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   productId    String   @map("product_id") @db.Uuid
   url          String
-  cloudinaryId String?  @map("cloudinary_id")
+  s3Key        String?  @map("s3_key")
   altText      String?  @map("alt_text") @db.VarChar(160)
   sortOrder    Int      @default(0) @map("sort_order") @db.SmallInt
   isPrimary    Boolean  @default(false) @map("is_primary")
@@ -474,7 +474,7 @@ model Delivery {
   partnerId         String?          @map("partner_id") @db.Uuid
   status            DeliveryStatus   @default(assigned)
   proofImageUrl     String?          @map("proof_image_url")
-  proofCloudinaryId String?          @map("proof_cloudinary_id")
+  proofS3Key        String?          @map("proof_s3_key")
   failureReason     String?          @map("failure_reason") @db.VarChar(200)
   failureNotes      String?          @map("failure_notes")
   attemptCount      Int              @default(0) @map("attempt_count") @db.SmallInt
@@ -679,7 +679,7 @@ RAZORPAY_WEBHOOK_SECRET=...         (for webhook signature verification)
 - JWT: httpOnly + Secure + SameSite=Strict cookies (access tokens only)
 - Razorpay webhook: HMAC-SHA256 signature verification on every request
 - API: Helmet, CORS allowlist, rate limiting (100/15min global, 10/15min auth)
-- Cloudinary: signed upload preset, MIME type whitelist (jpg, png, webp)
+- AWS S3: MIME type whitelist (jpg, png, webp)
 
 ### Performance
 - Product listing: cursor-based pagination, 20/page
@@ -720,7 +720,7 @@ RAZORPAY_WEBHOOK_SECRET=...         (for webhook signature verification)
 ### Day 2 — Products & Catalogue
 - Product and variant queries (search/filter/slug), creation/modification
 - Category endpoints
-- Cloudinary direct-stream upload route
+- AWS S3 direct-stream upload route
 - Frontend: ShopPage, ProductDetailPage, SellerProductsPage, SellerProductFormPage, SellerInventoryPage
 
 ### Day 3 — Cart, Checkout & Orders

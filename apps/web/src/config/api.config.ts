@@ -17,10 +17,20 @@ export const API_ENDPOINTS = {
     items: `${API_V1}/cart/items`,
     itemById: (id: string) => `${API_V1}/cart/items/${id}`,
   },
+  // Categories
+  categories: `${API_V1}/categories`,
+  // Media Uploads
+  media: {
+    upload: `${API_V1}/media/upload`,
+  },
   // Products / Shop (Mock/Real routing placeholders)
   products: {
     list: `${API_V1}/products`,
     detail: (slug: string) => `${API_V1}/products/${slug}`,
+    sellerMe: `${API_V1}/products/seller/me`,
+    create: `${API_V1}/products`,
+    update: (id: string) => `${API_V1}/products/${id}`,
+    delete: (id: string) => `${API_V1}/products/${id}`,
   },
   // Orders
   orders: {

@@ -22,6 +22,7 @@ import { ProductDetailPage } from '../pages/customer/ProductDetailPage';
 import { CartPage } from '../pages/customer/CartPage';
 import { CheckoutPage } from '../pages/customer/CheckoutPage';
 import { OrdersPage } from '../pages/customer/OrdersPage';
+import { OrderDetailPage } from '../pages/customer/OrderDetailPage';
 import { WishlistPage } from '../pages/customer/WishlistPage';
 import { ProfilePage } from '../pages/customer/ProfilePage';
 
@@ -82,6 +83,7 @@ export const AppRouter: React.FC = () => {
           <Route path="cart" element={<CartPage />} />
           <Route path="checkout" element={<CheckoutPage />} />
           <Route path="orders" element={<OrdersPage />} />
+          <Route path="orders/:id" element={<OrderDetailPage />} />
           <Route path="wishlist" element={<WishlistPage />} />
           <Route path="profile" element={<ProfilePage />} />
         </Route>

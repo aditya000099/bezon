@@ -1,0 +1,50 @@
+import { Request, Response, NextFunction } from 'express';
+import { OrderService } from '../services/order.service.js';
+
+/**
+ * Retrieve order history list depending on caller role
+ */
+export const getOrders = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: 'Unauthorized session.' });
+    }
+
+    const orders = await OrderService.getOrders({
+      id: req.user.id,
+      role: req.user.role,
+    });
+
+    res.json({
+      success: true,
+      data: orders,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Retrieve detailed progress tracking for a specific order
+ */
+export const getOrderById = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const id = req.params.id as string;
+
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: 'Unauthorized session.' });
+    }
+
+    const order = await OrderService.getOrderById(id, {
+      id: req.user.id,
+      role: req.user.role,
+    });
+
+    res.json({
+      success: true,
+      data: order,
+    });
+  } catch (err) {
+    next(err);
+  }
+};

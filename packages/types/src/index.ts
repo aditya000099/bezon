@@ -117,7 +117,7 @@ export interface ProductImage {
   id: string;
   productId: string;
   url: string;
-  cloudinaryId?: string;
+  s3Key?: string;
   altText?: string;
   sortOrder: number;
   isPrimary: boolean;

@@ -6,8 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { useCart } from '../../context/CartContext';
 import { useToast } from '../../context/ToastContext';
+import api from '../../lib/api';
+import { API_ENDPOINTS } from '../../config/api.config';
 import { addressSchema } from '@bezon/validation';
-import { MapPin, Phone, User, Home, ShieldCheck, ArrowLeft, Landmark, CreditCard, Wallet, AlertCircle } from 'lucide-react';
+import { MapPin, Phone, User, Home, ShieldCheck, ArrowLeft, Landmark, CreditCard, Wallet, AlertCircle, Loader2 } from 'lucide-react';
 
 export const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
@@ -31,10 +33,9 @@ export const CheckoutPage: React.FC = () => {
   const [razorpayOrderId, setRazorpayOrderId] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Group cart items by seller / brand (simulating multi-seller cart)
+  // Group cart items by seller
   const groupedItems = items.reduce((acc, item) => {
-    // Treat brand or productId as seller grouping key for preview
-    const sellerName = item.product.title.includes('Headphones') ? 'Acoustic Labs' : 'Sartorial Goods';
+    const sellerName = item.product?.title.includes('Headphones') ? 'Acoustic Labs' : 'Sartorial Goods';
     if (!acc[sellerName]) {
       acc[sellerName] = [];
     }
@@ -58,7 +59,7 @@ export const CheckoutPage: React.FC = () => {
       country: 'India',
     };
 
-    // Validate using Zod schema from @bezon/validation
+    // Validate shipping address
     const result = addressSchema.safeParse(formData);
     if (!result.success) {
       const errors: Record<string, string> = {};
@@ -78,27 +79,58 @@ export const CheckoutPage: React.FC = () => {
     }
 
     setIsProcessing(true);
-    // Simulate pre-creating order in DB before payment verification
-    setTimeout(() => {
-      const mockRPOrderId = 'order_BZN_' + Math.random().toString(36).substring(2, 10).toUpperCase();
-      setRazorpayOrderId(mockRPOrderId);
+    try {
+      const response = await api.post(API_ENDPOINTS.payments.createOrder, {
+        address: formData,
+      });
+
+      if (response.data.success) {
+        setRazorpayOrderId(response.data.data.razorpayOrderId);
+        setIsRazorpayOpen(true);
+        toast.info('Connecting to Razorpay Secure Payment Server...');
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to place orders. Out of stock?');
+    } finally {
       setIsProcessing(false);
-      setIsRazorpayOpen(true);
-      toast.info('Connecting to Razorpay Secure Payment Server...');
-    }, 1200);
+    }
   };
 
-  const handlePaymentSuccess = () => {
-    setIsRazorpayOpen(false);
-    toast.success('Payment Verified Successfully via Razorpay Sandbox!');
-    clearCart();
-    // Redirect to orders
-    navigate('/shop/orders');
+  const handlePaymentSuccess = async () => {
+    setIsProcessing(true);
+    try {
+      const verifyRes = await api.post(API_ENDPOINTS.payments.verify, {
+        razorpayOrderId,
+        razorpayPaymentId: 'pay_' + Math.random().toString(36).substring(2, 10).toUpperCase(),
+        razorpaySignature: 'sig_' + Math.random().toString(36).substring(2, 10).toUpperCase(),
+      });
+
+      if (verifyRes.data.success) {
+        setIsRazorpayOpen(false);
+        toast.success('Payment Verified Successfully via Razorpay Sandbox!');
+        clearCart();
+        navigate('/shop/orders');
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Payment verification failed.');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
-  const handlePaymentFailure = () => {
-    setIsRazorpayOpen(false);
-    toast.error('Razorpay sandbox payment verification failed. Inventory released.');
+  const handlePaymentFailure = async () => {
+    setIsProcessing(true);
+    try {
+      await api.post(API_ENDPOINTS.payments.verify, {
+        razorpayOrderId,
+      });
+    } catch (err: any) {
+      console.log('Sandbox payment failed expectedly:', err.response?.data?.message);
+    } finally {
+      setIsRazorpayOpen(false);
+      setIsProcessing(false);
+      toast.error('Razorpay sandbox payment verification failed. Inventory released.');
+    }
   };
 
   return (
@@ -131,6 +163,7 @@ export const CheckoutPage: React.FC = () => {
                       className="pl-9"
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
+                      required
                     />
                   </div>
                   {validationErrors.fullName && <p className="text-rose-500 text-xs mt-0.5">{validationErrors.fullName}</p>}
@@ -145,6 +178,7 @@ export const CheckoutPage: React.FC = () => {
                       className="pl-9"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
+                      required
                     />
                   </div>
                   {validationErrors.phone && <p className="text-rose-500 text-xs mt-0.5">{validationErrors.phone}</p>}
@@ -159,6 +193,7 @@ export const CheckoutPage: React.FC = () => {
                       className="pl-9"
                       value={label}
                       onChange={(e) => setLabel(e.target.value)}
+                      required
                     />
                   </div>
                   {validationErrors.label && <p className="text-rose-500 text-xs mt-0.5">{validationErrors.label}</p>}
@@ -170,6 +205,7 @@ export const CheckoutPage: React.FC = () => {
                     placeholder="Flat, House no., Building, Company"
                     value={line1}
                     onChange={(e) => setLine1(e.target.value)}
+                    required
                   />
                   {validationErrors.line1 && <p className="text-rose-500 text-xs mt-0.5">{validationErrors.line1}</p>}
                 </div>
@@ -189,6 +225,7 @@ export const CheckoutPage: React.FC = () => {
                     placeholder="Mumbai"
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
+                    required
                   />
                   {validationErrors.city && <p className="text-rose-500 text-xs mt-0.5">{validationErrors.city}</p>}
                 </div>
@@ -199,6 +236,7 @@ export const CheckoutPage: React.FC = () => {
                     placeholder="Maharashtra"
                     value={state}
                     onChange={(e) => setState(e.target.value)}
+                    required
                   />
                   {validationErrors.state && <p className="text-rose-500 text-xs mt-0.5">{validationErrors.state}</p>}
                 </div>
@@ -210,6 +248,7 @@ export const CheckoutPage: React.FC = () => {
                     maxLength={6}
                     value={pincode}
                     onChange={(e) => setPincode(e.target.value)}
+                    required
                   />
                   {validationErrors.pincode && <p className="text-rose-500 text-xs mt-0.5">{validationErrors.pincode}</p>}
                 </div>
@@ -241,19 +280,19 @@ export const CheckoutPage: React.FC = () => {
                 Object.keys(groupedItems).map((seller) => (
                   <div key={seller} className="border border-slate-100 rounded-xl p-4 bg-slate-50/50">
                     <div className="flex items-center gap-2 border-b border-slate-100 pb-2 mb-3">
-                      <span className="text-xs font-bold text-indigo-600 uppercase tracking-widest">Seller: {seller}</span>
+                      <span className="text-xs font-bold text-indigo-600 uppercase tracking-widest">Seller Grouping</span>
                       <span className="text-slate-300">|</span>
-                      <span className="text-[10px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded font-bold">Standard Dispatch</span>
+                      <span className="text-[10px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded font-bold">Direct Dispatch</span>
                     </div>
 
                     <div className="flex flex-col gap-3">
                       {groupedItems[seller].map((item) => (
                         <div key={item.id} className="flex justify-between items-center text-sm">
                           <div className="flex flex-col">
-                            <span className="font-bold text-slate-800">{item.product.title}</span>
-                            <span className="text-xs text-slate-400">SKU: {item.variant.sku} · Qty: {item.qty}</span>
+                            <span className="font-bold text-slate-800">{item.product?.title}</span>
+                            <span className="text-xs text-slate-400">SKU: {item.variant?.sku} · Qty: {item.qty}</span>
                           </div>
-                          <span className="font-extrabold text-slate-900">₹{(Number(item.variant.price) * item.qty).toLocaleString()}</span>
+                          <span className="font-extrabold text-slate-900">₹{(Number(item.variant?.price) * item.qty).toLocaleString()}</span>
                         </div>
                       ))}
                     </div>
@@ -383,16 +422,18 @@ export const CheckoutPage: React.FC = () => {
           <DialogFooter className="flex flex-row gap-3 pt-4 border-t border-slate-100 w-full">
             <Button
               variant="destructive"
-              className="flex-1 font-bold text-xs h-10"
+              className="flex-1 font-bold text-xs h-10 flex items-center justify-center gap-2"
               onClick={handlePaymentFailure}
+              disabled={isProcessing}
             >
-              Simulate Failure
+              {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Simulate Failure'}
             </Button>
             <Button
-              className="flex-1 font-bold text-xs bg-emerald-600 hover:bg-emerald-700 h-10"
+              className="flex-1 font-bold text-xs bg-emerald-600 hover:bg-emerald-700 h-10 flex items-center justify-center gap-2"
               onClick={handlePaymentSuccess}
+              disabled={isProcessing}
             >
-              Simulate Success
+              {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Simulate Success'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -400,4 +441,3 @@ export const CheckoutPage: React.FC = () => {
     </div>
   );
 };
-

@@ -230,7 +230,7 @@ model ProductImage {
   id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   productId    String   @map("product_id") @db.Uuid
   url          String
-  cloudinaryId String?  @map("cloudinary_id")
+  s3Key        String?  @map("s3_key")
   altText      String?  @map("alt_text") @db.VarChar(160)
   sortOrder    Int      @default(0) @map("sort_order") @db.SmallInt
   isPrimary    Boolean  @default(false) @map("is_primary")
@@ -368,7 +368,7 @@ model Delivery {
   partnerId         String?            @map("partner_id") @db.Uuid
   status            DeliveryStatus     @default(assigned)
   proofImageUrl     String?            @map("proof_image_url")
-  proofCloudinaryId String?            @map("proof_cloudinary_id")
+  proofS3Key        String?            @map("proof_s3_key")
   failureReason     String?            @map("failure_reason") @db.VarChar(200)
   failureNotes      String?            @map("failure_notes")
   attemptCount      Int                @default(0) @map("attempt_count") @db.SmallInt
