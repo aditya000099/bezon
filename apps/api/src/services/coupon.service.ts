@@ -311,7 +311,7 @@ export class CouponService {
       include: {
         items: {
           include: {
-            product: { select: { id: true, sellerId: true, categoryId: true } },
+            product: { select: { id: true, sellerId: true, categoryId: true, variantGroupId: true } },
           },
         },
       },
@@ -322,6 +322,7 @@ export class CouponService {
     const sellerIds = [...new Set(cart.items.map(i => i.product.sellerId))];
     const categoryIds = [...new Set(cart.items.map(i => i.product.categoryId).filter(Boolean))] as string[];
     const productIds = [...new Set(cart.items.map(i => i.product.id))];
+    const variantGroupIds = [...new Set(cart.items.map(i => i.product.variantGroupId).filter(Boolean))] as string[];
 
     const now = new Date();
     const coupons = await prisma.coupon.findMany({
@@ -334,6 +335,7 @@ export class CouponService {
           { scopeType: 'all' },
           ...(categoryIds.length > 0 ? [{ scopeType: 'category' as const, scopeCategoryId: { in: categoryIds } }] : []),
           { scopeType: 'product' as const, scopeProductId: { in: productIds } },
+          ...(variantGroupIds.length > 0 ? [{ scopeType: 'variantGroup' as const, scopeVariantGroupId: { in: variantGroupIds } }] : []),
         ],
       },
       select: {
