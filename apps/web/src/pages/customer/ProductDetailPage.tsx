@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Star, ShieldCheck, Heart, ShoppingBag, Loader2 } from 'lucide-react';
+import { ArrowLeft, Star, ShieldCheck, Heart, ShoppingBag, Loader2, BadgePercent } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useCart } from '../../context/CartContext';
@@ -8,6 +8,18 @@ import { useToast } from '../../context/ToastContext';
 import api from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api.config';
 import type { Product, ProductVariant } from '@bezon/types';
+
+interface ProductCoupon {
+  id: string;
+  code: string;
+  description: string;
+  discountType: 'percentage' | 'flat';
+  discountValue: number;
+  maxDiscount: number | null;
+  minOrderValue: number;
+  validUntil: string;
+  scopeType: string;
+}
 
 export const ProductDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -19,8 +31,8 @@ export const ProductDetailPage: React.FC = () => {
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [coupons, setCoupons] = useState<ProductCoupon[]>([]);
 
-  // Fetch product on mount or slug change
   useEffect(() => {
     const fetchProductDetails = async () => {
       if (!slug) return;
@@ -30,13 +42,15 @@ export const ProductDetailPage: React.FC = () => {
         if (response.data.success) {
           const prodData = response.data.data;
           setProduct(prodData);
-          // Set default active image index to primary
           const primaryIdx = prodData.images ? prodData.images.findIndex((img: any) => img.isPrimary) : 0;
           setActiveImageIndex(primaryIdx >= 0 ? primaryIdx : 0);
-          // Set default selected variant
           if (prodData.variants && prodData.variants.length > 0) {
             setSelectedVariant(prodData.variants[0]);
           }
+        }
+        const couponRes = await api.get(API_ENDPOINTS.products.coupons(slug));
+        if (couponRes.data.success) {
+          setCoupons(couponRes.data.data);
         }
       } catch (err) {
         toast.error('Failed to load product details.');
@@ -51,6 +65,15 @@ export const ProductDetailPage: React.FC = () => {
   const currentComparePrice = selectedVariant ? (selectedVariant.comparePrice ? Number(selectedVariant.comparePrice) : null) : (product?.comparePrice ? Number(product.comparePrice) : null);
   const currentStock = selectedVariant ? selectedVariant.stock : (product ? product.totalStock : 0);
   const currentSku = selectedVariant ? selectedVariant.sku : 'N/A';
+
+  const calcCouponDiscount = (coupon: ProductCoupon) => {
+    if (coupon.discountType === 'percentage') {
+      let disc = (Number(coupon.discountValue) / 100) * currentPrice;
+      if (coupon.maxDiscount) disc = Math.min(disc, Number(coupon.maxDiscount));
+      return Math.round(disc * 100) / 100;
+    }
+    return Math.min(Number(coupon.discountValue), currentPrice);
+  };
 
   const handleAddToCart = async () => {
     if (!product) return;
@@ -109,9 +132,9 @@ export const ProductDetailPage: React.FC = () => {
           <Card className="overflow-hidden border border-slate-200 bg-white">
             <CardContent className="p-0 aspect-square flex items-center justify-center bg-slate-50 relative overflow-hidden">
               {product.images && product.images.length > 0 ? (
-                <img 
-                  src={product.images[activeImageIndex]?.url || product.images[0].url} 
-                  alt={product.title} 
+                <img
+                  src={product.images[activeImageIndex]?.url || product.images[0].url}
+                  alt={product.title}
                   className="h-full w-full object-cover"
                 />
               ) : (
@@ -131,8 +154,8 @@ export const ProductDetailPage: React.FC = () => {
           {product.images && product.images.length > 1 && (
             <div className="grid grid-cols-4 gap-2">
               {product.images.map((img, i) => (
-                <div 
-                  key={img.id} 
+                <div
+                  key={img.id}
                   onClick={() => setActiveImageIndex(i)}
                   className={`aspect-square bg-white border rounded-lg flex items-center justify-center overflow-hidden cursor-pointer transition-colors ${
                     activeImageIndex === i ? 'border-primary ring-2 ring-primary/20' : 'border-slate-200 hover:border-slate-300'
@@ -186,6 +209,56 @@ export const ProductDetailPage: React.FC = () => {
             </div>
             <p className="text-xs text-slate-400">SKU: <span className="font-mono">{currentSku}</span></p>
           </div>
+
+          {/* Available Coupons */}
+          {coupons.length > 0 && (
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-2">
+                <BadgePercent className="h-4 w-4 text-indigo-500" />
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Available Coupons</span>
+              </div>
+              <div className="flex flex-col gap-2">
+                {coupons.map((coupon) => {
+                  const disc = calcCouponDiscount(coupon);
+                  const priceAfter = Math.max(0, currentPrice - disc);
+                  const meetsMin = currentPrice >= Number(coupon.minOrderValue);
+                  return (
+                    <div
+                      key={coupon.id}
+                      className={`border rounded-xl p-3.5 flex items-center justify-between transition-all ${
+                        meetsMin
+                          ? 'border-indigo-200 bg-indigo-50/30 hover:border-indigo-300'
+                          : 'border-slate-100 bg-slate-50/30 opacity-60'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="bg-white border border-dashed border-indigo-300 rounded-lg px-2.5 py-1.5 shrink-0">
+                          <span className="font-mono font-extrabold text-indigo-700 text-xs tracking-wider">{coupon.code}</span>
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs font-semibold text-slate-700 truncate">{coupon.description}</p>
+                          <p className="text-[10px] text-slate-400 mt-0.5">
+                            {coupon.discountType === 'percentage'
+                              ? `${Number(coupon.discountValue)}% off${coupon.maxDiscount ? ` (up to ₹${Number(coupon.maxDiscount)})` : ''}`
+                              : `₹${Number(coupon.discountValue)} off`}
+                            {Number(coupon.minOrderValue) > 0 && ` · Min ₹${Number(coupon.minOrderValue)}`}
+                          </p>
+                        </div>
+                      </div>
+                      {meetsMin ? (
+                        <div className="text-right shrink-0 ml-3">
+                          <p className="text-sm font-extrabold text-emerald-700">₹{priceAfter.toLocaleString()}</p>
+                          <p className="text-[10px] text-emerald-600 font-semibold">save ₹{disc.toLocaleString()}</p>
+                        </div>
+                      ) : (
+                        <p className="text-[10px] text-slate-400 font-medium shrink-0 ml-3">Min ₹{Number(coupon.minOrderValue)}</p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Variants selector */}
           {product.variants && product.variants.length > 0 && (
@@ -259,5 +332,3 @@ export const ProductDetailPage: React.FC = () => {
     </div>
   );
 };
-
-

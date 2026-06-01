@@ -6,7 +6,7 @@ import { PaymentService } from '../services/payment.service.js';
  */
 export const createPaymentOrder = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { addressId, address: addressPayload } = req.body;
+    const { addressId, address: addressPayload, couponCode } = req.body;
 
     if (!req.user) {
       return res.status(401).json({ success: false, message: 'Unauthorized session.' });
@@ -15,6 +15,7 @@ export const createPaymentOrder = async (req: Request, res: Response, next: Next
     const result = await PaymentService.createPaymentOrder(req.user.id, {
       addressId,
       addressPayload,
+      couponCode,
     });
 
     res.status(201).json({

@@ -42,3 +42,31 @@ export const productVariantSchema = z.object({
   weightGrams: z.number().int().positive().optional(),
   attributes: z.record(z.string(), z.string()).default({}),
 });
+
+export const couponSchema = z.object({
+  code: z.string().min(3).max(50).regex(/^[A-Z0-9_-]+$/, 'Code must be uppercase letters, numbers, hyphens, or underscores'),
+  description: z.string().min(5).max(200),
+  discountType: z.enum(['percentage', 'flat']),
+  discountValue: z.number().positive('Discount value must be greater than zero'),
+  maxDiscount: z.number().positive().optional(),
+  minOrderValue: z.number().nonnegative().default(0),
+  maxUses: z.number().int().positive().optional(),
+  maxUsesPerUser: z.number().int().positive().default(1),
+  validFrom: z.string().datetime(),
+  validUntil: z.string().datetime(),
+  scopeType: z.enum(['all', 'category', 'product']).default('all'),
+  scopeCategoryId: z.string().uuid().optional(),
+  scopeProductId: z.string().uuid().optional(),
+}).refine(
+  (data) => new Date(data.validUntil) > new Date(data.validFrom),
+  { message: 'validUntil must be after validFrom', path: ['validUntil'] },
+).refine(
+  (data) => data.discountType !== 'percentage' || data.discountValue <= 100,
+  { message: 'Percentage discount cannot exceed 100%', path: ['discountValue'] },
+).refine(
+  (data) => data.scopeType !== 'category' || !!data.scopeCategoryId,
+  { message: 'Category ID is required when scope is category', path: ['scopeCategoryId'] },
+).refine(
+  (data) => data.scopeType !== 'product' || !!data.scopeProductId,
+  { message: 'Product ID is required when scope is product', path: ['scopeProductId'] },
+);
