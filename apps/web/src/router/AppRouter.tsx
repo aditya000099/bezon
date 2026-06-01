@@ -25,6 +25,11 @@ import { OrdersPage } from '../pages/customer/OrdersPage';
 import { OrderDetailPage } from '../pages/customer/OrderDetailPage';
 import { WishlistPage } from '../pages/customer/WishlistPage';
 import { ProfilePage } from '../pages/customer/ProfilePage';
+import { EditProfilePage } from '../pages/customer/EditProfilePage';
+import { AddressesPage } from '../pages/customer/AddressesPage';
+import { TermsConditionsPage } from '../pages/customer/TermsConditionsPage';
+import { PrivacyPolicyPage } from '../pages/customer/PrivacyPolicyPage';
+
 
 // Seller Pages
 import { SellerDashboard } from '../pages/seller/SellerDashboard';
@@ -88,6 +93,10 @@ export const AppRouter: React.FC = () => {
           <Route path="orders/:id" element={<OrderDetailPage />} />
           <Route path="wishlist" element={<WishlistPage />} />
           <Route path="profile" element={<ProfilePage />} />
+          <Route path="profile/edit" element={<EditProfilePage />} />
+          <Route path="addresses" element={<AddressesPage />} />
+          <Route path="terms-and-conditions" element={<TermsConditionsPage />} />
+          <Route path="privacy-policy" element={<PrivacyPolicyPage />} />
         </Route>
 
         {/* Seller Route Group */}

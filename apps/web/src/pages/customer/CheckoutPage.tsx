@@ -9,7 +9,7 @@ import { useToast } from '../../context/ToastContext';
 import api from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api.config';
 import { addressSchema } from '@bezon/validation';
-import { MapPin, Phone, User, Home, ShieldCheck, ArrowLeft, Landmark, CreditCard, Wallet, AlertCircle, Loader2, Tag, CheckCircle2, X, BadgePercent } from 'lucide-react';
+import { MapPin, Phone, User, Home, ShieldCheck, ArrowLeft, Landmark, CreditCard, Wallet, AlertCircle, Loader2, Tag, CheckCircle2, X, BadgePercent, Plus } from 'lucide-react';
 
 export const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
@@ -25,6 +25,10 @@ export const CheckoutPage: React.FC = () => {
   const [state, setState] = useState('');
   const [pincode, setPincode] = useState('');
   const [label, setLabel] = useState('Home');
+
+  const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
+  const [loadingAddresses, setLoadingAddresses] = useState(true);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
 
   // Interactive UI state
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
@@ -53,6 +57,56 @@ export const CheckoutPage: React.FC = () => {
     };
     if (items.length > 0) fetchCoupons();
   }, [items.length]);
+
+  useEffect(() => {
+    const fetchAddresses = async () => {
+      try {
+        setLoadingAddresses(true);
+        const res = await api.get(API_ENDPOINTS.addresses.base);
+        if (res.data.success) {
+          const addresses = res.data.data;
+          setSavedAddresses(addresses);
+          if (addresses.length > 0) {
+            const defaultAddr = addresses.find((a: any) => a.isDefault) || addresses[0];
+            setSelectedAddressId(defaultAddr.id);
+            populateForm(defaultAddr);
+          } else {
+            setSelectedAddressId('manual');
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load addresses', err);
+        setSelectedAddressId('manual');
+      } finally {
+        setLoadingAddresses(false);
+      }
+    };
+    fetchAddresses();
+  }, []);
+
+  const populateForm = (addr: any) => {
+    setLabel(addr.label || 'Home');
+    setFullName(addr.fullName || '');
+    setPhone(addr.phone || '');
+    setLine1(addr.line1 || '');
+    setLine2(addr.line2 || '');
+    setCity(addr.city || '');
+    setState(addr.state || '');
+    setPincode(addr.pincode || '');
+    setValidationErrors({});
+  };
+
+  const resetForm = () => {
+    setLabel('Home');
+    setFullName('');
+    setPhone('');
+    setLine1('');
+    setLine2('');
+    setCity('');
+    setState('');
+    setPincode('');
+    setValidationErrors({});
+  };
 
   // Group cart items by seller
   const groupedItems = items.reduce((acc, item) => {
@@ -201,118 +255,183 @@ export const CheckoutPage: React.FC = () => {
           <Card className="bg-white border-slate-200 shadow-sm">
             <CardHeader>
               <CardTitle className="text-lg font-bold text-slate-800">1. Shipping Address</CardTitle>
-              <CardDescription>Enter the delivery destination for your items.</CardDescription>
+              <CardDescription>Select a saved address or enter a new delivery destination.</CardDescription>
             </CardHeader>
-            <CardContent>
-              <form onSubmit={handlePlaceOrder} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="flex flex-col gap-1.5 sm:col-span-2">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Full Name</label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-                    <Input
-                      placeholder="Jane Doe"
-                      className="pl-9"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      required
-                    />
+            <CardContent className="flex flex-col gap-6">
+              {/* Saved Addresses List */}
+              {loadingAddresses ? (
+                <div className="flex justify-center p-8">
+                  <Loader2 className="h-6 w-6 animate-spin text-indigo-600" />
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {savedAddresses.map((addr) => (
+                    <div
+                      key={addr.id}
+                      onClick={() => {
+                        setSelectedAddressId(addr.id);
+                        populateForm(addr);
+                      }}
+                      className={`cursor-pointer border rounded-2xl p-4 transition-all flex flex-col gap-3 ${
+                        selectedAddressId === addr.id
+                          ? 'border-indigo-600 bg-indigo-50/40 ring-1 ring-indigo-600'
+                          : 'border-slate-200 hover:border-indigo-300 bg-white'
+                      }`}
+                    >
+                      <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+                        <div className="flex items-center gap-2">
+                          <div className={`p-1.5 rounded-lg border ${
+                            selectedAddressId === addr.id ? 'bg-indigo-100 text-indigo-700 border-indigo-200' : 'bg-slate-50 text-slate-500 border-slate-200'
+                          }`}>
+                            {addr.label === 'Home' ? <Home className="h-3.5 w-3.5" /> : <MapPin className="h-3.5 w-3.5" />}
+                          </div>
+                          <span className="font-extrabold text-sm text-slate-800 uppercase tracking-wider">{addr.label}</span>
+                        </div>
+                        {addr.isDefault && (
+                          <span className="text-[10px] bg-indigo-100 text-indigo-700 font-bold px-2 py-0.5 rounded-full uppercase">Default</span>
+                        )}
+                      </div>
+                      <div className="text-sm text-slate-600 flex flex-col gap-1">
+                        <span className="font-bold text-slate-800">{addr.fullName} <span className="font-medium text-slate-500">({addr.phone})</span></span>
+                        <span className="leading-relaxed mt-1">{addr.line1}{addr.line2 && `, ${addr.line2}`}</span>
+                        <span>{addr.city}, {addr.state} - <span className="font-bold">{addr.pincode}</span></span>
+                      </div>
+                    </div>
+                  ))}
+                  
+                  {/* Add New Address Option */}
+                  <div
+                    onClick={() => {
+                      setSelectedAddressId('manual');
+                      resetForm();
+                    }}
+                    className={`cursor-pointer border border-dashed rounded-2xl p-4 transition-all flex flex-col items-center justify-center gap-2 min-h-[140px] ${
+                      selectedAddressId === 'manual'
+                        ? 'border-indigo-600 bg-indigo-50/40 text-indigo-700'
+                        : 'border-slate-300 hover:border-slate-400 bg-slate-50 text-slate-500'
+                    }`}
+                  >
+                    <div className={`p-2 rounded-full ${selectedAddressId === 'manual' ? 'bg-indigo-100' : 'bg-white shadow-sm'}`}>
+                      <Plus className="h-5 w-5" />
+                    </div>
+                    <span className="font-bold text-sm">Deliver to a different address</span>
                   </div>
-                  {validationErrors.fullName && <p className="text-rose-500 text-xs mt-0.5">{validationErrors.fullName}</p>}
                 </div>
+              )}
 
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Phone Number</label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-                    <Input
-                      placeholder="9876543210"
-                      className="pl-9"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      required
-                    />
+              {/* Manual Input Form */}
+              {(selectedAddressId === 'manual') && (
+                <div className="pt-6 border-t border-slate-100 animate-in fade-in slide-in-from-top-2">
+                  <h3 className="text-sm font-extrabold text-slate-800 uppercase tracking-wider mb-4">Enter New Delivery Details</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div className="flex flex-col gap-1.5 sm:col-span-2">
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Full Name</label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                        <Input
+                          placeholder="Jane Doe"
+                          className="pl-9 rounded-xl border-slate-200"
+                          value={fullName}
+                          onChange={(e) => setFullName(e.target.value)}
+                        />
+                      </div>
+                      {validationErrors.fullName && <p className="text-rose-500 text-xs font-medium">{validationErrors.fullName}</p>}
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Phone Number</label>
+                      <div className="relative">
+                        <Phone className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                        <Input
+                          placeholder="9876543210"
+                          className="pl-9 rounded-xl border-slate-200"
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                        />
+                      </div>
+                      {validationErrors.phone && <p className="text-rose-500 text-xs font-medium">{validationErrors.phone}</p>}
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Address Tag / Label</label>
+                      <div className="relative">
+                        <Home className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                        <Input
+                          placeholder="e.g. Home, Office"
+                          className="pl-9 rounded-xl border-slate-200"
+                          value={label}
+                          onChange={(e) => setLabel(e.target.value)}
+                        />
+                      </div>
+                      {validationErrors.label && <p className="text-rose-500 text-xs font-medium">{validationErrors.label}</p>}
+                    </div>
+
+                    <div className="flex flex-col gap-1.5 sm:col-span-2">
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Street Address (Line 1)</label>
+                      <Input
+                        placeholder="Flat, House no., Building, Company"
+                        value={line1}
+                        onChange={(e) => setLine1(e.target.value)}
+                        className="rounded-xl border-slate-200"
+                      />
+                      {validationErrors.line1 && <p className="text-rose-500 text-xs font-medium">{validationErrors.line1}</p>}
+                    </div>
+
+                    <div className="flex flex-col gap-1.5 sm:col-span-2">
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Apartment, Suite, Unit (Line 2)</label>
+                      <Input
+                        placeholder="Area, Colony, Street, Sector"
+                        value={line2}
+                        onChange={(e) => setLine2(e.target.value)}
+                        className="rounded-xl border-slate-200"
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">City</label>
+                      <Input
+                        placeholder="Mumbai"
+                        value={city}
+                        onChange={(e) => setCity(e.target.value)}
+                        className="rounded-xl border-slate-200"
+                      />
+                      {validationErrors.city && <p className="text-rose-500 text-xs font-medium">{validationErrors.city}</p>}
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">State</label>
+                      <Input
+                        placeholder="Maharashtra"
+                        value={state}
+                        onChange={(e) => setState(e.target.value)}
+                        className="rounded-xl border-slate-200"
+                      />
+                      {validationErrors.state && <p className="text-rose-500 text-xs font-medium">{validationErrors.state}</p>}
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Pincode</label>
+                      <Input
+                        placeholder="400001"
+                        maxLength={6}
+                        value={pincode}
+                        onChange={(e) => setPincode(e.target.value)}
+                        className="rounded-xl border-slate-200"
+                      />
+                      {validationErrors.pincode && <p className="text-rose-500 text-xs font-medium">{validationErrors.pincode}</p>}
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Country</label>
+                      <Input
+                        value="India"
+                        disabled
+                        className="bg-slate-50 border-slate-200 rounded-xl"
+                      />
+                    </div>
                   </div>
-                  {validationErrors.phone && <p className="text-rose-500 text-xs mt-0.5">{validationErrors.phone}</p>}
                 </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Address Tag / Label</label>
-                  <div className="relative">
-                    <Home className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-                    <Input
-                      placeholder="e.g. Home, Office"
-                      className="pl-9"
-                      value={label}
-                      onChange={(e) => setLabel(e.target.value)}
-                      required
-                    />
-                  </div>
-                  {validationErrors.label && <p className="text-rose-500 text-xs mt-0.5">{validationErrors.label}</p>}
-                </div>
-
-                <div className="flex flex-col gap-1.5 sm:col-span-2">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Street Address (Line 1)</label>
-                  <Input
-                    placeholder="Flat, House no., Building, Company"
-                    value={line1}
-                    onChange={(e) => setLine1(e.target.value)}
-                    required
-                  />
-                  {validationErrors.line1 && <p className="text-rose-500 text-xs mt-0.5">{validationErrors.line1}</p>}
-                </div>
-
-                <div className="flex flex-col gap-1.5 sm:col-span-2">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Apartment, Suite, Unit (Line 2)</label>
-                  <Input
-                    placeholder="Area, Colony, Street, Sector"
-                    value={line2}
-                    onChange={(e) => setLine2(e.target.value)}
-                  />
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">City</label>
-                  <Input
-                    placeholder="Mumbai"
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    required
-                  />
-                  {validationErrors.city && <p className="text-rose-500 text-xs mt-0.5">{validationErrors.city}</p>}
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">State</label>
-                  <Input
-                    placeholder="Maharashtra"
-                    value={state}
-                    onChange={(e) => setState(e.target.value)}
-                    required
-                  />
-                  {validationErrors.state && <p className="text-rose-500 text-xs mt-0.5">{validationErrors.state}</p>}
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Pincode</label>
-                  <Input
-                    placeholder="400001"
-                    maxLength={6}
-                    value={pincode}
-                    onChange={(e) => setPincode(e.target.value)}
-                    required
-                  />
-                  {validationErrors.pincode && <p className="text-rose-500 text-xs mt-0.5">{validationErrors.pincode}</p>}
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Country</label>
-                  <Input
-                    value="India"
-                    disabled
-                    className="bg-slate-50 border-slate-200"
-                  />
-                </div>
-              </form>
+              )}
             </CardContent>
           </Card>
 
