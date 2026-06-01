@@ -25,6 +25,13 @@ export class CouponService {
         (err as any).status = 403;
         throw err;
       }
+    } else if (data.scopeType === 'variantGroup' && data.scopeVariantGroupId) {
+      const productInGroup = await prisma.product.findFirst({ where: { variantGroupId: data.scopeVariantGroupId, sellerId } });
+      if (!productInGroup) {
+        const err = new Error('You can only create coupons for your own products.');
+        (err as any).status = 403;
+        throw err;
+      }
     }
 
     return prisma.coupon.create({
@@ -43,6 +50,7 @@ export class CouponService {
         scopeType: data.scopeType,
         scopeCategoryId: data.scopeCategoryId ?? null,
         scopeProductId: data.scopeProductId ?? null,
+        scopeVariantGroupId: data.scopeVariantGroupId ?? null,
       },
     });
   }
@@ -141,8 +149,7 @@ export class CouponService {
       include: {
         items: {
           include: {
-            product: { select: { id: true, sellerId: true, categoryId: true, title: true } },
-            variant: { select: { price: true } },
+            product: { select: { id: true, sellerId: true, categoryId: true, title: true, basePrice: true, variantGroupId: true } },
           },
         },
       },
@@ -168,6 +175,8 @@ export class CouponService {
       qualifyingItems = sellerItems.filter(i => i.product.categoryId === coupon.scopeCategoryId);
     } else if (coupon.scopeType === 'product' && coupon.scopeProductId) {
       qualifyingItems = sellerItems.filter(i => i.product.id === coupon.scopeProductId);
+    } else if (coupon.scopeType === 'variantGroup' && coupon.scopeVariantGroupId) {
+      qualifyingItems = sellerItems.filter(i => i.product.variantGroupId === coupon.scopeVariantGroupId);
     }
 
     if (qualifyingItems.length === 0) {
@@ -177,7 +186,7 @@ export class CouponService {
     }
 
     const qualifyingTotal = qualifyingItems.reduce(
-      (sum, item) => sum + Number(item.variant.price) * item.qty, 0
+      (sum, item) => sum + Number(item.product.basePrice) * item.qty, 0
     );
 
     if (qualifyingTotal < Number(coupon.minOrderValue)) {
@@ -199,7 +208,7 @@ export class CouponService {
     discount = Math.round(discount * 100) / 100;
 
     const cartTotal = cart.items.reduce(
-      (sum, item) => sum + Number(item.variant.price) * item.qty, 0
+      (sum, item) => sum + Number(item.product.basePrice) * item.qty, 0
     );
 
     return {
@@ -218,7 +227,7 @@ export class CouponService {
   static async validateAndCalculateDiscount(
     userId: string,
     couponCode: string,
-    cartItems: { product: { id: string; sellerId: string; categoryId: string | null }; variant: { price: any }; qty: number }[],
+    cartItems: { product: { id: string; sellerId: string; categoryId: string | null }; variant?: { price: any }; qty: number }[],
   ) {
     const coupon = await prisma.coupon.findUnique({ where: { code: couponCode.toUpperCase().trim() } });
     if (!coupon || !coupon.isActive) return null;
@@ -242,7 +251,7 @@ export class CouponService {
     if (qualifyingItems.length === 0) return null;
 
     const qualifyingTotal = qualifyingItems.reduce(
-      (sum, item) => sum + Number(item.variant.price) * item.qty, 0
+      (sum, item) => sum + Number(item.variant?.price || (item.product as any).basePrice) * item.qty, 0
     );
     if (qualifyingTotal < Number(coupon.minOrderValue)) return null;
 
@@ -261,7 +270,7 @@ export class CouponService {
     };
   }
 
-  static async getProductCoupons(productId: string, sellerId: string, categoryId: string | null, userId?: string) {
+  static async getProductCoupons(productId: string, sellerId: string, categoryId: string | null, variantGroupId: string | null, userId?: string) {
     const now = new Date();
     const coupons = await prisma.coupon.findMany({
       where: {
@@ -273,6 +282,7 @@ export class CouponService {
           { scopeType: 'all' },
           { scopeType: 'product', scopeProductId: productId },
           ...(categoryId ? [{ scopeType: 'category' as const, scopeCategoryId: categoryId }] : []),
+          ...(variantGroupId ? [{ scopeType: 'variantGroup' as const, scopeVariantGroupId: variantGroupId }] : []),
         ],
       },
       select: {

@@ -1,5 +1,5 @@
 import prisma from '../db/client.js';
-import { createProductSchema, productVariantSchema } from '@bezon/validation';
+import { createProductSchema, productSchema } from '@bezon/validation';
 import type { ProductStatus } from '@bezon/types';
 
 export class ProductService {
@@ -36,7 +36,6 @@ export class ProductService {
     else if (sort === 'price-desc') orderBy = { basePrice: 'desc' };
     else if (sort === 'popular') orderBy = { viewCount: 'desc' };
 
-    // Images now live inside variants, not on the product
     const [products, totalCount] = await prisma.$transaction([
       prisma.product.findMany({
         where,
@@ -45,12 +44,7 @@ export class ProductService {
         take: limitNum,
         include: {
           category: true,
-          variants: {
-            where: { isActive: true },
-            include: {
-              images: { orderBy: { sortOrder: 'asc' } },
-            },
-          },
+          images: { orderBy: { sortOrder: 'asc' } },
         },
       }),
       prisma.product.count({ where }),
@@ -67,17 +61,12 @@ export class ProductService {
     };
   }
 
-  // Get full product details by slug (for product detail page)
+  // Get full product details by slug, including other variants in the same family
   static async getProductBySlug(slug: string) {
     const product = await prisma.product.findUnique({
       where: { slug },
       include: {
-        variants: {
-          where: { isActive: true },
-          include: {
-            images: { orderBy: { sortOrder: 'asc' } },
-          },
-        },
+        images: { orderBy: { sortOrder: 'asc' } },
         category: true,
         seller: {
           select: { id: true, shopName: true, shopSlug: true },
@@ -91,27 +80,36 @@ export class ProductService {
       throw err;
     }
 
+    // Fetch sibling variants if this product belongs to a group
+    let siblings: any[] = [];
+    if (product.variantGroupId) {
+      siblings = await prisma.product.findMany({
+        where: {
+          variantGroupId: product.variantGroupId,
+          status: 'published',
+          id: { not: product.id }, // Optional: exclude self, or include self and map
+        },
+        include: {
+          images: { orderBy: { sortOrder: 'asc' }, take: 1 },
+        }
+      });
+    }
+
     // Bump view count in the background
     prisma.product.update({
       where: { id: product.id },
       data: { viewCount: { increment: 1 } },
     }).catch(err => console.error('Failed to increment viewCount', err));
 
-    return product;
+    return {
+      ...product,
+      familyMembers: siblings,
+    };
   }
 
-  // Create a new product with at least one variant (each variant can have images)
-  static async createProduct(userId: string, data: {
-    title: string;
-    brand?: string;
-    description?: string;
-    basePrice: number;
-    comparePrice?: number;
-    totalStock?: number;
-    categoryId?: string;
-    variants: any[];
-  }) {
-    const { title, brand, description, basePrice, comparePrice, totalStock, categoryId, variants } = data;
+  // Create a new product and optionally link it
+  static async createProduct(userId: string, data: any) {
+    const { title, brand, description, categoryId, status, basePrice, comparePrice, totalStock, lowStockAlert, weightGrams, sku, attributes, images, linkedProductIds } = data;
 
     // Make sure this user is an approved seller
     const seller = await prisma.seller.findUnique({ where: { userId } });
@@ -121,96 +119,89 @@ export class ProductService {
       throw err;
     }
 
-    // Validate the whole payload (product fields + at least 1 variant)
-    const validationResult = createProductSchema.safeParse({
-      title, brand, description, basePrice, comparePrice, totalStock,
-      variants,
-    });
+    // Validate the payload
+    const validationResult = createProductSchema.safeParse(data);
     if (!validationResult.success) {
       const err = new Error(validationResult.error.issues[0].message);
       (err as any).status = 400;
       throw err;
     }
 
-    // Build a URL-friendly slug from the title
-    const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Math.random().toString(36).substring(2, 6);
+    const createdProduct = await prisma.$transaction(async (tx) => {
+      let variantGroupId = null;
+      
+      if (linkedProductIds && linkedProductIds.length > 0) {
+        const existingProducts = await tx.product.findMany({
+          where: { id: { in: linkedProductIds }, sellerId: seller.id }
+        });
+        
+        if (existingProducts.length > 0) {
+          const existingGroup = existingProducts.find(p => p.variantGroupId)?.variantGroupId;
+          
+          if (existingGroup) {
+            variantGroupId = existingGroup;
+          } else {
+            const group = await tx.variantGroup.create({
+              data: { name: title }
+            });
+            variantGroupId = group.id;
+          }
+          
+          await tx.product.updateMany({
+            where: { id: { in: existingProducts.map(p => p.id) } },
+            data: { variantGroupId, categoryId }
+          });
+        }
+      }
 
-    const newProduct = await prisma.$transaction(async (tx) => {
-      // Step 1: Create the product record
+      // Build a URL-friendly slug from title + sku
+      const slug = (title + '-' + sku).toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Math.random().toString(36).substring(2, 6);
+
       const productObj = await tx.product.create({
         data: {
           sellerId: seller.id,
-          categoryId: categoryId || null,
+          categoryId,
+          variantGroupId,
           title,
           slug,
           brand: brand || null,
           description: description || null,
+          status: status || 'draft',
+          sku,
+          attributes: attributes || {},
           basePrice,
           comparePrice: comparePrice || null,
-          totalStock: 0,
-          status: 'published',
+          totalStock: totalStock || 0,
+          lowStockAlert: lowStockAlert || 5,
+          weightGrams: weightGrams || null,
         },
       });
 
-      // Step 2: Create each variant and its images
-      let sumStock = 0;
-      for (const v of variants) {
-        const createdVariant = await tx.productVariant.create({
-          data: {
-            productId: productObj.id,
-            sku: v.sku,
-            price: v.price,
-            comparePrice: v.comparePrice || null,
-            stock: v.stock || 0,
-            lowStockAlert: v.lowStockAlert || 5,
-            attributes: v.attributes || {},
-          },
-        });
-
-        // Create images for this variant
-        if (Array.isArray(v.images) && v.images.length > 0) {
-          for (const img of v.images) {
-            await tx.productImage.create({
-              data: {
-                variantId: createdVariant.id,
-                url: img.url,
-                s3Key: img.s3Key || null,
-                altText: img.altText || null,
-                sortOrder: img.sortOrder || 0,
-                isPrimary: img.isPrimary || false,
-              },
-            });
-          }
+      // Create images for this product
+      if (Array.isArray(images) && images.length > 0) {
+        for (const img of images) {
+          await tx.productImage.create({
+            data: {
+              productId: productObj.id,
+              url: img.url,
+              s3Key: img.s3Key || null,
+              altText: img.altText || null,
+              sortOrder: img.sortOrder || 0,
+              isPrimary: img.isPrimary || false,
+            },
+          });
         }
-
-        sumStock += v.stock || 0;
       }
 
-      // Step 3: Update the product's total stock from all variants
-      await tx.product.update({
-        where: { id: productObj.id },
-        data: { totalStock: sumStock },
-      });
-
-      return { ...productObj, totalStock: sumStock };
+      return productObj;
     });
 
-    return newProduct;
+    return createdProduct;
   }
 
-  // Update an existing product, its variants, and variant images
-  static async updateProduct(userId: string, productId: string, data: {
-    title?: string;
-    brand?: string;
-    description?: string;
-    basePrice?: number;
-    comparePrice?: number;
-    totalStock?: number;
-    categoryId?: string;
-    status?: string;
-    variants?: any[];
-  }) {
-    const { title, brand, description, basePrice, comparePrice, totalStock, categoryId, status, variants } = data;
+  // Update a specific product
+  static async updateProduct(userId: string, productId: string, data: any) {
+    const { title, brand, description, basePrice, comparePrice, totalStock, categoryId, status, attributes, lowStockAlert, weightGrams, sku, linkedProductIds } = data;
 
     const seller = await prisma.seller.findUnique({ where: { userId } });
     if (!seller) {
@@ -227,117 +218,67 @@ export class ProductService {
     }
 
     if (product.sellerId !== seller.id) {
-      const err = new Error('You do not own this product listing.');
+      const err = new Error('Not authorized to update this product.');
       (err as any).status = 403;
       throw err;
     }
 
     const updated = await prisma.$transaction(async (tx) => {
-      // Step 1: Update the product's basic info
-      const productObj = await tx.product.update({
-        where: { id: productId },
-        data: {
-          title: title !== undefined ? title : product.title,
-          brand: brand !== undefined ? brand : product.brand,
-          description: description !== undefined ? description : product.description,
-          basePrice: basePrice !== undefined ? basePrice : product.basePrice,
-          comparePrice: comparePrice !== undefined ? comparePrice : product.comparePrice,
-          totalStock: totalStock !== undefined ? Number(totalStock) : product.totalStock,
-          categoryId: categoryId !== undefined ? categoryId : product.categoryId,
-          status: status !== undefined ? (status as ProductStatus) : product.status,
-        },
-      });
+      let currentVariantGroupId = product.variantGroupId;
 
-      // Step 2: Update variants and their images
-      if (Array.isArray(variants)) {
-        for (const v of variants) {
-          if (v.id) {
-            // Update existing variant
-            await tx.productVariant.update({
-              where: { id: v.id },
-              data: {
-                sku: v.sku,
-                price: v.price !== undefined ? v.price : undefined,
-                comparePrice: v.comparePrice !== undefined ? v.comparePrice : undefined,
-                stock: v.stock !== undefined ? Number(v.stock) : undefined,
-                lowStockAlert: v.lowStockAlert !== undefined ? Number(v.lowStockAlert) : undefined,
-                attributes: v.attributes,
-                isActive: v.isActive !== undefined ? v.isActive : undefined,
-              },
-            });
-
-            // Replace this variant's images if a new set was provided
-            if (Array.isArray(v.images)) {
-              await tx.productImage.deleteMany({ where: { variantId: v.id } });
-              for (const img of v.images) {
-                await tx.productImage.create({
-                  data: {
-                    variantId: v.id,
-                    url: img.url,
-                    s3Key: img.s3Key || null,
-                    altText: img.altText || null,
-                    sortOrder: img.sortOrder || 0,
-                    isPrimary: img.isPrimary || false,
-                  },
-                });
-              }
-            }
-          } else {
-            // Create brand new variant
-            const createdVariant = await tx.productVariant.create({
-              data: {
-                productId,
-                sku: v.sku,
-                price: v.price,
-                comparePrice: v.comparePrice || null,
-                stock: v.stock ? Number(v.stock) : 0,
-                lowStockAlert: v.lowStockAlert || 5,
-                attributes: v.attributes || {},
-              },
-            });
-
-            // Create images for the new variant
-            if (Array.isArray(v.images) && v.images.length > 0) {
-              for (const img of v.images) {
-                await tx.productImage.create({
-                  data: {
-                    variantId: createdVariant.id,
-                    url: img.url,
-                    s3Key: img.s3Key || null,
-                    altText: img.altText || null,
-                    sortOrder: img.sortOrder || 0,
-                    isPrimary: img.isPrimary || false,
-                  },
-                });
-              }
-            }
-          }
+      if (linkedProductIds !== undefined) {
+        if (linkedProductIds.length > 0) {
+           const existingProducts = await tx.product.findMany({
+             where: { id: { in: linkedProductIds }, sellerId: seller.id }
+           });
+           
+           if (existingProducts.length > 0) {
+             const existingGroup = currentVariantGroupId || existingProducts.find(p => p.variantGroupId)?.variantGroupId;
+             
+             if (existingGroup) {
+               currentVariantGroupId = existingGroup;
+             } else {
+               const group = await tx.variantGroup.create({ data: { name: title } });
+               currentVariantGroupId = group.id;
+             }
+             
+             await tx.product.updateMany({
+               where: { id: { in: existingProducts.map(p => p.id) } },
+               data: { variantGroupId: currentVariantGroupId, categoryId }
+             });
+           }
+        } else {
+           // Empty array means unlink this specific product
+           currentVariantGroupId = null;
         }
       }
 
-      // Step 3: Recalculate total stock from all active variants
-      const allVariants = await tx.productVariant.findMany({
-        where: { productId, isActive: true },
+      const p = await tx.product.update({
+        where: { id: productId },
+        data: {
+          title,
+          brand,
+          description,
+          basePrice,
+          comparePrice,
+          totalStock,
+          categoryId,
+          status,
+          attributes,
+          lowStockAlert,
+          weightGrams,
+          sku,
+          variantGroupId: currentVariantGroupId
+        },
       });
-      if (allVariants.length > 0) {
-        const sumStock = allVariants.reduce((sum, item) => sum + item.stock, 0);
-        await tx.product.update({
-          where: { id: productId },
-          data: { totalStock: sumStock },
-        });
-        productObj.totalStock = sumStock;
-      }
-
-      return productObj;
+      return p;
     });
 
     return updated;
   }
 
-  // Archive (soft-delete) a product
-  static async archiveProduct(productId: string, user: { id: string; role: string }) {
-    const { id: userId, role } = user;
-
+  // Archive product (and its siblings in same group if requested, but let's just do single product)
+  static async archiveProduct(productId: string, user?: { id: string; role: string }) {
     const product = await prisma.product.findUnique({ where: { id: productId } });
     if (!product) {
       const err = new Error('Product not found.');
@@ -345,11 +286,11 @@ export class ProductService {
       throw err;
     }
 
-    // Only the owner seller or an admin can archive
-    if (role !== 'admin') {
-      const seller = await prisma.seller.findUnique({ where: { userId } });
-      if (!seller || product.sellerId !== seller.id) {
-        const err = new Error('Action unauthorized.');
+    if (user && user.role !== 'admin' && product.sellerId !== user.id) {
+      // Need to find seller profile if user ID is provided (seller profile ID != user ID)
+      const seller = await prisma.seller.findUnique({ where: { userId: user.id } });
+      if (!seller || seller.id !== product.sellerId) {
+        const err = new Error('Not authorized to archive this product.');
         (err as any).status = 403;
         throw err;
       }
@@ -361,28 +302,22 @@ export class ProductService {
     });
   }
 
-  // Get all products belonging to the logged-in seller
+  // Get products for a specific seller
   static async getSellerProducts(userId: string) {
     const seller = await prisma.seller.findUnique({ where: { userId } });
     if (!seller) {
-      const err = new Error('Seller profile required.');
-      (err as any).status = 403;
+      const err = new Error('Seller profile not found.');
+      (err as any).status = 404;
       throw err;
     }
 
     return await prisma.product.findMany({
-      where: {
-        sellerId: seller.id,
-        status: { in: ['draft', 'published'] },
-      },
+      where: { sellerId: seller.id },
       orderBy: { createdAt: 'desc' },
       include: {
         category: true,
-        variants: {
-          include: {
-            images: { orderBy: { sortOrder: 'asc' } },
-          },
-        },
+        variantGroup: true,
+        images: { orderBy: { sortOrder: 'asc' }, take: 1 },
       },
     });
   }

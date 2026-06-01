@@ -115,7 +115,7 @@ export interface Category {
 
 export interface ProductImage {
   id: string;
-  variantId: string;
+  productId: string;
   url: string;
   s3Key?: string;
   altText?: string;
@@ -124,20 +124,11 @@ export interface ProductImage {
   createdAt: Date | string;
 }
 
-export interface ProductVariant {
+export interface VariantGroup {
   id: string;
-  productId: string;
-  sku: string;
-  attributes: Record<string, string>;
-  price: number;
-  comparePrice?: number;
-  stock: number;
-  lowStockAlert: number;
-  weightGrams?: number;
-  images?: ProductImage[];
-  isActive: boolean;
+  name?: string;
   createdAt: Date | string;
-  updatedAt: Date | string;
+  products?: Product[];
 }
 
 export interface Product {
@@ -162,7 +153,13 @@ export interface Product {
   updatedAt: Date | string;
   seller?: Seller;
   category?: Category;
-  variants?: ProductVariant[];
+  variantGroupId?: string;
+  sku: string;
+  attributes: Record<string, string>;
+  lowStockAlert: number;
+  weightGrams?: number;
+  variantGroup?: VariantGroup;
+  images?: ProductImage[];
 
 }
 
@@ -174,8 +171,8 @@ export interface CartItem {
   qty: number;
   priceSnapshot: number;
   addedAt: Date | string;
+  cart?: Cart;
   product?: Product;
-  variant?: ProductVariant;
 }
 
 export interface Cart {
@@ -190,7 +187,6 @@ export interface OrderItem {
   id: string;
   orderId: string;
   productId: string;
-  variantId: string;
   productTitle: string;
   variantAttrs: Record<string, string>;
   sku: string;
@@ -198,6 +194,8 @@ export interface OrderItem {
   qty: number;
   unitPrice: number;
   totalPrice: number;
+  order?: Order;
+  product?: Product;
 }
 
 export interface OrderTimeline {

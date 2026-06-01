@@ -19,8 +19,8 @@ async function seed() {
   await prisma.notification.deleteMany({});
   await prisma.address.deleteMany({});
   await prisma.productImage.deleteMany({});
-  await prisma.productVariant.deleteMany({});
   await prisma.product.deleteMany({});
+  await prisma.variantGroup.deleteMany({});
   await prisma.category.deleteMany({});
   await prisma.deliveryPartner.deleteMany({});
   await prisma.seller.deleteMany({});
@@ -164,30 +164,24 @@ async function seed() {
   // Create Products, Variants, and Variant-Level Images
   console.log('📦 Seeding Products & Inventory Variants...');
 
-  // Headphones from Seller 1
-  const productHeadphones = await prisma.product.create({
+  const vgHeadphones = await prisma.variantGroup.create({
+    data: { name: 'Premium Wireless Headphones' }
+  });
+
+  const hpBlack = await prisma.product.create({
     data: {
       sellerId: seller1Profile.id,
       categoryId: catElectronics.id,
+      variantGroupId: vgHeadphones.id,
       title: 'Premium Wireless Headphones',
-      slug: 'premium-wireless-headphones',
+      slug: 'premium-wireless-headphones-blk',
       brand: 'Acoustic',
       status: 'published',
+      description: 'Experience premium acoustic definition with high-fidelity sound, custom drivers, and active noise cancellation (ANC). Designed with memory foam cushions for comfortable listening sessions.',
+      sku: 'AC-HP-BLK',
       basePrice: 4999,
       comparePrice: 6999,
-      totalStock: 20,
-      description: 'Experience premium acoustic definition with high-fidelity sound, custom drivers, and active noise cancellation (ANC). Designed with memory foam cushions for comfortable listening sessions.',
-    },
-  });
-
-  // Create variants with their own images (images belong to variants now)
-  const hpBlack = await prisma.productVariant.create({
-    data: {
-      productId: productHeadphones.id,
-      sku: 'AC-HP-BLK',
-      price: 4999,
-      comparePrice: 6999,
-      stock: 12,
+      totalStock: 12,
       lowStockAlert: 5,
       attributes: { color: 'Matte Black' },
     },
@@ -195,7 +189,7 @@ async function seed() {
 
   await prisma.productImage.create({
     data: {
-      variantId: hpBlack.id,
+      productId: hpBlack.id,
       url: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop',
       altText: 'Premium Wireless Headphones - Matte Black',
       isPrimary: true,
@@ -203,13 +197,20 @@ async function seed() {
     },
   });
 
-  const hpWhite = await prisma.productVariant.create({
+  const hpWhite = await prisma.product.create({
     data: {
-      productId: productHeadphones.id,
+      sellerId: seller1Profile.id,
+      categoryId: catElectronics.id,
+      variantGroupId: vgHeadphones.id,
+      title: 'Premium Wireless Headphones',
+      slug: 'premium-wireless-headphones-wht',
+      brand: 'Acoustic',
+      status: 'published',
+      description: 'Experience premium acoustic definition with high-fidelity sound.',
       sku: 'AC-HP-WHT',
-      price: 5299,
+      basePrice: 5299,
       comparePrice: 7299,
-      stock: 8,
+      totalStock: 8,
       lowStockAlert: 5,
       attributes: { color: 'Silver White' },
     },
@@ -217,7 +218,7 @@ async function seed() {
 
   await prisma.productImage.create({
     data: {
-      variantId: hpWhite.id,
+      productId: hpWhite.id,
       url: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop',
       altText: 'Premium Wireless Headphones - Silver White',
       isPrimary: true,
@@ -226,38 +227,34 @@ async function seed() {
   });
 
   // Wallet from Seller 2
-  const productWallet = await prisma.product.create({
+  const vgWallet = await prisma.variantGroup.create({
+    data: { name: 'Minimalist Leather Wallet' }
+  });
+
+  const walletTan = await prisma.product.create({
     data: {
       sellerId: seller2Profile.id,
       categoryId: catApparel.id,
+      variantGroupId: vgWallet.id,
       title: 'Minimalist Leather Wallet',
-      slug: 'minimalist-leather-wallet',
+      slug: 'minimalist-leather-wallet-tan',
       brand: 'Sartorial',
       status: 'published',
+      description: 'A gorgeous full-grain leather wallet designed for standard pocket comfort and durability. Holds up to 8 cards and cash notes.',
+      sku: 'SAR-WL-TAN',
       basePrice: 1499,
       comparePrice: 1999,
       totalStock: 5,
-      description: 'A gorgeous full-grain leather wallet designed for standard pocket comfort and durability. Holds up to 8 cards and cash notes.',
-    },
-  });
-
-  const walletTan = await prisma.productVariant.create({
-    data: {
-      productId: productWallet.id,
-      sku: 'SAR-WL-TAN',
-      price: 1499,
-      comparePrice: 1999,
-      stock: 5,
-      lowStockAlert: 3,
-      attributes: { color: 'Tan Brown' },
+      lowStockAlert: 2,
+      attributes: { color: 'Tan' },
     },
   });
 
   await prisma.productImage.create({
     data: {
-      variantId: walletTan.id,
-      url: 'https://images.unsplash.com/photo-1627124765135-5e12c73b2f76?w=500&auto=format&fit=crop',
-      altText: 'Minimalist Leather Wallet - Tan Brown',
+      productId: walletTan.id,
+      url: 'https://images.unsplash.com/photo-1627123424574-724758594e93?w=500&auto=format&fit=crop',
+      altText: 'Leather Wallet Tan',
       isPrimary: true,
       sortOrder: 0,
     },

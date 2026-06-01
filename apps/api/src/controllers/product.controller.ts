@@ -47,7 +47,7 @@ export const getProductBySlug = async (req: Request, res: Response, next: NextFu
  */
 export const createProduct = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { title, brand, description, basePrice, comparePrice, totalStock, categoryId, variants } = req.body;
+    const { title, brand, description, categoryId, status, basePrice, comparePrice, totalStock, lowStockAlert, weightGrams, sku, attributes, images, linkedProductIds } = req.body;
 
     if (!req.user) {
       return res.status(401).json({ success: false, message: 'Unauthorized session.' });
@@ -57,11 +57,9 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
       title,
       brand,
       description,
-      basePrice,
-      comparePrice,
-      totalStock,
       categoryId,
-      variants,
+      status,
+      basePrice, comparePrice, totalStock, lowStockAlert, weightGrams, sku, attributes, images, linkedProductIds
     });
 
     res.status(201).json({
@@ -83,14 +81,14 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
  */
 export const updateProduct = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const id = req.params.id as string;
-    const { title, brand, description, basePrice, comparePrice, totalStock, categoryId, status, variants } = req.body;
+    const productId = req.params.id as string;
+    const { title, brand, description, basePrice, comparePrice, totalStock, categoryId, status, attributes, lowStockAlert, weightGrams, sku, linkedProductIds } = req.body;
 
     if (!req.user) {
       return res.status(401).json({ success: false, message: 'Unauthorized session.' });
     }
 
-    const updated = await ProductService.updateProduct(req.user.id, id, {
+    const updatedProduct = await ProductService.updateProduct(req.user.id, productId, {
       title,
       brand,
       description,
@@ -99,13 +97,17 @@ export const updateProduct = async (req: Request, res: Response, next: NextFunct
       totalStock,
       categoryId,
       status,
-      variants,
+      attributes,
+      lowStockAlert,
+      weightGrams,
+      sku,
+      linkedProductIds,
     });
 
     res.json({
       success: true,
       message: 'Product updated successfully.',
-      data: updated,
+      data: updatedProduct,
     });
   } catch (err) {
     next(err);
@@ -163,7 +165,7 @@ export const getProductCoupons = async (req: Request, res: Response, next: NextF
     const slug = req.params.slug as string;
     const product = await ProductService.getProductBySlug(slug);
     const { CouponService } = await import('../services/coupon.service.js');
-    const coupons = await CouponService.getProductCoupons(product.id, product.sellerId, product.categoryId, req.user?.id);
+    const coupons = await CouponService.getProductCoupons(product.id, product.sellerId, product.categoryId, product.variantGroupId, req.user?.id);
     res.json({ success: true, data: coupons });
   } catch (err) {
     next(err);

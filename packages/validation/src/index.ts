@@ -24,16 +24,6 @@ export const addressSchema = z.object({
   country: z.string().min(2, 'Country must be at least 2 characters long').default('India'),
 });
 
-export const productSchema = z.object({
-  title: z.string().min(3, 'Title must be at least 3 characters long'),
-  brand: z.string().optional(),
-  description: z.string().optional(),
-  basePrice: z.number().positive('Base price must be greater than zero'),
-  comparePrice: z.number().positive('Compare price must be positive').optional(),
-  totalStock: z.number().int().nonnegative('Total stock cannot be negative').default(0),
-  status: z.enum(['draft', 'published', 'archived']).default('draft'),
-});
-
 export const imagePayloadSchema = z.object({
   url: z.string().url('Image URL is required'),
   s3Key: z.string().optional(),
@@ -42,18 +32,25 @@ export const imagePayloadSchema = z.object({
   isPrimary: z.boolean().default(false),
 });
 
-export const productVariantSchema = z.object({
+export const productSchema = z.object({
+  title: z.string().min(3, 'Title must be at least 3 characters long'),
+  brand: z.string().optional(),
+  description: z.string().optional(),
+  basePrice: z.number().positive('Base price must be greater than zero'),
+  comparePrice: z.number().positive('Compare price must be positive').optional(),
+  totalStock: z.number().int().nonnegative('Total stock cannot be negative').default(0),
+  status: z.enum(['draft', 'published', 'archived']).default('draft'),
   sku: z.string().min(3, 'SKU must be at least 3 characters long'),
-  price: z.number().positive('Variant price must be greater than zero'),
-  stock: z.number().int().nonnegative('Variant stock cannot be negative').default(0),
+  attributes: z.record(z.string(), z.string()).default({}),
   lowStockAlert: z.number().int().nonnegative().default(5),
   weightGrams: z.number().int().positive().optional(),
-  attributes: z.record(z.string(), z.string()).default({}),
   images: z.array(imagePayloadSchema).default([]),
+  variantGroupId: z.string().optional(),
 });
 
 export const createProductSchema = productSchema.extend({
-  variants: z.array(productVariantSchema).min(1, 'At least one variant is required'),
+  categoryId: z.string().uuid('Category is required'),
+  linkedProductIds: z.array(z.string().uuid()).default([]),
 });
 
 export const couponSchema = z.object({
@@ -67,9 +64,10 @@ export const couponSchema = z.object({
   maxUsesPerUser: z.number().int().positive().default(1),
   validFrom: z.string().datetime(),
   validUntil: z.string().datetime(),
-  scopeType: z.enum(['all', 'category', 'product']).default('all'),
+  scopeType: z.enum(['all', 'category', 'product', 'variantGroup']).default('all'),
   scopeCategoryId: z.string().uuid().optional(),
   scopeProductId: z.string().uuid().optional(),
+  scopeVariantGroupId: z.string().uuid().optional(),
 }).refine(
   (data) => new Date(data.validUntil) > new Date(data.validFrom),
   { message: 'validUntil must be after validFrom', path: ['validUntil'] },
@@ -82,4 +80,7 @@ export const couponSchema = z.object({
 ).refine(
   (data) => data.scopeType !== 'product' || !!data.scopeProductId,
   { message: 'Product ID is required when scope is product', path: ['scopeProductId'] },
+).refine(
+  (data) => data.scopeType !== 'variantGroup' || !!data.scopeVariantGroupId,
+  { message: 'Variant Group ID is required when scope is variantGroup', path: ['scopeVariantGroupId'] },
 );

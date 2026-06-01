@@ -30,7 +30,7 @@ interface Coupon {
   validFrom: string;
   validUntil: string;
   isActive: boolean;
-  scopeType: 'global' | 'category' | 'product';
+  scopeType: 'global' | 'category' | 'product' | 'variantGroup';
   scopeCategoryId?: string;
   scopeProductId?: string;
   scopeCategory?: { name: string };
@@ -48,9 +48,10 @@ const defaultForm = {
   maxUsesPerUser: '1',
   validFrom: '',
   validUntil: '',
-  scopeType: 'global' as 'global' | 'category' | 'product',
+  scopeType: 'global' as 'global' | 'category' | 'product' | 'variantGroup',
   scopeCategoryId: '',
   scopeProductId: '',
+  applyToAllVariants: false,
 };
 
 export const SellerCoupons: React.FC = () => {
@@ -123,9 +124,12 @@ export const SellerCoupons: React.FC = () => {
       maxUsesPerUser: coupon.maxUsesPerUser.toString(),
       validFrom: coupon.validFrom ? coupon.validFrom.slice(0, 16) : '',
       validUntil: coupon.validUntil ? coupon.validUntil.slice(0, 16) : '',
-      scopeType: coupon.scopeType,
+      scopeType: coupon.scopeType === 'variantGroup' ? 'product' : coupon.scopeType,
       scopeCategoryId: coupon.scopeCategoryId || '',
-      scopeProductId: coupon.scopeProductId || '',
+      scopeProductId: coupon.scopeType === 'variantGroup' 
+        ? products.find(p => p.variantGroupId === (coupon as any).scopeVariantGroupId)?.id || ''
+        : coupon.scopeProductId || '',
+      applyToAllVariants: coupon.scopeType === 'variantGroup',
     });
     setIsDialogOpen(true);
   };
@@ -139,6 +143,23 @@ export const SellerCoupons: React.FC = () => {
 
     setSubmitting(true);
     try {
+      let finalScopeType = form.scopeType;
+      let finalScopeProductId = form.scopeType === 'product' ? form.scopeProductId : undefined;
+      let finalScopeVariantGroupId = undefined;
+
+      if (form.scopeType === 'product' && form.applyToAllVariants) {
+        const selectedProduct = products.find(p => p.id === form.scopeProductId);
+        if (selectedProduct && selectedProduct.variantGroupId) {
+          finalScopeType = 'variantGroup' as any;
+          finalScopeVariantGroupId = selectedProduct.variantGroupId;
+          finalScopeProductId = undefined;
+        } else if (selectedProduct && !selectedProduct.variantGroupId) {
+           toast.error('The selected product is not part of a variant group.');
+           setSubmitting(false);
+           return;
+        }
+      }
+
       const payload = {
         code: form.code.trim().toUpperCase(),
         description: form.description.trim(),
@@ -150,9 +171,10 @@ export const SellerCoupons: React.FC = () => {
         maxUsesPerUser: Number(form.maxUsesPerUser),
         validFrom: form.validFrom ? new Date(form.validFrom).toISOString() : undefined,
         validUntil: form.validUntil ? new Date(form.validUntil).toISOString() : undefined,
-        scopeType: form.scopeType,
-        scopeCategoryId: form.scopeType === 'category' ? form.scopeCategoryId : undefined,
-        scopeProductId: form.scopeType === 'product' ? form.scopeProductId : undefined,
+        scopeType: finalScopeType,
+        scopeCategoryId: finalScopeType === 'category' ? form.scopeCategoryId : undefined,
+        scopeProductId: finalScopeProductId,
+        scopeVariantGroupId: finalScopeVariantGroupId,
       };
 
       if (dialogMode === 'create') {
@@ -284,7 +306,7 @@ export const SellerCoupons: React.FC = () => {
                       ? 'bg-amber-50 text-amber-700 border border-amber-200'
                       : 'bg-cyan-50 text-cyan-700 border border-cyan-200'
                   }`}>
-                    {coupon.scopeType}
+                    {coupon.scopeType === 'variantGroup' ? 'Variants' : coupon.scopeType}
                   </span>
                   {coupon.scopeCategory && (
                     <span className="text-[10px] text-slate-500">{coupon.scopeCategory.name}</span>
@@ -471,6 +493,21 @@ export const SellerCoupons: React.FC = () => {
                       <option key={p.id} value={p.id}>{p.title}</option>
                     ))}
                   </select>
+                  
+                  {form.scopeProductId && products.find(p => p.id === form.scopeProductId)?.variantGroupId && (
+                    <div className="flex items-center gap-2 mt-2">
+                      <input 
+                        type="checkbox" 
+                        id="applyAll" 
+                        checked={form.applyToAllVariants}
+                        onChange={(e) => updateForm('applyToAllVariants', e.target.checked)}
+                        className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-600"
+                      />
+                      <label htmlFor="applyAll" className="text-xs text-slate-600">
+                        Apply to all variants in this product's family
+                      </label>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

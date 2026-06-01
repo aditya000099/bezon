@@ -26,19 +26,18 @@ export const getCart = async (req: Request, res: Response, next: NextFunction) =
  */
 export const addCartItem = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { productId, variantId, qty = 1, priceSnapshot } = req.body;
+    const { productId, qty = 1, priceSnapshot } = req.body;
 
     if (!req.user) {
       return res.status(401).json({ success: false, message: 'Unauthorized session.' });
     }
 
-    if (!productId || !variantId || !priceSnapshot) {
-      return res.status(400).json({ success: false, message: 'Product ID, Variant ID, and Price Snapshot are required.' });
+    if (!productId || !priceSnapshot) {
+      return res.status(400).json({ success: false, message: 'Product ID and Price Snapshot are required.' });
     }
 
     const newItem = await CartService.addCartItem(req.user.id, {
       productId,
-      variantId,
       qty,
       priceSnapshot,
     });

@@ -74,14 +74,10 @@ export const ShopPage: React.FC = () => {
   }, [debouncedSearch, selectedCategory, sortBy]);
 
   const handleAddToCart = async (product: Product) => {
-    // Get the first variant
-    const defaultVariant = product.variants && product.variants[0];
-    const variantId = defaultVariant ? defaultVariant.id : product.id; // Fallback to product id if variants array empty
-    const price = defaultVariant ? Number(defaultVariant.price) : Number(product.basePrice);
-
     setAddingToCart((prev) => ({ ...prev, [product.id]: true }));
     try {
-      await addItem(product.id, variantId, 1, price);
+      const price = Number(product.basePrice);
+      await addItem(product.id, 1, price);
       toast.success(`Added ${product.title} to shopping cart!`);
     } catch (err) {
       toast.error('Failed to add item to cart. Try again.');
@@ -150,8 +146,7 @@ export const ShopPage: React.FC = () => {
               <Link to={`/shop/products/${p.slug}`}>
                 <div className="aspect-square bg-slate-50 border-b border-slate-100 flex items-center justify-center text-slate-300 font-semibold text-xs select-none cursor-pointer overflow-hidden">
                   {(() => {
-                    const firstVariant = p.variants?.[0];
-                    const primaryImg = firstVariant?.images?.find((img: any) => img.isPrimary) || firstVariant?.images?.[0];
+                    const primaryImg = p.images?.find((img: any) => img.isPrimary) || p.images?.[0];
                     return primaryImg ? (
                       <img 
                         src={primaryImg.url} 

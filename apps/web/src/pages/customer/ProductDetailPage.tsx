@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Star, ShieldCheck, Heart, ShoppingBag, Loader2, BadgePercent } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -7,7 +7,7 @@ import { useCart } from '../../context/CartContext';
 import { useToast } from '../../context/ToastContext';
 import api from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api.config';
-import type { Product, ProductVariant } from '@bezon/types';
+import type { Product } from '@bezon/types';
 
 interface ProductCoupon {
   id: string;
@@ -25,10 +25,11 @@ export const ProductDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const { addItem } = useCart();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
-  const [product, setProduct] = useState<Product | null>(null);
+  const [product, setProduct] = useState<Product & { familyMembers?: Product[] } | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [coupons, setCoupons] = useState<ProductCoupon[]>([]);
@@ -42,15 +43,11 @@ export const ProductDetailPage: React.FC = () => {
         if (response.data.success) {
           const prodData = response.data.data;
           setProduct(prodData);
-
-          // Select the first variant by default
-          if (prodData.variants && prodData.variants.length > 0) {
-            setSelectedVariant(prodData.variants[0]);
-            // Find the primary image in the first variant's images
-            const variantImages = prodData.variants[0].images || [];
-            const primaryIdx = variantImages.findIndex((img: any) => img.isPrimary);
-            setActiveImageIndex(primaryIdx >= 0 ? primaryIdx : 0);
-          }
+          setSelectedProduct(prodData);
+          
+          const images = prodData.images || [];
+          const primaryIdx = images.findIndex((img: any) => img.isPrimary);
+          setActiveImageIndex(primaryIdx >= 0 ? primaryIdx : 0);
         }
         const couponRes = await api.get(API_ENDPOINTS.products.coupons(slug));
         if (couponRes.data.success) {
@@ -65,19 +62,20 @@ export const ProductDetailPage: React.FC = () => {
     fetchProductDetails();
   }, [slug]);
 
-  // When user picks a different variant, update the image gallery
-  const handleSelectVariant = (variant: ProductVariant) => {
-    setSelectedVariant(variant);
-    setActiveImageIndex(0);
+  const handleSelectProduct = (p: Product) => {
+    if (p.slug !== slug) {
+      navigate(`/shop/products/${p.slug}`, { replace: true });
+    }
   };
 
-  // Images now come from the selected variant
-  const variantImages = (selectedVariant as any)?.images || [];
-
-  const currentPrice = selectedVariant ? Number(selectedVariant.price) : (product ? Number(product.basePrice) : 0);
-  const currentComparePrice = selectedVariant ? (selectedVariant.comparePrice ? Number(selectedVariant.comparePrice) : null) : (product?.comparePrice ? Number(product.comparePrice) : null);
-  const currentStock = selectedVariant ? selectedVariant.stock : (product ? product.totalStock : 0);
-  const currentSku = selectedVariant ? selectedVariant.sku : 'N/A';
+  const currentProduct = selectedProduct || product;
+  const currentImages = currentProduct?.images || [];
+  
+  const currentPrice = currentProduct ? Number(currentProduct.basePrice) : 0;
+  const currentComparePrice = currentProduct?.comparePrice ? Number(currentProduct.comparePrice) : null;
+  const currentStock = currentProduct ? currentProduct.totalStock : 0;
+  const currentSku = currentProduct ? currentProduct.sku : 'N/A';
+  const allEditions = product ? [product, ...(product.familyMembers || [])] : [];
 
   const calcCouponDiscount = (coupon: ProductCoupon) => {
     if (coupon.discountType === 'percentage') {
@@ -89,13 +87,13 @@ export const ProductDetailPage: React.FC = () => {
   };
 
   const handleAddToCart = async () => {
-    if (!product) return;
+    if (!currentProduct) return;
     setIsAdding(true);
     try {
-      const variantId = selectedVariant ? selectedVariant.id : product.id;
-      await addItem(product.id, variantId, 1, currentPrice);
-      const varName = selectedVariant && selectedVariant.attributes?.color ? ` (${selectedVariant.attributes.color})` : '';
-      toast.success(`${product.title}${varName} added to cart!`);
+      await addItem(currentProduct.id, 1, currentPrice);
+      const attrs = currentProduct.attributes as any;
+      const varName = attrs?.color ? ` (${attrs.color})` : '';
+      toast.success(`${currentProduct.title}${varName} added to cart!`);
     } catch (error) {
       toast.error('Could not add item to cart. Try again.');
     } finally {
@@ -104,8 +102,8 @@ export const ProductDetailPage: React.FC = () => {
   };
 
   const handleAddToWishlist = () => {
-    if (!product) return;
-    toast.success(`${product.title} saved to Wishlist!`);
+    if (!currentProduct) return;
+    toast.success(`${currentProduct.title} saved to Wishlist!`);
   };
 
   if (loading) {
@@ -140,14 +138,13 @@ export const ProductDetailPage: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-        {/* Left Side: Images from the selected variant */}
         <div className="flex flex-col gap-4">
           <Card className="overflow-hidden border border-slate-200 bg-white">
             <CardContent className="p-0 aspect-square flex items-center justify-center bg-slate-50 relative overflow-hidden">
-              {variantImages.length > 0 ? (
+              {currentImages.length > 0 ? (
                 <img
-                  src={variantImages[activeImageIndex]?.url || variantImages[0].url}
-                  alt={product.title}
+                  src={currentImages[activeImageIndex]?.url || currentImages[0].url}
+                  alt={currentProduct?.title || product.title}
                   className="h-full w-full object-cover"
                 />
               ) : (
@@ -164,9 +161,9 @@ export const ProductDetailPage: React.FC = () => {
               )}
             </CardContent>
           </Card>
-          {variantImages.length > 1 && (
+          {currentImages.length > 1 && (
             <div className="grid grid-cols-4 gap-2">
-              {variantImages.map((img: any, i: number) => (
+              {currentImages.map((img: any, i: number) => (
                 <div
                   key={img.id || i}
                   onClick={() => setActiveImageIndex(i)}
@@ -181,7 +178,6 @@ export const ProductDetailPage: React.FC = () => {
           )}
         </div>
 
-        {/* Right Side: Product Details */}
         <div className="flex flex-col gap-6">
           <div>
             <div className="flex items-center gap-2 mb-2">
@@ -193,7 +189,7 @@ export const ProductDetailPage: React.FC = () => {
               )}
             </div>
             <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight leading-tight">
-              {product.title}
+              {currentProduct?.title || product.title}
             </h1>
             <div className="flex items-center gap-3 mt-3">
               <div className="flex items-center text-amber-500 font-extrabold text-sm gap-1">
@@ -207,7 +203,6 @@ export const ProductDetailPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Pricing Box */}
           <div className="bg-slate-50/50 border border-slate-100 rounded-xl p-5 flex flex-col gap-2">
             <div className="flex items-baseline gap-3">
               <span className="text-4xl font-extrabold text-slate-900">₹{currentPrice.toLocaleString()}</span>
@@ -223,7 +218,6 @@ export const ProductDetailPage: React.FC = () => {
             <p className="text-xs text-slate-400">SKU: <span className="font-mono">{currentSku}</span></p>
           </div>
 
-          {/* Available Coupons */}
           {coupons.length > 0 && (
             <div className="flex flex-col gap-3">
               <div className="flex items-center gap-2">
@@ -273,27 +267,27 @@ export const ProductDetailPage: React.FC = () => {
             </div>
           )}
 
-          {/* Variants selector */}
-          {product.variants && product.variants.length > 0 && (
+          {allEditions.length > 1 && (
             <div className="flex flex-col gap-4">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
                 Select Edition
               </label>
               <div className="flex gap-3 flex-wrap">
-                {product.variants.map((v) => {
-                  const labelStr = v.attributes?.color || v.sku;
+                {allEditions.map((p) => {
+                  const attrs = p.attributes as any;
+                  const labelStr = attrs?.color || p.sku;
                   return (
                     <button
-                      key={v.id}
-                      onClick={() => handleSelectVariant(v)}
+                      key={p.id}
+                      onClick={() => handleSelectProduct(p)}
                       className={`min-w-[120px] border rounded-lg p-3 text-left transition-all ${
-                        selectedVariant?.id === v.id
+                        currentProduct?.id === p.id
                           ? 'border-primary bg-primary/5 text-primary-foreground ring-2 ring-primary/20'
                           : 'border-slate-200 bg-white hover:border-slate-300 text-slate-700'
                       }`}
                     >
                       <p className="text-xs font-bold">{labelStr}</p>
-                      <p className="text-sm font-extrabold mt-1 text-slate-900">₹{Number(v.price).toLocaleString()}</p>
+                      <p className="text-sm font-extrabold mt-1 text-slate-900">₹{Number(p.basePrice).toLocaleString()}</p>
                     </button>
                   );
                 })}
@@ -302,10 +296,9 @@ export const ProductDetailPage: React.FC = () => {
           )}
 
           <p className="text-sm text-slate-600 leading-relaxed">
-            {product.description || 'No description available for this product.'}
+            {currentProduct?.description || product.description || 'No description available for this product.'}
           </p>
 
-          {/* Delivery Promise */}
           <div className="flex gap-3 items-center bg-indigo-50/30 border border-indigo-50 rounded-xl p-4 text-xs text-slate-600">
             <ShieldCheck className="h-5 w-5 text-indigo-500 shrink-0" />
             <p>

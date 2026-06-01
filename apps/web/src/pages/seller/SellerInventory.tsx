@@ -7,13 +7,13 @@ import { Loader2, Package, Search, AlertTriangle, RefreshCw, Check } from 'lucid
 import api from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api.config';
 import { useToast } from '../../context/ToastContext';
-import type { Product, ProductVariant } from '@bezon/types';
+import type { Product } from '@bezon/types';
 
 interface FlatInventoryItem {
   productId: string;
   productTitle: string;
   productBrand: string | null;
-  variantId: string;
+  variantId: string; // Keep for compatibility or rename to productId internally if easier
   sku: string;
   price: number;
   stock: number;
@@ -41,23 +41,21 @@ export const SellerInventory: React.FC = () => {
       if (res.data.success) {
         const flatItems: FlatInventoryItem[] = [];
         (res.data.data as Product[]).forEach((p) => {
-          (p.variants || []).forEach((v) => {
-            flatItems.push({
-              productId: p.id,
-              productTitle: p.title,
-              productBrand: p.brand || null,
-              variantId: v.id,
-              sku: v.sku,
-              price: Number(v.price),
-              stock: v.stock,
-              lowStockAlert: v.lowStockAlert,
-              attributes: v.attributes as Record<string, string>,
-              isEditingStock: false,
-              tempStock: v.stock.toString(),
-              isEditingAlert: false,
-              tempAlert: v.lowStockAlert.toString(),
-              updating: false,
-            });
+          flatItems.push({
+            productId: p.id,
+            productTitle: p.title,
+            productBrand: p.brand || null,
+            variantId: p.id,
+            sku: p.sku,
+            price: Number(p.basePrice),
+            stock: p.totalStock,
+            lowStockAlert: p.lowStockAlert,
+            attributes: p.attributes as Record<string, string>,
+            isEditingStock: false,
+            tempStock: p.totalStock.toString(),
+            isEditingAlert: false,
+            tempAlert: p.lowStockAlert.toString(),
+            updating: false,
           });
         });
         setItems(flatItems);
@@ -89,16 +87,10 @@ export const SellerInventory: React.FC = () => {
     setItems(updated);
 
     try {
-      // Put to /products/:id with the single variant to update
+      // Put to /products/:id with the product update
       const res = await api.put(API_ENDPOINTS.products.update(item.productId), {
-        variants: [
-          {
-            id: item.variantId,
-            sku: item.sku,
-            stock: newStock,
-            lowStockAlert: newAlert,
-          },
-        ],
+        totalStock: newStock,
+        lowStockAlert: newAlert,
       });
 
       if (res.data.success) {
