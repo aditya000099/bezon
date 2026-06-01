@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { CartService } from '../services/cart.service.js';
+import { RecommendationService } from '../services/recommendation.service.js';
 
 /**
  * Get the active customer's cart
@@ -41,6 +42,8 @@ export const addCartItem = async (req: Request, res: Response, next: NextFunctio
       qty,
       priceSnapshot,
     });
+
+    RecommendationService.recordActivity(req.user.id, 'add_to_cart', { productId, metadata: { qty, price: priceSnapshot } });
 
     res.status(201).json({
       success: true,

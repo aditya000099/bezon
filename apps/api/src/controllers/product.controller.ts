@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { ProductService } from '../services/product.service.js';
+import { RecommendationService } from '../services/recommendation.service.js';
 
 /**
  * Get all published products with search and filtering
@@ -15,6 +16,10 @@ export const getProducts = async (req: Request, res: Response, next: NextFunctio
       page: page ? Number(page) : undefined,
       limit: limit ? Number(limit) : undefined,
     });
+
+    if (search && req.user?.id) {
+      RecommendationService.recordActivity(req.user.id, 'search', { searchQuery: search.toString() });
+    }
 
     res.json({
       success: true,
@@ -32,6 +37,10 @@ export const getProductBySlug = async (req: Request, res: Response, next: NextFu
   try {
     const slug = req.params.slug as string;
     const product = await ProductService.getProductBySlug(slug);
+
+    if (req.user?.id) {
+      RecommendationService.recordActivity(req.user.id, 'view', { productId: product.id });
+    }
 
     res.json({
       success: true,
@@ -167,6 +176,16 @@ export const getProductCoupons = async (req: Request, res: Response, next: NextF
     const { CouponService } = await import('../services/coupon.service.js');
     const coupons = await CouponService.getProductCoupons(product.id, product.sellerId, product.categoryId, product.variantGroupId, req.user?.id);
     res.json({ success: true, data: coupons });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getRecommendations = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const limit = req.query.limit ? Number(req.query.limit) : 8;
+    const recommendations = await RecommendationService.getRecommendations(req.user?.id, limit);
+    res.json({ success: true, data: recommendations });
   } catch (err) {
     next(err);
   }

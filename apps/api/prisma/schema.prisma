@@ -108,6 +108,7 @@ model User {
   notifications   Notification[]
   wishlists       Wishlist[]
   couponUsages    CouponUsage[]
+  activities      UserActivity[]
 
   @@index([email])
   @@index([role])
@@ -226,6 +227,7 @@ model Product {
   orderItems     OrderItem[]
   wishlists      Wishlist[]
   coupons        Coupon[]
+  activities     UserActivity[]
 
   @@index([sellerId])
   @@index([categoryId])
@@ -514,4 +516,22 @@ model CouponUsage {
   @@index([couponId])
   @@index([userId])
   @@map("coupon_usages")
+}
+
+model UserActivity {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String?  @map("user_id") @db.Uuid
+  activityType String   @map("activity_type") @db.VarChar(50) // e.g., view, search, add_to_cart, wishlist, checkout
+  productId    String?  @map("product_id") @db.Uuid
+  searchQuery  String?  @map("search_query") @db.VarChar(200)
+  metadata     Json?    @default("{}") // Additional data like keywords, category, variants, price
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  user         User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product      Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([activityType])
+  @@index([createdAt])
+  @@map("user_activities")
 }

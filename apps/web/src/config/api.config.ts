@@ -26,6 +26,7 @@ export const API_ENDPOINTS = {
   },
   // Products / Shop (Mock/Real routing placeholders)
   products: {
+    recommended: `${API_V1}/products/recommended`,
     list: `${API_V1}/products`,
     detail: (slug: string) => `${API_V1}/products/${slug}`,
     coupons: (slug: string) => `${API_V1}/products/${slug}/coupons`,
@@ -54,12 +55,15 @@ export const API_ENDPOINTS = {
     apply: `${API_V1}/coupons/apply`,
     forCart: `${API_V1}/coupons/cart`,
   },
+  // Users
+  users: {
+    adminList: `${API_V1}/users/admin`,
+  },
   // Addresses
   addresses: {
     base: `${API_V1}/addresses`,
     byId: (id: string) => `${API_V1}/addresses/${id}`,
   },
 } as const;
-
 
 export default API_ENDPOINTS;

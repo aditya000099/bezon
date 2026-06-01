@@ -7,6 +7,7 @@ import cartRouter from './cart.routes.js';
 import orderRouter from './order.routes.js';
 import paymentRouter from './payment.routes.js';
 import couponRouter from './coupon.routes.js';
+import userRouter from './user.routes.js';
 import addressRouter from './address.routes.js';
 
 const router = Router();
@@ -20,7 +21,7 @@ router.use('/cart', cartRouter);
 router.use('/orders', orderRouter);
 router.use('/payments', paymentRouter);
 router.use('/coupons', couponRouter);
+router.use('/users', userRouter);
 router.use('/addresses', addressRouter);
 
 export default router;
-
