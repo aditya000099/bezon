@@ -153,4 +153,39 @@ export class AuthService {
 
     return user;
   }
+
+  /**
+   * Updates user details (name, phone, avatarUrl)
+   */
+  static async updateUserProfile(userId: string, data: { name?: string; phone?: string; avatarUrl?: string }) {
+    const { name, phone, avatarUrl } = data;
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      const err = new Error('User account not found.');
+      (err as any).status = 404;
+      throw err;
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        name: name !== undefined ? name : user.name,
+        phone: phone !== undefined ? phone : user.phone,
+        avatarUrl: avatarUrl !== undefined ? avatarUrl : user.avatarUrl,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        role: true,
+        avatarUrl: true,
+        isActive: true,
+      },
+    });
+
+    return updatedUser;
+  }
 }
+

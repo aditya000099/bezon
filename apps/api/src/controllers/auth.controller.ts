@@ -114,3 +114,34 @@ export const getMe = async (req: Request, res: Response, next: NextFunction) => 
     next(err);
   }
 };
+
+/**
+ * Update the current user's profile details
+ */
+export const updateProfile = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: 'Unauthorized. Active session required.',
+      });
+    }
+
+    const { name, phone, avatarUrl } = req.body;
+
+    const updatedProfile = await AuthService.updateUserProfile(req.user.id, {
+      name,
+      phone,
+      avatarUrl,
+    });
+
+    res.json({
+      success: true,
+      message: 'Profile updated successfully.',
+      data: updatedProfile,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+

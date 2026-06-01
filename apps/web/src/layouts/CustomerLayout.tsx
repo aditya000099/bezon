@@ -38,17 +38,19 @@ export const CustomerLayout: React.FC = () => {
 
             {/* Profile info & Logout */}
             <div className="flex items-center gap-3 border-l border-slate-200 pl-4">
-              <div className="hidden lg:block text-right">
-                <p className="text-sm font-semibold text-slate-800">{user?.name}</p>
-                <p className="text-xs text-slate-500 capitalize">{user?.role}</p>
-              </div>
-              {user?.avatarUrl ? (
-                <img src={user.avatarUrl} alt="Avatar" className="h-9 w-9 rounded-full object-cover border border-slate-200" />
-              ) : (
-                <div className="h-9 w-9 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 font-semibold">
-                  {user?.name.charAt(0).toUpperCase()}
+              <Link to="/shop/profile" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+                <div className="hidden lg:block text-right">
+                  <p className="text-sm font-semibold text-slate-800">{user?.name}</p>
+                  <p className="text-xs text-slate-500 capitalize">{user?.role}</p>
                 </div>
-              )}
+                {user?.avatarUrl ? (
+                  <img src={user.avatarUrl} alt="Avatar" className="h-9 w-9 rounded-full object-cover border border-slate-200" />
+                ) : (
+                  <div className="h-9 w-9 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 font-semibold">
+                    {user?.name.charAt(0).toUpperCase()}
+                  </div>
+                )}
+              </Link>
               <button
                 onClick={logout}
                 title="Logout"

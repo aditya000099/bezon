@@ -10,6 +10,7 @@ export const API_ENDPOINTS = {
     login: `${API_V1}/auth/login`,
     logout: `${API_V1}/auth/logout`,
     me: `${API_V1}/auth/me`,
+    updateProfile: `${API_V1}/auth/profile`,
   },
   // Cart
   cart: {
@@ -52,6 +53,12 @@ export const API_ENDPOINTS = {
     apply: `${API_V1}/coupons/apply`,
     forCart: `${API_V1}/coupons/cart`,
   },
+  // Addresses
+  addresses: {
+    base: `${API_V1}/addresses`,
+    byId: (id: string) => `${API_V1}/addresses/${id}`,
+  },
 } as const;
+
 
 export default API_ENDPOINTS;
