@@ -38,6 +38,7 @@ export const API_ENDPOINTS = {
   orders: {
     base: `${API_V1}/orders`,
     detail: (id: string) => `${API_V1}/orders/${id}`,
+    updateStatus: (id: string) => `${API_V1}/orders/${id}/status`,
   },
   // Payments
   payments: {

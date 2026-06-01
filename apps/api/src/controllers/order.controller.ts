@@ -48,3 +48,34 @@ export const getOrderById = async (req: Request, res: Response, next: NextFuncti
     next(err);
   }
 };
+
+/**
+ * Update the status of a specific order
+ */
+export const updateOrderStatus = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const id = req.params.id as string;
+    const { status } = req.body;
+
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: 'Unauthorized session.' });
+    }
+
+    if (!status) {
+      return res.status(400).json({ success: false, message: 'Status is required.' });
+    }
+
+    const order = await OrderService.updateOrderStatus(id, status, {
+      id: req.user.id,
+      role: req.user.role,
+    });
+
+    res.json({
+      success: true,
+      message: `Order status updated to ${status}.`,
+      data: order,
+    });
+  } catch (err) {
+    next(err);
+  }
+};

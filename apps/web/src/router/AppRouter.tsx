@@ -52,6 +52,7 @@ import { AdminSellers } from '../pages/admin/AdminSellers';
 import { AdminPartners } from '../pages/admin/AdminPartners';
 import { AdminProducts } from '../pages/admin/AdminProducts';
 import { SellerAddProduct } from '@/pages/seller/SellerAddProduct';
+import { SellerOrderDetail } from '@/pages/seller/SellerOrderDetail';
 
 export const AppRouter: React.FC = () => {
   return (
@@ -110,8 +111,9 @@ export const AppRouter: React.FC = () => {
         >
           <Route index element={<SellerDashboard />} />
           <Route path="products" element={<SellerProducts />} />
-          <Route path="add-product" element={<SellerAddProduct />} />
+          <Route path="products/new" element={<SellerAddProduct />} />
           <Route path="orders" element={<SellerOrders />} />
+          <Route path="orders/:id" element={<SellerOrderDetail />} />
           <Route path="inventory" element={<SellerInventory />} />
           <Route path="settings" element={<SellerSettings />} />
           <Route path="coupons" element={<SellerCoupons />} />
