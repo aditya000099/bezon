@@ -46,6 +46,7 @@ import { AdminDeliveries } from '../pages/admin/AdminDeliveries';
 import { AdminSellers } from '../pages/admin/AdminSellers';
 import { AdminPartners } from '../pages/admin/AdminPartners';
 import { AdminProducts } from '../pages/admin/AdminProducts';
+import { SellerAddProduct } from '@/pages/seller/SellerAddProduct';
 
 export const AppRouter: React.FC = () => {
   return (
