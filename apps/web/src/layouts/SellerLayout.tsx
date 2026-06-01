@@ -1,6 +1,6 @@
-import React from "react";
-import { Link, Outlet, useLocation } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import React from 'react';
+import { Link, Outlet, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import {
   LayoutDashboard,
   ShoppingBag,
@@ -9,18 +9,20 @@ import {
   Settings,
   LogOut,
   Store,
-} from "lucide-react";
+  Tag,
+} from 'lucide-react';
 
 export const SellerLayout: React.FC = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
 
   const links = [
-    { to: "/seller", label: "Dashboard", icon: LayoutDashboard },
-    { to: "/seller/products", label: "My Products", icon: ShoppingBag },
-    { to: "/seller/orders", label: "Order Queue", icon: ClipboardList },
-    { to: "/seller/inventory", label: "Inventory", icon: Package },
-    { to: "/seller/settings", label: "Shop Settings", icon: Settings },
+    { to: '/seller', label: 'Dashboard', icon: LayoutDashboard },
+    { to: '/seller/products', label: 'My Products', icon: ShoppingBag },
+    { to: '/seller/coupons', label: 'Coupons', icon: Tag },
+    { to: '/seller/orders', label: 'Order Queue', icon: ClipboardList },
+    { to: '/seller/inventory', label: 'Inventory', icon: Package },
+    { to: '/seller/settings', label: 'Shop Settings', icon: Settings },
   ];
 
   return (
@@ -36,16 +38,16 @@ export const SellerLayout: React.FC = () => {
             const Icon = link.icon;
             const isActive =
               location.pathname === link.to ||
-              (link.to === "/seller/products" &&
-                location.pathname.startsWith("/seller/add-product"));
+              (link.to === '/seller/products' &&
+                location.pathname.startsWith('/seller/add-product'));
             return (
               <Link
                 key={link.to}
                 to={link.to}
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
                   isActive
-                    ? "bg-primary/10 text-primary"
-                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-800"
+                    ? 'bg-primary/10 text-primary'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
                 }`}
               >
                 <Icon className="h-5 w-5" />

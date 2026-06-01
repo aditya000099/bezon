@@ -92,6 +92,23 @@ export const authenticateUser = async (req: Request, res: Response, next: NextFu
   }
 };
 
+export const optionalAuth = async (req: Request, _res: Response, next: NextFunction) => {
+  try {
+    const token = req.cookies.token;
+    if (!token) return next();
+    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
+    if (!decoded.userId) return next();
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.userId },
+      select: { id: true, name: true, email: true, role: true, avatarUrl: true, isActive: true },
+    });
+    if (user && user.isActive) req.user = user as any;
+    next();
+  } catch {
+    next();
+  }
+};
+
 /**
  * Middleware to restrict route access to specific roles
  */

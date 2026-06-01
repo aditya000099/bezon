@@ -27,6 +27,7 @@ export const API_ENDPOINTS = {
   products: {
     list: `${API_V1}/products`,
     detail: (slug: string) => `${API_V1}/products/${slug}`,
+    coupons: (slug: string) => `${API_V1}/products/${slug}/coupons`,
     sellerMe: `${API_V1}/products/seller/me`,
     create: `${API_V1}/products`,
     update: (id: string) => `${API_V1}/products/${id}`,
@@ -41,6 +42,15 @@ export const API_ENDPOINTS = {
   payments: {
     createOrder: `${API_V1}/payments/create-order`,
     verify: `${API_V1}/payments/verify`,
+  },
+  // Coupons
+  coupons: {
+    create: `${API_V1}/coupons`,
+    sellerMe: `${API_V1}/coupons/seller/me`,
+    update: (id: string) => `${API_V1}/coupons/${id}`,
+    delete: (id: string) => `${API_V1}/coupons/${id}`,
+    apply: `${API_V1}/coupons/apply`,
+    forCart: `${API_V1}/coupons/cart`,
   },
 } as const;
 

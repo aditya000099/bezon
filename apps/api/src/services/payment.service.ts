@@ -22,8 +22,9 @@ export class PaymentService {
   static async createPaymentOrder(userId: string, data: {
     addressId?: string;
     addressPayload?: any;
+    couponCode?: string;
   }) {
-    const { addressId, addressPayload } = data;
+    const { addressId, addressPayload, couponCode } = data;
 
     // Load active customer cart
     const cart = await prisma.cart.findUnique({
@@ -89,6 +90,21 @@ export class PaymentService {
       throw err;
     }
 
+    // Validate coupon server-side if provided
+    let couponResult: { couponId: string; sellerId: string; discount: number } | null = null;
+    if (couponCode) {
+      const { CouponService } = await import('./coupon.service.js');
+      couponResult = await CouponService.validateAndCalculateDiscount(
+        userId,
+        couponCode,
+        cart.items.map(i => ({
+          product: { id: i.product.id, sellerId: i.product.sellerId, categoryId: i.product.categoryId },
+          variant: { price: i.variant.price },
+          qty: i.qty,
+        })),
+      );
+    }
+
     // Group items by seller
     const itemsBySeller: Record<string, typeof cart.items> = {};
     for (const item of cart.items) {
@@ -101,11 +117,12 @@ export class PaymentService {
 
     // Calculate aggregate grand total (INR)
     const cartTotal = cart.items.reduce((sum, item) => sum + Number(item.variant.price) * item.qty, 0);
+    const totalDiscount = couponResult?.discount || 0;
+    const grandTotal = Math.max(0, Math.round((cartTotal - totalDiscount) * 100) / 100);
     const orderIds: string[] = [];
 
     // Perform atomic stock check and create split order entries
     const createdOrders = await prisma.$transaction(async (tx) => {
-      // 1. Verify and decrement stock for all items
       for (const item of cart.items) {
         const variant = await tx.productVariant.findUnique({
           where: { id: item.variantId },
@@ -119,7 +136,6 @@ export class PaymentService {
           throw new Error(`Insufficient stock for ${item.product.title} (${item.variant.sku}). Only ${variant.stock} left.`);
         }
 
-        // Decrement stock
         await tx.productVariant.update({
           where: { id: item.variantId },
           data: { stock: { decrement: item.qty } },
@@ -128,10 +144,12 @@ export class PaymentService {
 
       const ordersList = [];
 
-      // 2. Generate an Order record per seller grouping
       for (const [sellerId, sellerItems] of Object.entries(itemsBySeller)) {
         const subtotal = sellerItems.reduce((sum, item) => sum + Number(item.variant.price) * item.qty, 0);
         const orderNumber = `BZN-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
+
+        // Apply discount only to the seller who owns the coupon
+        const orderDiscount = (couponResult && sellerId === couponResult.sellerId) ? couponResult.discount : 0;
 
         const order = await tx.order.create({
           data: {
@@ -143,14 +161,16 @@ export class PaymentService {
             status: 'placed',
             paymentStatus: 'pending',
             subtotal,
-            total: subtotal, // Standard free shipping
+            discount: orderDiscount,
+            couponId: orderDiscount > 0 ? couponResult!.couponId : null,
+            couponCode: orderDiscount > 0 ? couponCode!.toUpperCase().trim() : null,
+            total: Math.max(0, subtotal - orderDiscount),
           },
         });
 
         orderIds.push(order.id);
         ordersList.push(order);
 
-        // Create individual items for this order
         for (const item of sellerItems) {
           await tx.orderItem.create({
             data: {
@@ -168,12 +188,31 @@ export class PaymentService {
           });
         }
 
-        // Write order timeline event
         await tx.orderTimeline.create({
           data: {
             orderId: order.id,
             status: 'placed',
-            note: 'Order placed via unified customer checkout.',
+            note: orderDiscount > 0
+              ? `Order placed with coupon ${couponCode!.toUpperCase()} (₹${orderDiscount} off).`
+              : 'Order placed via unified customer checkout.',
+          },
+        });
+      }
+
+      // Track coupon usage
+      if (couponResult) {
+        await tx.coupon.update({
+          where: { id: couponResult.couponId },
+          data: { usedCount: { increment: 1 } },
+        });
+        await tx.couponUsage.create({
+          data: {
+            couponId: couponResult.couponId,
+            userId,
+            orderId: orderIds.find((_, idx) => {
+              const sellerId = Object.keys(itemsBySeller)[idx];
+              return sellerId === couponResult!.sellerId;
+            }) || orderIds[0],
           },
         });
       }
@@ -181,7 +220,7 @@ export class PaymentService {
       return ordersList;
     });
 
-    // 3. Initiate Razorpay Order
+    // Initiate Razorpay Order
     let rzpOrderId = '';
     if (isRazorpayConfigured) {
       const razorpay = new Razorpay({
@@ -190,7 +229,7 @@ export class PaymentService {
       });
 
       const rzpOrder = await razorpay.orders.create({
-        amount: Math.round(cartTotal * 100), // convert to paise
+        amount: Math.round(grandTotal * 100),
         currency: 'INR',
         receipt: `receipt_${createdOrders[0].id.slice(0, 20)}`,
       });
@@ -201,18 +240,16 @@ export class PaymentService {
       rzpOrderId = `order_mock_${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
     }
 
-    // 4. Update Razorpay Order ID on all newly created split orders
     await prisma.order.updateMany({
       where: { id: { in: orderIds } },
       data: { razorpayOrderId: rzpOrderId },
     });
 
-    // 5. Generate Payment entry
     await prisma.payment.create({
       data: {
         orderId: orderIds[0],
         razorpayOrderId: rzpOrderId,
-        amountPaise: Math.round(cartTotal * 100),
+        amountPaise: Math.round(grandTotal * 100),
         status: 'pending',
       },
     });
@@ -220,7 +257,9 @@ export class PaymentService {
     return {
       orders: createdOrders,
       razorpayOrderId: rzpOrderId,
-      amount: cartTotal,
+      amount: grandTotal,
+      discount: totalDiscount,
+      couponCode: couponResult ? couponCode!.toUpperCase().trim() : null,
       keyId: RAZORPAY_KEY_ID || 'rzp_test_mock_keys',
       isMock: !isRazorpayConfigured,
     };
@@ -304,6 +343,18 @@ export class PaymentService {
             errorDesc: 'Payment signature validation mismatch.',
           },
         });
+
+        // Rollback coupon usage if any order used a coupon
+        const couponOrders = orders.filter(o => o.couponId);
+        for (const order of couponOrders) {
+          await tx.coupon.update({
+            where: { id: order.couponId! },
+            data: { usedCount: { decrement: 1 } },
+          });
+          await tx.couponUsage.deleteMany({
+            where: { couponId: order.couponId!, orderId: order.id },
+          });
+        }
       });
 
       const err = new Error('Payment validation signature verification failed. Orders cancelled.');

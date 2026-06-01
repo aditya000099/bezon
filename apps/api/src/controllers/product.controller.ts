@@ -159,3 +159,15 @@ export const getSellerProducts = async (req: Request, res: Response, next: NextF
     next(err);
   }
 };
+
+export const getProductCoupons = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const slug = req.params.slug as string;
+    const product = await ProductService.getProductBySlug(slug);
+    const { CouponService } = await import('../services/coupon.service.js');
+    const coupons = await CouponService.getProductCoupons(product.id, product.sellerId, product.categoryId, req.user?.id);
+    res.json({ success: true, data: coupons });
+  } catch (err) {
+    next(err);
+  }
+};
