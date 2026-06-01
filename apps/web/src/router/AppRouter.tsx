@@ -112,7 +112,7 @@ export const AppRouter: React.FC = () => {
         >
           <Route index element={<SellerDashboard />} />
           <Route path="products" element={<SellerProducts />} />
-          <Route path="products/new" element={<SellerAddProduct />} />
+          <Route path="add-product" element={<SellerAddProduct />} />
           <Route path="orders" element={<SellerOrders />} />
           <Route path="orders/:id" element={<SellerOrderDetail />} />
           <Route path="inventory" element={<SellerInventory />} />

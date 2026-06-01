@@ -1,20 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import {
   Card,
   CardHeader,
   CardTitle,
   CardContent,
   CardFooter,
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { ShoppingBag, Star, Search, Loader2, Sparkles } from 'lucide-react';
-import type { Product, Category } from '@bezon/types';
-import api from '../../lib/api';
-import { API_ENDPOINTS } from '../../config/api.config';
-import { useToast } from '../../context/ToastContext';
-import { useCart } from '../../context/CartContext';
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ShoppingBag, Star, Search, Loader2, Sparkles } from "lucide-react";
+import type { Product, Category } from "@bezon/types";
+import api from "../../lib/api";
+import { API_ENDPOINTS } from "../../config/api.config";
+import { useToast } from "../../context/ToastContext";
+import { useCart } from "../../context/CartContext";
 
 export const ShopPage: React.FC = () => {
   const { toast } = useToast();
@@ -27,10 +27,10 @@ export const ShopPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   // Filters state
-  const [searchQuery, setSearchQuery] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [sortBy, setSortBy] = useState('featured');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [sortBy, setSortBy] = useState("featured");
   const [addingToCart, setAddingToCart] = useState<Record<string, boolean>>({});
 
   // Debounce search query changes
@@ -50,7 +50,7 @@ export const ShopPage: React.FC = () => {
           setCategories(response.data.data);
         }
       } catch (err) {
-        console.error('Failed to load categories', err);
+        console.error("Failed to load categories", err);
       }
     };
     const fetchRecommendations = async () => {
@@ -62,7 +62,7 @@ export const ShopPage: React.FC = () => {
           setRecommendedProducts(res.data.data);
         }
       } catch (err) {
-        console.error('Failed to load recommendations', err);
+        console.error("Failed to load recommendations", err);
       }
     };
 
@@ -79,14 +79,14 @@ export const ShopPage: React.FC = () => {
           params: {
             search: debouncedSearch || undefined,
             category: selectedCategory || undefined,
-            sort: sortBy !== 'featured' ? sortBy : undefined,
+            sort: sortBy !== "featured" ? sortBy : undefined,
           },
         });
         if (response.data.success) {
           setProducts(response.data.data.products || []);
         }
       } catch (err) {
-        toast.error('Could not load products. Please check connection.');
+        toast.error("Could not load products. Please check connection.");
       } finally {
         setLoading(false);
       }
@@ -101,7 +101,7 @@ export const ShopPage: React.FC = () => {
       await addItem(product.id, 1, price);
       toast.success(`Added ${product.title} to shopping cart!`);
     } catch (err) {
-      toast.error('Failed to add item to cart. Try again.');
+      toast.error("Failed to add item to cart. Try again.");
     } finally {
       setAddingToCart((prev) => ({ ...prev, [product.id]: false }));
     }
@@ -167,7 +167,7 @@ export const ShopPage: React.FC = () => {
                 <Card
                   key={p.id}
                   className="overflow-hidden border-2 border-indigo-100 shadow-sm hover:shadow-indigo-100/50 transition-all f
-lex flex-col justify-between bg-gradient-to-b from-indigo-50/30 to-white relative"
+lex flex-col justify-between bg-linear-to-b from-indigo-50/30 to-white relative"
                 >
                   <div
                     className="absolute top-2 left-2 z-10 bg-indigo-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercas
@@ -198,7 +198,7 @@ e tracking-wider shadow-sm"
                   </Link>
                   <CardHeader className="p-4 pb-0">
                     <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest">
-                      {p.brand || 'Unbranded'}
+                      {p.brand || "Unbranded"}
                     </span>
                     <Link to={`/shop/products/${p.slug}`}>
                       <CardTitle className="text-base font-bold text-slate-800 line-clamp-1 mt-0.5 hover:text-indigo-600 transition-colors">
@@ -207,7 +207,7 @@ e tracking-wider shadow-sm"
                     </Link>
                     <div className="flex items-center gap-1 mt-0.5 text-xs text-amber-500 font-bold">
                       <Star className="h-3 w-3 fill-amber-500 text-amber-500" />
-                      <span>{p.avgRating ? Number(p.avgRating) : 5.0}</span>
+                      <span>{p.avgRating ? Number(p.avgRating).toFixed(1) : "0.0"}</span>
                       <span className="text-slate-400 font-normal">
                         ({p.reviewCount || 0})
                       </span>
@@ -226,7 +226,7 @@ e tracking-wider shadow-sm"
                         onClick={() => handleAddToCart(p)}
                         disabled={addingToCart[p.id]}
                       >
-                        {addingToCart[p.id] ? 'Adding...' : 'Add to Cart'}
+                        {addingToCart[p.id] ? "Adding..." : "Add to Cart"}
                       </Button>
                     ) : (
                       <Button
@@ -287,7 +287,7 @@ e tracking-wider shadow-sm"
               </Link>
               <CardHeader className="p-4 pb-0">
                 <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest">
-                  {p.brand || 'Unbranded'}
+                  {p.brand || "Unbranded"}
                 </span>
                 <Link to={`/shop/products/${p.slug}`}>
                   <CardTitle className="text-base font-bold text-slate-800 line-clamp-1 mt-0.5 hover:text-indigo-600 transition-colors">
@@ -296,7 +296,7 @@ e tracking-wider shadow-sm"
                 </Link>
                 <div className="flex items-center gap-1 mt-0.5 text-xs text-amber-500 font-bold">
                   <Star className="h-3 w-3 fill-amber-500 text-amber-500" />
-                  <span>{p.avgRating ? Number(p.avgRating) : 5.0}</span>
+                  <span>{p.avgRating ? Number(p.avgRating).toFixed(1) : "0.0"}</span>
                   <span className="text-slate-400 font-normal">
                     ({p.reviewCount || 0})
                   </span>
@@ -315,7 +315,7 @@ e tracking-wider shadow-sm"
                     onClick={() => handleAddToCart(p)}
                     disabled={addingToCart[p.id]}
                   >
-                    {addingToCart[p.id] ? 'Adding...' : 'Add to Cart'}
+                    {addingToCart[p.id] ? "Adding..." : "Add to Cart"}
                   </Button>
                 ) : (
                   <Button

@@ -84,3 +84,17 @@ export const couponSchema = z.object({
   (data) => data.scopeType !== 'variantGroup' || !!data.scopeVariantGroupId,
   { message: 'Variant Group ID is required when scope is variantGroup', path: ['scopeVariantGroupId'] },
 );
+
+export const reviewImageSchema = z.object({
+  url: z.string().url('Image URL is required'),
+  s3Key: z.string().optional(),
+  sortOrder: z.number().int().nonnegative().default(0),
+});
+
+export const reviewSchema = z.object({
+  orderItemId: z.string().uuid('Invalid order item ID'),
+  productId: z.string().uuid('Invalid product ID'),
+  rating: z.number().int().min(1).max(5, 'Rating must be between 1 and 5'),
+  reviewText: z.string().max(1000).optional(),
+  images: z.array(reviewImageSchema).default([]),
+});

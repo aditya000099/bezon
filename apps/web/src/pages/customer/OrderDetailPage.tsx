@@ -6,6 +6,8 @@ import { Loader2, ArrowLeft, Clock, MapPin, Package, ShieldCheck, Truck, Shoppin
 import api from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api.config';
 import { useToast } from '../../context/ToastContext';
+import { WriteReviewModal } from '../../components/reviews/WriteReviewModal';
+import { CheckCircle2 } from 'lucide-react';
 
 interface TimelineEvent {
   id: string;
@@ -37,6 +39,7 @@ interface OrderDetail {
   };
   items: {
     id: string;
+    productId: string;
     productTitle: string;
     sku: string;
     qty: number;
@@ -52,6 +55,10 @@ export const OrderDetailPage: React.FC = () => {
   const { toast } = useToast();
   const [order, setOrder] = useState<OrderDetail | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Review Modal State
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [selectedOrderItem, setSelectedOrderItem] = useState<{ id: string; productId: string; title: string } | null>(null);
 
   const fetchOrderDetail = async () => {
     setLoading(true);
@@ -117,42 +124,44 @@ export const OrderDetailPage: React.FC = () => {
 
       {/* Progress tracking indicator */}
       {!isCancelled && (
-        <Card className="bg-white border-slate-200 shadow-sm p-6 overflow-x-auto">
-          <div className="flex items-center justify-between min-w-[600px] px-8 relative">
-            {/* Horizontal progress bar background */}
-            <div className="absolute top-[18px] left-[52px] right-[52px] h-1 bg-slate-100 z-0" />
-            <div
-              className="absolute top-[18px] left-[52px] h-1 bg-indigo-500 z-0 transition-all duration-500"
-              style={{
-                width: `${
-                  activeStep < 0
-                    ? 0
-                    : activeStep >= 6
-                    ? 100
-                    : (activeStep / 6) * 100
-                }%`,
-              }}
-            />
-
+        <Card className="bg-white border-slate-200 shadow-sm p-6 overflow-hidden">
+          <div className="flex flex-col md:flex-row md:justify-between gap-6 md:gap-0 relative">
             {stepsList.map((step, idx) => {
               const targetStatusIndex = stepStatusMapping[idx];
               const completed = activeStep >= targetStatusIndex;
               const current = activeStep === targetStatusIndex;
+              const isLast = idx === stepsList.length - 1;
 
               return (
-                <div key={idx} className="flex flex-col items-center gap-2 z-10 w-24">
+                <div key={idx} className={`flex flex-row md:flex-col items-start md:items-center gap-4 md:gap-2 z-10 ${!isLast ? 'flex-1' : ''} relative`}>
+                  {/* Connector line for mobile (vertical) */}
+                  {!isLast && (
+                    <div className="hidden max-md:block absolute top-[36px] left-[17.5px] bottom-[-24px] w-1 bg-slate-100 z-[-1]">
+                       <div className={`w-full bg-indigo-500 transition-all duration-500 ${activeStep >= stepStatusMapping[idx+1] ? 'h-full' : activeStep > targetStatusIndex ? 'h-1/2' : 'h-0'}`} />
+                    </div>
+                  )}
+                  {/* Connector line for desktop (horizontal) */}
+                  {!isLast && (
+                    <div className="hidden md:block absolute top-[17.5px] left-[50%] right-[-50%] h-1 bg-slate-100 z-[-1]">
+                       <div className={`h-full bg-indigo-500 transition-all duration-500 ${activeStep >= stepStatusMapping[idx+1] ? 'w-full' : activeStep > targetStatusIndex ? 'w-1/2' : 'w-0'}`} />
+                    </div>
+                  )}
+
                   <div
-                    className={`h-9 w-9 rounded-full flex items-center justify-center font-bold text-sm transition-colors border-2 ${
+                    className={`h-9 w-9 rounded-full flex items-center justify-center font-bold text-sm transition-colors border-2 shrink-0 ${
                       completed
                         ? 'bg-indigo-600 border-indigo-600 text-white shadow-md'
                         : 'bg-white border-slate-200 text-slate-400'
                     } ${current ? 'ring-4 ring-indigo-100 border-indigo-500' : ''}`}
                   >
-                    {idx + 1}
+                    {completed ? <CheckCircle2 className="h-5 w-5" /> : idx + 1}
                   </div>
-                  <span className={`text-xs font-bold ${completed ? 'text-indigo-600' : 'text-slate-400'}`}>
-                    {step}
-                  </span>
+                  <div className="flex flex-col md:items-center mt-1.5 md:mt-0">
+                    <span className={`text-sm md:text-xs font-bold ${completed ? 'text-indigo-600' : 'text-slate-400'}`}>
+                      {step}
+                    </span>
+                    {current && <span className="text-[10px] text-indigo-400 font-medium">In Progress</span>}
+                  </div>
                 </div>
               );
             })}
@@ -179,7 +188,7 @@ export const OrderDetailPage: React.FC = () => {
             </CardHeader>
             <CardContent className="p-6 divide-y divide-slate-100">
               {order.items.map((item) => (
-                <div key={item.id} className="py-4 first:pt-0 last:pb-0 flex justify-between items-center gap-4">
+                <div key={item.id} className="py-4 first:pt-0 last:pb-0 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                   <div className="flex gap-3 items-center">
                     <div className="h-12 w-12 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-center overflow-hidden shrink-0">
                       {item.imageUrl ? (
@@ -193,9 +202,28 @@ export const OrderDetailPage: React.FC = () => {
                       <p className="text-xs text-slate-400 font-mono mt-0.5">{item.sku}</p>
                     </div>
                   </div>
-                  <div className="text-right shrink-0">
-                    <p className="font-bold text-slate-900 text-sm">₹{(Number(item.unitPrice) * item.qty).toLocaleString()}</p>
-                    <p className="text-[10px] text-slate-400 mt-0.5">₹{Number(item.unitPrice).toLocaleString()} &times; {item.qty}</p>
+                  <div className="flex justify-between sm:justify-end items-center gap-4 sm:min-w-[120px]">
+                    {order.status === 'delivered' && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-xs font-bold border-indigo-200 text-indigo-700 hover:bg-indigo-50"
+                        onClick={() => {
+                          setSelectedOrderItem({
+                            id: item.id,
+                            productId: item.productId, // wait, does order API return productId inside items? Yes. wait, interface check.
+                            title: item.productTitle,
+                          });
+                          setReviewModalOpen(true);
+                        }}
+                      >
+                        Write Review
+                      </Button>
+                    )}
+                    <div className="text-right shrink-0">
+                      <p className="font-bold text-slate-900 text-sm">₹{(Number(item.unitPrice) * item.qty).toLocaleString()}</p>
+                      <p className="text-[10px] text-slate-400 mt-0.5">₹{Number(item.unitPrice).toLocaleString()} &times; {item.qty}</p>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -284,6 +312,20 @@ export const OrderDetailPage: React.FC = () => {
           </Card>
         </div>
       </div>
+
+      {selectedOrderItem && (
+        <WriteReviewModal
+          isOpen={reviewModalOpen}
+          onClose={() => {
+            setReviewModalOpen(false);
+            setTimeout(() => setSelectedOrderItem(null), 200);
+          }}
+          orderItemId={selectedOrderItem.id}
+          productId={selectedOrderItem.productId}
+          productTitle={selectedOrderItem.title}
+          onSuccess={fetchOrderDetail}
+        />
+      )}
     </div>
   );
 };

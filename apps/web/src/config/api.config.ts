@@ -64,6 +64,11 @@ export const API_ENDPOINTS = {
     base: `${API_V1}/addresses`,
     byId: (id: string) => `${API_V1}/addresses/${id}`,
   },
+  // Reviews
+  reviews: {
+    list: (productId: string) => `${API_V1}/reviews/product/${productId}`,
+    summary: (productId: string) => `${API_V1}/reviews/product/${productId}/summary`,
+  },
 } as const;
 
 export default API_ENDPOINTS;
