@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, ArrowLeft, Clock, MapPin, Package, ShieldCheck, Truck, ShoppingBag } from 'lucide-react';
+import { Loader2, ArrowLeft, Clock, MapPin, Package, Truck, ShoppingBag } from 'lucide-react';
 import api from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api.config';
 import { useToast } from '../../context/ToastContext';
 import { WriteReviewModal } from '../../components/reviews/WriteReviewModal';
-import { CheckCircle2 } from 'lucide-react';
+import { OrderTrackingStepper } from '../../components/ui/OrderTrackingStepper';
 
 interface TimelineEvent {
   id: string;
@@ -78,11 +78,6 @@ export const OrderDetailPage: React.FC = () => {
     fetchOrderDetail();
   }, [id]);
 
-  const getStatusStepIndex = (status: string) => {
-    const steps = ['placed', 'confirmed', 'packed', 'ready_for_pickup', 'shipped', 'out_for_delivery', 'delivered'];
-    return steps.indexOf(status);
-  };
-
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] text-slate-400 gap-2">
@@ -104,11 +99,6 @@ export const OrderDetailPage: React.FC = () => {
     );
   }
 
-  const activeStep = getStatusStepIndex(order.status);
-  const isCancelled = order.status === 'cancelled';
-  const stepsList = ['Placed', 'Confirmed', 'Packed', 'Shipped', 'Delivered'];
-  const stepStatusMapping = [0, 1, 2, 4, 6]; // indices in getStatusStepIndex
-
   return (
     <div className="flex flex-col gap-6 max-w-4xl mx-auto">
       <div className="flex items-center gap-4">
@@ -122,62 +112,8 @@ export const OrderDetailPage: React.FC = () => {
         </h1>
       </div>
 
-      {/* Progress tracking indicator */}
-      {!isCancelled && (
-        <Card className="bg-white border-slate-200 shadow-sm p-6 overflow-hidden">
-          <div className="flex flex-col md:flex-row md:justify-between gap-6 md:gap-0 relative">
-            {stepsList.map((step, idx) => {
-              const targetStatusIndex = stepStatusMapping[idx];
-              const completed = activeStep >= targetStatusIndex;
-              const current = activeStep === targetStatusIndex;
-              const isLast = idx === stepsList.length - 1;
-
-              return (
-                <div key={idx} className={`flex flex-row md:flex-col items-start md:items-center gap-4 md:gap-2 z-10 ${!isLast ? 'flex-1' : ''} relative`}>
-                  {/* Connector line for mobile (vertical) */}
-                  {!isLast && (
-                    <div className="hidden max-md:block absolute top-[36px] left-[17.5px] bottom-[-24px] w-1 bg-slate-100 z-[-1]">
-                       <div className={`w-full bg-indigo-500 transition-all duration-500 ${activeStep >= stepStatusMapping[idx+1] ? 'h-full' : activeStep > targetStatusIndex ? 'h-1/2' : 'h-0'}`} />
-                    </div>
-                  )}
-                  {/* Connector line for desktop (horizontal) */}
-                  {!isLast && (
-                    <div className="hidden md:block absolute top-[17.5px] left-[50%] right-[-50%] h-1 bg-slate-100 z-[-1]">
-                       <div className={`h-full bg-indigo-500 transition-all duration-500 ${activeStep >= stepStatusMapping[idx+1] ? 'w-full' : activeStep > targetStatusIndex ? 'w-1/2' : 'w-0'}`} />
-                    </div>
-                  )}
-
-                  <div
-                    className={`h-9 w-9 rounded-full flex items-center justify-center font-bold text-sm transition-colors border-2 shrink-0 ${
-                      completed
-                        ? 'bg-indigo-600 border-indigo-600 text-white shadow-md'
-                        : 'bg-white border-slate-200 text-slate-400'
-                    } ${current ? 'ring-4 ring-indigo-100 border-indigo-500' : ''}`}
-                  >
-                    {completed ? <CheckCircle2 className="h-5 w-5" /> : idx + 1}
-                  </div>
-                  <div className="flex flex-col md:items-center mt-1.5 md:mt-0">
-                    <span className={`text-sm md:text-xs font-bold ${completed ? 'text-indigo-600' : 'text-slate-400'}`}>
-                      {step}
-                    </span>
-                    {current && <span className="text-[10px] text-indigo-400 font-medium">In Progress</span>}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </Card>
-      )}
-
-      {isCancelled && (
-        <Card className="bg-rose-50 border border-rose-200 p-4 rounded-xl flex gap-3 text-sm text-rose-800">
-          <AlertCircle className="h-5 w-5 text-rose-600 mt-0.5 shrink-0" />
-          <div>
-            <p className="font-bold text-rose-900">This order has been cancelled.</p>
-            <p className="text-xs text-rose-700 mt-0.5">Any authorization hold or payment captured is refunded automatically.</p>
-          </div>
-        </Card>
-      )}
+      {/* Progress tracking stepper */}
+      <OrderTrackingStepper currentStatus={order.status} />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Shipment item list & delivery destinations */}
@@ -330,21 +266,3 @@ export const OrderDetailPage: React.FC = () => {
   );
 };
 
-const AlertCircle = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    {...props}
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <circle cx="12" cy="12" r="10" />
-    <line x1="12" y1="8" x2="12" y2="12" />
-    <line x1="12" y1="16" x2="12.01" y2="16" />
-  </svg>
-);

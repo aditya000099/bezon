@@ -69,6 +69,21 @@ export const API_ENDPOINTS = {
     list: (productId: string) => `${API_V1}/reviews/product/${productId}`,
     summary: (productId: string) => `${API_V1}/reviews/product/${productId}/summary`,
   },
+  // Questions & Answers
+  qa: {
+    list: (productId: string) => `${API_V1}/qa/product/${productId}`,
+    ask: `${API_V1}/qa`,
+    answer: `${API_V1}/qa/answer`,
+    sellerQuestions: `${API_V1}/qa/seller`,
+    sellerProducts: `${API_V1}/qa/seller/products`,
+  },
+  // Notifications
+  notifications: {
+    list: `${API_V1}/notifications`,
+    unreadCount: `${API_V1}/notifications/unread-count`,
+    markRead: (id: string) => `${API_V1}/notifications/${id}/read`,
+    markAllRead: `${API_V1}/notifications/read-all`,
+  },
 } as const;
 
 export default API_ENDPOINTS;

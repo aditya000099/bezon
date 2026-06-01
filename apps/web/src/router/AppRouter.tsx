@@ -38,6 +38,7 @@ import { SellerOrders } from '../pages/seller/SellerOrders';
 import { SellerInventory } from '../pages/seller/SellerInventory';
 import { SellerSettings } from '../pages/seller/SellerSettings';
 import { SellerCoupons } from '../pages/seller/SellerCoupons';
+import { SellerQA } from '@/pages/seller/SellerQA';
 
 // Delivery Pages
 import { DeliveryQueue } from '../pages/delivery/DeliveryQueue';
@@ -118,6 +119,7 @@ export const AppRouter: React.FC = () => {
           <Route path="inventory" element={<SellerInventory />} />
           <Route path="settings" element={<SellerSettings />} />
           <Route path="coupons" element={<SellerCoupons />} />
+          <Route path="qa" element={<SellerQA />} />
         </Route>
 
         {/* Delivery Route Group */}

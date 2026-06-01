@@ -96,5 +96,16 @@ export const reviewSchema = z.object({
   productId: z.string().uuid('Invalid product ID'),
   rating: z.number().int().min(1).max(5, 'Rating must be between 1 and 5'),
   reviewText: z.string().max(1000).optional(),
-  images: z.array(reviewImageSchema).default([]),
+  images: z.array(reviewImageSchema).max(5, 'Maximum 5 images per review').default([]),
+});
+
+export const questionSchema = z.object({
+  productId: z.string().uuid('Invalid product ID'),
+  variantId: z.string().uuid('Invalid variant ID').optional(),
+  question: z.string().min(10, 'Question must be at least 10 characters').max(500, 'Question cannot exceed 500 characters'),
+});
+
+export const answerSchema = z.object({
+  questionId: z.string().uuid('Invalid question ID'),
+  answer: z.string().min(2, 'Answer must be at least 2 characters').max(1000, 'Answer cannot exceed 1000 characters'),
 });

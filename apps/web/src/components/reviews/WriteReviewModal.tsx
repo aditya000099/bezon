@@ -31,14 +31,43 @@ export const WriteReviewModal: React.FC<WriteReviewModalProps> = ({
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const MAX_REVIEW_IMAGES = 5;
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+  const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
+
+    // Check how many more images we can add
+    const remainingSlots = MAX_REVIEW_IMAGES - images.length;
+    if (remainingSlots <= 0) {
+      toast.warning(`You can upload a maximum of ${MAX_REVIEW_IMAGES} images.`);
+      if (e.target) e.target.value = '';
+      return;
+    }
+
+    // Take only as many files as remaining slots allow
+    const selectedFiles = Array.from(e.target.files).slice(0, remainingSlots);
+
+    // Validate each file before uploading
+    for (const file of selectedFiles) {
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        toast.error(`"${file.name}" is not a supported format. Use JPG, PNG, or WEBP.`);
+        if (e.target) e.target.value = '';
+        return;
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        toast.error(`"${file.name}" exceeds the 5 MB size limit.`);
+        if (e.target) e.target.value = '';
+        return;
+      }
+    }
+
     setIsUploading(true);
-    
     try {
-      const uploadPromises = Array.from(e.target.files).map(async (file, index) => {
+      const uploadPromises = selectedFiles.map(async (file, index) => {
         const formData = new FormData();
-        formData.append('file', file);
+        formData.append('image', file);
         const res = await api.post(API_ENDPOINTS.media.upload, formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
@@ -55,7 +84,6 @@ export const WriteReviewModal: React.FC<WriteReviewModalProps> = ({
       toast.error('Failed to upload image(s).');
     } finally {
       setIsUploading(false);
-      // Reset input
       if (e.target) e.target.value = '';
     }
   };
@@ -167,7 +195,7 @@ export const WriteReviewModal: React.FC<WriteReviewModalProps> = ({
                   )}
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/jpeg,image/png,image/webp"
                     multiple
                     className="hidden"
                     onChange={handleImageUpload}

@@ -8,10 +8,15 @@ import {
   ShoppingBag,
   Loader2,
   BadgePercent,
+  MessageSquare,
+  Send,
+  Store,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { useCart } from "../../context/CartContext";
+import { useAuth } from '../../context/AuthContext';
 import { useToast } from "../../context/ToastContext";
 import api from "../../lib/api";
 import { API_ENDPOINTS } from "../../config/api.config";
@@ -48,6 +53,20 @@ export const ProductDetailPage: React.FC = () => {
   const [reviews, setReviews] = useState<any[]>([]);
   const [reviewSummary, setReviewSummary] = useState<any>(null);
   const [loadingReviews, setLoadingReviews] = useState(false);
+
+  // Q&A state
+  const { user } = useAuth();
+  const [questions, setQuestions] = useState<any[]>([]);
+  const [loadingQuestions, setLoadingQuestions] = useState(false);
+  const [questionsTotalCount, setQuestionsTotalCount] = useState(0);
+  const [questionsPage, setQuestionsPage] = useState(1);
+  const [questionSort, setQuestionSort] = useState('recent');
+  const [askModalOpen, setAskModalOpen] = useState(false);
+  const [newQuestion, setNewQuestion] = useState('');
+  const [askingQuestion, setAskingQuestion] = useState(false);
+  const [answeringId, setAnsweringId] = useState<string | null>(null);
+  const [answerText, setAnswerText] = useState('');
+  const [submittingAnswer, setSubmittingAnswer] = useState(false);
 
   useEffect(() => {
     const fetchProductDetails = async () => {
@@ -103,6 +122,31 @@ export const ProductDetailPage: React.FC = () => {
     fetchReviews();
   }, [currentProduct?.id]);
 
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      if (!currentProduct?.id) return;
+      setLoadingQuestions(true);
+      try {
+        const res = await api.get(API_ENDPOINTS.qa.list(currentProduct.id), {
+          params: { page: questionsPage, limit: 5, sort: questionSort },
+        });
+        if (res.data.success) {
+          if (questionsPage === 1) {
+            setQuestions(res.data.data.questions);
+          } else {
+            setQuestions(prev => [...prev, ...res.data.data.questions]);
+          }
+          setQuestionsTotalCount(res.data.data.pagination.totalCount);
+        }
+      } catch (err) {
+        console.error('Failed to fetch questions', err);
+      } finally {
+        setLoadingQuestions(false);
+      }
+    };
+    fetchQuestions();
+  }, [currentProduct?.id, questionsPage, questionSort]);
+
   const handleSelectProduct = (p: Product) => {
     if (p.slug !== slug) {
       navigate(`/shop/products/${p.slug}`, { replace: true });
@@ -148,6 +192,62 @@ export const ProductDetailPage: React.FC = () => {
   const handleAddToWishlist = () => {
     if (!currentProduct) return;
     toast.success(`${currentProduct.title} saved to Wishlist!`);
+  };
+
+  const handleAskQuestion = async () => {
+    if (!currentProduct || newQuestion.trim().length < 10) {
+      toast.warning('Question must be at least 10 characters long.');
+      return;
+    }
+    setAskingQuestion(true);
+    try {
+      await api.post(API_ENDPOINTS.qa.ask, {
+        productId: currentProduct.id,
+        question: newQuestion.trim(),
+      });
+      toast.success('Your question has been posted!');
+      setNewQuestion('');
+      setAskModalOpen(false);
+      setQuestionsPage(1);
+      // Refetch
+      const res = await api.get(API_ENDPOINTS.qa.list(currentProduct.id), { params: { page: 1, limit: 5, sort: questionSort } });
+      if (res.data.success) {
+        setQuestions(res.data.data.questions);
+        setQuestionsTotalCount(res.data.data.pagination.totalCount);
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to post question.');
+    } finally {
+      setAskingQuestion(false);
+    }
+  };
+
+  const handleSubmitAnswer = async (questionId: string) => {
+    if (answerText.trim().length < 2) {
+      toast.warning('Answer must be at least 2 characters.');
+      return;
+    }
+    setSubmittingAnswer(true);
+    try {
+      const res = await api.post(API_ENDPOINTS.qa.answer, {
+        questionId,
+        answer: answerText.trim(),
+      });
+      toast.success('Answer posted!');
+      setAnswerText('');
+      setAnsweringId(null);
+      // Update the question in the list with the new answer
+      setQuestions(prev => prev.map(q => {
+        if (q.id === questionId) {
+          return { ...q, answers: [...(q.answers || []), res.data.data] };
+        }
+        return q;
+      }));
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to post answer.');
+    } finally {
+      setSubmittingAnswer(false);
+    }
   };
 
   if (loading) {
@@ -553,6 +653,182 @@ export const ProductDetailPage: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Questions & Answers Section */}
+      <div className="mt-8 border-t border-slate-100 pt-10">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+          <div>
+            <h2 className="text-2xl font-extrabold text-slate-900 flex items-center gap-3">
+              <MessageSquare className="h-6 w-6 text-indigo-500" />
+              Questions & Answers
+            </h2>
+            <p className="text-sm text-slate-500 mt-1">{questionsTotalCount} question{questionsTotalCount !== 1 ? 's' : ''} about this product</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <select
+              value={questionSort}
+              onChange={(e) => { setQuestionSort(e.target.value); setQuestionsPage(1); setQuestions([]); }}
+              className="text-sm border border-slate-200 rounded-lg px-3 py-2 text-slate-600 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              <option value="recent">Most Recent</option>
+              <option value="answered">Answered</option>
+              <option value="unanswered">Unanswered</option>
+            </select>
+            {user && (
+              <Button
+                onClick={() => setAskModalOpen(true)}
+                className="font-bold gap-2"
+              >
+                <MessageSquare className="h-4 w-4" /> Ask a Question
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {loadingQuestions && questions.length === 0 ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
+          </div>
+        ) : questions.length === 0 ? (
+          <div className="bg-slate-50 rounded-2xl p-12 flex flex-col items-center justify-center text-center">
+            <MessageSquare className="h-12 w-12 text-slate-300 mb-3" />
+            <h3 className="text-lg font-bold text-slate-700">No questions yet</h3>
+            <p className="text-sm text-slate-500 mt-1">Be the first to ask a question about this product!</p>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-6">
+            {questions.map((q) => (
+              <div key={q.id} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                {/* Question */}
+                <div className="flex items-start gap-3 mb-4">
+                  <div className="h-8 w-8 bg-indigo-100 rounded-full flex items-center justify-center font-bold text-indigo-700 shrink-0 text-sm">
+                    Q
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-slate-800">{q.question}</p>
+                    <p className="text-xs text-slate-400 mt-1">
+                      Asked by <span className="font-medium text-slate-500">{q.user?.name || 'Anonymous'}</span>
+                      {' · '}
+                      {new Date(q.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Answers */}
+                {q.answers && q.answers.length > 0 && (
+                  <div className="ml-11 flex flex-col gap-3 mb-4">
+                    {q.answers.map((a: any) => (
+                      <div key={a.id} className="bg-slate-50 rounded-xl p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-sm font-semibold text-slate-700">{a.user?.name || 'Anonymous'}</span>
+                          {a.badge === 'seller' && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-700">
+                              <Store className="h-3 w-3" /> Seller
+                            </span>
+                          )}
+                          {a.badge === 'verified_buyer' && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">
+                              <ShieldCheck className="h-3 w-3" /> Verified Buyer
+                            </span>
+                          )}
+                          <span className="text-xs text-slate-400">
+                            {new Date(a.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                          </span>
+                        </div>
+                        <p className="text-sm text-slate-600">{a.answer}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Answer input */}
+                {user && answeringId === q.id ? (
+                  <div className="ml-11 flex gap-2">
+                    <input
+                      type="text"
+                      value={answerText}
+                      onChange={(e) => setAnswerText(e.target.value)}
+                      placeholder="Write your answer..."
+                      className="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      onKeyDown={(e) => e.key === 'Enter' && handleSubmitAnswer(q.id)}
+                    />
+                    <Button
+                      size="sm"
+                      onClick={() => handleSubmitAnswer(q.id)}
+                      disabled={submittingAnswer}
+                      className="gap-1 font-bold"
+                    >
+                      {submittingAnswer ? <Loader2 className="h-3 w-3 animate-spin" /> : <Send className="h-3 w-3" />}
+                      Reply
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => { setAnsweringId(null); setAnswerText(''); }}
+                      className="text-slate-400"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                ) : user ? (
+                  <button
+                    onClick={() => setAnsweringId(q.id)}
+                    className="ml-11 text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors"
+                  >
+                    Answer this question
+                  </button>
+                ) : null}
+              </div>
+            ))}
+
+            {/* Load More */}
+            {questions.length < questionsTotalCount && (
+              <div className="flex justify-center">
+                <Button
+                  variant="outline"
+                  onClick={() => setQuestionsPage(prev => prev + 1)}
+                  disabled={loadingQuestions}
+                  className="font-bold gap-2"
+                >
+                  {loadingQuestions ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                  Load More Questions
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Ask Question Modal */}
+      <Dialog open={askModalOpen} onOpenChange={(open) => !open && setAskModalOpen(false)}>
+        <DialogContent className="max-w-md bg-white border border-slate-200 shadow-2xl p-6 rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-extrabold text-slate-800">Ask a Question</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <textarea
+              value={newQuestion}
+              onChange={(e) => setNewQuestion(e.target.value)}
+              placeholder="What would you like to know about this product?"
+              className="w-full h-28 p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-sm text-slate-700"
+              maxLength={500}
+            />
+            <div className="flex justify-between mt-1">
+              <span className="text-[10px] text-slate-400">Minimum 10 characters</span>
+              <span className="text-[10px] text-slate-400">{newQuestion.length}/500</span>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              className="w-full font-bold h-11 bg-indigo-600 hover:bg-indigo-700 text-white"
+              onClick={handleAskQuestion}
+              disabled={askingQuestion || newQuestion.trim().length < 10}
+            >
+              {askingQuestion ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Post Question'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
