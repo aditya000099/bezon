@@ -1,20 +1,20 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Card,
   CardHeader,
   CardTitle,
   CardContent,
   CardFooter,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ShoppingBag, Star, Search, Loader2 } from "lucide-react";
-import type { Product, Category } from "@bezon/types";
-import api from "../../lib/api";
-import { API_ENDPOINTS } from "../../config/api.config";
-import { useToast } from "../../context/ToastContext";
-import { useCart } from "../../context/CartContext";
+} from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { ShoppingBag, Star, Search, Loader2 } from 'lucide-react';
+import type { Product, Category } from '@bezon/types';
+import api from '../../lib/api';
+import { API_ENDPOINTS } from '../../config/api.config';
+import { useToast } from '../../context/ToastContext';
+import { useCart } from '../../context/CartContext';
 
 export const ShopPage: React.FC = () => {
   const { toast } = useToast();
@@ -23,13 +23,14 @@ export const ShopPage: React.FC = () => {
   // Catalogue and Categories states
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [recommendedProducts, setRecommendedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Filters state
-  const [searchQuery, setSearchQuery] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [sortBy, setSortBy] = useState("featured");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [sortBy, setSortBy] = useState('featured');
   const [addingToCart, setAddingToCart] = useState<Record<string, boolean>>({});
 
   // Debounce search query changes
@@ -49,10 +50,11 @@ export const ShopPage: React.FC = () => {
           setCategories(response.data.data);
         }
       } catch (err) {
-        console.error("Failed to load categories", err);
+        console.error('Failed to load categories', err);
       }
     };
     fetchCategories();
+    fetchRecommendations();
   }, []);
 
   // Fetch products when filters or search inputs change
@@ -64,14 +66,14 @@ export const ShopPage: React.FC = () => {
           params: {
             search: debouncedSearch || undefined,
             category: selectedCategory || undefined,
-            sort: sortBy !== "featured" ? sortBy : undefined,
+            sort: sortBy !== 'featured' ? sortBy : undefined,
           },
         });
         if (response.data.success) {
           setProducts(response.data.data.products || []);
         }
       } catch (err) {
-        toast.error("Could not load products. Please check connection.");
+        toast.error('Could not load products. Please check connection.');
       } finally {
         setLoading(false);
       }
@@ -86,7 +88,7 @@ export const ShopPage: React.FC = () => {
       await addItem(product.id, 1, price);
       toast.success(`Added ${product.title} to shopping cart!`);
     } catch (err) {
-      toast.error("Failed to add item to cart. Try again.");
+      toast.error('Failed to add item to cart. Try again.');
     } finally {
       setAddingToCart((prev) => ({ ...prev, [product.id]: false }));
     }
@@ -176,7 +178,7 @@ export const ShopPage: React.FC = () => {
               </Link>
               <CardHeader className="p-4 pb-0">
                 <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest">
-                  {p.brand || "Unbranded"}
+                  {p.brand || 'Unbranded'}
                 </span>
                 <Link to={`/shop/products/${p.slug}`}>
                   <CardTitle className="text-base font-bold text-slate-800 line-clamp-1 mt-0.5 hover:text-indigo-600 transition-colors">
@@ -204,7 +206,7 @@ export const ShopPage: React.FC = () => {
                     onClick={() => handleAddToCart(p)}
                     disabled={addingToCart[p.id]}
                   >
-                    {addingToCart[p.id] ? "Adding..." : "Add to Cart"}
+                    {addingToCart[p.id] ? 'Adding...' : 'Add to Cart'}
                   </Button>
                 ) : (
                   <Button

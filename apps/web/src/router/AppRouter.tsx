@@ -46,12 +46,14 @@ import { DeliveryProfile } from '../pages/delivery/DeliveryProfile';
 
 // Admin Pages
 import { AdminDashboard } from '../pages/admin/AdminDashboard';
-import { AdminOrders } from '../pages/admin/AdminOrders';
-import { AdminDeliveries } from '../pages/admin/AdminDeliveries';
+import { AdminProducts } from '../pages/admin/AdminProducts';
 import { AdminSellers } from '../pages/admin/AdminSellers';
 import { AdminPartners } from '../pages/admin/AdminPartners';
-import { AdminProducts } from '../pages/admin/AdminProducts';
+import { AdminOrders } from '../pages/admin/AdminOrders';
+import { AdminDeliveries } from '../pages/admin/AdminDeliveries';
+import { AdminUsers } from '../pages/admin/AdminUsers';
 import { SellerAddProduct } from '@/pages/seller/SellerAddProduct';
+import { SellerOrderDetail } from '@/pages/seller/SellerOrderDetail';
 
 export const AppRouter: React.FC = () => {
   return (
@@ -110,8 +112,9 @@ export const AppRouter: React.FC = () => {
         >
           <Route index element={<SellerDashboard />} />
           <Route path="products" element={<SellerProducts />} />
-          <Route path="add-product" element={<SellerAddProduct />} />
+          <Route path="products/new" element={<SellerAddProduct />} />
           <Route path="orders" element={<SellerOrders />} />
+          <Route path="orders/:id" element={<SellerOrderDetail />} />
           <Route path="inventory" element={<SellerInventory />} />
           <Route path="settings" element={<SellerSettings />} />
           <Route path="coupons" element={<SellerCoupons />} />
@@ -141,11 +144,12 @@ export const AppRouter: React.FC = () => {
           }
         >
           <Route index element={<AdminDashboard />} />
-          <Route path="orders" element={<AdminOrders />} />
-          <Route path="deliveries" element={<AdminDeliveries />} />
+          <Route path="products" element={<AdminProducts />} />
           <Route path="sellers" element={<AdminSellers />} />
           <Route path="partners" element={<AdminPartners />} />
-          <Route path="products" element={<AdminProducts />} />
+          <Route path="orders" element={<AdminOrders />} />
+          <Route path="deliveries" element={<AdminDeliveries />} />
+          <Route path="users" element={<AdminUsers />} />
         </Route>
 
         {/* Catch-all Redirect */}
