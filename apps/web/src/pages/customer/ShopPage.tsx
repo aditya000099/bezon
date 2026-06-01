@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ShoppingBag, Star, Search, Loader2 } from 'lucide-react';
+import { ShoppingBag, Star, Search, Loader2, Sparkles } from 'lucide-react';
 import type { Product, Category } from '@bezon/types';
 import api from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api.config';
@@ -53,6 +53,19 @@ export const ShopPage: React.FC = () => {
         console.error('Failed to load categories', err);
       }
     };
+    const fetchRecommendations = async () => {
+      try {
+        const res = await api.get(API_ENDPOINTS.products.recommended, {
+          params: { limit: 4 },
+        });
+        if (res.data.success) {
+          setRecommendedProducts(res.data.data);
+        }
+      } catch (err) {
+        console.error('Failed to load recommendations', err);
+      }
+    };
+
     fetchCategories();
     fetchRecommendations();
   }, []);
@@ -136,6 +149,102 @@ export const ShopPage: React.FC = () => {
           </select>
         </div>
       </div>
+
+      {/* Recommended Section */}
+      {!loading &&
+        recommendedProducts.length > 0 &&
+        !searchQuery &&
+        !selectedCategory && (
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-2 px-1">
+              <Sparkles className="h-5 w-5 text-indigo-500" />
+              <h2 className="text-xl font-black text-slate-800 tracking-tight">
+                Recommended for You
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {recommendedProducts.map((p) => (
+                <Card
+                  key={p.id}
+                  className="overflow-hidden border-2 border-indigo-100 shadow-sm hover:shadow-indigo-100/50 transition-all f
+lex flex-col justify-between bg-gradient-to-b from-indigo-50/30 to-white relative"
+                >
+                  <div
+                    className="absolute top-2 left-2 z-10 bg-indigo-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercas
+e tracking-wider shadow-sm"
+                  >
+                    Picked for you
+                  </div>
+                  <Link to={`/shop/products/${p.slug}`}>
+                    <div
+                      className="aspect-square bg-slate-50 border-b border-slate-100 flex items-center justify-center text-slate-300 font
+-semibold text-xs select-none cursor-pointer overflow-hidden group"
+                    >
+                      {(() => {
+                        const primaryImg =
+                          p.images?.find((img: any) => img.isPrimary) ||
+                          p.images?.[0];
+                        return primaryImg ? (
+                          <img
+                            src={primaryImg.url}
+                            alt={p.title}
+                            className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                        ) : (
+                          <ShoppingBag className="h-10 w-10 opacity-40 mb-2 block mx-auto text-slate-400" />
+                        );
+                      })()}
+                    </div>
+                  </Link>
+                  <CardHeader className="p-4 pb-0">
+                    <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest">
+                      {p.brand || 'Unbranded'}
+                    </span>
+                    <Link to={`/shop/products/${p.slug}`}>
+                      <CardTitle className="text-base font-bold text-slate-800 line-clamp-1 mt-0.5 hover:text-indigo-600 transition-colors">
+                        {p.title}
+                      </CardTitle>
+                    </Link>
+                    <div className="flex items-center gap-1 mt-0.5 text-xs text-amber-500 font-bold">
+                      <Star className="h-3 w-3 fill-amber-500 text-amber-500" />
+                      <span>{p.avgRating ? Number(p.avgRating) : 5.0}</span>
+                      <span className="text-slate-400 font-normal">
+                        ({p.reviewCount || 0})
+                      </span>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-4 pt-3 flex items-baseline gap-2">
+                    <span className="text-lg font-extrabold text-slate-900">
+                      ₹{Number(p.basePrice).toLocaleString()}
+                    </span>
+                  </CardContent>
+                  <CardFooter className="p-4 pt-0">
+                    {p.totalStock > 0 ? (
+                      <Button
+                        className="w-full text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm"
+                        size="sm"
+                        onClick={() => handleAddToCart(p)}
+                        disabled={addingToCart[p.id]}
+                      >
+                        {addingToCart[p.id] ? 'Adding...' : 'Add to Cart'}
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="secondary"
+                        className="w-full text-xs font-bold text-rose-500 bg-rose-50 border-rose-100 hover:bg-rose
+-50 cursor-not-allowed"
+                        size="sm"
+                        disabled
+                      >
+                        Out of Stock
+                      </Button>
+                    )}
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
 
       {/* Catalog Grid */}
       {loading ? (
