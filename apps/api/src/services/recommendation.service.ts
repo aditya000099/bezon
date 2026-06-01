@@ -94,7 +94,6 @@ export class RecommendationService {
             include: {
               images: { where: { isPrimary: true }, take: 1 },
               category: true,
-              variants: { where: { isActive: true } },
             },
             orderBy: [
               { soldCount: 'desc' },
@@ -104,32 +103,6 @@ export class RecommendationService {
           });
         }
       }
-    }
-
-    // Fill the remaining spots with popular products
-    if (recommendedProducts.length < limit) {
-      const remainingLimit = limit - recommendedProducts.length;
-      // Add existing IDs to exclusion list to prevent duplicates
-      recommendedProducts.forEach(p => excludeProductIds.add(p.id));
-
-      const fallbackProducts = await prisma.product.findMany({
-        where: {
-          status: 'published',
-          id: { notIn: Array.from(excludeProductIds) },
-        },
-        include: {
-          images: { where: { isPrimary: true }, take: 1 },
-          category: true,
-          variants: { where: { isActive: true } },
-        },
-        orderBy: [
-          { soldCount: 'desc' },
-          { viewCount: 'desc' },
-        ],
-        take: remainingLimit,
-      });
-
-      recommendedProducts = [...recommendedProducts, ...fallbackProducts];
     }
 
     // Shuffle the final list a bit to make it feel dynamic
