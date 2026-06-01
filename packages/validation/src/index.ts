@@ -34,6 +34,14 @@ export const productSchema = z.object({
   status: z.enum(['draft', 'published', 'archived']).default('draft'),
 });
 
+export const imagePayloadSchema = z.object({
+  url: z.string().url('Image URL is required'),
+  s3Key: z.string().optional(),
+  altText: z.string().max(160).optional(),
+  sortOrder: z.number().int().nonnegative().default(0),
+  isPrimary: z.boolean().default(false),
+});
+
 export const productVariantSchema = z.object({
   sku: z.string().min(3, 'SKU must be at least 3 characters long'),
   price: z.number().positive('Variant price must be greater than zero'),
@@ -41,6 +49,11 @@ export const productVariantSchema = z.object({
   lowStockAlert: z.number().int().nonnegative().default(5),
   weightGrams: z.number().int().positive().optional(),
   attributes: z.record(z.string(), z.string()).default({}),
+  images: z.array(imagePayloadSchema).default([]),
+});
+
+export const createProductSchema = productSchema.extend({
+  variants: z.array(productVariantSchema).min(1, 'At least one variant is required'),
 });
 
 export const couponSchema = z.object({

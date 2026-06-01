@@ -152,8 +152,9 @@ export const SellerProducts: React.FC = () => {
             </thead>
             <tbody className="divide-y divide-slate-100 text-sm text-slate-700">
               {filteredProducts.map((p) => {
+                const firstVariant = p.variants?.[0];
                 const primaryImage =
-                  p.images?.find((img) => img.isPrimary) || p.images?.[0];
+                  (firstVariant as any)?.images?.find((img: any) => img.isPrimary) || (firstVariant as any)?.images?.[0];
                 return (
                   <tr
                     key={p.id}

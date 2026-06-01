@@ -92,7 +92,7 @@ export const CartPage: React.FC = () => {
           {/* Cart Item Cards List */}
           <div className="flex-1 space-y-4">
             {items.map((item) => {
-              const primaryImg = item.product?.images?.find((img: any) => img.isPrimary) || item.product?.images?.[0];
+              const primaryImg = (item.variant as any)?.images?.find((img: any) => img.isPrimary) || (item.variant as any)?.images?.[0];
               const attrText = Object.entries(item.variant?.attributes || {})
                 .map(([k, v]) => `${k}: ${v}`)
                 .join(', ');

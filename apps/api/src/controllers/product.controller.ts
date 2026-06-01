@@ -47,7 +47,7 @@ export const getProductBySlug = async (req: Request, res: Response, next: NextFu
  */
 export const createProduct = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { title, brand, description, basePrice, comparePrice, totalStock, categoryId, variants, images } = req.body;
+    const { title, brand, description, basePrice, comparePrice, totalStock, categoryId, variants } = req.body;
 
     if (!req.user) {
       return res.status(401).json({ success: false, message: 'Unauthorized session.' });
@@ -62,7 +62,6 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
       totalStock,
       categoryId,
       variants,
-      images,
     });
 
     res.status(201).json({
@@ -85,7 +84,7 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
 export const updateProduct = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const id = req.params.id as string;
-    const { title, brand, description, basePrice, comparePrice, totalStock, categoryId, status, variants, images } = req.body;
+    const { title, brand, description, basePrice, comparePrice, totalStock, categoryId, status, variants } = req.body;
 
     if (!req.user) {
       return res.status(401).json({ success: false, message: 'Unauthorized session.' });
@@ -101,7 +100,6 @@ export const updateProduct = async (req: Request, res: Response, next: NextFunct
       categoryId,
       status,
       variants,
-      images,
     });
 
     res.json({

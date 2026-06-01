@@ -10,12 +10,12 @@ export class CartService {
       include: {
         items: {
           include: {
-            product: {
+            product: true,
+            variant: {
               include: {
-                images: true,
+                images: { orderBy: { sortOrder: 'asc' } },
               },
             },
-            variant: true,
           },
         },
       },
@@ -27,12 +27,12 @@ export class CartService {
         include: {
           items: {
             include: {
-              product: {
+              product: true,
+              variant: {
                 include: {
-                  images: true,
+                  images: { orderBy: { sortOrder: 'asc' } },
                 },
               },
-              variant: true,
             },
           },
         },

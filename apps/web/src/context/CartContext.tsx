@@ -12,13 +12,13 @@ export interface CartItem {
   product: {
     title: string;
     slug: string;
-    images: { url: string }[];
   };
   variant: {
     sku: string;
     price: number;
     stock: number;
     attributes: Record<string, string>;
+    images: { url: string; isPrimary: boolean }[];
   };
 }
 

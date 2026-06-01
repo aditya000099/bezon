@@ -204,7 +204,6 @@ model Product {
   seller       Seller           @relation(fields: [sellerId], references: [id], onDelete: Cascade, map: "products_seller_fk")
   category     Category?        @relation(fields: [categoryId], references: [id], onDelete: SetNull, map: "products_category_fk")
   variants     ProductVariant[]
-  images       ProductImage[]
   cartItems    CartItem[]
   orderItems   OrderItem[]
   wishlists    Wishlist[]
@@ -232,6 +231,7 @@ model ProductVariant {
   createdAt     DateTime    @default(now()) @map("created_at") @db.Timestamptz
   updatedAt     DateTime    @default(now()) @map("updated_at") @db.Timestamptz
   product       Product     @relation(fields: [productId], references: [id], onDelete: Cascade, map: "pv_product_fk")
+  images        ProductImage[]
   cartItems     CartItem[]
   orderItems    OrderItem[]
 
@@ -242,17 +242,17 @@ model ProductVariant {
 }
 
 model ProductImage {
-  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  productId    String   @map("product_id") @db.Uuid
+  id           String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  variantId    String         @map("variant_id") @db.Uuid
   url          String
-  s3Key        String?  @map("s3_key")
-  altText      String?  @map("alt_text") @db.VarChar(160)
-  sortOrder    Int      @default(0) @map("sort_order") @db.SmallInt
-  isPrimary    Boolean  @default(false) @map("is_primary")
-  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
-  product      Product  @relation(fields: [productId], references: [id], onDelete: Cascade, map: "pi_product_fk")
+  s3Key        String?        @map("s3_key")
+  altText      String?        @map("alt_text") @db.VarChar(160)
+  sortOrder    Int            @default(0) @map("sort_order") @db.SmallInt
+  isPrimary    Boolean        @default(false) @map("is_primary")
+  createdAt    DateTime       @default(now()) @map("created_at") @db.Timestamptz
+  variant      ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade, map: "pi_variant_fk")
 
-  @@index([productId])
+  @@index([variantId])
   @@map("product_images")
 }
 

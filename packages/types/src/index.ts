@@ -115,7 +115,7 @@ export interface Category {
 
 export interface ProductImage {
   id: string;
-  productId: string;
+  variantId: string;
   url: string;
   s3Key?: string;
   altText?: string;
@@ -134,6 +134,7 @@ export interface ProductVariant {
   stock: number;
   lowStockAlert: number;
   weightGrams?: number;
+  images?: ProductImage[];
   isActive: boolean;
   createdAt: Date | string;
   updatedAt: Date | string;
@@ -162,7 +163,7 @@ export interface Product {
   seller?: Seller;
   category?: Category;
   variants?: ProductVariant[];
-  images?: ProductImage[];
+
 }
 
 export interface CartItem {

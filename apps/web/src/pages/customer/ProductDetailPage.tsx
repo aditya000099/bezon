@@ -42,10 +42,14 @@ export const ProductDetailPage: React.FC = () => {
         if (response.data.success) {
           const prodData = response.data.data;
           setProduct(prodData);
-          const primaryIdx = prodData.images ? prodData.images.findIndex((img: any) => img.isPrimary) : 0;
-          setActiveImageIndex(primaryIdx >= 0 ? primaryIdx : 0);
+
+          // Select the first variant by default
           if (prodData.variants && prodData.variants.length > 0) {
             setSelectedVariant(prodData.variants[0]);
+            // Find the primary image in the first variant's images
+            const variantImages = prodData.variants[0].images || [];
+            const primaryIdx = variantImages.findIndex((img: any) => img.isPrimary);
+            setActiveImageIndex(primaryIdx >= 0 ? primaryIdx : 0);
           }
         }
         const couponRes = await api.get(API_ENDPOINTS.products.coupons(slug));
@@ -60,6 +64,15 @@ export const ProductDetailPage: React.FC = () => {
     };
     fetchProductDetails();
   }, [slug]);
+
+  // When user picks a different variant, update the image gallery
+  const handleSelectVariant = (variant: ProductVariant) => {
+    setSelectedVariant(variant);
+    setActiveImageIndex(0);
+  };
+
+  // Images now come from the selected variant
+  const variantImages = (selectedVariant as any)?.images || [];
 
   const currentPrice = selectedVariant ? Number(selectedVariant.price) : (product ? Number(product.basePrice) : 0);
   const currentComparePrice = selectedVariant ? (selectedVariant.comparePrice ? Number(selectedVariant.comparePrice) : null) : (product?.comparePrice ? Number(product.comparePrice) : null);
@@ -127,13 +140,13 @@ export const ProductDetailPage: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-        {/* Left Side: Images */}
+        {/* Left Side: Images from the selected variant */}
         <div className="flex flex-col gap-4">
           <Card className="overflow-hidden border border-slate-200 bg-white">
             <CardContent className="p-0 aspect-square flex items-center justify-center bg-slate-50 relative overflow-hidden">
-              {product.images && product.images.length > 0 ? (
+              {variantImages.length > 0 ? (
                 <img
-                  src={product.images[activeImageIndex]?.url || product.images[0].url}
+                  src={variantImages[activeImageIndex]?.url || variantImages[0].url}
                   alt={product.title}
                   className="h-full w-full object-cover"
                 />
@@ -151,11 +164,11 @@ export const ProductDetailPage: React.FC = () => {
               )}
             </CardContent>
           </Card>
-          {product.images && product.images.length > 1 && (
+          {variantImages.length > 1 && (
             <div className="grid grid-cols-4 gap-2">
-              {product.images.map((img, i) => (
+              {variantImages.map((img: any, i: number) => (
                 <div
-                  key={img.id}
+                  key={img.id || i}
                   onClick={() => setActiveImageIndex(i)}
                   className={`aspect-square bg-white border rounded-lg flex items-center justify-center overflow-hidden cursor-pointer transition-colors ${
                     activeImageIndex === i ? 'border-primary ring-2 ring-primary/20' : 'border-slate-200 hover:border-slate-300'
@@ -272,7 +285,7 @@ export const ProductDetailPage: React.FC = () => {
                   return (
                     <button
                       key={v.id}
-                      onClick={() => setSelectedVariant(v)}
+                      onClick={() => handleSelectVariant(v)}
                       className={`min-w-[120px] border rounded-lg p-3 text-left transition-all ${
                         selectedVariant?.id === v.id
                           ? 'border-primary bg-primary/5 text-primary-foreground ring-2 ring-primary/20'

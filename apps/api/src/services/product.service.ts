@@ -1,11 +1,9 @@
 import prisma from '../db/client.js';
-import { productSchema, productVariantSchema } from '@bezon/validation';
+import { createProductSchema, productVariantSchema } from '@bezon/validation';
 import type { ProductStatus } from '@bezon/types';
 
 export class ProductService {
-  /**
-   * Retrieves products with filtering, search, and pagination
-   */
+  // Fetch published products with search, filters, and pagination
   static async getProducts(query: {
     search?: string;
     category?: string;
@@ -19,10 +17,7 @@ export class ProductService {
     const limitNum = Math.max(1, Number(limit));
     const skip = (pageNum - 1) * limitNum;
 
-    // Build Prisma query filters
-    const where: any = {
-      status: 'published',
-    };
+    const where: any = { status: 'published' };
 
     if (search) {
       where.OR = [
@@ -33,22 +28,15 @@ export class ProductService {
     }
 
     if (category) {
-      where.category = {
-        slug: category.toString(),
-      };
+      where.category = { slug: category.toString() };
     }
 
-    // Build sorting rules
     let orderBy: any = { createdAt: 'desc' };
-    if (sort === 'price-asc') {
-      orderBy = { basePrice: 'asc' };
-    } else if (sort === 'price-desc') {
-      orderBy = { basePrice: 'desc' };
-    } else if (sort === 'popular') {
-      orderBy = { viewCount: 'desc' };
-    }
+    if (sort === 'price-asc') orderBy = { basePrice: 'asc' };
+    else if (sort === 'price-desc') orderBy = { basePrice: 'desc' };
+    else if (sort === 'popular') orderBy = { viewCount: 'desc' };
 
-    // Query DB
+    // Images now live inside variants, not on the product
     const [products, totalCount] = await prisma.$transaction([
       prisma.product.findMany({
         where,
@@ -56,9 +44,13 @@ export class ProductService {
         skip,
         take: limitNum,
         include: {
-          images: { where: { isPrimary: true }, take: 1 },
           category: true,
-          variants: { where: { isActive: true } },
+          variants: {
+            where: { isActive: true },
+            include: {
+              images: { orderBy: { sortOrder: 'asc' } },
+            },
+          },
         },
       }),
       prisma.product.count({ where }),
@@ -75,22 +67,20 @@ export class ProductService {
     };
   }
 
-  /**
-   * Retrieves detailed single product details by its slug
-   */
+  // Get full product details by slug (for product detail page)
   static async getProductBySlug(slug: string) {
     const product = await prisma.product.findUnique({
       where: { slug },
       include: {
-        variants: { where: { isActive: true } },
-        images: { orderBy: { sortOrder: 'asc' } },
+        variants: {
+          where: { isActive: true },
+          include: {
+            images: { orderBy: { sortOrder: 'asc' } },
+          },
+        },
         category: true,
         seller: {
-          select: {
-            id: true,
-            shopName: true,
-            shopSlug: true,
-          },
+          select: { id: true, shopName: true, shopSlug: true },
         },
       },
     });
@@ -101,7 +91,7 @@ export class ProductService {
       throw err;
     }
 
-    // Increment viewCount atomically in the background
+    // Bump view count in the background
     prisma.product.update({
       where: { id: product.id },
       data: { viewCount: { increment: 1 } },
@@ -110,9 +100,7 @@ export class ProductService {
     return product;
   }
 
-  /**
-   * Creates a product catalog listing and standard SKU variants
-   */
+  // Create a new product with at least one variant (each variant can have images)
   static async createProduct(userId: string, data: {
     title: string;
     brand?: string;
@@ -121,35 +109,34 @@ export class ProductService {
     comparePrice?: number;
     totalStock?: number;
     categoryId?: string;
-    variants?: any[];
-    images?: any[];
+    variants: any[];
   }) {
-    const { title, brand, description, basePrice, comparePrice, totalStock, categoryId, variants, images } = data;
+    const { title, brand, description, basePrice, comparePrice, totalStock, categoryId, variants } = data;
 
-    // Fetch user's seller profile
-    const seller = await prisma.seller.findUnique({
-      where: { userId },
-    });
-
+    // Make sure this user is an approved seller
+    const seller = await prisma.seller.findUnique({ where: { userId } });
     if (!seller || seller.status !== 'approved') {
       const err = new Error('Only approved merchants can register products.');
       (err as any).status = 403;
       throw err;
     }
 
-    // Validate payload schema via @bezon/validation
-    const validationResult = productSchema.safeParse({ title, brand, description, basePrice, comparePrice, totalStock });
+    // Validate the whole payload (product fields + at least 1 variant)
+    const validationResult = createProductSchema.safeParse({
+      title, brand, description, basePrice, comparePrice, totalStock,
+      variants,
+    });
     if (!validationResult.success) {
       const err = new Error(validationResult.error.issues[0].message);
       (err as any).status = 400;
       throw err;
     }
 
+    // Build a URL-friendly slug from the title
     const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Math.random().toString(36).substring(2, 6);
-    let sumStock = totalStock ? Number(totalStock) : 0;
 
-    // Create product and nested variant inside transaction
     const newProduct = await prisma.$transaction(async (tx) => {
+      // Step 1: Create the product record
       const productObj = await tx.product.create({
         data: {
           sellerId: seller.id,
@@ -160,76 +147,58 @@ export class ProductService {
           description: description || null,
           basePrice,
           comparePrice: comparePrice || null,
-          totalStock: sumStock,
+          totalStock: 0,
           status: 'published',
         },
       });
 
-      // Provision variants if supplied, or fall back to default SKU
-      if (Array.isArray(variants) && variants.length > 0) {
-        sumStock = 0;
-        for (const v of variants) {
-          const varValid = productVariantSchema.safeParse(v);
-          if (!varValid.success) {
-            throw new Error(`Variant validation failed: ${varValid.error.issues[0].message}`);
-          }
-          await tx.productVariant.create({
-            data: {
-              productId: productObj.id,
-              sku: v.sku,
-              price: v.price,
-              comparePrice: v.comparePrice || null,
-              stock: v.stock,
-              lowStockAlert: v.lowStockAlert || 5,
-              attributes: v.attributes || {},
-            },
-          });
-          sumStock += v.stock;
-        }
-        // Update product with correct stock sum
-        await tx.product.update({
-          where: { id: productObj.id },
-          data: { totalStock: sumStock },
-        });
-        productObj.totalStock = sumStock;
-      } else {
-        // Fallback default variant
-        await tx.productVariant.create({
+      // Step 2: Create each variant and its images
+      let sumStock = 0;
+      for (const v of variants) {
+        const createdVariant = await tx.productVariant.create({
           data: {
             productId: productObj.id,
-            sku: `${seller.shopSlug.toUpperCase().substring(0, 3)}-${slug.substring(0, 5).toUpperCase()}-DFT`,
-            price: basePrice,
-            stock: sumStock,
-            attributes: { type: 'Standard' },
+            sku: v.sku,
+            price: v.price,
+            comparePrice: v.comparePrice || null,
+            stock: v.stock || 0,
+            lowStockAlert: v.lowStockAlert || 5,
+            attributes: v.attributes || {},
           },
         });
-      }
 
-      // Provision images if supplied
-      if (Array.isArray(images) && images.length > 0) {
-        for (const img of images) {
-          await tx.productImage.create({
-            data: {
-              productId: productObj.id,
-              url: img.url,
-              s3Key: img.s3Key || null,
-              altText: img.altText || null,
-              sortOrder: img.sortOrder || 0,
-              isPrimary: img.isPrimary || false,
-            },
-          });
+        // Create images for this variant
+        if (Array.isArray(v.images) && v.images.length > 0) {
+          for (const img of v.images) {
+            await tx.productImage.create({
+              data: {
+                variantId: createdVariant.id,
+                url: img.url,
+                s3Key: img.s3Key || null,
+                altText: img.altText || null,
+                sortOrder: img.sortOrder || 0,
+                isPrimary: img.isPrimary || false,
+              },
+            });
+          }
         }
+
+        sumStock += v.stock || 0;
       }
 
-      return productObj;
+      // Step 3: Update the product's total stock from all variants
+      await tx.product.update({
+        where: { id: productObj.id },
+        data: { totalStock: sumStock },
+      });
+
+      return { ...productObj, totalStock: sumStock };
     });
 
     return newProduct;
   }
 
-  /**
-   * Updates product metadata, price rules, and images
-   */
+  // Update an existing product, its variants, and variant images
   static async updateProduct(userId: string, productId: string, data: {
     title?: string;
     brand?: string;
@@ -240,24 +209,17 @@ export class ProductService {
     categoryId?: string;
     status?: string;
     variants?: any[];
-    images?: any[];
   }) {
-    const { title, brand, description, basePrice, comparePrice, totalStock, categoryId, status, variants, images } = data;
+    const { title, brand, description, basePrice, comparePrice, totalStock, categoryId, status, variants } = data;
 
-    const seller = await prisma.seller.findUnique({
-      where: { userId },
-    });
-
+    const seller = await prisma.seller.findUnique({ where: { userId } });
     if (!seller) {
       const err = new Error('Seller profile required.');
       (err as any).status = 403;
       throw err;
     }
 
-    const product = await prisma.product.findUnique({
-      where: { id: productId },
-    });
-
+    const product = await prisma.product.findUnique({ where: { id: productId } });
     if (!product) {
       const err = new Error('Product not found.');
       (err as any).status = 404;
@@ -271,7 +233,7 @@ export class ProductService {
     }
 
     const updated = await prisma.$transaction(async (tx) => {
-      // 1. Update product base fields
+      // Step 1: Update the product's basic info
       const productObj = await tx.product.update({
         where: { id: productId },
         data: {
@@ -286,10 +248,11 @@ export class ProductService {
         },
       });
 
-      // 2. Update variants if provided
+      // Step 2: Update variants and their images
       if (Array.isArray(variants)) {
         for (const v of variants) {
           if (v.id) {
+            // Update existing variant
             await tx.productVariant.update({
               where: { id: v.id },
               data: {
@@ -302,10 +265,28 @@ export class ProductService {
                 isActive: v.isActive !== undefined ? v.isActive : undefined,
               },
             });
+
+            // Replace this variant's images if a new set was provided
+            if (Array.isArray(v.images)) {
+              await tx.productImage.deleteMany({ where: { variantId: v.id } });
+              for (const img of v.images) {
+                await tx.productImage.create({
+                  data: {
+                    variantId: v.id,
+                    url: img.url,
+                    s3Key: img.s3Key || null,
+                    altText: img.altText || null,
+                    sortOrder: img.sortOrder || 0,
+                    isPrimary: img.isPrimary || false,
+                  },
+                });
+              }
+            }
           } else {
-            await tx.productVariant.create({
+            // Create brand new variant
+            const createdVariant = await tx.productVariant.create({
               data: {
-                productId: productId,
+                productId,
                 sku: v.sku,
                 price: v.price,
                 comparePrice: v.comparePrice || null,
@@ -314,11 +295,27 @@ export class ProductService {
                 attributes: v.attributes || {},
               },
             });
+
+            // Create images for the new variant
+            if (Array.isArray(v.images) && v.images.length > 0) {
+              for (const img of v.images) {
+                await tx.productImage.create({
+                  data: {
+                    variantId: createdVariant.id,
+                    url: img.url,
+                    s3Key: img.s3Key || null,
+                    altText: img.altText || null,
+                    sortOrder: img.sortOrder || 0,
+                    isPrimary: img.isPrimary || false,
+                  },
+                });
+              }
+            }
           }
         }
       }
 
-      // 3. Recalculate totalStock from variants automatically if variants are updated
+      // Step 3: Recalculate total stock from all active variants
       const allVariants = await tx.productVariant.findMany({
         where: { productId, isActive: true },
       });
@@ -331,50 +328,26 @@ export class ProductService {
         productObj.totalStock = sumStock;
       }
 
-      // 4. Update images if provided
-      if (Array.isArray(images)) {
-        await tx.productImage.deleteMany({ where: { productId } });
-        for (const img of images) {
-          await tx.productImage.create({
-            data: {
-              productId: productId,
-              url: img.url,
-              s3Key: img.s3Key || null,
-              altText: img.altText || null,
-              sortOrder: img.sortOrder || 0,
-              isPrimary: img.isPrimary || false,
-            },
-          });
-        }
-      }
-
       return productObj;
     });
 
     return updated;
   }
 
-  /**
-   * Archives a product (sets status to archived)
-   */
+  // Archive (soft-delete) a product
   static async archiveProduct(productId: string, user: { id: string; role: string }) {
     const { id: userId, role } = user;
 
-    const product = await prisma.product.findUnique({
-      where: { id: productId },
-    });
-
+    const product = await prisma.product.findUnique({ where: { id: productId } });
     if (!product) {
       const err = new Error('Product not found.');
       (err as any).status = 404;
       throw err;
     }
 
-    // Enforce bounds: Owner or Admin
+    // Only the owner seller or an admin can archive
     if (role !== 'admin') {
-      const seller = await prisma.seller.findUnique({
-        where: { userId },
-      });
+      const seller = await prisma.seller.findUnique({ where: { userId } });
       if (!seller || product.sellerId !== seller.id) {
         const err = new Error('Action unauthorized.');
         (err as any).status = 403;
@@ -388,14 +361,9 @@ export class ProductService {
     });
   }
 
-  /**
-   * Retrieves products belonging to the merchant user
-   */
+  // Get all products belonging to the logged-in seller
   static async getSellerProducts(userId: string) {
-    const seller = await prisma.seller.findUnique({
-      where: { userId },
-    });
-
+    const seller = await prisma.seller.findUnique({ where: { userId } });
     if (!seller) {
       const err = new Error('Seller profile required.');
       (err as any).status = 403;
@@ -405,13 +373,16 @@ export class ProductService {
     return await prisma.product.findMany({
       where: {
         sellerId: seller.id,
-        status: { in: ['draft', 'published'] }, // exclude archived by default
+        status: { in: ['draft', 'published'] },
       },
       orderBy: { createdAt: 'desc' },
       include: {
-        images: true,
         category: true,
-        variants: true,
+        variants: {
+          include: {
+            images: { orderBy: { sortOrder: 'asc' } },
+          },
+        },
       },
     });
   }

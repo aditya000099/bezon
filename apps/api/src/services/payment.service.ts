@@ -32,12 +32,12 @@ export class PaymentService {
       include: {
         items: {
           include: {
-            product: {
+            product: true,
+            variant: {
               include: {
                 images: { where: { isPrimary: true }, take: 1 },
               },
             },
-            variant: true,
           },
         },
       },
@@ -180,7 +180,7 @@ export class PaymentService {
               productTitle: item.product.title,
               variantAttrs: item.variant.attributes as any,
               sku: item.variant.sku,
-              imageUrl: item.product.images?.[0]?.url || null,
+              imageUrl: (item.variant as any).images?.[0]?.url || null,
               qty: item.qty,
               unitPrice: item.variant.price,
               totalPrice: Number(item.variant.price) * item.qty,
