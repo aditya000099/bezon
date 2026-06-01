@@ -17,6 +17,12 @@ CREATE TYPE "PaymentStatus" AS ENUM ('pending', 'paid', 'failed', 'refund_initia
 CREATE TYPE "DeliveryStatus" AS ENUM ('assigned', 'accepted', 'picked_up', 'in_transit', 'out_for_delivery', 'delivered', 'delivery_failed', 'reattempt_needed', 'returned_to_origin');
 
 -- CreateEnum
+CREATE TYPE "DiscountType" AS ENUM ('percentage', 'flat');
+
+-- CreateEnum
+CREATE TYPE "CouponScope" AS ENUM ('all', 'category', 'product');
+
+-- CreateEnum
 CREATE TYPE "NotificationType" AS ENUM ('order_placed', 'order_confirmed', 'order_shipped', 'order_delivered', 'order_cancelled', 'order_failed', 'return_requested', 'return_approved', 'new_task_assigned', 'low_stock', 'general');
 
 -- CreateTable
@@ -91,18 +97,32 @@ CREATE TABLE "categories" (
 );
 
 -- CreateTable
+CREATE TABLE "variant_groups" (
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "name" VARCHAR(120),
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "variant_groups_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "products" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "seller_id" UUID NOT NULL,
     "category_id" UUID,
+    "variant_group_id" UUID,
     "title" VARCHAR(255) NOT NULL,
     "slug" VARCHAR(255) NOT NULL,
     "description" TEXT,
     "brand" VARCHAR(80),
     "status" "ProductStatus" NOT NULL DEFAULT 'draft',
+    "sku" VARCHAR(80) NOT NULL,
+    "attributes" JSONB NOT NULL DEFAULT '{}',
     "base_price" DECIMAL(10,2) NOT NULL,
     "compare_price" DECIMAL(10,2),
     "total_stock" INTEGER NOT NULL DEFAULT 0,
+    "low_stock_alert" INTEGER NOT NULL DEFAULT 5,
+    "weight_grams" INTEGER,
     "meta_title" VARCHAR(160),
     "meta_desc" VARCHAR(320),
     "view_count" INTEGER NOT NULL DEFAULT 0,
@@ -116,29 +136,11 @@ CREATE TABLE "products" (
 );
 
 -- CreateTable
-CREATE TABLE "product_variants" (
-    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
-    "product_id" UUID NOT NULL,
-    "sku" VARCHAR(80) NOT NULL,
-    "attributes" JSONB NOT NULL DEFAULT '{}',
-    "price" DECIMAL(10,2) NOT NULL,
-    "compare_price" DECIMAL(10,2),
-    "stock" INTEGER NOT NULL DEFAULT 0,
-    "low_stock_alert" INTEGER NOT NULL DEFAULT 5,
-    "weight_grams" INTEGER,
-    "is_active" BOOLEAN NOT NULL DEFAULT true,
-    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "product_variants_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "product_images" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "product_id" UUID NOT NULL,
     "url" TEXT NOT NULL,
-    "cloudinary_id" TEXT,
+    "s3_key" TEXT,
     "alt_text" VARCHAR(160),
     "sort_order" SMALLINT NOT NULL DEFAULT 0,
     "is_primary" BOOLEAN NOT NULL DEFAULT false,
@@ -182,7 +184,6 @@ CREATE TABLE "cart_items" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "cart_id" UUID NOT NULL,
     "product_id" UUID NOT NULL,
-    "variant_id" UUID NOT NULL,
     "qty" SMALLINT NOT NULL DEFAULT 1,
     "price_snapshot" DECIMAL(10,2) NOT NULL,
     "added_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -206,6 +207,8 @@ CREATE TABLE "orders" (
     "subtotal" DECIMAL(12,2) NOT NULL,
     "shipping_charge" DECIMAL(10,2) NOT NULL DEFAULT 0,
     "discount" DECIMAL(10,2) NOT NULL DEFAULT 0,
+    "coupon_id" UUID,
+    "coupon_code" VARCHAR(50),
     "total" DECIMAL(12,2) NOT NULL,
     "cancel_reason" TEXT,
     "idempotency_key" UUID NOT NULL DEFAULT gen_random_uuid(),
@@ -220,7 +223,6 @@ CREATE TABLE "order_items" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "order_id" UUID NOT NULL,
     "product_id" UUID NOT NULL,
-    "variant_id" UUID NOT NULL,
     "product_title" VARCHAR(255) NOT NULL,
     "variant_attrs" JSONB NOT NULL,
     "sku" VARCHAR(80) NOT NULL,
@@ -252,7 +254,7 @@ CREATE TABLE "deliveries" (
     "partner_id" UUID,
     "status" "DeliveryStatus" NOT NULL DEFAULT 'assigned',
     "proof_image_url" TEXT,
-    "proof_cloudinary_id" TEXT,
+    "proof_s3_key" TEXT,
     "failure_reason" VARCHAR(200),
     "failure_notes" TEXT,
     "attempt_count" SMALLINT NOT NULL DEFAULT 0,
@@ -325,15 +327,39 @@ CREATE TABLE "payments" (
 );
 
 -- CreateTable
-CREATE TABLE "refresh_tokens" (
+CREATE TABLE "coupons" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "code" VARCHAR(50) NOT NULL,
+    "seller_id" UUID NOT NULL,
+    "description" VARCHAR(200) NOT NULL,
+    "discount_type" "DiscountType" NOT NULL,
+    "discount_value" DECIMAL(10,2) NOT NULL,
+    "max_discount" DECIMAL(10,2),
+    "min_order_value" DECIMAL(10,2) NOT NULL DEFAULT 0,
+    "max_uses" INTEGER,
+    "max_uses_per_user" INTEGER NOT NULL DEFAULT 1,
+    "used_count" INTEGER NOT NULL DEFAULT 0,
+    "valid_from" TIMESTAMPTZ NOT NULL,
+    "valid_until" TIMESTAMPTZ NOT NULL,
+    "is_active" BOOLEAN NOT NULL DEFAULT true,
+    "scope_type" "CouponScope" NOT NULL DEFAULT 'all',
+    "scope_category_id" UUID,
+    "scope_product_id" UUID,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "coupons_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "coupon_usages" (
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "coupon_id" UUID NOT NULL,
     "user_id" UUID NOT NULL,
-    "token_hash" TEXT NOT NULL,
-    "expires_at" TIMESTAMPTZ NOT NULL,
-    "revoked" BOOLEAN NOT NULL DEFAULT false,
+    "order_id" UUID NOT NULL,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "refresh_tokens_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "coupon_usages_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -382,10 +408,16 @@ CREATE INDEX "categories_is_active_idx" ON "categories"("is_active");
 CREATE UNIQUE INDEX "products_slug_key" ON "products"("slug");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "products_sku_key" ON "products"("sku");
+
+-- CreateIndex
 CREATE INDEX "products_seller_id_idx" ON "products"("seller_id");
 
 -- CreateIndex
 CREATE INDEX "products_category_id_idx" ON "products"("category_id");
+
+-- CreateIndex
+CREATE INDEX "products_variant_group_id_idx" ON "products"("variant_group_id");
 
 -- CreateIndex
 CREATE INDEX "products_status_idx" ON "products"("status");
@@ -397,16 +429,7 @@ CREATE INDEX "products_base_price_idx" ON "products"("base_price");
 CREATE INDEX "products_total_stock_idx" ON "products"("total_stock");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "product_variants_sku_key" ON "product_variants"("sku");
-
--- CreateIndex
-CREATE INDEX "product_variants_product_id_idx" ON "product_variants"("product_id");
-
--- CreateIndex
-CREATE INDEX "product_variants_stock_idx" ON "product_variants"("stock");
-
--- CreateIndex
-CREATE INDEX "product_variants_is_active_idx" ON "product_variants"("is_active");
+CREATE INDEX "products_sku_idx" ON "products"("sku");
 
 -- CreateIndex
 CREATE INDEX "product_images_product_id_idx" ON "product_images"("product_id");
@@ -421,7 +444,7 @@ CREATE UNIQUE INDEX "carts_user_id_key" ON "carts"("user_id");
 CREATE INDEX "cart_items_cart_id_idx" ON "cart_items"("cart_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "ci_unique_variant" ON "cart_items"("cart_id", "variant_id");
+CREATE UNIQUE INDEX "ci_unique_product" ON "cart_items"("cart_id", "product_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "orders_order_number_key" ON "orders"("order_number");
@@ -499,10 +522,28 @@ CREATE INDEX "payments_order_id_idx" ON "payments"("order_id");
 CREATE INDEX "payments_razorpay_payment_id_idx" ON "payments"("razorpay_payment_id");
 
 -- CreateIndex
-CREATE INDEX "refresh_tokens_user_id_idx" ON "refresh_tokens"("user_id");
+CREATE UNIQUE INDEX "coupons_code_key" ON "coupons"("code");
 
 -- CreateIndex
-CREATE INDEX "refresh_tokens_token_hash_idx" ON "refresh_tokens"("token_hash");
+CREATE INDEX "coupons_seller_id_idx" ON "coupons"("seller_id");
+
+-- CreateIndex
+CREATE INDEX "coupons_code_idx" ON "coupons"("code");
+
+-- CreateIndex
+CREATE INDEX "coupons_is_active_idx" ON "coupons"("is_active");
+
+-- CreateIndex
+CREATE INDEX "coupons_valid_until_idx" ON "coupons"("valid_until");
+
+-- CreateIndex
+CREATE INDEX "coupon_usages_coupon_id_idx" ON "coupon_usages"("coupon_id");
+
+-- CreateIndex
+CREATE INDEX "coupon_usages_user_id_idx" ON "coupon_usages"("user_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "cu_unique" ON "coupon_usages"("coupon_id", "user_id", "order_id");
 
 -- AddForeignKey
 ALTER TABLE "sellers" ADD CONSTRAINT "sellers_user_fk" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -520,7 +561,7 @@ ALTER TABLE "products" ADD CONSTRAINT "products_seller_fk" FOREIGN KEY ("seller_
 ALTER TABLE "products" ADD CONSTRAINT "products_category_fk" FOREIGN KEY ("category_id") REFERENCES "categories"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "product_variants" ADD CONSTRAINT "pv_product_fk" FOREIGN KEY ("product_id") REFERENCES "products"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "products" ADD CONSTRAINT "products_variant_group_fk" FOREIGN KEY ("variant_group_id") REFERENCES "variant_groups"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "product_images" ADD CONSTRAINT "pi_product_fk" FOREIGN KEY ("product_id") REFERENCES "products"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -538,22 +579,19 @@ ALTER TABLE "cart_items" ADD CONSTRAINT "ci_cart_fk" FOREIGN KEY ("cart_id") REF
 ALTER TABLE "cart_items" ADD CONSTRAINT "ci_product_fk" FOREIGN KEY ("product_id") REFERENCES "products"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "cart_items" ADD CONSTRAINT "ci_variant_fk" FOREIGN KEY ("variant_id") REFERENCES "product_variants"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "orders" ADD CONSTRAINT "orders_customer_fk" FOREIGN KEY ("customer_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "orders" ADD CONSTRAINT "orders_seller_fk" FOREIGN KEY ("seller_id") REFERENCES "sellers"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "orders" ADD CONSTRAINT "orders_coupon_fk" FOREIGN KEY ("coupon_id") REFERENCES "coupons"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "order_items" ADD CONSTRAINT "oi_order_fk" FOREIGN KEY ("order_id") REFERENCES "orders"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "order_items" ADD CONSTRAINT "oi_product_fk" FOREIGN KEY ("product_id") REFERENCES "products"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "order_items" ADD CONSTRAINT "oi_variant_fk" FOREIGN KEY ("variant_id") REFERENCES "product_variants"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "order_timeline" ADD CONSTRAINT "ot_order_fk" FOREIGN KEY ("order_id") REFERENCES "orders"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -580,4 +618,19 @@ ALTER TABLE "notifications" ADD CONSTRAINT "notif_user_fk" FOREIGN KEY ("user_id
 ALTER TABLE "payments" ADD CONSTRAINT "pay_order_fk" FOREIGN KEY ("order_id") REFERENCES "orders"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "refresh_tokens" ADD CONSTRAINT "rt_user_fk" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "coupons" ADD CONSTRAINT "coupon_seller_fk" FOREIGN KEY ("seller_id") REFERENCES "sellers"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "coupons" ADD CONSTRAINT "coupon_category_fk" FOREIGN KEY ("scope_category_id") REFERENCES "categories"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "coupons" ADD CONSTRAINT "coupon_product_fk" FOREIGN KEY ("scope_product_id") REFERENCES "products"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "coupon_usages" ADD CONSTRAINT "cu_coupon_fk" FOREIGN KEY ("coupon_id") REFERENCES "coupons"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "coupon_usages" ADD CONSTRAINT "cu_user_fk" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "coupon_usages" ADD CONSTRAINT "cu_order_fk" FOREIGN KEY ("order_id") REFERENCES "orders"("id") ON DELETE CASCADE ON UPDATE CASCADE;

@@ -12,10 +12,9 @@ export class CartService {
           include: {
             product: {
               include: {
-                images: true,
+                images: { orderBy: { sortOrder: 'asc' } },
               },
             },
-            variant: true,
           },
         },
       },
@@ -29,10 +28,9 @@ export class CartService {
             include: {
               product: {
                 include: {
-                  images: true,
+                  images: { orderBy: { sortOrder: 'asc' } },
                 },
               },
-              variant: true,
             },
           },
         },
@@ -47,11 +45,10 @@ export class CartService {
    */
   static async addCartItem(userId: string, data: {
     productId: string;
-    variantId: string;
     qty: number;
     priceSnapshot: number;
   }) {
-    const { productId, variantId, qty, priceSnapshot } = data;
+    const { productId, qty, priceSnapshot } = data;
 
     // Resolve cart
     let cart = await prisma.cart.findUnique({
@@ -64,19 +61,19 @@ export class CartService {
       });
     }
 
-    // Verify product variant exists and check stock levels
-    const variant = await prisma.productVariant.findUnique({
-      where: { id: variantId },
+    // Verify product exists and check stock levels
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
     });
 
-    if (!variant || !variant.isActive) {
-      const err = new Error('Product variant not found.');
+    if (!product || product.status !== 'published') {
+      const err = new Error('Product not found or not available.');
       (err as any).status = 404;
       throw err;
     }
 
-    if (variant.stock < Number(qty)) {
-      const err = new Error(`Insufficient stock available. Only ${variant.stock} units remaining.`);
+    if (product.totalStock < Number(qty)) {
+      const err = new Error(`Insufficient stock available. Only ${product.totalStock} units remaining.`);
       (err as any).status = 422;
       throw err;
     }
@@ -85,14 +82,14 @@ export class CartService {
     const existingItem = await prisma.cartItem.findFirst({
       where: {
         cartId: cart.id,
-        variantId,
+        productId,
       },
     });
 
     if (existingItem) {
       const newQty = existingItem.qty + Number(qty);
-      if (variant.stock < newQty) {
-        const err = new Error(`Cannot add more units. Total requested quantity (${newQty}) exceeds available stock (${variant.stock}).`);
+      if (product.totalStock < newQty) {
+        const err = new Error(`Cannot add more units. Total requested quantity (${newQty}) exceeds available stock (${product.totalStock}).`);
         (err as any).status = 422;
         throw err;
       }
@@ -108,7 +105,6 @@ export class CartService {
       data: {
         cartId: cart.id,
         productId,
-        variantId,
         qty: Number(qty),
         priceSnapshot: Number(priceSnapshot),
       },
@@ -123,7 +119,7 @@ export class CartService {
       where: { id: itemId },
       include: {
         cart: true,
-        variant: true,
+        product: true,
       },
     });
 
@@ -139,8 +135,8 @@ export class CartService {
       throw err;
     }
 
-    if (item.variant.stock < Number(qty)) {
-      const err = new Error(`Insufficient stock. Only ${item.variant.stock} units available.`);
+    if (item.product.totalStock < Number(qty)) {
+      const err = new Error(`Insufficient stock. Only ${item.product.totalStock} units available.`);
       (err as any).status = 422;
       throw err;
     }

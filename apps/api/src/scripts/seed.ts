@@ -4,7 +4,7 @@ import prisma from '../db/client.js';
 async function seed() {
   console.log('🌱 Starting Bezon Database Seeding...');
 
-  // 1. Clean existing records in reverse dependency order
+  // Clean existing records in reverse dependency order
   console.log('🧹 Clearing existing database records...');
   
   await prisma.payment.deleteMany({});
@@ -19,8 +19,8 @@ async function seed() {
   await prisma.notification.deleteMany({});
   await prisma.address.deleteMany({});
   await prisma.productImage.deleteMany({});
-  await prisma.productVariant.deleteMany({});
   await prisma.product.deleteMany({});
+  await prisma.variantGroup.deleteMany({});
   await prisma.category.deleteMany({});
   await prisma.deliveryPartner.deleteMany({});
   await prisma.seller.deleteMany({});
@@ -28,17 +28,16 @@ async function seed() {
 
   console.log('✅ Database cleared.');
 
-  // 2. Generate passwords
+  // Generate passwords
   console.log('🔑 Generating hashed passwords for demo accounts...');
   const adminPassHash = await bcrypt.hash('Admin@1234', 12);
   const sellerPassHash = await bcrypt.hash('Seller@1234', 12);
   const deliveryPassHash = await bcrypt.hash('Delivery@1234', 12);
   const customerPassHash = await bcrypt.hash('Customer@1234', 12);
 
-  // 3. Create Users & Profiles
+  // Create Users & Profiles
   console.log('👤 Creating Users & Role Profiles...');
 
-  // Admin
   const admin = await prisma.user.create({
     data: {
       name: 'Platform Admin',
@@ -50,7 +49,6 @@ async function seed() {
     },
   });
 
-  // Seller 1
   const seller1User = await prisma.user.create({
     data: {
       name: 'Acoustic Labs Manager',
@@ -72,7 +70,6 @@ async function seed() {
     },
   });
 
-  // Seller 2
   const seller2User = await prisma.user.create({
     data: {
       name: 'Sartorial Goods Manager',
@@ -94,7 +91,6 @@ async function seed() {
     },
   });
 
-  // Delivery Partner
   const deliveryUser = await prisma.user.create({
     data: {
       name: 'Devon Webb',
@@ -116,7 +112,6 @@ async function seed() {
     },
   });
 
-  // Customer
   const customerUser = await prisma.user.create({
     data: {
       name: 'Jane Doe',
@@ -128,7 +123,6 @@ async function seed() {
     },
   });
 
-  // Customer Address
   await prisma.address.create({
     data: {
       userId: customerUser.id,
@@ -147,7 +141,7 @@ async function seed() {
 
   console.log('✅ Users and role profiles generated.');
 
-  // 4. Create Categories
+  // Create Categories
   console.log('📁 Creating Product Categories...');
   const catElectronics = await prisma.category.create({
     data: {
@@ -167,93 +161,102 @@ async function seed() {
 
   console.log('✅ Categories created.');
 
-  // 5. Create Products & Variants
+  // Create Products, Variants, and Variant-Level Images
   console.log('📦 Seeding Products & Inventory Variants...');
 
-  // Headphones from Seller 1
-  const productHeadphones = await prisma.product.create({
+  const vgHeadphones = await prisma.variantGroup.create({
+    data: { name: 'Premium Wireless Headphones' }
+  });
+
+  const hpBlack = await prisma.product.create({
     data: {
       sellerId: seller1Profile.id,
       categoryId: catElectronics.id,
+      variantGroupId: vgHeadphones.id,
       title: 'Premium Wireless Headphones',
-      slug: 'premium-wireless-headphones',
+      slug: 'premium-wireless-headphones-blk',
       brand: 'Acoustic',
       status: 'published',
+      description: 'Experience premium acoustic definition with high-fidelity sound, custom drivers, and active noise cancellation (ANC). Designed with memory foam cushions for comfortable listening sessions.',
+      sku: 'AC-HP-BLK',
       basePrice: 4999,
       comparePrice: 6999,
-      totalStock: 20,
-      description: 'Experience premium acoustic definition with high-fidelity sound, custom drivers, and active noise cancellation (ANC). Designed with memory foam cushions for comfortable listening sessions.',
+      totalStock: 12,
+      lowStockAlert: 5,
+      attributes: { color: 'Matte Black' },
     },
   });
 
   await prisma.productImage.create({
     data: {
-      productId: productHeadphones.id,
+      productId: hpBlack.id,
       url: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop',
-      altText: 'Premium Wireless Headphones',
+      altText: 'Premium Wireless Headphones - Matte Black',
       isPrimary: true,
       sortOrder: 0,
     },
   });
 
-  await prisma.productVariant.createMany({
-    data: [
-      {
-        productId: productHeadphones.id,
-        sku: 'AC-HP-BLK',
-        price: 4999,
-        comparePrice: 6999,
-        stock: 12,
-        lowStockAlert: 5,
-        attributes: { color: 'Matte Black' },
-      },
-      {
-        productId: productHeadphones.id,
-        sku: 'AC-HP-WHT',
-        price: 5299,
-        comparePrice: 7299,
-        stock: 8,
-        lowStockAlert: 5,
-        attributes: { color: 'Silver White' },
-      },
-    ],
+  const hpWhite = await prisma.product.create({
+    data: {
+      sellerId: seller1Profile.id,
+      categoryId: catElectronics.id,
+      variantGroupId: vgHeadphones.id,
+      title: 'Premium Wireless Headphones',
+      slug: 'premium-wireless-headphones-wht',
+      brand: 'Acoustic',
+      status: 'published',
+      description: 'Experience premium acoustic definition with high-fidelity sound.',
+      sku: 'AC-HP-WHT',
+      basePrice: 5299,
+      comparePrice: 7299,
+      totalStock: 8,
+      lowStockAlert: 5,
+      attributes: { color: 'Silver White' },
+    },
+  });
+
+  await prisma.productImage.create({
+    data: {
+      productId: hpWhite.id,
+      url: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop',
+      altText: 'Premium Wireless Headphones - Silver White',
+      isPrimary: true,
+      sortOrder: 0,
+    },
   });
 
   // Wallet from Seller 2
-  const productWallet = await prisma.product.create({
+  const vgWallet = await prisma.variantGroup.create({
+    data: { name: 'Minimalist Leather Wallet' }
+  });
+
+  const walletTan = await prisma.product.create({
     data: {
       sellerId: seller2Profile.id,
       categoryId: catApparel.id,
+      variantGroupId: vgWallet.id,
       title: 'Minimalist Leather Wallet',
-      slug: 'minimalist-leather-wallet',
+      slug: 'minimalist-leather-wallet-tan',
       brand: 'Sartorial',
       status: 'published',
+      description: 'A gorgeous full-grain leather wallet designed for standard pocket comfort and durability. Holds up to 8 cards and cash notes.',
+      sku: 'SAR-WL-TAN',
       basePrice: 1499,
       comparePrice: 1999,
       totalStock: 5,
-      description: 'A gorgeous full-grain leather wallet designed for standard pocket comfort and durability. Holds up to 8 cards and cash notes.',
+      lowStockAlert: 2,
+      attributes: { color: 'Tan' },
     },
   });
 
   await prisma.productImage.create({
     data: {
-      productId: productWallet.id,
-      url: 'https://images.unsplash.com/photo-1627124765135-5e12c73b2f76?w=500&auto=format&fit=crop',
-      altText: 'Minimalist Leather Wallet',
+      productId: walletTan.id,
+      url: 'https://images.unsplash.com/photo-1627123424574-724758594e93?w=500&auto=format&fit=crop',
+      altText: 'Leather Wallet Tan',
       isPrimary: true,
       sortOrder: 0,
-    },
-  });
-
-  await prisma.productVariant.create({
-    data: {
-      productId: productWallet.id,
-      sku: 'SAR-WL-TAN',
-      price: 1499,
-      comparePrice: 1999,
-      stock: 5,
-      lowStockAlert: 3,
-      attributes: { color: 'Tan Brown' },
     },
   });
 

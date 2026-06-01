@@ -34,10 +34,9 @@ export class PaymentService {
           include: {
             product: {
               include: {
-                images: { where: { isPrimary: true }, take: 1 },
+                images: { orderBy: { sortOrder: 'asc' } },
               },
             },
-            variant: true,
           },
         },
       },
@@ -99,7 +98,7 @@ export class PaymentService {
         couponCode,
         cart.items.map(i => ({
           product: { id: i.product.id, sellerId: i.product.sellerId, categoryId: i.product.categoryId },
-          variant: { price: i.variant.price },
+          variant: { price: i.product.basePrice },
           qty: i.qty,
         })),
       );
@@ -116,7 +115,7 @@ export class PaymentService {
     }
 
     // Calculate aggregate grand total (INR)
-    const cartTotal = cart.items.reduce((sum, item) => sum + Number(item.variant.price) * item.qty, 0);
+    const cartTotal = cart.items.reduce((sum, item) => sum + Number(item.product.basePrice) * item.qty, 0);
     const totalDiscount = couponResult?.discount || 0;
     const grandTotal = Math.max(0, Math.round((cartTotal - totalDiscount) * 100) / 100);
     const orderIds: string[] = [];
@@ -124,28 +123,28 @@ export class PaymentService {
     // Perform atomic stock check and create split order entries
     const createdOrders = await prisma.$transaction(async (tx) => {
       for (const item of cart.items) {
-        const variant = await tx.productVariant.findUnique({
-          where: { id: item.variantId },
+        const product = await tx.product.findUnique({
+          where: { id: item.productId },
         });
 
-        if (!variant || !variant.isActive) {
-          throw new Error(`Variant SKU ${item.variant.sku} is no longer active.`);
+        if (!product || product.status !== 'published') {
+          throw new Error(`Product ${item.product.title} is no longer active.`);
         }
 
-        if (variant.stock < item.qty) {
-          throw new Error(`Insufficient stock for ${item.product.title} (${item.variant.sku}). Only ${variant.stock} left.`);
+        if (product.totalStock < item.qty) {
+          throw new Error(`Insufficient stock for ${product.title} (${product.sku}). Only ${product.totalStock} left.`);
         }
 
-        await tx.productVariant.update({
-          where: { id: item.variantId },
-          data: { stock: { decrement: item.qty } },
+        await tx.product.update({
+          where: { id: item.productId },
+          data: { totalStock: { decrement: item.qty } },
         });
       }
 
       const ordersList = [];
 
       for (const [sellerId, sellerItems] of Object.entries(itemsBySeller)) {
-        const subtotal = sellerItems.reduce((sum, item) => sum + Number(item.variant.price) * item.qty, 0);
+        const subtotal = sellerItems.reduce((sum, item) => sum + Number(item.product.basePrice) * item.qty, 0);
         const orderNumber = `BZN-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
 
         // Apply discount only to the seller who owns the coupon
@@ -176,14 +175,13 @@ export class PaymentService {
             data: {
               orderId: order.id,
               productId: item.productId,
-              variantId: item.variantId,
               productTitle: item.product.title,
-              variantAttrs: item.variant.attributes as any,
-              sku: item.variant.sku,
+              variantAttrs: item.product.attributes as any,
+              sku: item.product.sku,
               imageUrl: item.product.images?.[0]?.url || null,
               qty: item.qty,
-              unitPrice: item.variant.price,
-              totalPrice: Number(item.variant.price) * item.qty,
+              unitPrice: item.product.basePrice,
+              totalPrice: Number(item.product.basePrice) * item.qty,
             },
           });
         }
@@ -327,9 +325,9 @@ export class PaymentService {
 
           // Restore inventory
           for (const item of order.items) {
-            await tx.productVariant.update({
-              where: { id: item.variantId },
-              data: { stock: { increment: item.qty } },
+            await tx.product.update({
+              where: { id: item.productId },
+              data: { totalStock: { increment: item.qty } },
             });
           }
         }

@@ -341,9 +341,9 @@ export const CheckoutPage: React.FC = () => {
                         <div key={item.id} className="flex justify-between items-center text-sm">
                           <div className="flex flex-col">
                             <span className="font-bold text-slate-800">{item.product?.title}</span>
-                            <span className="text-xs text-slate-400">SKU: {item.variant?.sku} · Qty: {item.qty}</span>
+                            <span className="text-xs text-slate-400">SKU: {item.product?.sku} · Qty: {item.qty}</span>
                           </div>
-                          <span className="font-extrabold text-slate-900">₹{(Number(item.variant?.price) * item.qty).toLocaleString()}</span>
+                          <span className="font-extrabold text-slate-900">₹{(Number(item.product?.basePrice) * item.qty).toLocaleString()}</span>
                         </div>
                       ))}
                     </div>

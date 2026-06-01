@@ -92,8 +92,8 @@ export const CartPage: React.FC = () => {
           {/* Cart Item Cards List */}
           <div className="flex-1 space-y-4">
             {items.map((item) => {
-              const primaryImg = item.product?.images?.find((img: any) => img.isPrimary) || item.product?.images?.[0];
-              const attrText = Object.entries(item.variant?.attributes || {})
+              const primaryImg = (item.product as any)?.images?.find((img: any) => img.isPrimary) || (item.product as any)?.images?.[0];
+              const attrText = Object.entries(item.product?.attributes || {})
                 .map(([k, v]) => `${k}: ${v}`)
                 .join(', ');
 
@@ -116,7 +116,7 @@ export const CartPage: React.FC = () => {
                     <div>
                       <h4 className="font-bold text-slate-800 line-clamp-1">{item.product?.title}</h4>
                       {attrText && <p className="text-xs text-slate-400 mt-0.5">{attrText}</p>}
-                      <p className="text-[10px] text-mono font-mono text-slate-400 mt-1 uppercase tracking-wider">SKU: {item.variant?.sku}</p>
+                      <p className="text-[10px] text-mono font-mono text-slate-400 mt-1 uppercase tracking-wider">SKU: {item.product?.sku}</p>
                     </div>
                   </div>
 
@@ -137,15 +137,15 @@ export const CartPage: React.FC = () => {
                         size="icon"
                         className="h-8 w-8 rounded-full"
                         onClick={() => handleUpdateQty(item.id, item.qty, 1)}
-                        disabled={item.qty >= item.variant.stock}
+                        disabled={item.qty >= (item.product as any).totalStock}
                       >
                         <Plus className="h-3.5 w-3.5" />
                       </Button>
                     </div>
 
                     <div className="text-right">
-                      <p className="font-extrabold text-slate-900">₹{(Number(item.variant?.price) * item.qty).toLocaleString()}</p>
-                      <p className="text-[10px] text-slate-400 mt-0.5">₹{Number(item.variant?.price).toLocaleString()} each</p>
+                      <p className="font-extrabold text-slate-900">₹{(Number(item.product?.basePrice) * item.qty).toLocaleString()}</p>
+                      <p className="text-[10px] text-slate-400 mt-0.5">₹{Number(item.product?.basePrice).toLocaleString()} each</p>
                     </div>
 
                     <Button
