@@ -22,6 +22,7 @@ import { ProductDetailPage } from '../pages/customer/ProductDetailPage';
 import { CartPage } from '../pages/customer/CartPage';
 import { CheckoutPage } from '../pages/customer/CheckoutPage';
 import { OrdersPage } from '../pages/customer/OrdersPage';
+import { OrderDetailPage } from '../pages/customer/OrderDetailPage';
 import { WishlistPage } from '../pages/customer/WishlistPage';
 import { ProfilePage } from '../pages/customer/ProfilePage';
 
@@ -31,6 +32,7 @@ import { SellerProducts } from '../pages/seller/SellerProducts';
 import { SellerOrders } from '../pages/seller/SellerOrders';
 import { SellerInventory } from '../pages/seller/SellerInventory';
 import { SellerSettings } from '../pages/seller/SellerSettings';
+import { SellerCoupons } from '../pages/seller/SellerCoupons';
 
 // Delivery Pages
 import { DeliveryQueue } from '../pages/delivery/DeliveryQueue';
@@ -44,6 +46,7 @@ import { AdminDeliveries } from '../pages/admin/AdminDeliveries';
 import { AdminSellers } from '../pages/admin/AdminSellers';
 import { AdminPartners } from '../pages/admin/AdminPartners';
 import { AdminProducts } from '../pages/admin/AdminProducts';
+import { SellerAddProduct } from '@/pages/seller/SellerAddProduct';
 
 export const AppRouter: React.FC = () => {
   return (
@@ -82,6 +85,7 @@ export const AppRouter: React.FC = () => {
           <Route path="cart" element={<CartPage />} />
           <Route path="checkout" element={<CheckoutPage />} />
           <Route path="orders" element={<OrdersPage />} />
+          <Route path="orders/:id" element={<OrderDetailPage />} />
           <Route path="wishlist" element={<WishlistPage />} />
           <Route path="profile" element={<ProfilePage />} />
         </Route>
@@ -97,9 +101,11 @@ export const AppRouter: React.FC = () => {
         >
           <Route index element={<SellerDashboard />} />
           <Route path="products" element={<SellerProducts />} />
+          <Route path="add-product" element={<SellerAddProduct />} />
           <Route path="orders" element={<SellerOrders />} />
           <Route path="inventory" element={<SellerInventory />} />
           <Route path="settings" element={<SellerSettings />} />
+          <Route path="coupons" element={<SellerCoupons />} />
         </Route>
 
         {/* Delivery Route Group */}

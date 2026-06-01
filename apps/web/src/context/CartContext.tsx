@@ -6,19 +6,16 @@ import { useAuth } from './AuthContext';
 export interface CartItem {
   id: string;
   productId: string;
-  variantId: string;
   qty: number;
   priceSnapshot: number;
   product: {
     title: string;
     slug: string;
-    images: { url: string }[];
-  };
-  variant: {
     sku: string;
-    price: number;
-    stock: number;
+    basePrice: number;
+    totalStock: number;
     attributes: Record<string, string>;
+    images: { url: string; isPrimary: boolean }[];
   };
 }
 
@@ -26,7 +23,7 @@ interface CartContextType {
   items: CartItem[];
   loading: boolean;
   fetchCart: () => Promise<void>;
-  addItem: (productId: string, variantId: string, qty: number, priceSnapshot: number) => Promise<void>;
+  addItem: (productId: string, qty: number, priceSnapshot: number) => Promise<void>;
   updateQty: (itemId: string, qty: number) => Promise<void>;
   removeItem: (itemId: string) => Promise<void>;
   clearCart: () => void;
@@ -59,12 +56,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const addItem = async (productId: string, variantId: string, qty: number, priceSnapshot: number) => {
+  const addItem = async (productId: string, qty: number, priceSnapshot: number) => {
     if (!user) {
       return;
     }
     try {
-      const response = await api.post(API_ENDPOINTS.cart.items, { productId, variantId, qty, priceSnapshot });
+      const response = await api.post(API_ENDPOINTS.cart.items, { productId, qty, priceSnapshot });
       if (response.data.success) {
         await fetchCart();
       }
@@ -107,7 +104,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [user]);
 
   const cartCount = items.reduce((acc, item) => acc + item.qty, 0);
-  const cartTotal = items.reduce((acc, item) => acc + (Number(item.variant.price) * item.qty), 0);
+  const cartTotal = items.reduce((acc, item) => acc + (Number(item.product.basePrice) * item.qty), 0);
 
   return (
     <CartContext.Provider value={{
