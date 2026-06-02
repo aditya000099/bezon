@@ -39,6 +39,8 @@ export const API_ENDPOINTS = {
     create: `${API_V1}/products`,
     update: (id: string) => `${API_V1}/products/${id}`,
     delete: (id: string) => `${API_V1}/products/${id}`,
+    getById: (id: string) => `${API_V1}/products/id/${id}`,
+    stats: (id: string) => `${API_V1}/products/${id}/stats`,
   },
   // Orders
   orders: {

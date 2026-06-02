@@ -91,7 +91,7 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
 export const updateProduct = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const productId = req.params.id as string;
-    const { title, brand, description, basePrice, comparePrice, totalStock, categoryId, status, attributes, lowStockAlert, weightGrams, sku, linkedProductIds } = req.body;
+    const { title, brand, description, basePrice, comparePrice, totalStock, categoryId, status, attributes, lowStockAlert, weightGrams, sku, linkedProductIds, images } = req.body;
 
     if (!req.user) {
       return res.status(401).json({ success: false, message: 'Unauthorized session.' });
@@ -111,6 +111,7 @@ export const updateProduct = async (req: Request, res: Response, next: NextFunct
       weightGrams,
       sku,
       linkedProductIds,
+      images,
     });
 
     res.json({
@@ -186,6 +187,50 @@ export const getRecommendations = async (req: Request, res: Response, next: Next
     const limit = req.query.limit ? Number(req.query.limit) : 8;
     const recommendations = await RecommendationService.getRecommendations(req.user?.id, limit);
     res.json({ success: true, data: recommendations });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Fetch a single product by ID (merchant editing context)
+ */
+export const getProductById = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const productId = req.params.id as string;
+
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: 'Unauthorized session.' });
+    }
+
+    const product = await ProductService.getProductById(req.user.id, productId);
+
+    res.json({
+      success: true,
+      data: product,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Fetch detailed performance and revenue metrics for a product
+ */
+export const getProductStats = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const productId = req.params.id as string;
+
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: 'Unauthorized session.' });
+    }
+
+    const stats = await ProductService.getProductStats(req.user.id, productId);
+
+    res.json({
+      success: true,
+      data: stats,
+    });
   } catch (err) {
     next(err);
   }

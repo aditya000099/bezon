@@ -4,13 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import {
   Plus,
   Edit2,
   Trash2,
@@ -22,7 +15,6 @@ import api from "../../lib/api";
 import { API_ENDPOINTS } from "../../config/api.config";
 import { useToast } from "../../context/ToastContext";
 import type { Product } from "@bezon/types";
-import { ProductForm } from "./components/ProductForm";
 
 export const SellerProducts: React.FC = () => {
   const { toast } = useToast();
@@ -31,10 +23,6 @@ export const SellerProducts: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-
-  // Dialog State
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   // Fetch data
   const fetchData = async () => {
@@ -60,22 +48,10 @@ export const SellerProducts: React.FC = () => {
   // Handle edit query parameter from other views (like Inventory)
   useEffect(() => {
     const editId = searchParams.get("edit");
-    if (editId && products.length > 0) {
-      const productToEdit = products.find((p) => p.id === editId);
-      if (productToEdit) {
-        handleOpenEdit(productToEdit);
-        // Clear param so modal doesn't keep opening on page updates
-        const newParams = new URLSearchParams(searchParams);
-        newParams.delete("edit");
-        setSearchParams(newParams);
-      }
+    if (editId) {
+      navigate(`/seller/products/${editId}/edit`);
     }
-  }, [searchParams, products]);
-
-  const handleOpenEdit = (product: Product) => {
-    setSelectedProduct(product);
-    setIsDialogOpen(true);
-  };
+  }, [searchParams]);
 
   // Archive Product
   const handleArchive = async (id: string) => {
@@ -147,6 +123,7 @@ export const SellerProducts: React.FC = () => {
                 <th className="px-6 py-3.5">Price</th>
                 <th className="px-6 py-3.5">Stock</th>
                 <th className="px-6 py-3.5">Status</th>
+                <th className="px-6 py-3.5">Stats</th>
                 <th className="px-6 py-3.5 text-right">Actions</th>
               </tr>
             </thead>
@@ -206,13 +183,27 @@ export const SellerProducts: React.FC = () => {
                         {p.status}
                       </span>
                     </td>
+                    <td className="px-6 py-4">
+                      <Button
+                        variant="link"
+                        size="sm"
+                        className="text-xs font-bold text-indigo-600 hover:text-indigo-800 p-0 h-auto hover:cursor-pointer"
+                        onClick={() =>
+                          navigate(`/seller/products/${p.id}/stats`)
+                        }
+                      >
+                        View Stats
+                      </Button>
+                    </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2">
                         <Button
                           size="icon"
                           variant="ghost"
                           className="h-8 w-8 text-slate-500 hover:text-slate-800"
-                          onClick={() => handleOpenEdit(p)}
+                          onClick={() =>
+                            navigate(`/seller/products/${p.id}/edit`)
+                          }
                         >
                           <Edit2 className="h-4 w-4" />
                         </Button>
@@ -233,29 +224,6 @@ export const SellerProducts: React.FC = () => {
           </table>
         </div>
       )}
-
-      {/* Edit/Create Form Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto bg-white p-6 rounded-xl border">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-slate-800">
-              Modify Product Listing
-            </DialogTitle>
-            <DialogDescription className="text-slate-500 text-sm">
-              Publish item attributes, pricing details, manage variants, and
-              upload gallery imagery.
-            </DialogDescription>
-          </DialogHeader>
-          <ProductForm
-            product={selectedProduct}
-            onCancel={() => setIsDialogOpen(false)}
-            onSuccess={() => {
-              setIsDialogOpen(false);
-              fetchData();
-            }}
-          />
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

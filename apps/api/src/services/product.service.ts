@@ -201,7 +201,7 @@ export class ProductService {
 
   // Update a specific product
   static async updateProduct(userId: string, productId: string, data: any) {
-    const { title, brand, description, basePrice, comparePrice, totalStock, categoryId, status, attributes, lowStockAlert, weightGrams, sku, linkedProductIds } = data;
+    const { title, brand, description, basePrice, comparePrice, totalStock, categoryId, status, attributes, lowStockAlert, weightGrams, sku, linkedProductIds, images } = data;
 
     const seller = await prisma.seller.findUnique({ where: { userId } });
     if (!seller) {
@@ -250,6 +250,27 @@ export class ProductService {
         } else {
            // Empty array means unlink this specific product
            currentVariantGroupId = null;
+        }
+      }
+
+      // Handle image updates (delete existing and insert new ones)
+      if (images !== undefined && Array.isArray(images)) {
+        await tx.productImage.deleteMany({
+          where: { productId },
+        });
+
+        for (let i = 0; i < images.length; i++) {
+          const img = images[i];
+          await tx.productImage.create({
+            data: {
+              productId,
+              url: img.url,
+              s3Key: img.s3Key || null,
+              altText: img.altText || null,
+              sortOrder: img.sortOrder !== undefined ? img.sortOrder : i,
+              isPrimary: img.isPrimary || false,
+            },
+          });
         }
       }
 
@@ -320,5 +341,112 @@ export class ProductService {
         images: { orderBy: { sortOrder: 'asc' }, take: 1 },
       },
     });
+  }
+
+  // Get a single product details by ID (merchant dashboard context)
+  static async getProductById(userId: string, productId: string) {
+    const seller = await prisma.seller.findUnique({ where: { userId } });
+    if (!seller) {
+      const err = new Error('Seller profile required.');
+      (err as any).status = 403;
+      throw err;
+    }
+
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+      include: {
+        category: true,
+        images: { orderBy: { sortOrder: 'asc' } },
+      }
+    });
+
+    if (!product) {
+      const err = new Error('Product not found.');
+      (err as any).status = 404;
+      throw err;
+    }
+
+    if (product.sellerId !== seller.id) {
+      const err = new Error('Not authorized to view this product.');
+      (err as any).status = 403;
+      throw err;
+    }
+
+    return product;
+  }
+
+  // Calculate detailed performance and revenue metrics for a product
+  static async getProductStats(userId: string, productId: string) {
+    const seller = await prisma.seller.findUnique({ where: { userId } });
+    if (!seller) {
+      const err = new Error('Seller profile required.');
+      (err as any).status = 403;
+      throw err;
+    }
+
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+    });
+
+    if (!product) {
+      const err = new Error('Product not found.');
+      (err as any).status = 404;
+      throw err;
+    }
+
+    if (product.sellerId !== seller.id) {
+      const err = new Error('Not authorized to view this product stats.');
+      (err as any).status = 403;
+      throw err;
+    }
+
+    // 1. Wishlist Saves count
+    const wishlistSaves = await prisma.wishlist.count({
+      where: { productId },
+    });
+
+    // 2. Revenue & Units Sold from delivered orders
+    const deliveredItems = await prisma.orderItem.findMany({
+      where: {
+        productId,
+        order: {
+          status: 'delivered',
+        }
+      },
+      select: {
+        unitPrice: true,
+        qty: true,
+      }
+    });
+
+    const calculatedRevenue = deliveredItems.reduce(
+      (sum, item) => sum + (Number(item.unitPrice) * item.qty),
+      0
+    );
+
+    const calculatedUnitsSold = deliveredItems.reduce(
+      (sum, item) => sum + item.qty,
+      0
+    );
+
+    return {
+      title: product.title,
+      sku: product.sku,
+      brand: product.brand,
+      basePrice: Number(product.basePrice),
+      // Performance
+      viewCount: product.viewCount,
+      soldCount: product.soldCount || calculatedUnitsSold,
+      // Customer Feedback
+      avgRating: product.avgRating ? Number(product.avgRating) : 0,
+      reviewCount: product.reviewCount,
+      // Wishlist
+      wishlistSaves,
+      // Inventory
+      totalStock: product.totalStock,
+      lowStockAlert: product.lowStockAlert,
+      // Revenue
+      revenue: calculatedRevenue,
+    };
   }
 }
