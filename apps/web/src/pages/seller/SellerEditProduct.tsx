@@ -27,7 +27,9 @@ export const SellerEditProduct: React.FC = () => {
           setProduct(res.data.data);
         }
       } catch (err: any) {
-        toast.error(err.response?.data?.message || "Failed to load product details.");
+        toast.error(
+          err.response?.data?.message || "Failed to load product details.",
+        );
         navigate("/seller/products");
       } finally {
         setLoading(false);
@@ -40,7 +42,9 @@ export const SellerEditProduct: React.FC = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] text-slate-400 gap-2">
         <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
-        <p className="text-sm font-semibold">Loading product listing details...</p>
+        <p className="text-sm font-semibold">
+          Loading product listing details...
+        </p>
       </div>
     );
   }
@@ -56,14 +60,15 @@ export const SellerEditProduct: React.FC = () => {
             <Edit className="h-5 w-5 text-indigo-500" /> Edit Product
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Update pricing, specifications, variants, and gallery imagery for this item.
+            Update pricing, specifications, variants, and gallery imagery for
+            this item.
           </p>
         </div>
 
         <Button
           variant="outline"
           onClick={() => navigate("/seller/products")}
-          className="w-full sm:w-auto font-bold flex items-center gap-2"
+          className="w-full sm:w-auto font-bold flex items-center gap-2 hover:cursor-pointer"
         >
           <ArrowLeft className="h-4 w-4" /> Back to Products
         </Button>
@@ -75,7 +80,8 @@ export const SellerEditProduct: React.FC = () => {
             Modify Product Listing
           </CardTitle>
           <p className="text-slate-500 text-sm mt-1">
-            Modify the product characteristics below. Ensure all changes are validated before saving.
+            Modify the product characteristics below. Ensure all changes are
+            validated before saving.
           </p>
         </CardHeader>
         <CardContent>

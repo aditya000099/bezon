@@ -24,11 +24,15 @@ export const SellerLayout: React.FC = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
+  const [notificationsLoading, setNotificationsLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setShowNotifications(false);
       }
     };
@@ -48,6 +52,7 @@ export const SellerLayout: React.FC = () => {
   };
 
   const fetchNotifications = async () => {
+    setNotificationsLoading(true);
     try {
       const res = await api.get(API_ENDPOINTS.notifications.list);
       if (res.data.success) {
@@ -55,6 +60,8 @@ export const SellerLayout: React.FC = () => {
       }
     } catch (err) {
       console.error("Failed to fetch notifications", err);
+    } finally {
+      setNotificationsLoading(false);
     }
   };
 
@@ -70,7 +77,7 @@ export const SellerLayout: React.FC = () => {
         await api.patch(`/api/v1/notifications/${notif.id}/read`);
         setUnreadCount((prev) => Math.max(0, prev - 1));
         setNotifications((prev) =>
-          prev.map((n) => (n.id === notif.id ? { ...n, isRead: true } : n))
+          prev.map((n) => (n.id === notif.id ? { ...n, isRead: true } : n)),
         );
       } catch (err) {
         console.error("Failed to mark as read", err);
@@ -84,7 +91,7 @@ export const SellerLayout: React.FC = () => {
 
   const markAllAsRead = async () => {
     try {
-      await api.patch('/api/v1/notifications/read-all');
+      await api.patch("/api/v1/notifications/read-all");
       setUnreadCount(0);
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
     } catch (err) {
@@ -153,8 +160,13 @@ export const SellerLayout: React.FC = () => {
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => {
-                  setShowNotifications(!showNotifications);
-                  if (!showNotifications) fetchNotifications();
+                  setShowNotifications((prev) => {
+                    const next = !prev;
+                    if (next) {
+                      fetchNotifications();
+                    }
+                    return next;
+                  });
                 }}
                 className="relative p-2 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors"
                 title="Notifications"
@@ -166,14 +178,14 @@ export const SellerLayout: React.FC = () => {
                   </span>
                 )}
               </button>
-              
+
               {/* Notification Dropdown */}
               {showNotifications && (
                 <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-slate-200 overflow-hidden z-50">
                   <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                     <h3 className="font-bold text-slate-800">Notifications</h3>
                     {unreadCount > 0 && (
-                      <button 
+                      <button
                         onClick={markAllAsRead}
                         className="text-xs text-indigo-600 hover:text-indigo-800 font-medium flex items-center gap-1"
                       >
@@ -181,28 +193,46 @@ export const SellerLayout: React.FC = () => {
                       </button>
                     )}
                   </div>
-                  <div className="max-h-[400px] overflow-y-auto">
-                    {notifications.length === 0 ? (
+                  <div className="max-h-100 overflow-y-auto">
+                    {notificationsLoading ? (
+                      <div className="p-8 text-center text-slate-400 text-sm">
+                        Loading notifications...
+                      </div>
+                    ) : notifications.length === 0 ? (
                       <div className="p-8 text-center text-slate-400 text-sm">
                         No notifications yet.
                       </div>
                     ) : (
                       <div className="divide-y divide-slate-100">
                         {notifications.map((notif) => (
-                          <div 
+                          <div
                             key={notif.id}
                             onClick={() => handleNotificationClick(notif)}
-                            className={`p-4 cursor-pointer transition-colors hover:bg-slate-50 ${!notif.isRead ? 'bg-indigo-50/50' : ''}`}
+                            className={`p-4 cursor-pointer transition-colors hover:bg-slate-50 ${!notif.isRead ? "bg-indigo-50/50" : ""}`}
                           >
                             <div className="flex justify-between items-start mb-1">
-                              <h4 className={`text-sm ${!notif.isRead ? 'font-bold text-slate-900' : 'font-medium text-slate-700'}`}>
+                              <h4
+                                className={`text-sm ${!notif.isRead ? "font-bold text-slate-900" : "font-medium text-slate-700"}`}
+                              >
                                 {notif.title}
                               </h4>
-                              {!notif.isRead && <span className="h-2 w-2 rounded-full bg-indigo-500 mt-1.5 shrink-0" />}
+                              {!notif.isRead && (
+                                <span className="h-2 w-2 rounded-full bg-indigo-500 mt-1.5 shrink-0" />
+                              )}
                             </div>
-                            <p className="text-xs text-slate-500 line-clamp-2">{notif.body}</p>
+                            <p className="text-xs text-slate-500 line-clamp-2">
+                              {notif.body}
+                            </p>
                             <span className="text-[10px] text-slate-400 mt-2 block">
-                              {new Date(notif.createdAt).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                              {new Date(notif.createdAt).toLocaleString(
+                                undefined,
+                                {
+                                  month: "short",
+                                  day: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                },
+                              )}
                             </span>
                           </div>
                         ))}

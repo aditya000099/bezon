@@ -93,7 +93,7 @@ export const SellerProducts: React.FC = () => {
         </div>
         <Button
           onClick={() => navigate("/seller/add-product")}
-          className="w-full sm:w-auto font-bold flex items-center gap-2"
+          className="w-full sm:w-auto font-bold flex items-center gap-2  hover:cursor-pointer"
         >
           <Plus className="h-4 w-4" /> Add Product
         </Button>
@@ -200,7 +200,7 @@ export const SellerProducts: React.FC = () => {
                         <Button
                           size="icon"
                           variant="ghost"
-                          className="h-8 w-8 text-slate-500 hover:text-slate-800"
+                          className="h-8 w-8 text-slate-500 hover:text-slate-800 hover:cursor-pointer"
                           onClick={() =>
                             navigate(`/seller/products/${p.id}/edit`)
                           }
@@ -210,7 +210,7 @@ export const SellerProducts: React.FC = () => {
                         <Button
                           size="icon"
                           variant="ghost"
-                          className="h-8 w-8 text-rose-500 hover:text-rose-700 hover:bg-rose-50"
+                          className="h-8 w-8 text-rose-500 hover:text-rose-700 hover:bg-rose-50 hover:cursor-pointer"
                           onClick={() => handleArchive(p.id)}
                         >
                           <Trash2 className="h-4 w-4" />

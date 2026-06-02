@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
   CardDescription,
-} from '@/components/ui/card';
+} from "@/components/ui/card";
 import {
   Loader2,
   Package,
@@ -18,19 +18,19 @@ import {
   Truck,
   AlertTriangle,
   User,
-} from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import api from '../../lib/api';
-import { API_ENDPOINTS } from '../../config/api.config';
-import { useToast } from '../../context/ToastContext';
+} from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import api from "../../lib/api";
+import { API_ENDPOINTS } from "../../config/api.config";
+import { useToast } from "../../context/ToastContext";
 
 export const SellerOrders: React.FC = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     fetchOrders();
@@ -44,7 +44,7 @@ export const SellerOrders: React.FC = () => {
         setOrders(res.data.data);
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to fetch orders');
+      toast.error(err.response?.data?.message || "Failed to fetch orders");
     } finally {
       setLoading(false);
     }
@@ -52,36 +52,36 @@ export const SellerOrders: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'placed':
-        return 'bg-blue-100 text-blue-700 border-blue-200';
-      case 'confirmed':
-        return 'bg-amber-100 text-amber-700 border-amber-200';
-      case 'ready_for_pickup':
-        return 'bg-indigo-100 text-indigo-700 border-indigo-200';
-      case 'out_for_delivery':
-        return 'bg-purple-100 text-purple-700 border-purple-200';
-      case 'delivered':
-        return 'bg-emerald-100 text-emerald-700 border-emerald-200';
-      case 'cancelled':
-        return 'bg-rose-100 text-rose-700 border-rose-200';
+      case "placed":
+        return "bg-blue-100 text-blue-700 border-blue-200";
+      case "confirmed":
+        return "bg-amber-100 text-amber-700 border-amber-200";
+      case "ready_for_pickup":
+        return "bg-indigo-100 text-indigo-700 border-indigo-200";
+      case "out_for_delivery":
+        return "bg-purple-100 text-purple-700 border-purple-200";
+      case "delivered":
+        return "bg-emerald-100 text-emerald-700 border-emerald-200";
+      case "cancelled":
+        return "bg-rose-100 text-rose-700 border-rose-200";
       default:
-        return 'bg-slate-100 text-slate-700 border-slate-200';
+        return "bg-slate-100 text-slate-700 border-slate-200";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'placed':
+      case "placed":
         return <Clock className="h-3.5 w-3.5" />;
-      case 'confirmed':
+      case "confirmed":
         return <CheckCircle2 className="h-3.5 w-3.5" />;
-      case 'ready_for_pickup':
+      case "ready_for_pickup":
         return <Package className="h-3.5 w-3.5" />;
-      case 'out_for_delivery':
+      case "out_for_delivery":
         return <Truck className="h-3.5 w-3.5" />;
-      case 'delivered':
+      case "delivered":
         return <CheckCircle2 className="h-3.5 w-3.5" />;
-      case 'cancelled':
+      case "cancelled":
         return <AlertTriangle className="h-3.5 w-3.5" />;
       default:
         return <Clock className="h-3.5 w-3.5" />;
@@ -91,7 +91,7 @@ export const SellerOrders: React.FC = () => {
   const filteredOrders = orders.filter(
     (o) =>
       o.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (o.customer?.name || '').toLowerCase().includes(searchTerm.toLowerCase()),
+      (o.customer?.name || "").toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   return (
@@ -123,7 +123,7 @@ export const SellerOrders: React.FC = () => {
             size="sm"
             onClick={fetchOrders}
             disabled={loading}
-            className="w-full sm:w-auto font-medium"
+            className="w-full sm:w-auto font-medium hover:cursor-pointer"
           >
             {loading ? (
               <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -185,13 +185,13 @@ export const SellerOrders: React.FC = () => {
                         <div className="flex items-center gap-1 text-slate-500 text-[11px] mt-1 font-medium">
                           <Calendar className="h-3 w-3" />
                           {new Date(order.createdAt).toLocaleDateString(
-                            'en-US',
+                            "en-US",
                             {
-                              month: 'short',
-                              day: 'numeric',
-                              year: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit',
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
                             },
                           )}
                         </div>
@@ -203,7 +203,7 @@ export const SellerOrders: React.FC = () => {
                           </div>
                           <div>
                             <div className="font-semibold text-slate-800">
-                              {order.customer?.name || 'Guest'}
+                              {order.customer?.name || "Guest"}
                             </div>
                             <div className="text-xs text-slate-500">
                               {order.customer?.phone || order.customer?.email}
@@ -216,20 +216,20 @@ export const SellerOrders: React.FC = () => {
                           className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${getStatusColor(order.status)}`}
                         >
                           {getStatusIcon(order.status)}
-                          {order.status.replace(/_/g, ' ')}
+                          {order.status.replace(/_/g, " ")}
                         </span>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2 text-slate-600 font-medium">
                           <Package className="h-4 w-4 text-slate-400" />
-                          {totalItems} item{totalItems !== 1 ? 's' : ''}
+                          {totalItems} item{totalItems !== 1 ? "s" : ""}
                         </div>
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="font-extrabold text-slate-900">
                           ₹{totalRevenue.toLocaleString()}
                         </div>
-                        {order.paymentStatus === 'paid' ? (
+                        {order.paymentStatus === "paid" ? (
                           <span className="text-[10px] font-bold text-emerald-600">
                             PAID
                           </span>

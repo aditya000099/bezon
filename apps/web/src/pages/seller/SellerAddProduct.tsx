@@ -27,7 +27,7 @@ export const SellerAddProduct: React.FC = () => {
         <Button
           variant="outline"
           onClick={() => navigate("/seller/products")}
-          className="w-full sm:w-auto font-bold flex items-center gap-2"
+          className="w-full sm:w-auto font-bold flex items-center gap-2 hover:cursor-pointer"
         >
           <ArrowLeft className="h-4 w-4" /> Back to Products
         </Button>
