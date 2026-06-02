@@ -99,6 +99,12 @@ export const reviewSchema = z.object({
   images: z.array(reviewImageSchema).max(5, 'Maximum 5 images per review').default([]),
 });
 
+export const editReviewSchema = z.object({
+  rating: z.number().int().min(1).max(5, 'Rating must be between 1 and 5'),
+  reviewText: z.string().max(1000).optional(),
+  images: z.array(reviewImageSchema).max(5, 'Maximum 5 images per review').default([]),
+});
+
 export const questionSchema = z.object({
   productId: z.string().uuid('Invalid product ID'),
   variantId: z.string().uuid('Invalid variant ID').optional(),

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -87,6 +88,8 @@ const BadgePill: React.FC<{ badge: 'seller' | 'verified_buyer' | null }> = ({
 
 export const SellerQA: React.FC = () => {
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
+  const targetQuestionId = searchParams.get('questionId');
 
   // Filters
   const [products, setProducts] = useState<ProductOption[]>([]);
@@ -274,7 +277,7 @@ export const SellerQA: React.FC = () => {
       ) : (
         <div className="flex flex-col gap-4">
           {Array.isArray(questions) && questions.map((q) => (
-            <Card key={q.id} className="bg-white border-slate-200 shadow-sm">
+            <Card key={q.id} className={`bg-white shadow-sm transition-colors ${q.id === targetQuestionId ? 'border-2 border-indigo-500 ring-2 ring-indigo-50' : 'border-slate-200'}`}>
               <CardHeader className="pb-3">
                 <div className="flex items-start gap-3">
                   {/* Product thumbnail */}

@@ -8,5 +8,6 @@ router.get('/product/:productId', ReviewController.getProductReviews);
 router.get('/product/:productId/summary', ReviewController.getProductReviewSummary);
 
 router.post('/', authenticateUser, ReviewController.createReview);
+router.patch('/:id/edit', authenticateUser, ReviewController.editReview);
 
 export default router;

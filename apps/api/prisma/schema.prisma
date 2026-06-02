@@ -86,6 +86,7 @@ enum NotificationType {
   new_task_assigned
   low_stock
   question_asked
+  new_review
   general
 }
 
@@ -444,6 +445,7 @@ model Notification {
   title     String           @db.VarChar(120)
   body      String?
   data      Json             @default("{}")
+  targetUrl String?          @map("target_url")
   isRead    Boolean          @default(false) @map("is_read")
   createdAt DateTime         @default(now()) @map("created_at") @db.Timestamptz
   user      User             @relation(fields: [userId], references: [id], onDelete: Cascade, map: "notif_user_fk")
@@ -553,6 +555,7 @@ model Review {
   orderItemId String         @unique @map("order_item_id") @db.Uuid
   rating      Int            @db.SmallInt
   reviewText  String?        @map("review_text")
+  editCount   Int            @default(0) @map("edit_count") @db.SmallInt
   createdAt   DateTime       @default(now()) @map("created_at") @db.Timestamptz
   updatedAt   DateTime       @default(now()) @map("updated_at") @db.Timestamptz
 
