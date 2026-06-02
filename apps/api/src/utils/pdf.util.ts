@@ -1,4 +1,5 @@
 import PDFDocument from 'pdfkit';
+import { CryptoUtil } from './crypto.util.js';
 
 export class PdfUtil {
   /**
@@ -50,7 +51,7 @@ export class PdfUtil {
           .text(`Order ID: `, 400, 80, { continued: true })
           .fillColor(textColor)
           .font('Helvetica-Bold')
-          .text(order.id, { align: 'right' });
+          .text(order.orderNumber, { align: 'right' });
 
         doc
           .font('Helvetica')
@@ -79,6 +80,35 @@ export class PdfUtil {
           .font('Helvetica-Bold')
           .fillColor(textColor)
           .text(order.seller?.shopName || 'Bezon Seller', 50, 155);
+
+        let currentY = 170;
+        doc.font('Helvetica').fontSize(9).fillColor(textColor);
+        if (order.seller?.gstin) {
+          doc.text(`GSTIN: ${order.seller.gstin}`, 50, currentY);
+          currentY += 12;
+        }
+        if (order.seller?.panNumber) {
+          doc.text(`PAN: ${order.seller.panNumber}`, 50, currentY);
+          currentY += 12;
+        }
+
+        if (order.seller?.bankNameEnc || order.seller?.bankAccountEnc) {
+          currentY += 5;
+          doc.font('Helvetica-Bold').text('Bank Details', 50, currentY);
+          currentY += 12;
+          doc.font('Helvetica');
+          if (order.seller.bankNameEnc) {
+            doc.text(CryptoUtil.decrypt(order.seller.bankNameEnc), 50, currentY);
+            currentY += 12;
+          }
+          if (order.seller.bankAccountEnc) {
+            doc.text(`A/C: ${CryptoUtil.decrypt(order.seller.bankAccountEnc)}`, 50, currentY);
+            currentY += 12;
+          }
+          if (order.seller.ifscEnc) {
+            doc.text(`IFSC: ${CryptoUtil.decrypt(order.seller.ifscEnc)}`, 50, currentY);
+          }
+        }
 
         doc
           .fontSize(12)

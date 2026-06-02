@@ -84,6 +84,10 @@ export const API_ENDPOINTS = {
     markRead: (id: string) => `${API_V1}/notifications/${id}/read`,
     markAllRead: `${API_V1}/notifications/read-all`,
   },
+  // Sellers
+  sellers: {
+    settings: `${API_V1}/sellers/settings`,
+  },
 } as const;
 
 export default API_ENDPOINTS;

@@ -430,7 +430,16 @@ export class PaymentService {
               include: { product: { select: { title: true } } }
             },
             customer: { select: { name: true, phone: true } },
-            seller: { select: { shopName: true } }
+            seller: { 
+              select: { 
+                shopName: true,
+                panNumber: true,
+                gstin: true,
+                bankNameEnc: true,
+                bankAccountEnc: true,
+                ifscEnc: true
+              } 
+            }
           }
         });
 

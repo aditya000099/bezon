@@ -129,9 +129,11 @@ model Seller {
   logoUrl         String?      @map("logo_url")
   status          SellerStatus @default(pending)
   avgDispatchDays Int          @default(2) @map("avg_dispatch_days") @db.SmallInt
+  bankNameEnc     String?      @map("bank_name_enc")
   bankAccountEnc  String?      @map("bank_account_enc")
   ifscEnc         String?      @map("ifsc_enc")
   gstin           String?      @db.VarChar(15)
+  panNumber       String?      @map("pan_number") @db.VarChar(10)
   totalSales      Decimal      @default(0) @map("total_sales") @db.Decimal(14, 2)
   totalOrders     Int          @default(0) @map("total_orders")
   createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamptz

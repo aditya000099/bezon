@@ -12,6 +12,7 @@ import addressRouter from './address.routes.js';
 import reviewRouter from './review.routes.js';
 import notificationRouter from './notification.routes.js';
 import qaRouter from './qa.routes.js';
+import sellerRouter from './seller.routes.js';
 
 const router = Router();
 
@@ -29,5 +30,6 @@ router.use('/addresses', addressRouter);
 router.use('/reviews', reviewRouter);
 router.use('/notifications', notificationRouter);
 router.use('/qa', qaRouter);
+router.use('/sellers', sellerRouter);
 
 export default router;
