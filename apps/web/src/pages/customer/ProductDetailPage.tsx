@@ -14,9 +14,15 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { useCart } from "../../context/CartContext";
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
 import api from "../../lib/api";
 import { API_ENDPOINTS } from "../../config/api.config";
@@ -60,12 +66,12 @@ export const ProductDetailPage: React.FC = () => {
   const [loadingQuestions, setLoadingQuestions] = useState(false);
   const [questionsTotalCount, setQuestionsTotalCount] = useState(0);
   const [questionsPage, setQuestionsPage] = useState(1);
-  const [questionSort, setQuestionSort] = useState('recent');
+  const [questionSort, setQuestionSort] = useState("recent");
   const [askModalOpen, setAskModalOpen] = useState(false);
-  const [newQuestion, setNewQuestion] = useState('');
+  const [newQuestion, setNewQuestion] = useState("");
   const [askingQuestion, setAskingQuestion] = useState(false);
   const [answeringId, setAnsweringId] = useState<string | null>(null);
-  const [answerText, setAnswerText] = useState('');
+  const [answerText, setAnswerText] = useState("");
   const [submittingAnswer, setSubmittingAnswer] = useState(false);
 
   useEffect(() => {
@@ -114,7 +120,7 @@ export const ProductDetailPage: React.FC = () => {
           setReviews(listRes.data.data.reviews);
         }
       } catch (err) {
-        console.error('Failed to fetch reviews', err);
+        console.error("Failed to fetch reviews", err);
       } finally {
         setLoadingReviews(false);
       }
@@ -134,12 +140,12 @@ export const ProductDetailPage: React.FC = () => {
           if (questionsPage === 1) {
             setQuestions(res.data.data.questions);
           } else {
-            setQuestions(prev => [...prev, ...res.data.data.questions]);
+            setQuestions((prev) => [...prev, ...res.data.data.questions]);
           }
           setQuestionsTotalCount(res.data.data.pagination.totalCount);
         }
       } catch (err) {
-        console.error('Failed to fetch questions', err);
+        console.error("Failed to fetch questions", err);
       } finally {
         setLoadingQuestions(false);
       }
@@ -196,7 +202,7 @@ export const ProductDetailPage: React.FC = () => {
 
   const handleAskQuestion = async () => {
     if (!currentProduct || newQuestion.trim().length < 10) {
-      toast.warning('Question must be at least 10 characters long.');
+      toast.warning("Question must be at least 10 characters long.");
       return;
     }
     setAskingQuestion(true);
@@ -205,18 +211,20 @@ export const ProductDetailPage: React.FC = () => {
         productId: currentProduct.id,
         question: newQuestion.trim(),
       });
-      toast.success('Your question has been posted!');
-      setNewQuestion('');
+      toast.success("Your question has been posted!");
+      setNewQuestion("");
       setAskModalOpen(false);
       setQuestionsPage(1);
       // Refetch
-      const res = await api.get(API_ENDPOINTS.qa.list(currentProduct.id), { params: { page: 1, limit: 5, sort: questionSort } });
+      const res = await api.get(API_ENDPOINTS.qa.list(currentProduct.id), {
+        params: { page: 1, limit: 5, sort: questionSort },
+      });
       if (res.data.success) {
         setQuestions(res.data.data.questions);
         setQuestionsTotalCount(res.data.data.pagination.totalCount);
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to post question.');
+      toast.error(err.response?.data?.message || "Failed to post question.");
     } finally {
       setAskingQuestion(false);
     }
@@ -224,7 +232,7 @@ export const ProductDetailPage: React.FC = () => {
 
   const handleSubmitAnswer = async (questionId: string) => {
     if (answerText.trim().length < 2) {
-      toast.warning('Answer must be at least 2 characters.');
+      toast.warning("Answer must be at least 2 characters.");
       return;
     }
     setSubmittingAnswer(true);
@@ -233,18 +241,20 @@ export const ProductDetailPage: React.FC = () => {
         questionId,
         answer: answerText.trim(),
       });
-      toast.success('Answer posted!');
-      setAnswerText('');
+      toast.success("Answer posted!");
+      setAnswerText("");
       setAnsweringId(null);
       // Update the question in the list with the new answer
-      setQuestions(prev => prev.map(q => {
-        if (q.id === questionId) {
-          return { ...q, answers: [...(q.answers || []), res.data.data] };
-        }
-        return q;
-      }));
+      setQuestions((prev) =>
+        prev.map((q) => {
+          if (q.id === questionId) {
+            return { ...q, answers: [...(q.answers || []), res.data.data] };
+          }
+          return q;
+        }),
+      );
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to post answer.');
+      toast.error(err.response?.data?.message || "Failed to post answer.");
     } finally {
       setSubmittingAnswer(false);
     }
@@ -357,14 +367,19 @@ export const ProductDetailPage: React.FC = () => {
                   <Star
                     key={star}
                     className={`h-4 w-4 ${
-                      star <= Math.round(product.avgRating ? Number(product.avgRating) : 0)
+                      star <=
+                      Math.round(
+                        product.avgRating ? Number(product.avgRating) : 0,
+                      )
                         ? "fill-amber-500 text-amber-500"
                         : "fill-slate-100 text-slate-200"
                     }`}
                   />
                 ))}
                 <span className="text-amber-500 font-extrabold text-sm ml-1.5">
-                  {product.avgRating ? Number(product.avgRating).toFixed(1) : "0.0"}
+                  {product.avgRating
+                    ? Number(product.avgRating).toFixed(1)
+                    : "0.0"}
                 </span>
               </div>
               <span className="text-slate-300">|</span>
@@ -482,7 +497,7 @@ export const ProductDetailPage: React.FC = () => {
                           : "border-slate-200 bg-white hover:border-slate-300 text-slate-700"
                       }`}
                     >
-                      <p className="text-xs font-bold">{labelStr}</p>
+                      <p className="text-xs font-bold text-black">{labelStr}</p>
                       <p className="text-sm font-extrabold mt-1 text-slate-900">
                         ₹{Number(p.basePrice).toLocaleString()}
                       </p>
@@ -540,8 +555,10 @@ export const ProductDetailPage: React.FC = () => {
 
       {/* Customer Reviews Section */}
       <div className="mt-8 border-t border-slate-100 pt-10">
-        <h2 className="text-2xl font-extrabold text-slate-900 mb-8">Customer Reviews</h2>
-        
+        <h2 className="text-2xl font-extrabold text-slate-900 mb-8">
+          Customer Reviews
+        </h2>
+
         {loadingReviews ? (
           <div className="flex items-center justify-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
@@ -550,7 +567,10 @@ export const ProductDetailPage: React.FC = () => {
           <div className="bg-slate-50 rounded-2xl p-12 flex flex-col items-center justify-center text-center">
             <Star className="h-12 w-12 text-slate-300 mb-3" />
             <h3 className="text-lg font-bold text-slate-700">No reviews yet</h3>
-            <p className="text-sm text-slate-500 mt-1">Be the first to review this product after your purchase is delivered!</p>
+            <p className="text-sm text-slate-500 mt-1">
+              Be the first to review this product after your purchase is
+              delivered!
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
@@ -558,7 +578,9 @@ export const ProductDetailPage: React.FC = () => {
             <div className="flex flex-col gap-6">
               <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="text-5xl font-black text-slate-900">{reviewSummary.avgRating.toFixed(1)}</div>
+                  <div className="text-5xl font-black text-slate-900">
+                    {reviewSummary.avgRating.toFixed(1)}
+                  </div>
                   <div className="flex flex-col gap-1">
                     <div className="flex gap-1">
                       {[1, 2, 3, 4, 5].map((star) => (
@@ -572,28 +594,38 @@ export const ProductDetailPage: React.FC = () => {
                         />
                       ))}
                     </div>
-                    <span className="text-sm font-semibold text-slate-500">{reviewSummary.totalCount} ratings</span>
+                    <span className="text-sm font-semibold text-slate-500">
+                      {reviewSummary.totalCount} ratings
+                    </span>
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-2">
                   {[5, 4, 3, 2, 1].map((star) => {
                     const count = reviewSummary.breakdown[star] || 0;
-                    const percentage = reviewSummary.totalCount > 0 
-                      ? Math.round((count / reviewSummary.totalCount) * 100) 
-                      : 0;
-                    
+                    const percentage =
+                      reviewSummary.totalCount > 0
+                        ? Math.round((count / reviewSummary.totalCount) * 100)
+                        : 0;
+
                     return (
-                      <div key={star} className="flex items-center gap-3 text-sm">
-                        <span className="font-bold text-slate-700 w-4">{star}</span>
+                      <div
+                        key={star}
+                        className="flex items-center gap-3 text-sm"
+                      >
+                        <span className="font-bold text-slate-700 w-4">
+                          {star}
+                        </span>
                         <Star className="h-3 w-3 fill-amber-500 text-amber-500 shrink-0" />
                         <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-amber-400 rounded-full" 
+                          <div
+                            className="h-full bg-amber-400 rounded-full"
                             style={{ width: `${percentage}%` }}
                           />
                         </div>
-                        <span className="text-slate-500 w-8 text-right text-xs font-semibold">{count}</span>
+                        <span className="text-slate-500 w-8 text-right text-xs font-semibold">
+                          {count}
+                        </span>
                       </div>
                     );
                   })}
@@ -604,23 +636,35 @@ export const ProductDetailPage: React.FC = () => {
             {/* Reviews List */}
             <div className="lg:col-span-2 flex flex-col gap-6">
               {reviews.map((review) => (
-                <div key={review.id} className="border-b border-slate-100 pb-6 last:border-0">
+                <div
+                  key={review.id}
+                  className="border-b border-slate-100 pb-6 last:border-0"
+                >
                   <div className="flex items-center gap-3 mb-3">
                     <div className="h-10 w-10 bg-indigo-100 rounded-full flex items-center justify-center font-bold text-indigo-700 shrink-0 overflow-hidden">
                       {review.user?.avatarUrl ? (
-                        <img src={review.user.avatarUrl} alt={review.user.name} className="h-full w-full object-cover" />
+                        <img
+                          src={review.user.avatarUrl}
+                          alt={review.user.name}
+                          className="h-full w-full object-cover"
+                        />
                       ) : (
                         review.user?.name.charAt(0).toUpperCase()
                       )}
                     </div>
                     <div className="flex flex-col">
-                      <span className="font-bold text-slate-800 text-sm">{review.user?.name || 'Verified Buyer'}</span>
+                      <span className="font-bold text-slate-800 text-sm">
+                        {review.user?.name || "Verified Buyer"}
+                      </span>
                       <span className="text-xs text-slate-400">
-                        {new Date(review.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                        {new Date(review.createdAt).toLocaleDateString(
+                          "en-US",
+                          { year: "numeric", month: "long", day: "numeric" },
+                        )}
                       </span>
                     </div>
                   </div>
-                  
+
                   <div className="flex gap-0.5 mb-3">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <Star
@@ -633,16 +677,25 @@ export const ProductDetailPage: React.FC = () => {
                       />
                     ))}
                   </div>
-                  
+
                   {review.reviewText && (
-                    <p className="text-sm text-slate-700 leading-relaxed mb-4">{review.reviewText}</p>
+                    <p className="text-sm text-slate-700 leading-relaxed mb-4">
+                      {review.reviewText}
+                    </p>
                   )}
-                  
+
                   {review.images && review.images.length > 0 && (
                     <div className="flex gap-2 flex-wrap">
                       {review.images.map((img: any) => (
-                        <div key={img.id} className="h-20 w-20 rounded-xl overflow-hidden border border-slate-200">
-                          <img src={img.url} alt="Review attachment" className="h-full w-full object-cover" />
+                        <div
+                          key={img.id}
+                          className="h-20 w-20 rounded-xl overflow-hidden border border-slate-200"
+                        >
+                          <img
+                            src={img.url}
+                            alt="Review attachment"
+                            className="h-full w-full object-cover"
+                          />
                         </div>
                       ))}
                     </div>
@@ -662,12 +715,19 @@ export const ProductDetailPage: React.FC = () => {
               <MessageSquare className="h-6 w-6 text-indigo-500" />
               Questions & Answers
             </h2>
-            <p className="text-sm text-slate-500 mt-1">{questionsTotalCount} question{questionsTotalCount !== 1 ? 's' : ''} about this product</p>
+            <p className="text-sm text-slate-500 mt-1">
+              {questionsTotalCount} question
+              {questionsTotalCount !== 1 ? "s" : ""} about this product
+            </p>
           </div>
           <div className="flex items-center gap-3">
             <select
               value={questionSort}
-              onChange={(e) => { setQuestionSort(e.target.value); setQuestionsPage(1); setQuestions([]); }}
+              onChange={(e) => {
+                setQuestionSort(e.target.value);
+                setQuestionsPage(1);
+                setQuestions([]);
+              }}
               className="text-sm border border-slate-200 rounded-lg px-3 py-2 text-slate-600 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
               <option value="recent">Most Recent</option>
@@ -692,24 +752,40 @@ export const ProductDetailPage: React.FC = () => {
         ) : questions.length === 0 ? (
           <div className="bg-slate-50 rounded-2xl p-12 flex flex-col items-center justify-center text-center">
             <MessageSquare className="h-12 w-12 text-slate-300 mb-3" />
-            <h3 className="text-lg font-bold text-slate-700">No questions yet</h3>
-            <p className="text-sm text-slate-500 mt-1">Be the first to ask a question about this product!</p>
+            <h3 className="text-lg font-bold text-slate-700">
+              No questions yet
+            </h3>
+            <p className="text-sm text-slate-500 mt-1">
+              Be the first to ask a question about this product!
+            </p>
           </div>
         ) : (
           <div className="flex flex-col gap-6">
             {questions.map((q) => (
-              <div key={q.id} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+              <div
+                key={q.id}
+                className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm"
+              >
                 {/* Question */}
                 <div className="flex items-start gap-3 mb-4">
                   <div className="h-8 w-8 bg-indigo-100 rounded-full flex items-center justify-center font-bold text-indigo-700 shrink-0 text-sm">
                     Q
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-semibold text-slate-800">{q.question}</p>
+                    <p className="text-sm font-semibold text-slate-800">
+                      {q.question}
+                    </p>
                     <p className="text-xs text-slate-400 mt-1">
-                      Asked by <span className="font-medium text-slate-500">{q.user?.name || 'Anonymous'}</span>
-                      {' · '}
-                      {new Date(q.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                      Asked by{" "}
+                      <span className="font-medium text-slate-500">
+                        {q.user?.name || "Anonymous"}
+                      </span>
+                      {" · "}
+                      {new Date(q.createdAt).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })}
                     </p>
                   </div>
                 </div>
@@ -720,19 +796,25 @@ export const ProductDetailPage: React.FC = () => {
                     {q.answers.map((a: any) => (
                       <div key={a.id} className="bg-slate-50 rounded-xl p-4">
                         <div className="flex items-center gap-2 mb-2">
-                          <span className="text-sm font-semibold text-slate-700">{a.user?.name || 'Anonymous'}</span>
-                          {a.badge === 'seller' && (
+                          <span className="text-sm font-semibold text-slate-700">
+                            {a.user?.name || "Anonymous"}
+                          </span>
+                          {a.badge === "seller" && (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-700">
                               <Store className="h-3 w-3" /> Seller
                             </span>
                           )}
-                          {a.badge === 'verified_buyer' && (
+                          {a.badge === "verified_buyer" && (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">
                               <ShieldCheck className="h-3 w-3" /> Verified Buyer
                             </span>
                           )}
                           <span className="text-xs text-slate-400">
-                            {new Date(a.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                            {new Date(a.createdAt).toLocaleDateString("en-US", {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                            })}
                           </span>
                         </div>
                         <p className="text-sm text-slate-600">{a.answer}</p>
@@ -750,7 +832,9 @@ export const ProductDetailPage: React.FC = () => {
                       onChange={(e) => setAnswerText(e.target.value)}
                       placeholder="Write your answer..."
                       className="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      onKeyDown={(e) => e.key === 'Enter' && handleSubmitAnswer(q.id)}
+                      onKeyDown={(e) =>
+                        e.key === "Enter" && handleSubmitAnswer(q.id)
+                      }
                     />
                     <Button
                       size="sm"
@@ -758,13 +842,20 @@ export const ProductDetailPage: React.FC = () => {
                       disabled={submittingAnswer}
                       className="gap-1 font-bold"
                     >
-                      {submittingAnswer ? <Loader2 className="h-3 w-3 animate-spin" /> : <Send className="h-3 w-3" />}
+                      {submittingAnswer ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <Send className="h-3 w-3" />
+                      )}
                       Reply
                     </Button>
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => { setAnsweringId(null); setAnswerText(''); }}
+                      onClick={() => {
+                        setAnsweringId(null);
+                        setAnswerText("");
+                      }}
                       className="text-slate-400"
                     >
                       Cancel
@@ -786,11 +877,13 @@ export const ProductDetailPage: React.FC = () => {
               <div className="flex justify-center">
                 <Button
                   variant="outline"
-                  onClick={() => setQuestionsPage(prev => prev + 1)}
+                  onClick={() => setQuestionsPage((prev) => prev + 1)}
                   disabled={loadingQuestions}
                   className="font-bold gap-2"
                 >
-                  {loadingQuestions ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                  {loadingQuestions ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : null}
                   Load More Questions
                 </Button>
               </div>
@@ -800,10 +893,15 @@ export const ProductDetailPage: React.FC = () => {
       </div>
 
       {/* Ask Question Modal */}
-      <Dialog open={askModalOpen} onOpenChange={(open) => !open && setAskModalOpen(false)}>
+      <Dialog
+        open={askModalOpen}
+        onOpenChange={(open) => !open && setAskModalOpen(false)}
+      >
         <DialogContent className="max-w-md bg-white border border-slate-200 shadow-2xl p-6 rounded-2xl">
           <DialogHeader>
-            <DialogTitle className="text-xl font-extrabold text-slate-800">Ask a Question</DialogTitle>
+            <DialogTitle className="text-xl font-extrabold text-slate-800">
+              Ask a Question
+            </DialogTitle>
           </DialogHeader>
           <div className="py-4">
             <textarea
@@ -814,8 +912,12 @@ export const ProductDetailPage: React.FC = () => {
               maxLength={500}
             />
             <div className="flex justify-between mt-1">
-              <span className="text-[10px] text-slate-400">Minimum 10 characters</span>
-              <span className="text-[10px] text-slate-400">{newQuestion.length}/500</span>
+              <span className="text-[10px] text-slate-400">
+                Minimum 10 characters
+              </span>
+              <span className="text-[10px] text-slate-400">
+                {newQuestion.length}/500
+              </span>
             </div>
           </div>
           <DialogFooter>
@@ -824,7 +926,11 @@ export const ProductDetailPage: React.FC = () => {
               onClick={handleAskQuestion}
               disabled={askingQuestion || newQuestion.trim().length < 10}
             >
-              {askingQuestion ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Post Question'}
+              {askingQuestion ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                "Post Question"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
