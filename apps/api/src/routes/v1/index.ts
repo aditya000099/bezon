@@ -14,6 +14,8 @@ import notificationRouter from './notification.routes.js';
 import qaRouter from './qa.routes.js';
 import sellerRouter from './seller.routes.js';
 import wishlistRouter from './wishlist.routes.js';
+import configRouter from './config.routes.js';
+import deliveryRouter from './delivery.routes.js';
 
 const router = Router();
 
@@ -33,5 +35,7 @@ router.use('/notifications', notificationRouter);
 router.use('/qa', qaRouter);
 router.use('/sellers', sellerRouter);
 router.use('/wishlist', wishlistRouter);
+router.use('/config', configRouter);
+router.use('/delivery', deliveryRouter);
 
 export default router;

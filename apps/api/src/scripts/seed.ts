@@ -7,7 +7,7 @@ async function seed() {
 
   // Clean existing records in reverse dependency order
   console.log('🧹 Clearing existing database records...');
-  
+
   await prisma.payment.deleteMany({});
   await prisma.deliveryTimeline.deleteMany({});
   await prisma.delivery.deleteMany({});
@@ -176,7 +176,7 @@ async function seed() {
   console.log('📦 Seeding Products & Inventory Variants...');
 
   const vgHeadphones = await prisma.variantGroup.create({
-    data: { name: 'Premium Wireless Headphones' }
+    data: { name: 'Premium Wireless Headphones' },
   });
 
   const hpBlack = await prisma.product.create({
@@ -188,7 +188,8 @@ async function seed() {
       slug: 'premium-wireless-headphones-blk',
       brand: 'Acoustic',
       status: 'published',
-      description: 'Experience premium acoustic definition with high-fidelity sound, custom drivers, and active noise cancellation (ANC). Designed with memory foam cushions for comfortable listening sessions.',
+      description:
+        'Experience premium acoustic definition with high-fidelity sound, custom drivers, and active noise cancellation (ANC). Designed with memory foam cushions for comfortable listening sessions.',
       sku: 'AC-HP-BLK',
       basePrice: 4999,
       comparePrice: 6999,
@@ -217,7 +218,8 @@ async function seed() {
       slug: 'premium-wireless-headphones-wht',
       brand: 'Acoustic',
       status: 'published',
-      description: 'Experience premium acoustic definition with high-fidelity sound.',
+      description:
+        'Experience premium acoustic definition with high-fidelity sound.',
       sku: 'AC-HP-WHT',
       basePrice: 5299,
       comparePrice: 7299,
@@ -239,7 +241,7 @@ async function seed() {
 
   // Wallet from Seller 2
   const vgWallet = await prisma.variantGroup.create({
-    data: { name: 'Minimalist Leather Wallet' }
+    data: { name: 'Minimalist Leather Wallet' },
   });
 
   const walletTan = await prisma.product.create({
@@ -251,7 +253,8 @@ async function seed() {
       slug: 'minimalist-leather-wallet-tan',
       brand: 'Sartorial',
       status: 'published',
-      description: 'A gorgeous full-grain leather wallet designed for standard pocket comfort and durability. Holds up to 8 cards and cash notes.',
+      description:
+        'A gorgeous full-grain leather wallet designed for standard pocket comfort and durability. Holds up to 8 cards and cash notes.',
       sku: 'SAR-WL-TAN',
       basePrice: 1499,
       comparePrice: 1999,
@@ -280,7 +283,8 @@ async function seed() {
       slug: 'minimalist-leather-wallet-brn',
       brand: 'Sartorial',
       status: 'published',
-      description: 'Hand-crafted minimalist leather wallet designed to hold essential cards and cash without the bulk. Premium full-grain leather in Tan Brown.',
+      description:
+        'Hand-crafted minimalist leather wallet designed to hold essential cards and cash without the bulk. Premium full-grain leather in Tan Brown.',
       sku: 'SR-WLT-BRN',
       basePrice: 1999,
       comparePrice: 2499,
@@ -293,8 +297,8 @@ async function seed() {
   await prisma.productImage.create({
     data: {
       productId: wgWallet2.id,
-      url: 'https://images.unsplash.com/photo-1627123424574-724758594e93?w=500&auto=format&fit=crop',
-      altText: 'Minimalist Leather Wallet - Tan Brown',
+      url: 'https://media-ik.croma.com/prod/https://media.tatacroma.com/Croma%20Assets/Communication/Mobile%20Accessories/Images/300932_0_ajovrw.png',
+      altText: 'Bapple Wallet - Tan Brown',
       isPrimary: true,
       sortOrder: 0,
     },
@@ -302,7 +306,7 @@ async function seed() {
 
   // Additional New Products
   console.log('📦 Seeding Additional New Products...');
-  
+
   const catHome = await prisma.category.create({
     data: {
       name: 'Home & Kitchen',
@@ -319,7 +323,8 @@ async function seed() {
       slug: 'artisan-pour-over-coffee-maker',
       brand: 'BrewMaster',
       status: 'published',
-      description: 'Elegant glass pour-over coffee maker with a reusable stainless steel filter. Perfect for crafting a clean, rich cup of coffee every morning.',
+      description:
+        'Elegant glass pour-over coffee maker with a reusable stainless steel filter. Perfect for crafting a clean, rich cup of coffee every morning.',
       sku: 'BM-CFF-MKB',
       basePrice: 2499,
       comparePrice: 3000,
@@ -331,7 +336,7 @@ async function seed() {
   await prisma.productImage.create({
     data: {
       productId: productCoffee.id,
-      url: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=500&auto=format&fit=crop',
+      url: 'https://bezon-assets.s3.ap-south-1.amazonaws.com/uploads/1780383839573_1_6322b2b3_2232_4b50_97ee_38b13db109b3_png.png',
       altText: 'Artisan Pour-Over Coffee Maker',
       isPrimary: true,
       sortOrder: 0,
@@ -342,11 +347,12 @@ async function seed() {
     data: {
       sellerId: seller2Profile.id,
       categoryId: catHome.id,
-      title: 'Modern Minimalist Desk Lamp',
+      title: 'Ligray Desk Lamp',
       slug: 'modern-minimalist-desk-lamp',
       brand: 'Lumina',
       status: 'published',
-      description: 'Sleek, minimalist LED desk lamp with adjustable brightness and color temperature. Features wireless charging pad in the base.',
+      description:
+        'Sleek, minimalist LED desk lamp with adjustable brightness and color temperature. Features wireless charging pad in the base.',
       sku: 'LUM-DL-WHT',
       basePrice: 3499,
       comparePrice: 4999,
@@ -359,7 +365,7 @@ async function seed() {
     data: {
       productId: productLamp.id,
       url: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=500&auto=format&fit=crop',
-      altText: 'Modern Minimalist Desk Lamp',
+      altText: 'Dgray Desk Lamp',
       isPrimary: true,
       sortOrder: 0,
     },

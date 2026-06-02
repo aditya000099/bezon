@@ -135,6 +135,12 @@ model Seller {
   ifscEnc         String?      @map("ifsc_enc")
   gstin           String?      @db.VarChar(15)
   panNumber       String?      @map("pan_number") @db.VarChar(10)
+  addressLine     String?      @map("address_line") @db.VarChar(200)
+  city            String?      @db.VarChar(80)
+  state           String?      @db.VarChar(80)
+  pincode         String?      @db.VarChar(10)
+  lat             Decimal?     @db.Decimal(9, 6)
+  lng             Decimal?     @db.Decimal(9, 6)
   totalSales      Decimal      @default(0) @map("total_sales") @db.Decimal(14, 2)
   totalOrders     Int          @default(0) @map("total_orders")
   createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamptz
@@ -160,6 +166,12 @@ model DeliveryPartner {
   totalDelivered Int        @default(0) @map("total_delivered")
   totalFailed    Int        @default(0) @map("total_failed")
   rating         Decimal?   @db.Decimal(3, 2)
+  addressLine    String?    @map("address_line") @db.VarChar(200)
+  city           String?    @db.VarChar(80)
+  state          String?    @db.VarChar(80)
+  pincode        String?    @db.VarChar(10)
+  lat            Decimal?   @db.Decimal(9, 6)
+  lng            Decimal?   @db.Decimal(9, 6)
   createdAt      DateTime   @default(now()) @map("created_at") @db.Timestamptz
   updatedAt      DateTime   @default(now()) @map("updated_at") @db.Timestamptz
   user           User       @relation(fields: [userId], references: [id], onDelete: Cascade, map: "dp_user_fk")
@@ -276,6 +288,8 @@ model Address {
   pincode   String   @db.VarChar(10)
   country   String   @default("India") @db.VarChar(60)
   isDefault Boolean  @default(false) @map("is_default")
+  lat       Decimal?   @db.Decimal(9, 6)
+  lng       Decimal?   @db.Decimal(9, 6)
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, map: "addr_user_fk")

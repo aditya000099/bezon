@@ -22,6 +22,8 @@ export const addressSchema = z.object({
   state: z.string().min(2, 'State must be at least 2 characters long'),
   pincode: z.string().regex(/^\d{6}$/, 'Pincode must be exactly 6 digits'),
   country: z.string().min(2, 'Country must be at least 2 characters long').default('India'),
+  lat: z.number().optional().nullable(),
+  lng: z.number().optional().nullable(),
 });
 
 export const imagePayloadSchema = z.object({

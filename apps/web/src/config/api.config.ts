@@ -93,6 +93,18 @@ export const API_ENDPOINTS = {
   sellers: {
     settings: `${API_V1}/sellers/settings`,
   },
+  // Config
+  config: {
+    googleMapsKey: `${API_V1}/config/google-maps-key`,
+  },
+  // Delivery Partner
+  delivery: {
+    profile: `${API_V1}/delivery/profile`,
+    location: `${API_V1}/delivery/location`,
+    queue: `${API_V1}/delivery/queue`,
+    history: `${API_V1}/delivery/history`,
+    updateStatus: (id: string) => `${API_V1}/delivery/assignments/${id}/status`,
+  },
 } as const;
 
 export default API_ENDPOINTS;

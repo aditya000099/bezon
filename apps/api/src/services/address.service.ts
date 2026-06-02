@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import prisma from '../db/client.js';
 
 export class AddressService {
@@ -28,8 +29,10 @@ export class AddressService {
     pincode: string;
     country: string;
     isDefault?: boolean;
+    lat?: number | null;
+    lng?: number | null;
   }) {
-    const { label, fullName, phone, line1, line2, city, state, pincode, country, isDefault = false } = data;
+    const { label, fullName, phone, line1, line2, city, state, pincode, country, isDefault = false, lat, lng } = data;
 
     // Check if this is the first address of the user. If so, force it to be default.
     const addressCount = await prisma.address.count({ where: { userId } });
@@ -57,6 +60,8 @@ export class AddressService {
           pincode,
           country: country || 'India',
           isDefault: shouldBeDefault,
+          lat: lat !== undefined && lat !== null ? new Prisma.Decimal(lat) : null,
+          lng: lng !== undefined && lng !== null ? new Prisma.Decimal(lng) : null,
         },
       });
     });
@@ -76,6 +81,8 @@ export class AddressService {
     pincode?: string;
     country?: string;
     isDefault?: boolean;
+    lat?: number | null;
+    lng?: number | null;
   }) {
     const existing = await prisma.address.findUnique({ where: { id: addressId } });
     if (!existing || existing.userId !== userId) {
@@ -84,7 +91,7 @@ export class AddressService {
       throw err;
     }
 
-    const { label, fullName, phone, line1, line2, city, state, pincode, country, isDefault } = data;
+    const { label, fullName, phone, line1, line2, city, state, pincode, country, isDefault, lat, lng } = data;
 
     return await prisma.$transaction(async (tx) => {
       // If setting this address as default, unset other defaults
@@ -108,6 +115,8 @@ export class AddressService {
           pincode: pincode !== undefined ? pincode : existing.pincode,
           country: country !== undefined ? country : existing.country,
           isDefault: isDefault !== undefined ? isDefault : existing.isDefault,
+          lat: lat !== undefined ? (lat !== null ? new Prisma.Decimal(lat) : null) : existing.lat,
+          lng: lng !== undefined ? (lng !== null ? new Prisma.Decimal(lng) : null) : existing.lng,
         },
       });
     });

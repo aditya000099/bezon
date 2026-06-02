@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { Prisma } from '@prisma/client';
 import prisma from '../db/client.js';
 import { CryptoUtil } from '../utils/crypto.util.js';
 
@@ -28,6 +29,12 @@ export const getSettings = async (req: Request, res: Response, next: NextFunctio
         description: seller.description,
         gstin: seller.gstin,
         panNumber: seller.panNumber,
+        addressLine: seller.addressLine || '',
+        city: seller.city || '',
+        state: seller.state || '',
+        pincode: seller.pincode || '',
+        lat: seller.lat || null,
+        lng: seller.lng || null,
         bankName,
         bankAccount,
         ifsc,
@@ -43,7 +50,21 @@ export const getSettings = async (req: Request, res: Response, next: NextFunctio
  */
 export const updateSettings = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { shopName, description, gstin, panNumber, bankName, bankAccount, ifsc } = req.body;
+    const {
+      shopName,
+      description,
+      gstin,
+      panNumber,
+      addressLine,
+      city,
+      state,
+      pincode,
+      lat,
+      lng,
+      bankName,
+      bankAccount,
+      ifsc,
+    } = req.body;
 
     const seller = await prisma.seller.findUnique({
       where: { userId: req.user!.id },
@@ -59,6 +80,12 @@ export const updateSettings = async (req: Request, res: Response, next: NextFunc
     if (description !== undefined) dataToUpdate.description = description;
     if (gstin !== undefined) dataToUpdate.gstin = gstin;
     if (panNumber !== undefined) dataToUpdate.panNumber = panNumber;
+    if (addressLine !== undefined) dataToUpdate.addressLine = addressLine;
+    if (city !== undefined) dataToUpdate.city = city;
+    if (state !== undefined) dataToUpdate.state = state;
+    if (pincode !== undefined) dataToUpdate.pincode = pincode;
+    if (lat !== undefined && lat !== null) dataToUpdate.lat = new Prisma.Decimal(lat);
+    if (lng !== undefined && lng !== null) dataToUpdate.lng = new Prisma.Decimal(lng);
 
     // Encrypt bank details before saving
     if (bankName !== undefined) dataToUpdate.bankNameEnc = CryptoUtil.encrypt(bankName);
