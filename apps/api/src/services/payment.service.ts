@@ -72,21 +72,40 @@ export class PaymentService {
         throw err;
       }
 
-      address = await prisma.address.create({
-        data: {
+      // Check if user has an identical address first
+      const existingAddress = await prisma.address.findFirst({
+        where: {
           userId,
-          label: addressPayload.label || 'Home',
-          fullName: addressPayload.fullName,
-          phone: addressPayload.phone,
-          line1: addressPayload.line1,
-          line2: addressPayload.line2 || null,
-          city: addressPayload.city,
-          state: addressPayload.state,
-          pincode: addressPayload.pincode,
-          country: addressPayload.country || 'India',
-          isDefault: false,
+          fullName: addressPayload.fullName.trim(),
+          phone: addressPayload.phone.trim(),
+          line1: addressPayload.line1.trim(),
+          line2: addressPayload.line2 ? addressPayload.line2.trim() : null,
+          city: addressPayload.city.trim(),
+          state: addressPayload.state.trim(),
+          pincode: addressPayload.pincode.trim(),
+          country: addressPayload.country ? addressPayload.country.trim() : 'India',
         },
       });
+
+      if (existingAddress) {
+        address = existingAddress;
+      } else {
+        address = await prisma.address.create({
+          data: {
+            userId,
+            label: addressPayload.label || 'Home',
+            fullName: addressPayload.fullName.trim(),
+            phone: addressPayload.phone.trim(),
+            line1: addressPayload.line1.trim(),
+            line2: addressPayload.line2 ? addressPayload.line2.trim() : null,
+            city: addressPayload.city.trim(),
+            state: addressPayload.state.trim(),
+            pincode: addressPayload.pincode.trim(),
+            country: addressPayload.country ? addressPayload.country.trim() : 'India',
+            isDefault: false,
+          },
+        });
+      }
     } else {
       const err = new Error('Shipping address is required.');
       (err as any).status = 400;

@@ -13,6 +13,7 @@ import reviewRouter from './review.routes.js';
 import notificationRouter from './notification.routes.js';
 import qaRouter from './qa.routes.js';
 import sellerRouter from './seller.routes.js';
+import wishlistRouter from './wishlist.routes.js';
 
 const router = Router();
 
@@ -31,5 +32,6 @@ router.use('/reviews', reviewRouter);
 router.use('/notifications', notificationRouter);
 router.use('/qa', qaRouter);
 router.use('/sellers', sellerRouter);
+router.use('/wishlist', wishlistRouter);
 
 export default router;

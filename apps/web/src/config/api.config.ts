@@ -18,6 +18,11 @@ export const API_ENDPOINTS = {
     items: `${API_V1}/cart/items`,
     itemById: (id: string) => `${API_V1}/cart/items/${id}`,
   },
+  // Wishlist
+  wishlist: {
+    base: `${API_V1}/wishlist`,
+    toggle: (productId: string) => `${API_V1}/wishlist/toggle/${productId}`,
+  },
   // Categories
   categories: `${API_V1}/categories`,
   // Media Uploads

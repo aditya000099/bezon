@@ -301,3 +301,12 @@ export interface Review {
   orderItem?: OrderItem;
   images?: ReviewImage[];
 }
+
+export interface Wishlist {
+  id: string;
+  userId: string;
+  productId: string;
+  addedAt: Date | string;
+  user?: User;
+  product?: Product;
+}

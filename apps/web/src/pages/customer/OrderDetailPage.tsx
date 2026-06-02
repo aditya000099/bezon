@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import React, { useState, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import {
   Loader2,
   ArrowLeft,
@@ -12,12 +12,12 @@ import {
   ShoppingBag,
   Star,
   Download,
-} from 'lucide-react';
-import api from '../../lib/api';
-import { API_ENDPOINTS } from '../../config/api.config';
-import { useToast } from '../../context/ToastContext';
-import { WriteReviewModal } from '../../components/reviews/WriteReviewModal';
-import { OrderTrackingStepper } from '../../components/ui/OrderTrackingStepper';
+} from "lucide-react";
+import api from "../../lib/api";
+import { API_ENDPOINTS } from "../../config/api.config";
+import { useToast } from "../../context/ToastContext";
+import { WriteReviewModal } from "../../components/reviews/WriteReviewModal";
+import { OrderTrackingStepper } from "../../components/ui/OrderTrackingStepper";
 
 interface TimelineEvent {
   id: string;
@@ -94,7 +94,7 @@ export const OrderDetailPage: React.FC = () => {
     } catch (err: any) {
       toast.error(
         err.response?.data?.message ||
-          'Failed to fetch order tracking details.',
+          "Failed to fetch order tracking details.",
       );
     } finally {
       setLoading(false);
@@ -139,7 +139,7 @@ export const OrderDetailPage: React.FC = () => {
           </Button>
         </Link>
         <h1 className="text-xl font-extrabold text-slate-900 tracking-tight sm:text-2xl">
-          Order Tracker{' '}
+          Order Tracker{" "}
           <span className="font-mono text-slate-400 font-normal">
             #{order.orderNumber}
           </span>
@@ -201,31 +201,13 @@ export const OrderDetailPage: React.FC = () => {
                       </p>
                     </div>
                   </div>
-                  <div className="flex justify-between sm:justify-end items-center gap-4 sm:min-w-[120px]">
-                    {!item.review && order.status === 'delivered' && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-xs font-bold border-indigo-200 text-indigo-700 hover:bg-indigo-50"
-                        onClick={() => {
-                          setSelectedOrderItem({
-                            id: item.id,
-                            productId: item.productId,
-                            title: item.productTitle,
-                          });
-                          setExistingReview(null);
-                          setReviewModalOpen(true);
-                        }}
-                      >
-                        Write Review
-                      </Button>
-                    )}
+                  <div className="flex justify-between sm:justify-end items-center gap-4 sm:min-w-30">
                     <div className="text-right shrink-0">
                       <p className="font-bold text-slate-900 text-sm">
                         ₹{(Number(item.unitPrice) * item.qty).toLocaleString()}
                       </p>
                       <p className="text-[10px] text-slate-400 mt-0.5">
-                        ₹{Number(item.unitPrice).toLocaleString()} &times;{' '}
+                        ₹{Number(item.unitPrice).toLocaleString()} &times;{" "}
                         {item.qty}
                       </p>
                     </div>
@@ -279,17 +261,17 @@ export const OrderDetailPage: React.FC = () => {
                           {[...Array(5)].map((_, i) => (
                             <Star
                               key={i}
-                              className={`h-3.5 w-3.5 ${i < item.review!.rating ? 'text-amber-400 fill-amber-400' : 'text-slate-300 fill-slate-300'}`}
+                              className={`h-3.5 w-3.5 ${i < item.review!.rating ? "text-amber-400 fill-amber-400" : "text-slate-300 fill-slate-300"}`}
                             />
                           ))}
                           <span className="text-[10px] text-slate-400 ml-2">
-                            Reviewed on:{' '}
+                            Reviewed on:{" "}
                             {new Date(
                               item.review!.createdAt,
-                            ).toLocaleDateString('en-IN', {
-                              day: 'numeric',
-                              month: 'short',
-                              year: 'numeric',
+                            ).toLocaleDateString("en-IN", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
                             })}
                           </span>
                         </div>
@@ -355,7 +337,7 @@ export const OrderDetailPage: React.FC = () => {
                           make better choices.
                         </p>
                       </div>
-                      {order.status === 'delivered' ? (
+                      {order.status === "delivered" ? (
                         <Button
                           variant="outline"
                           size="sm"
@@ -401,11 +383,11 @@ export const OrderDetailPage: React.FC = () => {
                 <p>{order.addressSnapshot.line2}</p>
               )}
               <p>
-                {order.addressSnapshot.city}, {order.addressSnapshot.state} –{' '}
+                {order.addressSnapshot.city}, {order.addressSnapshot.state} –{" "}
                 {order.addressSnapshot.pincode}
               </p>
               <p className="text-xs text-slate-400 mt-2 flex items-center gap-1.5">
-                <Truck className="h-3.5 w-3.5" /> Call:{' '}
+                <Truck className="h-3.5 w-3.5" /> Call:{" "}
                 {order.addressSnapshot.phone}
               </p>
             </CardContent>
@@ -435,9 +417,9 @@ export const OrderDetailPage: React.FC = () => {
                 </span>
                 <span
                   className={`inline-block px-2.5 py-0.5 rounded-full font-bold mt-1 ${
-                    order.paymentStatus === 'paid'
-                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-100'
-                      : 'bg-amber-50 text-amber-700 border border-amber-100'
+                    order.paymentStatus === "paid"
+                      ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
+                      : "bg-amber-50 text-amber-700 border border-amber-100"
                   }`}
                 >
                   {order.paymentStatus.toUpperCase()}
@@ -476,17 +458,17 @@ export const OrderDetailPage: React.FC = () => {
                     >
                       <span className="absolute left-1 top-1 h-2.5 w-2.5 rounded-full bg-indigo-500 ring-4 ring-indigo-50" />
                       <p className="font-bold text-slate-800 uppercase tracking-wider text-[10px]">
-                        {evt.status.replace(/_/g, ' ')}
+                        {evt.status.replace(/_/g, " ")}
                       </p>
                       <p className="text-slate-500 leading-normal">
-                        {evt.note || 'No description note.'}
+                        {evt.note || "No description note."}
                       </p>
                       <p className="text-[10px] text-slate-400">
-                        {new Date(evt.createdAt).toLocaleString('en-IN', {
-                          day: 'numeric',
-                          month: 'short',
-                          hour: '2-digit',
-                          minute: '2-digit',
+                        {new Date(evt.createdAt).toLocaleString("en-IN", {
+                          day: "numeric",
+                          month: "short",
+                          hour: "2-digit",
+                          minute: "2-digit",
                         })}
                       </p>
                     </div>
