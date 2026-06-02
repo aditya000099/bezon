@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, ArrowLeft, Clock, MapPin, Package, Truck, ShoppingBag } from 'lucide-react';
+import { Loader2, ArrowLeft, Clock, MapPin, Package, Truck, ShoppingBag, Download } from 'lucide-react';
 import api from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api.config';
 import { useToast } from '../../context/ToastContext';
@@ -24,6 +24,7 @@ interface OrderDetail {
   subtotal: number;
   total: number;
   createdAt: string;
+  billUrl?: string;
   addressSnapshot: {
     fullName: string;
     phone: string;
@@ -110,6 +111,13 @@ export const OrderDetailPage: React.FC = () => {
         <h1 className="text-xl font-extrabold text-slate-900 tracking-tight sm:text-2xl">
           Order Tracker <span className="font-mono text-slate-400 font-normal">#{order.orderNumber}</span>
         </h1>
+        {order.billUrl && (
+          <a href={order.billUrl} target="_blank" rel="noopener noreferrer" className="ml-auto">
+            <Button variant="outline" size="sm" className="gap-2 font-bold border-slate-200 text-slate-700">
+              <Download className="h-4 w-4" /> Download Bill
+            </Button>
+          </a>
+        )}
       </div>
 
       {/* Progress tracking stepper */}

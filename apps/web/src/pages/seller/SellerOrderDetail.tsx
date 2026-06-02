@@ -20,6 +20,7 @@ import {
   Tag,
   Calendar,
   Activity,
+  Download,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import api from '../../lib/api';
@@ -175,6 +176,14 @@ export const SellerOrderDetail: React.FC = () => {
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200">
               Pending
             </span>
+          )}
+          {order.billUrl && (
+            <a href={order.billUrl} target="_blank" rel="noopener noreferrer">
+              <Button variant="outline" size="sm" className="ml-2 font-bold text-slate-700 border-slate-300">
+                <Download className="h-4 w-4 mr-2" />
+                Invoice
+              </Button>
+            </a>
           )}
         </div>
       </div>

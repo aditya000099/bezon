@@ -1,5 +1,7 @@
 import crypto from 'crypto';
 import prisma from '../db/client.js';
+import { PdfUtil } from '../utils/pdf.util.js';
+import { S3Service } from './s3.service.js';
 import { CartService } from './cart.service.js';
 import { RecommendationService } from './recommendation.service.js';
 import { addressSchema } from '@bezon/validation';
@@ -417,6 +419,43 @@ export class PaymentService {
         });
       }
     });
+
+    // Post-transaction: Generate PDF invoices and upload to S3 async
+    setTimeout(async () => {
+      try {
+        const fullOrders = await prisma.order.findMany({
+          where: { razorpayOrderId },
+          include: {
+            items: {
+              include: { product: { select: { title: true } } }
+            },
+            customer: { select: { name: true, phone: true } },
+            seller: { select: { shopName: true } }
+          }
+        });
+
+        for (const o of fullOrders) {
+          const pdfBuffer = await PdfUtil.generateOrderInvoice(o);
+          const filename = `INV-${o.id}-${Date.now()}.pdf`;
+          const url = await S3Service.uploadPdfBufferToS3(pdfBuffer, filename);
+
+          await prisma.order.update({
+            where: { id: o.id },
+            data: { billUrl: url },
+          });
+          
+          await prisma.orderTimeline.create({
+            data: {
+              orderId: o.id,
+              status: 'confirmed', // keep the existing status
+              note: `Invoice generated and attached successfully.`,
+            }
+          });
+        }
+      } catch (err) {
+        console.error('Failed to generate PDF bills for orders:', err);
+      }
+    }, 0);
 
     return true;
   }
