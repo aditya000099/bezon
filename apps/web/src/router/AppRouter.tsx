@@ -55,6 +55,7 @@ import { AdminPartners } from '../pages/admin/AdminPartners';
 import { AdminOrders } from '../pages/admin/AdminOrders';
 import { AdminDeliveries } from '../pages/admin/AdminDeliveries';
 import { AdminUsers } from '../pages/admin/AdminUsers';
+import { AdminPolicies } from '../pages/admin/AdminPolicies';
 import { SellerAddProduct } from '@/pages/seller/SellerAddProduct';
 import { SellerOrderDetail } from '@/pages/seller/SellerOrderDetail';
 
@@ -156,6 +157,7 @@ export const AppRouter: React.FC = () => {
           <Route path="orders" element={<AdminOrders />} />
           <Route path="deliveries" element={<AdminDeliveries />} />
           <Route path="users" element={<AdminUsers />} />
+          <Route path="policies" element={<AdminPolicies />} />
         </Route>
 
         {/* Catch-all Redirect */}

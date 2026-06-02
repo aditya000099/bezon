@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LayoutDashboard, Users, ShoppingBag, ClipboardList, ShieldAlert, Truck, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, ShoppingBag, ClipboardList, ShieldAlert, Truck, LogOut, ShieldCheck } from 'lucide-react';
 
 export const AdminLayout: React.FC = () => {
   const { user, logout } = useAuth();
@@ -15,6 +15,7 @@ export const AdminLayout: React.FC = () => {
     { to: '/admin/sellers', label: 'Sellers Management', icon: ShieldAlert },
     { to: '/admin/partners', label: 'Delivery Partners', icon: Users },
     { to: '/admin/products', label: 'Products Audit', icon: ShoppingBag },
+    { to: '/admin/policies', label: 'Policies', icon: ShieldCheck },
   ];
 
   return (

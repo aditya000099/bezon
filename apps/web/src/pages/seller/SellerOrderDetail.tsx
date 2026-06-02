@@ -87,6 +87,33 @@ export const SellerOrderDetail: React.FC = () => {
         return 'bg-emerald-100 text-emerald-700 border-emerald-200';
       case 'cancelled':
         return 'bg-rose-100 text-rose-700 border-rose-200';
+        
+      case 'return_requested':
+      case 'refund_requested':
+      case 'replacement_requested':
+        return 'bg-orange-100 text-orange-700 border-orange-200';
+        
+      case 'return_approved':
+      case 'refund_approved':
+      case 'replacement_approved':
+        return 'bg-emerald-100 text-emerald-700 border-emerald-200';
+        
+      case 'return_rejected':
+      case 'refund_rejected':
+      case 'replacement_rejected':
+        return 'bg-rose-100 text-rose-700 border-rose-200';
+        
+      case 'returned_to_origin':
+      case 'replacement_shipped':
+        return 'bg-cyan-100 text-cyan-700 border-cyan-200';
+        
+      case 'refunding':
+        return 'bg-indigo-100 text-indigo-700 border-indigo-200';
+        
+      case 'refunded':
+      case 'replaced':
+        return 'bg-emerald-100 text-emerald-700 border-emerald-200';
+        
       default:
         return 'bg-slate-100 text-slate-700 border-slate-200';
     }
@@ -179,7 +206,11 @@ export const SellerOrderDetail: React.FC = () => {
           )}
           {order.billUrl && (
             <a href={order.billUrl} target="_blank" rel="noopener noreferrer">
-              <Button variant="outline" size="sm" className="ml-2 font-bold text-slate-700 border-slate-300">
+              <Button
+                variant="outline"
+                size="sm"
+                className="ml-2 font-bold text-slate-700 border-slate-300"
+              >
                 <Download className="h-4 w-4 mr-2" />
                 Invoice
               </Button>
@@ -261,7 +292,7 @@ export const SellerOrderDetail: React.FC = () => {
             </CardHeader>
             <CardContent className="p-6">
               {order.timeline && order.timeline.length > 0 ? (
-                <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-indigo-500 before:via-slate-200 before:to-transparent">
+                <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-linear-to-b before:from-indigo-500 before:via-slate-200 before:to-transparent">
                   {order.timeline.map((event: any, index: number) => (
                     <div
                       key={event.id}
@@ -307,7 +338,7 @@ export const SellerOrderDetail: React.FC = () => {
         {/* Right Column: Summaries & Controls */}
         <div className="space-y-6">
           {/* Status Controls */}
-          <Card className="bg-indigo-50 border-indigo-100 shadow-sm animate-in fade-in slide-in-from-top-3 duration-200">
+          <Card className="bg-indigo-50/50 border-indigo-100 shadow-sm animate-in fade-in slide-in-from-top-3 duration-200">
             <CardHeader>
               <CardTitle className="text-base font-bold text-indigo-900 flex items-center gap-2">
                 Update Order Status
@@ -319,31 +350,51 @@ export const SellerOrderDetail: React.FC = () => {
             <CardContent>
               <div className="flex flex-col gap-2">
                 {(() => {
-                  const statusFlow = ['placed', 'confirmed', 'ready_for_pickup', 'out_for_delivery', 'delivered'];
-                  const currentFlowIndex = statusFlow.indexOf(order.status);
-                  const isTerminal = order.status === 'delivered' || order.status === 'cancelled';
-
-                  return orderStatuses.map((status) => {
-                    const targetFlowIndex = statusFlow.indexOf(status);
+                  const validTransitions: Record<string, string[]> = {
+                    placed: ['confirmed', 'cancelled'],
+                    confirmed: ['packed', 'ready_for_pickup', 'cancelled'],
+                    packed: ['ready_for_pickup', 'cancelled'],
+                    ready_for_pickup: ['shipped', 'out_for_delivery', 'cancelled'],
+                    shipped: ['out_for_delivery', 'delivery_failed'],
+                    out_for_delivery: ['delivered', 'delivery_failed'],
+                    delivered: [],
                     
-                    let isDisabled = updating || isTerminal;
-                    if (!isTerminal) {
-                      if (status === 'cancelled') {
-                        isDisabled = false;
-                      } else if (targetFlowIndex !== -1 && currentFlowIndex !== -1) {
-                        isDisabled = targetFlowIndex <= currentFlowIndex;
-                      }
-                    }
+                    // Return flow
+                    return_requested: ['return_approved', 'return_rejected'],
+                    return_approved: ['returned_to_origin'],
+                    returned_to_origin: ['refund_requested', 'refunding', 'refunded', 'replacement_approved'],
+                    
+                    // Refund flow
+                    refund_requested: ['refund_approved', 'refund_rejected'],
+                    refund_approved: ['refunded'],
+                    refunding: ['refunded'],
+                    
+                    // Replacement flow
+                    replacement_requested: ['replacement_approved', 'replacement_rejected'],
+                    replacement_approved: ['replacement_shipped'],
+                    replacement_shipped: ['replaced'],
+                  };
 
+                  const allowedNextStatuses = validTransitions[order.status] || [];
+
+                  if (allowedNextStatuses.length === 0) {
+                    return (
+                      <p className="text-xs text-indigo-700 font-semibold italic bg-indigo-50 p-3 rounded-lg border border-indigo-100">
+                        No further status updates are available for this order state.
+                      </p>
+                    );
+                  }
+
+                  return allowedNextStatuses.map((status) => {
                     return (
                       <Button
                         key={status}
-                        variant={order.status === status ? 'default' : 'outline'}
-                        disabled={isDisabled}
-                        className={`justify-start capitalize font-bold ${order.status === status ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-white border-indigo-200 text-indigo-700 hover:bg-indigo-100'}`}
+                        variant="outline"
+                        disabled={updating}
+                        className="justify-start capitalize font-bold bg-white border-indigo-200 text-indigo-700 hover:bg-indigo-100"
                         onClick={() => handleUpdateStatus(status)}
                       >
-                        {updating && order.status !== status ? (
+                        {updating ? (
                           <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                         ) : null}
                         {status.replace(/_/g, ' ')}
@@ -458,13 +509,15 @@ export const SellerOrderDetail: React.FC = () => {
                     <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
                       Delivery Status
                     </span>
-                    <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border uppercase tracking-wider ${
-                      order.delivery.status === 'delivered'
-                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                        : order.delivery.status === 'delivery_failed'
-                        ? 'bg-rose-50 text-rose-700 border-rose-200'
-                        : 'bg-indigo-50 text-indigo-700 border-indigo-200 animate-pulse'
-                    }`}>
+                    <span
+                      className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border uppercase tracking-wider ${
+                        order.delivery.status === 'delivered'
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                          : order.delivery.status === 'delivery_failed'
+                            ? 'bg-rose-50 text-rose-700 border-rose-200'
+                            : 'bg-indigo-50 text-indigo-700 border-indigo-200 animate-pulse'
+                      }`}
+                    >
                       {order.delivery.status.replace(/_/g, ' ')}
                     </span>
                   </div>
@@ -490,7 +543,10 @@ export const SellerOrderDetail: React.FC = () => {
                           Vehicle Details
                         </p>
                         <p className="text-xs text-slate-700 capitalize font-semibold">
-                          {order.delivery.partner.vehicleType} {order.delivery.partner.vehicleNumber ? `— ${order.delivery.partner.vehicleNumber}` : ''}
+                          {order.delivery.partner.vehicleType}{' '}
+                          {order.delivery.partner.vehicleNumber
+                            ? `— ${order.delivery.partner.vehicleNumber}`
+                            : ''}
                         </p>
                       </div>
                     </div>
@@ -500,7 +556,8 @@ export const SellerOrderDetail: React.FC = () => {
                         Searching for Courier...
                       </p>
                       <p className="text-[10px] text-slate-400 mt-1 font-medium leading-relaxed">
-                        Automatic cron scheduler will allocate the nearest active delivery partner within a minute.
+                        Automatic cron scheduler will allocate the nearest
+                        active delivery partner within a minute.
                       </p>
                     </div>
                   )}
@@ -511,7 +568,8 @@ export const SellerOrderDetail: React.FC = () => {
                     Fulfillment Not Started
                   </p>
                   <p className="text-[10px] text-slate-400 mt-1 font-medium leading-relaxed">
-                    A delivery assignment will trigger automatically once the order status becomes confirmed.
+                    A delivery assignment will trigger automatically once the
+                    order status becomes confirmed.
                   </p>
                 </div>
               )}

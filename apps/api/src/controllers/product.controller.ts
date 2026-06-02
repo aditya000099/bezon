@@ -5,7 +5,11 @@ import { RecommendationService } from '../services/recommendation.service.js';
 /**
  * Get all published products with search and filtering
  */
-export const getProducts = async (req: Request, res: Response, next: NextFunction) => {
+export const getProducts = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const { search, category, sort, page, limit } = req.query;
 
@@ -18,7 +22,9 @@ export const getProducts = async (req: Request, res: Response, next: NextFunctio
     });
 
     if (search && req.user?.id) {
-      RecommendationService.recordActivity(req.user.id, 'search', { searchQuery: search.toString() });
+      RecommendationService.recordActivity(req.user.id, 'search', {
+        searchQuery: search.toString(),
+      });
     }
 
     res.json({
@@ -33,13 +39,19 @@ export const getProducts = async (req: Request, res: Response, next: NextFunctio
 /**
  * Get single product by slug (with variants, category, seller)
  */
-export const getProductBySlug = async (req: Request, res: Response, next: NextFunction) => {
+export const getProductBySlug = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const slug = req.params.slug as string;
     const product = await ProductService.getProductBySlug(slug);
 
     if (req.user?.id) {
-      RecommendationService.recordActivity(req.user.id, 'view', { productId: product.id });
+      RecommendationService.recordActivity(req.user.id, 'view', {
+        productId: product.id,
+      });
     }
 
     res.json({
@@ -54,12 +66,34 @@ export const getProductBySlug = async (req: Request, res: Response, next: NextFu
 /**
  * Create a new product and nested default variant (Sellers only)
  */
-export const createProduct = async (req: Request, res: Response, next: NextFunction) => {
+export const createProduct = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
-    const { title, brand, description, categoryId, status, basePrice, comparePrice, totalStock, lowStockAlert, weightGrams, sku, attributes, images, linkedProductIds } = req.body;
+    const {
+      title,
+      brand,
+      description,
+      categoryId,
+      status,
+      basePrice,
+      comparePrice,
+      totalStock,
+      lowStockAlert,
+      weightGrams,
+      sku,
+      attributes,
+      images,
+      linkedProductIds,
+      policyIds,
+    } = req.body;
 
     if (!req.user) {
-      return res.status(401).json({ success: false, message: 'Unauthorized session.' });
+      return res
+        .status(401)
+        .json({ success: false, message: 'Unauthorized session.' });
     }
 
     const newProduct = await ProductService.createProduct(req.user.id, {
@@ -68,7 +102,16 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
       description,
       categoryId,
       status,
-      basePrice, comparePrice, totalStock, lowStockAlert, weightGrams, sku, attributes, images, linkedProductIds
+      basePrice,
+      comparePrice,
+      totalStock,
+      lowStockAlert,
+      weightGrams,
+      sku,
+      attributes,
+      images,
+      linkedProductIds,
+      policyIds,
     });
 
     res.status(201).json({
@@ -88,16 +131,14 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
 /**
  * Update product (Seller owner only)
  */
-export const updateProduct = async (req: Request, res: Response, next: NextFunction) => {
+export const updateProduct = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const productId = req.params.id as string;
-    const { title, brand, description, basePrice, comparePrice, totalStock, categoryId, status, attributes, lowStockAlert, weightGrams, sku, linkedProductIds, images } = req.body;
-
-    if (!req.user) {
-      return res.status(401).json({ success: false, message: 'Unauthorized session.' });
-    }
-
-    const updatedProduct = await ProductService.updateProduct(req.user.id, productId, {
+    const {
       title,
       brand,
       description,
@@ -112,7 +153,35 @@ export const updateProduct = async (req: Request, res: Response, next: NextFunct
       sku,
       linkedProductIds,
       images,
-    });
+      policyIds,
+    } = req.body;
+
+    if (!req.user) {
+      return res
+        .status(401)
+        .json({ success: false, message: 'Unauthorized session.' });
+    }
+
+    const updatedProduct = await ProductService.updateProduct(
+      req.user.id,
+      productId,
+      {
+        title,
+        brand,
+        description,
+        basePrice,
+        comparePrice,
+        totalStock,
+        categoryId,
+        status,
+        attributes,
+        lowStockAlert,
+        weightGrams,
+        sku,
+        linkedProductIds,
+        policyIds,
+      },
+    );
 
     res.json({
       success: true,
@@ -127,12 +196,18 @@ export const updateProduct = async (req: Request, res: Response, next: NextFunct
 /**
  * Archive / delete product (Seller owner or Admin only)
  */
-export const archiveProduct = async (req: Request, res: Response, next: NextFunction) => {
+export const archiveProduct = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const id = req.params.id as string;
 
     if (!req.user) {
-      return res.status(401).json({ success: false, message: 'Unauthorized session.' });
+      return res
+        .status(401)
+        .json({ success: false, message: 'Unauthorized session.' });
     }
 
     const archived = await ProductService.archiveProduct(id, {
@@ -153,10 +228,16 @@ export const archiveProduct = async (req: Request, res: Response, next: NextFunc
 /**
  * Get products belonging to the authenticated seller
  */
-export const getSellerProducts = async (req: Request, res: Response, next: NextFunction) => {
+export const getSellerProducts = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     if (!req.user) {
-      return res.status(401).json({ success: false, message: 'Unauthorized session.' });
+      return res
+        .status(401)
+        .json({ success: false, message: 'Unauthorized session.' });
     }
 
     const products = await ProductService.getSellerProducts(req.user.id);
@@ -170,22 +251,39 @@ export const getSellerProducts = async (req: Request, res: Response, next: NextF
   }
 };
 
-export const getProductCoupons = async (req: Request, res: Response, next: NextFunction) => {
+export const getProductCoupons = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const slug = req.params.slug as string;
     const product = await ProductService.getProductBySlug(slug);
     const { CouponService } = await import('../services/coupon.service.js');
-    const coupons = await CouponService.getProductCoupons(product.id, product.sellerId, product.categoryId, product.variantGroupId, req.user?.id);
+    const coupons = await CouponService.getProductCoupons(
+      product.id,
+      product.sellerId,
+      product.categoryId,
+      product.variantGroupId,
+      req.user?.id,
+    );
     res.json({ success: true, data: coupons });
   } catch (err) {
     next(err);
   }
 };
 
-export const getRecommendations = async (req: Request, res: Response, next: NextFunction) => {
+export const getRecommendations = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const limit = req.query.limit ? Number(req.query.limit) : 8;
-    const recommendations = await RecommendationService.getRecommendations(req.user?.id, limit);
+    const recommendations = await RecommendationService.getRecommendations(
+      req.user?.id,
+      limit,
+    );
     res.json({ success: true, data: recommendations });
   } catch (err) {
     next(err);
@@ -195,12 +293,18 @@ export const getRecommendations = async (req: Request, res: Response, next: Next
 /**
  * Fetch a single product by ID (merchant editing context)
  */
-export const getProductById = async (req: Request, res: Response, next: NextFunction) => {
+export const getProductById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const productId = req.params.id as string;
 
     if (!req.user) {
-      return res.status(401).json({ success: false, message: 'Unauthorized session.' });
+      return res
+        .status(401)
+        .json({ success: false, message: 'Unauthorized session.' });
     }
 
     const product = await ProductService.getProductById(req.user.id, productId);
@@ -217,12 +321,18 @@ export const getProductById = async (req: Request, res: Response, next: NextFunc
 /**
  * Fetch detailed performance and revenue metrics for a product
  */
-export const getProductStats = async (req: Request, res: Response, next: NextFunction) => {
+export const getProductStats = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const productId = req.params.id as string;
 
     if (!req.user) {
-      return res.status(401).json({ success: false, message: 'Unauthorized session.' });
+      return res
+        .status(401)
+        .json({ success: false, message: 'Unauthorized session.' });
     }
 
     const stats = await ProductService.getProductStats(req.user.id, productId);

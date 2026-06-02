@@ -100,7 +100,7 @@ export const SellerSettings: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-slate-500">
+      <div className="flex flex-col items-center justify-center min-h-100 text-slate-500">
         <Loader2 className="h-8 w-8 animate-spin mb-4 text-indigo-500" />
         <p className="font-medium">Loading settings...</p>
       </div>
@@ -145,7 +145,7 @@ export const SellerSettings: React.FC = () => {
                 Description
               </label>
               <textarea
-                className="flex min-h-[80px] w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex min-h-20 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
                 value={formData.description}
                 onChange={(e) =>
                   setFormData({ ...formData, description: e.target.value })

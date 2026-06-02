@@ -49,12 +49,35 @@ export class DeliveryMatchingService {
         return null;
       }
 
-      const shopLat = shop.lat ? Number(shop.lat) : null;
-      const shopLng = shop.lng ? Number(shop.lng) : null;
+      let targetLat = shop.lat ? Number(shop.lat) : null;
+      let targetLng = shop.lng ? Number(shop.lng) : null;
 
-      if (shopLat === null || shopLng === null) {
-        console.log(`[DeliveryMatching] Shop "${shop.shopName}" has no address/coordinates configured. Skipping auto-matching.`);
-        // Fallback: Create a delivery record with no partner assigned
+      const isCustomerCentricFlow = ['return_approved', 'refund_approved', 'replacement_approved'].includes(order.status);
+      if (isCustomerCentricFlow) {
+        const addr = order.addressSnapshot as any;
+        let custLat = addr?.lat ? Number(addr.lat) : null;
+        let custLng = addr?.lng ? Number(addr.lng) : null;
+
+        // Fallback: Query from Address table if snapshot coordinates are missing
+        if (custLat === null || custLng === null) {
+          const originalAddress = await prisma.address.findUnique({
+            where: { id: order.addressId },
+          });
+          if (originalAddress) {
+            custLat = originalAddress.lat ? Number(originalAddress.lat) : null;
+            custLng = originalAddress.lng ? Number(originalAddress.lng) : null;
+          }
+        }
+
+        if (custLat !== null && custLng !== null) {
+          targetLat = custLat;
+          targetLng = custLng;
+          console.log(`[DeliveryMatching] Customer-centric flow (${order.status}) - matching courier near customer coordinates (${custLat}, ${custLng}).`);
+        }
+      }
+
+      if (targetLat === null || targetLng === null) {
+        console.log(`[DeliveryMatching] Shop/Customer location coordinates not configured. Skipping auto-matching.`);
         return await this.createUnassignedDelivery(orderId);
       }
 
@@ -73,7 +96,6 @@ export class DeliveryMatchingService {
       // 3. Filter partners with coordinates and map them to their distance from the shop
       const partnersWithDistance = availablePartners
         .map((partner) => {
-          // Use real-time current location if available, otherwise fallback to home address location
           const pLat = partner.currentLat ? Number(partner.currentLat) : partner.lat ? Number(partner.lat) : null;
           const pLng = partner.currentLng ? Number(partner.currentLng) : partner.lng ? Number(partner.lng) : null;
 
@@ -81,7 +103,7 @@ export class DeliveryMatchingService {
             return null;
           }
 
-          const distance = calculateDistanceKm(shopLat, shopLng, pLat, pLng);
+          const distance = calculateDistanceKm(targetLat, targetLng, pLat, pLng);
           return { partner, distance };
         })
         .filter((item): item is { partner: typeof availablePartners[0]; distance: number } => item !== null);
@@ -123,7 +145,7 @@ export class DeliveryMatchingService {
       await prisma.orderTimeline.create({
         data: {
           orderId,
-          status: 'confirmed',
+          status: order.status as any,
           note: `Delivery assigned to partner (Distance: ${bestMatch.distance.toFixed(2)} km)`,
         },
       });
@@ -240,14 +262,37 @@ export class DeliveryMatchingService {
         const shop = delivery.order?.seller;
         if (!shop) continue;
 
-        const shopLat = shop.lat ? Number(shop.lat) : null;
-        const shopLng = shop.lng ? Number(shop.lng) : null;
-        if (shopLat === null || shopLng === null) {
-          console.warn(`[DeliveryCron] Shop "${shop.shopName}" has no geolocated coordinates. Skipping.`);
+        let targetLat = shop.lat ? Number(shop.lat) : null;
+        let targetLng = shop.lng ? Number(shop.lng) : null;
+
+        const isCustomerCentricFlow = ['return_approved', 'refund_approved', 'replacement_approved'].includes(delivery.order?.status);
+        if (isCustomerCentricFlow) {
+          const addr = delivery.order?.addressSnapshot as any;
+          let custLat = addr?.lat ? Number(addr.lat) : null;
+          let custLng = addr?.lng ? Number(addr.lng) : null;
+
+          // Fallback: Query from Address table if snapshot coordinates are missing
+          if ((custLat === null || custLng === null) && delivery.order?.addressId) {
+            const originalAddress = await prisma.address.findUnique({
+              where: { id: delivery.order.addressId },
+            });
+            if (originalAddress) {
+              custLat = originalAddress.lat ? Number(originalAddress.lat) : null;
+              custLng = originalAddress.lng ? Number(originalAddress.lng) : null;
+            }
+          }
+
+          if (custLat !== null && custLng !== null) {
+            targetLat = custLat;
+            targetLng = custLng;
+          }
+        }
+
+        if (targetLat === null || targetLng === null) {
+          console.warn(`[DeliveryCron] Target coordinates not configured. Skipping.`);
           continue;
         }
 
-        // Compute distance to each partner
         const candidates = availablePartners
           .map((partner) => {
             const pLat = partner.currentLat ? Number(partner.currentLat) : partner.lat ? Number(partner.lat) : null;
@@ -255,7 +300,7 @@ export class DeliveryMatchingService {
 
             if (pLat === null || pLng === null) return null;
 
-            const distance = calculateDistanceKm(shopLat, shopLng, pLat, pLng);
+            const distance = calculateDistanceKm(targetLat, targetLng, pLat, pLng);
             return { partner, distance };
           })
           .filter((item): item is { partner: typeof availablePartners[0]; distance: number } => item !== null);
@@ -313,7 +358,7 @@ export class DeliveryMatchingService {
           await tx.orderTimeline.create({
             data: {
               orderId: delivery.orderId,
-              status: 'confirmed',
+              status: delivery.order.status as any,
               note: `Delivery assigned to partner (Distance: ${bestMatch.distance.toFixed(2)} km)`,
             },
           });

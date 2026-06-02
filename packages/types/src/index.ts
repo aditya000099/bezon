@@ -17,8 +17,17 @@ export type OrderStatus =
   | 'return_requested'
   | 'return_approved'
   | 'returned_to_origin'
+  | 'return_rejected'
+  | 'refund_requested'
+  | 'refund_approved'
   | 'refunding'
-  | 'refunded';
+  | 'refunded'
+  | 'refund_rejected'
+  | 'replacement_requested'
+  | 'replacement_approved'
+  | 'replacement_shipped'
+  | 'replaced'
+  | 'replacement_rejected';
 
 export type PaymentStatus =
   | 'pending'
@@ -162,7 +171,7 @@ export interface Product {
   weightGrams?: number;
   variantGroup?: VariantGroup;
   images?: ProductImage[];
-
+  policies?: ProductPolicy[];
 }
 
 export interface CartItem {
@@ -309,4 +318,26 @@ export interface Wishlist {
   addedAt: Date | string;
   user?: User;
   product?: Product;
+}
+
+export type PolicyType = 'return' | 'refund' | 'replace';
+
+export interface Policy {
+  id: string;
+  type: PolicyType;
+  title: string;
+  description?: string;
+  durationDays: number;
+  isActive: boolean;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+
+export interface ProductPolicy {
+  id: string;
+  productId: string;
+  policyId: string;
+  createdAt: Date | string;
+  product?: Product;
+  policy?: Policy;
 }

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Image as ImageIcon, X, Link as LinkIcon, CheckCircle2 } from "lucide-react";
+import { Loader2, Image as ImageIcon, X, Link as LinkIcon, CheckCircle2, ShieldCheck } from "lucide-react";
 import api from "../../../lib/api";
 import { API_ENDPOINTS } from "../../../config/api.config";
 import { useToast } from "../../../context/ToastContext";
@@ -52,6 +52,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const [searchQuery, setSearchQuery] = useState("");
   const [linkedProductIds, setLinkedProductIds] = useState<string[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(false);
+  const [availablePolicies, setAvailablePolicies] = useState<any[]>([]);
+  const [selectedPolicyIds, setSelectedPolicyIds] = useState<string[]>([]);
+  const [loadingPolicies, setLoadingPolicies] = useState(false);
 
   const isEditMode = Boolean(product);
 
@@ -60,9 +63,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       try {
         setLoadingCategories(true);
         setLoadingProducts(true);
-        const [catRes, prodRes] = await Promise.all([
+        setLoadingPolicies(true);
+        const [catRes, prodRes, polRes] = await Promise.all([
           api.get(API_ENDPOINTS.categories),
-          api.get(API_ENDPOINTS.products.sellerMe)
+          api.get(API_ENDPOINTS.products.sellerMe),
+          api.get(`${API_ENDPOINTS.policies.list}?active=true`),
         ]);
         if (catRes.data.success) {
           setCategories(catRes.data.data);
@@ -78,11 +83,15 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             setLinkedProductIds(siblings.map((s: Product) => s.id));
           }
         }
+        if (polRes.data.success) {
+          setAvailablePolicies(polRes.data.data);
+        }
       } catch (err) {
         console.error("Failed to load dependencies", err);
       } finally {
         setLoadingCategories(false);
         setLoadingProducts(false);
+        setLoadingPolicies(false);
       }
     };
     fetchDependencies();
@@ -116,6 +125,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         s3Key: img.s3Key || "",
         isPrimary: img.isPrimary,
       })));
+
+      // Pre-populate policy selections
+      if (product.policies && Array.isArray(product.policies)) {
+        setSelectedPolicyIds((product as any).policies.map((pp: any) => pp.policyId));
+      }
     }
   }, [product]);
 
@@ -176,6 +190,14 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     );
   };
 
+  const togglePolicy = (policyId: string) => {
+    setSelectedPolicyIds(prev =>
+      prev.includes(policyId)
+        ? prev.filter(id => id !== policyId)
+        : [...prev, policyId]
+    );
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -215,6 +237,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         attributes,
         images,
         linkedProductIds,
+        policyIds: selectedPolicyIds,
       };
 
       if (isEditMode && product) {
@@ -433,6 +456,69 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             )}
           </div>
         </div>
+      </div>
+
+      {/* 4. Product Policies */}
+      <div className="flex flex-col gap-4">
+        <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+          <span className="h-6 w-6 rounded bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs">4</span>
+          Product Policies
+        </h3>
+        <p className="text-xs text-slate-500">
+          Select the return, refund, and replacement policies that apply to this product. These policies are managed by the platform admin.
+        </p>
+
+        {loadingPolicies ? (
+          <div className="p-4 flex justify-center"><Loader2 className="h-5 w-5 animate-spin text-slate-400" /></div>
+        ) : availablePolicies.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {availablePolicies.map((policy: any) => {
+              const isSelected = selectedPolicyIds.includes(policy.id);
+              const typeColors: Record<string, string> = {
+                return: 'bg-blue-50 border-blue-200 text-blue-700',
+                refund: 'bg-emerald-50 border-emerald-200 text-emerald-700',
+                replace: 'bg-amber-50 border-amber-200 text-amber-700',
+              };
+              const typeIcons: Record<string, string> = {
+                return: '↩️',
+                refund: '💰',
+                replace: '🔄',
+              };
+              return (
+                <button
+                  key={policy.id}
+                  type="button"
+                  onClick={() => togglePolicy(policy.id)}
+                  className={`flex items-start gap-3 p-3 rounded-xl text-left transition-all border-2 ${
+                    isSelected
+                      ? 'border-indigo-400 bg-indigo-50/50 shadow-sm'
+                      : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50/50'
+                  }`}
+                >
+                  <div className={`h-5 w-5 rounded flex items-center justify-center shrink-0 mt-0.5 border ${
+                    isSelected ? 'bg-indigo-600 border-indigo-600' : 'border-slate-300'
+                  }`}>
+                    {isSelected && <CheckCircle2 className="h-3.5 w-3.5 text-white" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-sm font-bold text-slate-800">{policy.title}</span>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase border ${typeColors[policy.type] || 'bg-slate-100 text-slate-600'}`}>
+                        {typeIcons[policy.type] || ''} {policy.type}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-1">{policy.durationDays}-day window{policy.description ? ` — ${policy.description}` : ''}</p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="p-4 border border-dashed border-slate-200 rounded-xl text-center text-sm text-slate-400">
+            <ShieldCheck className="h-5 w-5 mx-auto mb-1 opacity-50" />
+            No policies available. Contact your platform admin.
+          </div>
+        )}
       </div>
 
       <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">

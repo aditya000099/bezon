@@ -7,15 +7,14 @@ import {
   Package,
   Truck,
   MapPin,
+  ClipboardList,
+  ThumbsUp,
+  Warehouse,
+  Banknote,
+  RefreshCw,
+  HeartHandshake,
+  AlertCircle,
 } from 'lucide-react';
-
-/**
- * 5 visible steps mapped from the full OrderStatus lifecycle.
- *
- * Intermediate statuses produce partial connector progress:
- *   ready_for_pickup  → connector between Packed ↔ Shipped is half-filled
- *   out_for_delivery  → connector between Shipped ↔ Delivered is half-filled
- */
 
 type StepDef = {
   label: string;
@@ -24,7 +23,7 @@ type StepDef = {
   statuses: string[];
 };
 
-const STEPS: StepDef[] = [
+const STEPS_STANDARD: StepDef[] = [
   { label: 'Order Placed', icon: ShoppingBag, statuses: ['placed'] },
   { label: 'Confirmed', icon: CircleCheck, statuses: ['confirmed'] },
   { label: 'Packed', icon: Package, statuses: ['packed'] },
@@ -32,8 +31,29 @@ const STEPS: StepDef[] = [
   { label: 'Delivered', icon: MapPin, statuses: ['out_for_delivery', 'delivered'] },
 ];
 
-/** Flat ordering used to compute which step the current status falls into. */
-const STATUS_ORDER: string[] = [
+const STEPS_RETURN: StepDef[] = [
+  { label: 'Delivered', icon: MapPin, statuses: ['delivered'] },
+  { label: 'Return Requested', icon: ClipboardList, statuses: ['return_requested', 'return_rejected'] },
+  { label: 'Approved', icon: ThumbsUp, statuses: ['return_approved'] },
+  { label: 'Item Received', icon: Warehouse, statuses: ['returned_to_origin'] },
+];
+
+const STEPS_REFUND: StepDef[] = [
+  { label: 'Delivered', icon: MapPin, statuses: ['delivered', 'returned_to_origin'] },
+  { label: 'Refund Requested', icon: ClipboardList, statuses: ['refund_requested', 'refund_rejected'] },
+  { label: 'Approved', icon: ThumbsUp, statuses: ['refund_approved', 'refunding'] },
+  { label: 'Refunded', icon: Banknote, statuses: ['refunded'] },
+];
+
+const STEPS_REPLACE: StepDef[] = [
+  { label: 'Delivered', icon: MapPin, statuses: ['delivered', 'returned_to_origin'] },
+  { label: 'Replace Requested', icon: ClipboardList, statuses: ['replacement_requested', 'replacement_rejected'] },
+  { label: 'Approved', icon: ThumbsUp, statuses: ['replacement_approved'] },
+  { label: 'Repl. Shipped', icon: Truck, statuses: ['replacement_shipped'] },
+  { label: 'Replaced', icon: HeartHandshake, statuses: ['replaced'] },
+];
+
+const STATUS_ORDER_STANDARD = [
   'placed',
   'confirmed',
   'packed',
@@ -43,41 +63,94 @@ const STATUS_ORDER: string[] = [
   'delivered',
 ];
 
-/**
- * Returns:
- *  - resolvedStepIndex: the visible-step index (0-4) the current status belongs to
- *  - isIntermediate: true when the status is the first entry of a multi-status step
- *    (i.e. ready_for_pickup or out_for_delivery), meaning the connector leading INTO
- *    this step should show partial (50%) progress.
- */
-function resolveStatus(currentStatus: string) {
+const STATUS_ORDER_RETURN = [
+  'delivered',
+  'return_requested',
+  'return_approved',
+  'returned_to_origin',
+];
+
+const STATUS_ORDER_REFUND = [
+  'delivered',
+  'refund_requested',
+  'refund_approved',
+  'refunding',
+  'refunded',
+];
+
+const STATUS_ORDER_REPLACE = [
+  'delivered',
+  'replacement_requested',
+  'replacement_approved',
+  'replacement_shipped',
+  'replaced',
+];
+
+export function getFlowConfig(currentStatus: string) {
+  if (['return_requested', 'return_approved', 'returned_to_origin', 'return_rejected'].includes(currentStatus)) {
+    return {
+      steps: STEPS_RETURN,
+      statusOrder: STATUS_ORDER_RETURN,
+      title: 'Return Tracker',
+      flowName: 'return'
+    };
+  }
+  if (['refund_requested', 'refund_approved', 'refunding', 'refunded', 'refund_rejected'].includes(currentStatus)) {
+    return {
+      steps: STEPS_REFUND,
+      statusOrder: STATUS_ORDER_REFUND,
+      title: 'Refund Tracker',
+      flowName: 'refund'
+    };
+  }
+  if (['replacement_requested', 'replacement_approved', 'replacement_shipped', 'replaced', 'replacement_rejected'].includes(currentStatus)) {
+    return {
+      steps: STEPS_REPLACE,
+      statusOrder: STATUS_ORDER_REPLACE,
+      title: 'Replacement Tracker',
+      flowName: 'replace'
+    };
+  }
+  return {
+    steps: STEPS_STANDARD,
+    statusOrder: STATUS_ORDER_STANDARD,
+    title: 'Order Tracker',
+    flowName: 'standard'
+  };
+}
+
+function resolveStatus(currentStatus: string, steps: StepDef[], statusOrder: string[]) {
   const isCancelled = currentStatus === 'cancelled';
+  const isRejected = ['return_rejected', 'refund_rejected', 'replacement_rejected'].includes(currentStatus);
 
   if (isCancelled) {
-    // We don't know how far the order got before cancellation — show step 0 only.
-    return { resolvedStepIndex: -1, isIntermediate: false, isCancelled: true };
+    return { resolvedStepIndex: -1, isIntermediate: false, isCancelled: true, isRejected: false };
   }
 
-  const flatIdx = STATUS_ORDER.indexOf(currentStatus);
+  let mappedStatus = currentStatus;
+  if (currentStatus === 'return_rejected') mappedStatus = 'return_requested';
+  if (currentStatus === 'refund_rejected') mappedStatus = 'refund_requested';
+  if (currentStatus === 'replacement_rejected') mappedStatus = 'replacement_requested';
+
+  const flatIdx = statusOrder.indexOf(mappedStatus);
   if (flatIdx === -1) {
-    return { resolvedStepIndex: -1, isIntermediate: false, isCancelled: false };
+    return { resolvedStepIndex: 0, isIntermediate: false, isCancelled: false, isRejected };
   }
 
   let stepIndex = -1;
   let isIntermediate = false;
 
-  for (let i = 0; i < STEPS.length; i++) {
-    const step = STEPS[i];
-    const posInStep = step.statuses.indexOf(currentStatus);
+  for (let i = 0; i < steps.length; i++) {
+    const step = steps[i];
+    const posInStep = step.statuses.indexOf(mappedStatus);
     if (posInStep !== -1) {
       stepIndex = i;
-      // If the status is the first of multiple statuses in a step, it's intermediate
       isIntermediate = step.statuses.length > 1 && posInStep === 0;
       break;
     }
   }
 
-  return { resolvedStepIndex: stepIndex, isIntermediate, isCancelled: false };
+  return { resolvedStepIndex: stepIndex, isIntermediate, isCancelled: false, isRejected };
 }
 
 /* ─── Connector ───────────────────────────────────────────────── */
@@ -167,47 +240,55 @@ const StepCircle: React.FC<{
 export const OrderTrackingStepper: React.FC<{ currentStatus: string }> = ({
   currentStatus,
 }) => {
-  const { resolvedStepIndex, isIntermediate, isCancelled } =
-    resolveStatus(currentStatus);
+  const { steps, statusOrder, title, flowName } = getFlowConfig(currentStatus);
+  const { resolvedStepIndex, isIntermediate, isCancelled, isRejected } =
+    resolveStatus(currentStatus, steps, statusOrder);
 
   const getStepState = (idx: number): StepState => {
     if (isCancelled) {
-      // Show first step (Order Placed) as cancelled, rest future
       return idx === 0 ? 'cancelled' : 'future';
+    }
+
+    if (isRejected && idx === resolvedStepIndex) {
+      return 'cancelled';
     }
 
     if (idx < resolvedStepIndex) return 'completed';
     if (idx === resolvedStepIndex) {
-      // If the order is fully delivered, that step is "completed" not "current"
-      if (currentStatus === 'delivered') return 'completed';
+      const finalStatuses = ['delivered', 'refunded', 'replaced'];
+      if (finalStatuses.includes(currentStatus)) return 'completed';
       return 'current';
     }
     return 'future';
   };
 
   const getConnectorFill = (afterStepIdx: number): ConnectorFill => {
-    if (isCancelled) return 'none';
+    if (isCancelled || isRejected) return 'none';
 
     const nextStepIdx = afterStepIdx + 1;
 
-    // The connector AFTER step `afterStepIdx` leads into step `nextStepIdx`.
     if (nextStepIdx < resolvedStepIndex) return 'full';
     if (nextStepIdx > resolvedStepIndex) return 'none';
 
-    // nextStepIdx === resolvedStepIndex
-    // If current status is intermediate (first of multi-status in the step),
-    // show partial fill on the connector leading into this step.
     if (isIntermediate) return 'half';
     return 'full';
   };
 
   return (
     <div className="w-full rounded-xl border border-slate-200 bg-white shadow-sm p-5 sm:p-6 overflow-hidden">
+      <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">
+        {title}
+      </div>
       {/* Desktop: horizontal row | Mobile: vertical column */}
       <div className="flex flex-col md:flex-row md:items-start gap-0">
-        {STEPS.map((step, idx) => {
+        {steps.map((step, idx) => {
           const state = getStepState(idx);
-          const isLast = idx === STEPS.length - 1;
+          const isLast = idx === steps.length - 1;
+
+          let labelText = step.label;
+          if (isRejected && idx === resolvedStepIndex) {
+            labelText = 'Rejected';
+          }
 
           return (
             <React.Fragment key={step.label}>
@@ -230,7 +311,7 @@ export const OrderTrackingStepper: React.FC<{ currentStatus: string }> = ({
                             : 'text-slate-400'
                     }`}
                   >
-                    {state === 'cancelled' ? 'Cancelled' : step.label}
+                    {state === 'cancelled' ? labelText : step.label}
                   </span>
                   {state === 'current' && (
                     <span className="text-[10px] text-indigo-400 font-medium mt-0.5">
@@ -258,6 +339,21 @@ export const OrderTrackingStepper: React.FC<{ currentStatus: string }> = ({
             <p className="text-xs text-rose-600 mt-0.5">
               Any authorization hold or payment captured is refunded
               automatically.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Rejected banner */}
+      {isRejected && (
+        <div className="mt-5 flex items-start gap-3 rounded-lg bg-rose-50 border border-rose-200 px-4 py-3 text-sm text-rose-800">
+          <AlertCircle className="h-5 w-5 text-rose-600 mt-0.5 shrink-0" />
+          <div>
+            <p className="font-bold text-rose-900">
+              Your {flowName} request was rejected by the merchant.
+            </p>
+            <p className="text-xs text-rose-600 mt-0.5">
+              Please check the status logs or contact support for details.
             </p>
           </div>
         </div>

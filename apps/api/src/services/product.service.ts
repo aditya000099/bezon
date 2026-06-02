@@ -71,6 +71,9 @@ export class ProductService {
         seller: {
           select: { id: true, shopName: true, shopSlug: true },
         },
+        policies: {
+          include: { policy: true },
+        },
       },
     });
 
@@ -91,15 +94,20 @@ export class ProductService {
         },
         include: {
           images: { orderBy: { sortOrder: 'asc' }, take: 1 },
-        }
+          policies: {
+            include: { policy: true },
+          },
+        },
       });
     }
 
     // Bump view count in the background
-    prisma.product.update({
-      where: { id: product.id },
-      data: { viewCount: { increment: 1 } },
-    }).catch(err => console.error('Failed to increment viewCount', err));
+    prisma.product
+      .update({
+        where: { id: product.id },
+        data: { viewCount: { increment: 1 } },
+      })
+      .catch((err) => console.error('Failed to increment viewCount', err));
 
     return {
       ...product,
@@ -109,7 +117,23 @@ export class ProductService {
 
   // Create a new product and optionally link it
   static async createProduct(userId: string, data: any) {
-    const { title, brand, description, categoryId, status, basePrice, comparePrice, totalStock, lowStockAlert, weightGrams, sku, attributes, images, linkedProductIds } = data;
+    const {
+      title,
+      brand,
+      description,
+      categoryId,
+      status,
+      basePrice,
+      comparePrice,
+      totalStock,
+      lowStockAlert,
+      weightGrams,
+      sku,
+      attributes,
+      images,
+      linkedProductIds,
+      policyIds,
+    } = data;
 
     // Make sure this user is an approved seller
     const seller = await prisma.seller.findUnique({ where: { userId } });
@@ -129,33 +153,38 @@ export class ProductService {
 
     const createdProduct = await prisma.$transaction(async (tx) => {
       let variantGroupId = null;
-      
+
       if (linkedProductIds && linkedProductIds.length > 0) {
         const existingProducts = await tx.product.findMany({
-          where: { id: { in: linkedProductIds }, sellerId: seller.id }
+          where: { id: { in: linkedProductIds }, sellerId: seller.id },
         });
-        
+
         if (existingProducts.length > 0) {
-          const existingGroup = existingProducts.find(p => p.variantGroupId)?.variantGroupId;
-          
+          const existingGroup = existingProducts.find(
+            (p) => p.variantGroupId,
+          )?.variantGroupId;
+
           if (existingGroup) {
             variantGroupId = existingGroup;
           } else {
             const group = await tx.variantGroup.create({
-              data: { name: title }
+              data: { name: title },
             });
             variantGroupId = group.id;
           }
-          
+
           await tx.product.updateMany({
-            where: { id: { in: existingProducts.map(p => p.id) } },
-            data: { variantGroupId, categoryId }
+            where: { id: { in: existingProducts.map((p) => p.id) } },
+            data: { variantGroupId, categoryId },
           });
         }
       }
 
       // Build a URL-friendly slug from title + sku
-      const slug = (title + '-' + sku).toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Math.random().toString(36).substring(2, 6);
+      const slug =
+        (title + '-' + sku).toLowerCase().replace(/[^a-z0-9]+/g, '-') +
+        '-' +
+        Math.random().toString(36).substring(2, 6);
 
       const productObj = await tx.product.create({
         data: {
@@ -193,6 +222,15 @@ export class ProductService {
         }
       }
 
+      // Attach policies if provided
+      if (Array.isArray(policyIds) && policyIds.length > 0) {
+        for (const policyId of policyIds) {
+          await tx.productPolicy.create({
+            data: { productId: productObj.id, policyId },
+          });
+        }
+      }
+
       return productObj;
     });
 
@@ -201,7 +239,23 @@ export class ProductService {
 
   // Update a specific product
   static async updateProduct(userId: string, productId: string, data: any) {
-    const { title, brand, description, basePrice, comparePrice, totalStock, categoryId, status, attributes, lowStockAlert, weightGrams, sku, linkedProductIds, images } = data;
+    const {
+      title,
+      brand,
+      description,
+      basePrice,
+      comparePrice,
+      totalStock,
+      categoryId,
+      status,
+      attributes,
+      lowStockAlert,
+      weightGrams,
+      sku,
+      linkedProductIds,
+      images,
+      policyIds,
+    } = data;
 
     const seller = await prisma.seller.findUnique({ where: { userId } });
     if (!seller) {
@@ -210,7 +264,9 @@ export class ProductService {
       throw err;
     }
 
-    const product = await prisma.product.findUnique({ where: { id: productId } });
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+    });
     if (!product) {
       const err = new Error('Product not found.');
       (err as any).status = 404;
@@ -228,28 +284,32 @@ export class ProductService {
 
       if (linkedProductIds !== undefined) {
         if (linkedProductIds.length > 0) {
-           const existingProducts = await tx.product.findMany({
-             where: { id: { in: linkedProductIds }, sellerId: seller.id }
-           });
-           
-           if (existingProducts.length > 0) {
-             const existingGroup = currentVariantGroupId || existingProducts.find(p => p.variantGroupId)?.variantGroupId;
-             
-             if (existingGroup) {
-               currentVariantGroupId = existingGroup;
-             } else {
-               const group = await tx.variantGroup.create({ data: { name: title } });
-               currentVariantGroupId = group.id;
-             }
-             
-             await tx.product.updateMany({
-               where: { id: { in: existingProducts.map(p => p.id) } },
-               data: { variantGroupId: currentVariantGroupId, categoryId }
-             });
-           }
+          const existingProducts = await tx.product.findMany({
+            where: { id: { in: linkedProductIds }, sellerId: seller.id },
+          });
+
+          if (existingProducts.length > 0) {
+            const existingGroup =
+              currentVariantGroupId ||
+              existingProducts.find((p) => p.variantGroupId)?.variantGroupId;
+
+            if (existingGroup) {
+              currentVariantGroupId = existingGroup;
+            } else {
+              const group = await tx.variantGroup.create({
+                data: { name: title },
+              });
+              currentVariantGroupId = group.id;
+            }
+
+            await tx.product.updateMany({
+              where: { id: { in: existingProducts.map((p) => p.id) } },
+              data: { variantGroupId: currentVariantGroupId, categoryId },
+            });
+          }
         } else {
-           // Empty array means unlink this specific product
-           currentVariantGroupId = null;
+          // Empty array means unlink this specific product
+          currentVariantGroupId = null;
         }
       }
 
@@ -289,9 +349,20 @@ export class ProductService {
           lowStockAlert,
           weightGrams,
           sku,
-          variantGroupId: currentVariantGroupId
+          variantGroupId: currentVariantGroupId,
         },
       });
+
+      // Update policies if provided
+      if (Array.isArray(policyIds)) {
+        await tx.productPolicy.deleteMany({ where: { productId } });
+        for (const policyId of policyIds) {
+          await tx.productPolicy.create({
+            data: { productId, policyId },
+          });
+        }
+      }
+
       return p;
     });
 
@@ -299,8 +370,13 @@ export class ProductService {
   }
 
   // Archive product (and its siblings in same group if requested, but let's just do single product)
-  static async archiveProduct(productId: string, user?: { id: string; role: string }) {
-    const product = await prisma.product.findUnique({ where: { id: productId } });
+  static async archiveProduct(
+    productId: string,
+    user?: { id: string; role: string },
+  ) {
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+    });
     if (!product) {
       const err = new Error('Product not found.');
       (err as any).status = 404;
@@ -309,7 +385,9 @@ export class ProductService {
 
     if (user && user.role !== 'admin' && product.sellerId !== user.id) {
       // Need to find seller profile if user ID is provided (seller profile ID != user ID)
-      const seller = await prisma.seller.findUnique({ where: { userId: user.id } });
+      const seller = await prisma.seller.findUnique({
+        where: { userId: user.id },
+      });
       if (!seller || seller.id !== product.sellerId) {
         const err = new Error('Not authorized to archive this product.');
         (err as any).status = 403;
@@ -339,6 +417,9 @@ export class ProductService {
         category: true,
         variantGroup: true,
         images: { orderBy: { sortOrder: 'asc' }, take: 1 },
+        policies: {
+          include: { policy: true },
+        },
       },
     });
   }
@@ -357,7 +438,7 @@ export class ProductService {
       include: {
         category: true,
         images: { orderBy: { sortOrder: 'asc' } },
-      }
+      },
     });
 
     if (!product) {
@@ -411,22 +492,22 @@ export class ProductService {
         productId,
         order: {
           status: 'delivered',
-        }
+        },
       },
       select: {
         unitPrice: true,
         qty: true,
-      }
+      },
     });
 
     const calculatedRevenue = deliveredItems.reduce(
-      (sum, item) => sum + (Number(item.unitPrice) * item.qty),
-      0
+      (sum, item) => sum + Number(item.unitPrice) * item.qty,
+      0,
     );
 
     const calculatedUnitsSold = deliveredItems.reduce(
       (sum, item) => sum + item.qty,
-      0
+      0,
     );
 
     return {

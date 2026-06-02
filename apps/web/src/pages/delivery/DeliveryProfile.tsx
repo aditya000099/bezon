@@ -108,7 +108,7 @@ export const DeliveryProfile: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[300px] text-slate-500">
+      <div className="flex flex-col items-center justify-center min-h-75 text-slate-500">
         <Loader2 className="h-8 w-8 animate-spin mb-4 text-indigo-600" />
         <p className="font-bold">Loading courier profile...</p>
       </div>
@@ -118,7 +118,7 @@ export const DeliveryProfile: React.FC = () => {
   return (
     <div className="flex flex-col gap-6 max-w-md mx-auto pb-10">
       {/* Driver Header Summary Card */}
-      <div className="bg-gradient-to-br from-slate-900 to-indigo-950 text-white rounded-2xl p-5 shadow-md flex flex-col gap-4">
+      <div className="bg-linear-to-br from-slate-900 to-indigo-950 text-white rounded-2xl p-5 shadow-md flex flex-col gap-4">
         <div className="flex items-center gap-3">
           <div className="h-12 w-12 rounded-full bg-indigo-500/25 border border-indigo-400/40 flex items-center justify-center text-xl font-bold">
             {stats.userName.slice(0, 1).toUpperCase()}
