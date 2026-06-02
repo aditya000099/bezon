@@ -7,6 +7,7 @@ import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import prisma from './db/client.js';
 import apiRouter from './routes/index.js';
+import { DeliveryMatchingService } from './services/delivery_matching.service.js';
 
 dotenv.config();
 
@@ -81,4 +82,11 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 // Start Server
 app.listen(PORT, () => {
   console.log(`[Bezon Server] Running on port ${PORT}`);
+
+  // Schedule the unassigned delivery allocation cron to run every 60 seconds
+  setInterval(() => {
+    DeliveryMatchingService.runCronAssignmentJob().catch((err) => {
+      console.error('[DeliveryCron] Cron job failed with exception:', err);
+    });
+  }, 60000);
 });

@@ -194,6 +194,41 @@ export class OrderService {
       throw err;
     }
 
+    const statusFlow = [
+      'placed',
+      'confirmed',
+      'ready_for_pickup',
+      'out_for_delivery',
+      'delivered',
+    ];
+
+    const currentFlowIndex = statusFlow.indexOf(order.status);
+    const targetFlowIndex = statusFlow.indexOf(status);
+
+    if (order.status === 'cancelled') {
+      const err = new Error('Cannot update status of a cancelled order.');
+      (err as any).status = 400;
+      throw err;
+    }
+    if (order.status === 'delivered') {
+      const err = new Error('Cannot update status of a delivered order.');
+      (err as any).status = 400;
+      throw err;
+    }
+
+    if (status !== 'cancelled') {
+      if (targetFlowIndex === -1) {
+        const err = new Error(`Invalid status: ${status}`);
+        (err as any).status = 400;
+        throw err;
+      }
+      if (currentFlowIndex !== -1 && targetFlowIndex <= currentFlowIndex) {
+        const err = new Error(`Cannot revert order status from "${order.status}" back to "${status}".`);
+        (err as any).status = 400;
+        throw err;
+      }
+    }
+
     const updatedOrder = await prisma.$transaction(async (tx) => {
       const updated = await tx.order.update({
         where: { id: orderId },

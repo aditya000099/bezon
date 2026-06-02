@@ -133,7 +133,7 @@ export class DeliveryMatchingService {
         data: {
           userId: bestMatch.partner.userId,
           title: 'New Delivery Assignment',
-          message: `You have been assigned a new delivery task (Order ${order.orderNumber}). Click to view details.`,
+          body: `You have been assigned a new delivery task (Order ${order.orderNumber}). Click to view details.`,
           type: 'new_task_assigned',
         },
       });
@@ -179,5 +179,160 @@ export class DeliveryMatchingService {
     });
 
     return delivery;
+  }
+
+  /**
+   * Cron job running periodically to assign unassigned deliveries to the nearest workload-balanced partner
+   */
+  static async runCronAssignmentJob() {
+    try {
+      console.log(`[DeliveryCron] Running unassigned delivery allocator job...`);
+
+      // 1. Fetch all unassigned deliveries in 'assigned' status (waiting for courier)
+      const unassignedDeliveries = await prisma.delivery.findMany({
+        where: {
+          partnerId: null,
+          status: 'assigned',
+        },
+        include: {
+          order: {
+            include: {
+              seller: true,
+            },
+          },
+        },
+      });
+
+      if (unassignedDeliveries.length === 0) {
+        return;
+      }
+
+      console.log(`[DeliveryCron] Found ${unassignedDeliveries.length} unassigned deliveries.`);
+
+      // 2. Fetch all online delivery partners
+      const availablePartners = await prisma.deliveryPartner.findMany({
+        where: {
+          isAvailable: true,
+        },
+      });
+
+      if (availablePartners.length === 0) {
+        console.log(`[DeliveryCron] No delivery partners online right now.`);
+        return;
+      }
+
+      // 3. Compute active workloads for each partner (in DB)
+      const activeCounts: Record<string, number> = {};
+      for (const partner of availablePartners) {
+        const count = await prisma.delivery.count({
+          where: {
+            partnerId: partner.id,
+            status: {
+              in: ['assigned', 'accepted', 'picked_up', 'in_transit', 'out_for_delivery'],
+            },
+          },
+        });
+        activeCounts[partner.id] = count;
+      }
+
+      // 4. Process each unassigned delivery
+      for (const delivery of unassignedDeliveries) {
+        const shop = delivery.order?.seller;
+        if (!shop) continue;
+
+        const shopLat = shop.lat ? Number(shop.lat) : null;
+        const shopLng = shop.lng ? Number(shop.lng) : null;
+        if (shopLat === null || shopLng === null) {
+          console.warn(`[DeliveryCron] Shop "${shop.shopName}" has no geolocated coordinates. Skipping.`);
+          continue;
+        }
+
+        // Compute distance to each partner
+        const candidates = availablePartners
+          .map((partner) => {
+            const pLat = partner.currentLat ? Number(partner.currentLat) : partner.lat ? Number(partner.lat) : null;
+            const pLng = partner.currentLng ? Number(partner.currentLng) : partner.lng ? Number(partner.lng) : null;
+
+            if (pLat === null || pLng === null) return null;
+
+            const distance = calculateDistanceKm(shopLat, shopLng, pLat, pLng);
+            return { partner, distance };
+          })
+          .filter((item): item is { partner: typeof availablePartners[0]; distance: number } => item !== null);
+
+        if (candidates.length === 0) {
+          continue;
+        }
+
+        // 5. Workload-Aware Proximity Sort
+        // Primary sort: Workload (ascending) to distribute orders evenly.
+        // Secondary sort: Distance (ascending) to assign the closest one.
+        candidates.sort((a, b) => {
+          const loadA = activeCounts[a.partner.id] || 0;
+          const loadB = activeCounts[b.partner.id] || 0;
+          if (loadA !== loadB) {
+            return loadA - loadB;
+          }
+          return a.distance - b.distance;
+        });
+
+        // 6. Assign the best candidate
+        const bestMatch = candidates[0];
+        
+        // We set a threshold workload (e.g. at most 3 stacked orders). If the best candidate is already overloaded (>= 3), we can skip.
+        const workload = activeCounts[bestMatch.partner.id] || 0;
+        if (workload >= 3) {
+          console.log(`[DeliveryCron] All nearby couriers are fully overloaded (>= 3 active). Postponing order ${delivery.order?.orderNumber}.`);
+          continue;
+        }
+
+        console.log(
+          `[DeliveryCron] Matching Order ${delivery.order?.orderNumber} to Partner ${bestMatch.partner.id} (Distance: ${bestMatch.distance.toFixed(
+            2
+          )} km, Load: ${workload})`
+        );
+
+        // Run DB update
+        await prisma.$transaction(async (tx) => {
+          await tx.delivery.update({
+            where: { id: delivery.id },
+            data: {
+              partnerId: bestMatch.partner.id,
+              assignedAt: new Date(),
+            },
+          });
+
+          await tx.deliveryTimeline.create({
+            data: {
+              deliveryId: delivery.id,
+              status: 'assigned',
+              note: `Workload-balanced match to nearest courier (Distance: ${bestMatch.distance.toFixed(2)} km, current load: ${workload})`,
+            },
+          });
+
+          await tx.orderTimeline.create({
+            data: {
+              orderId: delivery.orderId,
+              status: 'confirmed',
+              note: `Delivery assigned to partner (Distance: ${bestMatch.distance.toFixed(2)} km)`,
+            },
+          });
+
+          await tx.notification.create({
+            data: {
+              userId: bestMatch.partner.userId,
+              title: 'New Delivery Assignment',
+              body: `You have been assigned a new delivery task (Order ${delivery.order?.orderNumber}). Click to view details.`,
+              type: 'new_task_assigned',
+            },
+          });
+        });
+
+        // Increment their workload in memory so subsequent assignments in this cron tick recognize this partner's new workload!
+        activeCounts[bestMatch.partner.id] = workload + 1;
+      }
+    } catch (err) {
+      console.error(`[DeliveryCron] Error running unassigned delivery matching cron job:`, err);
+    }
   }
 }
