@@ -107,7 +107,7 @@ export const OrderDetailPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-slate-400 gap-2">
+      <div className="flex flex-col items-center justify-center min-h-100 text-slate-400 gap-2">
         <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
         <p className="text-sm font-semibold">Loading order tracking...</p>
       </div>
@@ -116,7 +116,7 @@ export const OrderDetailPage: React.FC = () => {
 
   if (!order) {
     return (
-      <Card className="flex flex-col items-center justify-center min-h-[300px] text-slate-400 p-8 border-dashed border-2 bg-white/50 max-w-lg mx-auto mt-12">
+      <Card className="flex flex-col items-center justify-center min-h-75 text-slate-400 p-8 border-dashed border-2 bg-white/50 max-w-lg mx-auto mt-12">
         <Package className="h-12 w-12 text-rose-300 mb-2" />
         <p className="font-bold text-slate-700">Order not found</p>
         <Link to="/shop/orders" className="mt-4">

@@ -1,11 +1,25 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ShoppingBag, Star, Heart, Loader2, ArrowRight, Eye, Trash2 } from 'lucide-react';
-import { useWishlist } from '../../context/WishlistContext';
-import { useCart } from '../../context/CartContext';
-import { useToast } from '../../context/ToastContext';
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  ShoppingBag,
+  Star,
+  Heart,
+  Loader2,
+  ArrowRight,
+  Eye,
+  Trash2,
+} from "lucide-react";
+import { useWishlist } from "../../context/WishlistContext";
+import { useCart } from "../../context/CartContext";
+import { useToast } from "../../context/ToastContext";
 
 export const WishlistPage: React.FC = () => {
   const { wishlistItems, loading, toggleWishlist } = useWishlist();
@@ -13,13 +27,17 @@ export const WishlistPage: React.FC = () => {
   const { toast } = useToast();
   const [addingToCart, setAddingToCart] = useState<Record<string, boolean>>({});
 
-  const handleAddToCart = async (productId: string, productTitle: string, basePrice: number) => {
+  const handleAddToCart = async (
+    productId: string,
+    productTitle: string,
+    basePrice: number,
+  ) => {
     setAddingToCart((prev) => ({ ...prev, [productId]: true }));
     try {
       await addItem(productId, 1, basePrice);
       toast.success(`Added ${productTitle} to your shopping cart!`);
     } catch (err) {
-      toast.error('Failed to add item to cart. Try again.');
+      toast.error("Failed to add item to cart. Try again.");
     } finally {
       setAddingToCart((prev) => ({ ...prev, [productId]: false }));
     }
@@ -27,7 +45,7 @@ export const WishlistPage: React.FC = () => {
 
   if (loading && wishlistItems.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-slate-400 gap-2">
+      <div className="flex flex-col items-center justify-center min-h-100 text-slate-400 gap-2">
         <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
         <p className="text-sm font-semibold">Loading your saved items...</p>
       </div>
@@ -38,28 +56,36 @@ export const WishlistPage: React.FC = () => {
     <div className="flex flex-col gap-6 max-w-6xl mx-auto px-4 sm:px-6">
       <div className="flex justify-between items-center pb-4 border-b border-slate-100">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Your Wishlist</h1>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            Your Wishlist
+          </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
             Keep track of the products you love and want to purchase later.
           </p>
         </div>
         <span className="bg-slate-100 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-full">
-          {wishlistItems.length} {wishlistItems.length === 1 ? 'item' : 'items'}
+          {wishlistItems.length} {wishlistItems.length === 1 ? "item" : "items"}
         </span>
       </div>
 
       {wishlistItems.length === 0 ? (
         /* Empty State */
-        <Card className="flex flex-col items-center justify-center min-h-[350px] text-slate-400 p-8 border-dashed border-2 bg-white/50 max-w-lg mx-auto w-full mt-6 shadow-sm">
+        <Card className="flex flex-col items-center justify-center min-h-87.5 text-slate-400 p-8 border-dashed border-2 bg-white/50 max-w-lg mx-auto w-full mt-6 shadow-sm">
           <div className="p-4 rounded-full bg-slate-50 border border-slate-100 mb-4 shadow-inner">
             <Heart className="h-10 w-10 text-slate-300 fill-slate-50" />
           </div>
-          <p className="font-bold text-slate-800 text-lg">No items in your wishlist yet.</p>
+          <p className="font-bold text-slate-800 text-lg">
+            No items in your wishlist yet.
+          </p>
           <p className="text-xs text-slate-500 text-center max-w-xs mt-1 leading-relaxed">
-            Explore our curated catalog and tap the heart icon on any product to save it here.
+            Explore our curated catalog and tap the heart icon on any product to
+            save it here.
           </p>
           <Link to="/shop" className="mt-6 w-full sm:w-auto">
-            <Button size="sm" className="w-full sm:w-auto font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm gap-2">
+            <Button
+              size="sm"
+              className="w-full sm:w-auto font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm gap-2"
+            >
               Continue Shopping <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>
@@ -71,7 +97,8 @@ export const WishlistPage: React.FC = () => {
             const p = item.product;
             if (!p) return null;
 
-            const primaryImg = p.images?.find((img: any) => img.isPrimary) || p.images?.[0];
+            const primaryImg =
+              p.images?.find((img: any) => img.isPrimary) || p.images?.[0];
             const isOutOfStock = p.totalStock <= 0;
 
             return (
@@ -111,16 +138,16 @@ export const WishlistPage: React.FC = () => {
                 <CardHeader className="p-4 pb-0">
                   <div className="flex justify-between items-start gap-2">
                     <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest">
-                      {p.brand || 'Unbranded'}
+                      {p.brand || "Unbranded"}
                     </span>
                     <span
                       className={`text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded-full ${
                         isOutOfStock
-                          ? 'bg-rose-50 text-rose-600 border border-rose-100'
-                          : 'bg-emerald-50 text-emerald-600 border border-emerald-100'
+                          ? "bg-rose-50 text-rose-600 border border-rose-100"
+                          : "bg-emerald-50 text-emerald-600 border border-emerald-100"
                       }`}
                     >
-                      {isOutOfStock ? 'Out of Stock' : 'In Stock'}
+                      {isOutOfStock ? "Out of Stock" : "In Stock"}
                     </span>
                   </div>
                   <Link to={`/shop/products/${p.slug}`}>
@@ -130,8 +157,12 @@ export const WishlistPage: React.FC = () => {
                   </Link>
                   <div className="flex items-center gap-1 mt-0.5 text-xs text-amber-500 font-bold">
                     <Star className="h-3 w-3 fill-amber-500 text-amber-500" />
-                    <span>{p.avgRating ? Number(p.avgRating).toFixed(1) : '0.0'}</span>
-                    <span className="text-slate-400 font-normal">({p.reviewCount || 0})</span>
+                    <span>
+                      {p.avgRating ? Number(p.avgRating).toFixed(1) : "0.0"}
+                    </span>
+                    <span className="text-slate-400 font-normal">
+                      ({p.reviewCount || 0})
+                    </span>
                   </div>
                 </CardHeader>
 
@@ -155,7 +186,9 @@ export const WishlistPage: React.FC = () => {
                     <Button
                       className="flex-1 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm gap-1"
                       size="sm"
-                      onClick={() => handleAddToCart(p.id, p.title, Number(p.basePrice))}
+                      onClick={() =>
+                        handleAddToCart(p.id, p.title, Number(p.basePrice))
+                      }
                       disabled={addingToCart[p.id]}
                     >
                       {addingToCart[p.id] ? (
