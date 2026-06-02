@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { QAController } from '../../controllers/qa.controller.js';
-import { authenticateUser, requireRole } from '../../middleware/auth.middleware.js';
+import { authenticateUser, requireRole, requireSeller } from '../../middleware/auth.middleware.js';
 
 const router = Router();
 
@@ -8,8 +8,8 @@ const router = Router();
 router.get('/product/:productId', QAController.getProductQuestions);
 
 // Seller dashboard — view questions on their own products
-router.get('/seller', authenticateUser, requireRole(['seller']), QAController.getSellerQuestions);
-router.get('/seller/products', authenticateUser, requireRole(['seller']), QAController.getSellerProducts);
+router.get('/seller', authenticateUser, requireSeller, QAController.getSellerQuestions);
+router.get('/seller/products', authenticateUser, requireSeller, QAController.getSellerProducts);
 
 // Authenticated — ask a question or post an answer
 router.post('/', authenticateUser, QAController.askQuestion);

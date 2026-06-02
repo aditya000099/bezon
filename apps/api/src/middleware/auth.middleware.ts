@@ -14,6 +14,10 @@ declare global {
         role: UserRole;
         avatarUrl: string | null;
         isActive: boolean;
+        seller?: {
+          status: string;
+          rejectionReason: string | null;
+        } | null;
       };
     }
   }
@@ -55,6 +59,9 @@ export const authenticateUser = async (req: Request, res: Response, next: NextFu
         role: true,
         avatarUrl: true,
         isActive: true,
+        seller: {
+          select: { status: true, rejectionReason: true },
+        },
       },
     });
 
@@ -131,3 +138,51 @@ export const requireRole = (allowedRoles: UserRole[]) => {
     next();
   };
 };
+
+/**
+ * Middleware to require an approved seller profile
+ */
+export const requireSeller = async (req: Request, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    return res.status(401).json({
+      success: false,
+      message: 'Unauthorized. Authenticated session required.',
+    });
+  }
+
+  // Check if they are an approved seller
+  if (req.user.seller?.status !== 'approved') {
+    return res.status(403).json({
+      success: false,
+      message: 'Access denied. Active seller profile required.',
+    });
+  }
+
+  next();
+};
+
+/**
+ * Middleware to require an approved seller profile or admin role
+ */
+export const requireSellerOrAdmin = async (req: Request, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    return res.status(401).json({
+      success: false,
+      message: 'Unauthorized. Authenticated session required.',
+    });
+  }
+
+  if (req.user.role === 'admin') {
+    return next();
+  }
+
+  if (req.user.seller?.status === 'approved') {
+    return next();
+  }
+
+  return res.status(403).json({
+    success: false,
+    message: 'Access denied. Active seller profile or admin role required.',
+  });
+};
+

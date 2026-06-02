@@ -110,3 +110,45 @@ export const requestOrderPolicyAction = async (req: Request, res: Response, next
   }
 };
 
+/**
+ * Retrieve seller order history
+ */
+export const getSellerOrders = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: 'Unauthorized session.' });
+    }
+
+    const orders = await OrderService.getSellerOrders(req.user.id);
+
+    res.json({
+      success: true,
+      data: orders,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Retrieve specific order details for a seller
+ */
+export const getSellerOrderById = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const id = req.params.id as string;
+
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: 'Unauthorized session.' });
+    }
+
+    const order = await OrderService.getSellerOrderById(id, req.user.id);
+
+    res.json({
+      success: true,
+      data: order,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+

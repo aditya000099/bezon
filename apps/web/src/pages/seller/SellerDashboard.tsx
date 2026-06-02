@@ -1,8 +1,47 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { DollarSign, ShoppingBag, AlertTriangle, ArrowUpRight } from 'lucide-react';
+import { DollarSign, ShoppingBag, AlertTriangle, ArrowUpRight, Loader2 } from 'lucide-react';
+import api from '../../lib/api';
+import { API_ENDPOINTS } from '../../config/api.config';
+import { useToast } from '../../context/ToastContext';
 
 export const SellerDashboard: React.FC = () => {
+  const { toast } = useToast();
+  const [stats, setStats] = useState({
+    totalRevenue: 0,
+    totalOrders: 0,
+    incomingOrders: 0,
+    lowStockAlerts: 0,
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const fetchStats = async () => {
+    try {
+      setLoading(true);
+      const res = await api.get(API_ENDPOINTS.sellers.stats);
+      if (res.data.success) {
+        setStats(res.data.data);
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to fetch dashboard stats');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] text-slate-500">
+        <Loader2 className="h-8 w-8 animate-spin mb-4 text-indigo-500" />
+        <p className="font-medium">Loading dashboard...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-6">
       {/* Metric cards */}
@@ -10,10 +49,7 @@ export const SellerDashboard: React.FC = () => {
         <Card className="bg-white border border-slate-200 shadow-sm flex items-center justify-between p-6">
           <div className="space-y-1">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Revenue</span>
-            <CardTitle className="text-2xl font-extrabold text-slate-800">₹45,230.00</CardTitle>
-            <span className="text-xs font-bold text-emerald-600 flex items-center gap-0.5">
-              <ArrowUpRight className="h-3 w-3" /> +12% this week
-            </span>
+            <CardTitle className="text-2xl font-extrabold text-slate-800">₹{stats.totalRevenue.toLocaleString()}</CardTitle>
           </div>
           <div className="h-10 w-10 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
             <DollarSign className="h-5 w-5" />
@@ -23,8 +59,8 @@ export const SellerDashboard: React.FC = () => {
         <Card className="bg-white border border-slate-200 shadow-sm flex items-center justify-between p-6">
           <div className="space-y-1">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Incoming Orders</span>
-            <CardTitle className="text-2xl font-extrabold text-slate-800">8 Orders</CardTitle>
-            <span className="text-xs font-bold text-slate-500 block">3 awaiting packing</span>
+            <CardTitle className="text-2xl font-extrabold text-slate-800">{stats.incomingOrders} Orders</CardTitle>
+            <span className="text-xs font-bold text-slate-500 block">Out of {stats.totalOrders} total</span>
           </div>
           <div className="h-10 w-10 bg-emerald-50 rounded-lg flex items-center justify-center text-emerald-600">
             <ShoppingBag className="h-5 w-5" />
@@ -34,7 +70,7 @@ export const SellerDashboard: React.FC = () => {
         <Card className="bg-white border border-slate-200 shadow-sm flex items-center justify-between p-6">
           <div className="space-y-1">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Low Stock Alerts</span>
-            <CardTitle className="text-2xl font-extrabold text-slate-800">2 Items</CardTitle>
+            <CardTitle className="text-2xl font-extrabold text-slate-800">{stats.lowStockAlerts} Items</CardTitle>
             <span className="text-xs font-bold text-rose-600 block">Restock immediately</span>
           </div>
           <div className="h-10 w-10 bg-rose-50 rounded-lg flex items-center justify-center text-rose-600">

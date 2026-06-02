@@ -142,6 +142,9 @@ export class AuthService {
         role: true,
         avatarUrl: true,
         isActive: true,
+        seller: {
+          select: { id: true, shopName: true, shopSlug: true, status: true, rejectionReason: true },
+        },
       },
     });
 

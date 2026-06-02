@@ -105,3 +105,60 @@ export const updateSettings = async (req: Request, res: Response, next: NextFunc
     next(err);
   }
 };
+
+/**
+ * Get seller dashboard stats
+ */
+export const getDashboardStats = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const seller = await prisma.seller.findUnique({
+      where: { userId: req.user!.id },
+    });
+
+    if (!seller) {
+      return res.status(404).json({ success: false, message: 'Seller profile not found' });
+    }
+
+    const [totalOrders, incomingOrders, lowStockProducts] = await Promise.all([
+      prisma.order.count({
+        where: { sellerId: seller.id }
+      }),
+      prisma.order.count({
+        where: { sellerId: seller.id, status: { in: ['placed', 'confirmed', 'packed'] } }
+      }),
+      prisma.product.count({
+        where: { sellerId: seller.id, totalStock: { lte: 5 }, status: 'published' }
+      })
+    ]);
+
+    const deliveredItems = await prisma.orderItem.findMany({
+      where: {
+        order: {
+          sellerId: seller.id,
+          status: 'delivered',
+        },
+      },
+      select: {
+        unitPrice: true,
+        qty: true,
+      },
+    });
+
+    const totalRevenue = deliveredItems.reduce(
+      (sum, item) => sum + Number(item.unitPrice) * item.qty,
+      0
+    );
+
+    res.json({
+      success: true,
+      data: {
+        totalRevenue,
+        totalOrders,
+        incomingOrders,
+        lowStockAlerts: lowStockProducts
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
+};

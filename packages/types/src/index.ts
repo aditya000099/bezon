@@ -1,7 +1,7 @@
 // ── Shared TypeScript Typings for Bezon ──────────────────────────────────────
 
 export type UserRole = 'customer' | 'seller' | 'delivery' | 'admin';
-export type SellerStatus = 'pending' | 'approved' | 'suspended';
+export type SellerStatus = 'pending' | 'approved' | 'rejected' | 'suspended';
 export type ProductStatus = 'draft' | 'published' | 'archived';
 
 export type OrderStatus =
@@ -83,6 +83,7 @@ export interface Seller {
   description?: string;
   logoUrl?: string;
   status: SellerStatus;
+  rejectionReason?: string;
   avgDispatchDays: number;
   bankAccountEnc?: string;
   ifscEnc?: string;
