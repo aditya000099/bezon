@@ -1,5 +1,7 @@
 import crypto from 'crypto';
 import prisma from '../db/client.js';
+import { CartService } from './cart.service.js';
+import { RecommendationService } from './recommendation.service.js';
 import { addressSchema } from '@bezon/validation';
 
 // Dynamically import razorpay
@@ -364,6 +366,7 @@ export class PaymentService {
     await prisma.$transaction(async (tx) => {
       const orders = await tx.order.findMany({
         where: { razorpayOrderId },
+        include: { items: true },
       });
 
       for (const order of orders) {
@@ -385,6 +388,11 @@ export class PaymentService {
             note: 'Payment verified successfully. Order confirmed.',
           },
         });
+
+        // Record checkout activity asynchronously outside the transaction wait, actually doing it inside is fine since it's fire-and-forget but it uses its own prisma connection, so don't await it.
+        for (const item of order.items) {
+          RecommendationService.recordActivity(userId, 'checkout', { productId: item.productId, metadata: { qty: item.qty, price: item.unitPrice } });
+        }
       }
 
       // Update payment record status

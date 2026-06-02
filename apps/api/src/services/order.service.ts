@@ -82,7 +82,17 @@ export class OrderService {
     const order = await prisma.order.findUnique({
       where: { id: orderId },
       include: {
-        items: true,
+        items: {
+          include: {
+            product: {
+              select: {
+                title: true,
+                slug: true,
+                images: true,
+              }
+            }
+          }
+        },
         timeline: {
           orderBy: { createdAt: 'desc' },
         },
@@ -142,5 +152,58 @@ export class OrderService {
     }
 
     return order;
+  }
+
+  /**
+   * Updates the status of an order and records the change in the timeline
+   */
+  static async updateOrderStatus(orderId: string, status: string, user: { id: string; role: string }) {
+    const { id: userId, role } = user;
+
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+      include: { seller: true }
+    });
+
+    if (!order) {
+      const err = new Error('Order not found.');
+      (err as any).status = 404;
+      throw err;
+    }
+
+    if (role === 'seller') {
+      const seller = await prisma.seller.findUnique({ where: { userId } });
+      if (!seller || order.sellerId !== seller.id) {
+        const err = new Error('Access denied.');
+        (err as any).status = 403;
+        throw err;
+      }
+    }
+
+    // Admin can always update
+    if (role === 'customer') {
+      const err = new Error('Customers cannot directly modify order status.');
+      (err as any).status = 403;
+      throw err;
+    }
+
+    const updatedOrder = await prisma.$transaction(async (tx) => {
+      const updated = await tx.order.update({
+        where: { id: orderId },
+        data: { status: status as any },
+      });
+
+      await tx.orderTimeline.create({
+        data: {
+          orderId,
+          status: status as any,
+          note: `Order status manually updated to ${status} by ${role}.`,
+        },
+      });
+
+      return updated;
+    });
+
+    return updatedOrder;
   }
 }

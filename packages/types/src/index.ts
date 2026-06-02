@@ -49,6 +49,7 @@ export type NotificationType =
   | 'return_approved'
   | 'new_task_assigned'
   | 'low_stock'
+  | 'question_asked'
   | 'general';
 
 export interface User {
@@ -238,4 +239,38 @@ export interface ApiResponse<T = any> {
   success: boolean;
   message?: string;
   data?: T;
+}
+
+export interface ProductQuestion {
+  id: string;
+  productId: string;
+  userId: string;
+  variantId?: string;
+  question: string;
+  createdAt: string;
+  updatedAt: string;
+  user?: { id: string; name: string; avatarUrl: string | null };
+  answers?: ProductAnswer[];
+}
+
+export interface ProductAnswer {
+  id: string;
+  questionId: string;
+  userId: string;
+  answer: string;
+  createdAt: string;
+  updatedAt: string;
+  user?: { id: string; name: string; avatarUrl: string | null };
+  badge?: 'seller' | 'verified_buyer' | null;
+}
+
+export interface Notification {
+  id: string;
+  userId: string;
+  type: NotificationType;
+  title: string;
+  body?: string;
+  data: Record<string, any>;
+  isRead: boolean;
+  createdAt: string;
 }

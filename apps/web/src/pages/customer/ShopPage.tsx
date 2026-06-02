@@ -1,14 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { ShoppingBag, Star, Search, Loader2 } from 'lucide-react';
-import type { Product, Category } from '@bezon/types';
-import api from '../../lib/api';
-import { API_ENDPOINTS } from '../../config/api.config';
-import { useToast } from '../../context/ToastContext';
-import { useCart } from '../../context/CartContext';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ShoppingBag, Star, Search, Loader2, Sparkles } from "lucide-react";
+import type { Product, Category } from "@bezon/types";
+import api from "../../lib/api";
+import { API_ENDPOINTS } from "../../config/api.config";
+import { useToast } from "../../context/ToastContext";
+import { useCart } from "../../context/CartContext";
 
 export const ShopPage: React.FC = () => {
   const { toast } = useToast();
@@ -17,13 +23,14 @@ export const ShopPage: React.FC = () => {
   // Catalogue and Categories states
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [recommendedProducts, setRecommendedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Filters state
-  const [searchQuery, setSearchQuery] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [sortBy, setSortBy] = useState('featured');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [sortBy, setSortBy] = useState("featured");
   const [addingToCart, setAddingToCart] = useState<Record<string, boolean>>({});
 
   // Debounce search query changes
@@ -43,10 +50,24 @@ export const ShopPage: React.FC = () => {
           setCategories(response.data.data);
         }
       } catch (err) {
-        console.error('Failed to load categories', err);
+        console.error("Failed to load categories", err);
       }
     };
+    const fetchRecommendations = async () => {
+      try {
+        const res = await api.get(API_ENDPOINTS.products.recommended, {
+          params: { limit: 4 },
+        });
+        if (res.data.success) {
+          setRecommendedProducts(res.data.data);
+        }
+      } catch (err) {
+        console.error("Failed to load recommendations", err);
+      }
+    };
+
     fetchCategories();
+    fetchRecommendations();
   }, []);
 
   // Fetch products when filters or search inputs change
@@ -58,14 +79,14 @@ export const ShopPage: React.FC = () => {
           params: {
             search: debouncedSearch || undefined,
             category: selectedCategory || undefined,
-            sort: sortBy !== 'featured' ? sortBy : undefined,
+            sort: sortBy !== "featured" ? sortBy : undefined,
           },
         });
         if (response.data.success) {
           setProducts(response.data.data.products || []);
         }
       } catch (err) {
-        toast.error('Could not load products. Please check connection.');
+        toast.error("Could not load products. Please check connection.");
       } finally {
         setLoading(false);
       }
@@ -80,7 +101,7 @@ export const ShopPage: React.FC = () => {
       await addItem(product.id, 1, price);
       toast.success(`Added ${product.title} to shopping cart!`);
     } catch (err) {
-      toast.error('Failed to add item to cart. Try again.');
+      toast.error("Failed to add item to cart. Try again.");
     } finally {
       setAddingToCart((prev) => ({ ...prev, [product.id]: false }));
     }
@@ -109,7 +130,9 @@ export const ShopPage: React.FC = () => {
           >
             <option value="">All Categories</option>
             {categories.map((cat) => (
-              <option key={cat.id} value={cat.slug}>{cat.name}</option>
+              <option key={cat.id} value={cat.slug}>
+                {cat.name}
+              </option>
             ))}
           </select>
 
@@ -127,30 +150,133 @@ export const ShopPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Recommended Section */}
+      {!loading &&
+        recommendedProducts.length > 0 &&
+        !searchQuery &&
+        !selectedCategory && (
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-2 px-1">
+              <Sparkles className="h-5 w-5 text-indigo-500" />
+              <h2 className="text-xl font-black text-slate-800 tracking-tight">
+                Recommended for You
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {recommendedProducts.map((p) => (
+                <Card
+                  key={p.id}
+                  className="overflow-hidden border-2 border-indigo-100 shadow-sm hover:shadow-indigo-100/50 transition-all f
+lex flex-col justify-between bg-linear-to-b from-indigo-50/30 to-white relative"
+                >
+                  <div
+                    className="absolute top-2 left-2 z-10 bg-indigo-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercas
+e tracking-wider shadow-sm"
+                  >
+                    Picked for you
+                  </div>
+                  <Link to={`/shop/products/${p.slug}`}>
+                    <div
+                      className="aspect-square bg-slate-50 border-b border-slate-100 flex items-center justify-center text-slate-300 font
+-semibold text-xs select-none cursor-pointer overflow-hidden group"
+                    >
+                      {(() => {
+                        const primaryImg =
+                          p.images?.find((img: any) => img.isPrimary) ||
+                          p.images?.[0];
+                        return primaryImg ? (
+                          <img
+                            src={primaryImg.url}
+                            alt={p.title}
+                            className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                        ) : (
+                          <ShoppingBag className="h-10 w-10 opacity-40 mb-2 block mx-auto text-slate-400" />
+                        );
+                      })()}
+                    </div>
+                  </Link>
+                  <CardHeader className="p-4 pb-0">
+                    <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest">
+                      {p.brand || "Unbranded"}
+                    </span>
+                    <Link to={`/shop/products/${p.slug}`}>
+                      <CardTitle className="text-base font-bold text-slate-800 line-clamp-1 mt-0.5 hover:text-indigo-600 transition-colors">
+                        {p.title}
+                      </CardTitle>
+                    </Link>
+                    <div className="flex items-center gap-1 mt-0.5 text-xs text-amber-500 font-bold">
+                      <Star className="h-3 w-3 fill-amber-500 text-amber-500" />
+                      <span>{p.avgRating ? Number(p.avgRating).toFixed(1) : "0.0"}</span>
+                      <span className="text-slate-400 font-normal">
+                        ({p.reviewCount || 0})
+                      </span>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-4 pt-3 flex items-baseline gap-2">
+                    <span className="text-lg font-extrabold text-slate-900">
+                      ₹{Number(p.basePrice).toLocaleString()}
+                    </span>
+                  </CardContent>
+                  <CardFooter className="p-4 pt-0">
+                    {p.totalStock > 0 ? (
+                      <Button
+                        className="w-full text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm"
+                        size="sm"
+                        onClick={() => handleAddToCart(p)}
+                        disabled={addingToCart[p.id]}
+                      >
+                        {addingToCart[p.id] ? "Adding..." : "Add to Cart"}
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="secondary"
+                        className="w-full text-xs font-bold text-rose-500 bg-rose-50 border-rose-100 hover:bg-rose
+-50 cursor-not-allowed"
+                        size="sm"
+                        disabled
+                      >
+                        Out of Stock
+                      </Button>
+                    )}
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+
       {/* Catalog Grid */}
       {loading ? (
-        <div className="flex flex-col items-center justify-center min-h-[300px] text-slate-400 gap-2">
+        <div className="flex flex-col items-center justify-center min-h-75 text-slate-400 gap-2">
           <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
           <p className="text-sm font-semibold">Loading catalog items...</p>
         </div>
       ) : products.length === 0 ? (
-        <div className="flex flex-col items-center justify-center min-h-[300px] text-slate-400 border-2 border-dashed border-slate-200 rounded-2xl p-8 bg-white/50">
+        <div className="flex flex-col items-center justify-center min-h-75 text-slate-400 border-2 border-dashed border-slate-200 rounded-2xl p-8 bg-white/50">
           <ShoppingBag className="h-12 w-12 text-slate-300 mb-2" />
           <p className="font-bold text-slate-700">No matching products found</p>
-          <p className="text-xs text-slate-400 mt-1">Try widening your search terms or changing category filters.</p>
+          <p className="text-xs text-slate-400 mt-1">
+            Try widening your search terms or changing category filters.
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {products.map((p) => (
-            <Card key={p.id} className="overflow-hidden border border-slate-200 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between bg-white">
+            <Card
+              key={p.id}
+              className="overflow-hidden border border-slate-200 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between bg-white"
+            >
               <Link to={`/shop/products/${p.slug}`}>
                 <div className="aspect-square bg-slate-50 border-b border-slate-100 flex items-center justify-center text-slate-300 font-semibold text-xs select-none cursor-pointer overflow-hidden">
                   {(() => {
-                    const primaryImg = p.images?.find((img: any) => img.isPrimary) || p.images?.[0];
+                    const primaryImg =
+                      p.images?.find((img: any) => img.isPrimary) ||
+                      p.images?.[0];
                     return primaryImg ? (
-                      <img 
-                        src={primaryImg.url} 
-                        alt={p.title} 
+                      <img
+                        src={primaryImg.url}
+                        alt={p.title}
                         className="h-full w-full object-cover hover:scale-105 transition-transform duration-300"
                       />
                     ) : (
@@ -160,7 +286,9 @@ export const ShopPage: React.FC = () => {
                 </div>
               </Link>
               <CardHeader className="p-4 pb-0">
-                <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest">{p.brand || 'Unbranded'}</span>
+                <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest">
+                  {p.brand || "Unbranded"}
+                </span>
                 <Link to={`/shop/products/${p.slug}`}>
                   <CardTitle className="text-base font-bold text-slate-800 line-clamp-1 mt-0.5 hover:text-indigo-600 transition-colors">
                     {p.title}
@@ -168,12 +296,16 @@ export const ShopPage: React.FC = () => {
                 </Link>
                 <div className="flex items-center gap-1 mt-0.5 text-xs text-amber-500 font-bold">
                   <Star className="h-3 w-3 fill-amber-500 text-amber-500" />
-                  <span>{p.avgRating ? Number(p.avgRating) : 5.0}</span>
-                  <span className="text-slate-400 font-normal">({p.reviewCount || 0})</span>
+                  <span>{p.avgRating ? Number(p.avgRating).toFixed(1) : "0.0"}</span>
+                  <span className="text-slate-400 font-normal">
+                    ({p.reviewCount || 0})
+                  </span>
                 </div>
               </CardHeader>
               <CardContent className="p-4 pt-3 flex items-baseline gap-2">
-                <span className="text-lg font-extrabold text-slate-900">₹{Number(p.basePrice).toLocaleString()}</span>
+                <span className="text-lg font-extrabold text-slate-900">
+                  ₹{Number(p.basePrice).toLocaleString()}
+                </span>
               </CardContent>
               <CardFooter className="p-4 pt-0">
                 {p.totalStock > 0 ? (
@@ -183,10 +315,15 @@ export const ShopPage: React.FC = () => {
                     onClick={() => handleAddToCart(p)}
                     disabled={addingToCart[p.id]}
                   >
-                    {addingToCart[p.id] ? 'Adding...' : 'Add to Cart'}
+                    {addingToCart[p.id] ? "Adding..." : "Add to Cart"}
                   </Button>
                 ) : (
-                  <Button variant="secondary" className="w-full text-xs font-bold text-rose-500 bg-rose-50 border-rose-100 hover:bg-rose-50 cursor-not-allowed" size="sm" disabled>
+                  <Button
+                    variant="secondary"
+                    className="w-full text-xs font-bold text-rose-500 bg-rose-50 border-rose-100 hover:bg-rose-50 cursor-not-allowed"
+                    size="sm"
+                    disabled
+                  >
                     Out of Stock
                   </Button>
                 )}

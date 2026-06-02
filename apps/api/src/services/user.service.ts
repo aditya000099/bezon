@@ -1,0 +1,75 @@
+import prisma from '../db/client.js';
+
+export class UserService {
+  /**
+   * Get all users for admin dashboard, including their recommendation profile based on activities
+   */
+  static async getAdminUsersList() {
+    // Fetch users with their 20 most recent activities
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        isActive: true,
+        createdAt: true,
+        activities: {
+          orderBy: { createdAt: 'desc' },
+          take: 20,
+          select: {
+            activityType: true,
+            searchQuery: true,
+            product: {
+              select: {
+                category: { select: { name: true } }
+              }
+            }
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    // Map through users to build their recommendation profile
+    return users.map(user => {
+      const categoryCounts: Record<string, number> = {};
+      const searchCounts: Record<string, number> = {};
+
+      for (const act of user.activities) {
+        if (act.product?.category?.name) {
+          categoryCounts[act.product.category.name] = (categoryCounts[act.product.category.name] || 0) + 1;
+        }
+        if (act.searchQuery) {
+          const q = act.searchQuery.toLowerCase().trim();
+          searchCounts[q] = (searchCounts[q] || 0) + 1;
+        }
+      }
+
+      // Get top 3 categories
+      const topCategories = Object.entries(categoryCounts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 3)
+        .map(entry => entry[0]);
+
+      // Get top 3 search queries
+      const topSearches = Object.entries(searchCounts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 3)
+        .map(entry => entry[0]);
+
+      return {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        isActive: user.isActive,
+        createdAt: user.createdAt,
+        recommendationProfile: {
+          categories: topCategories,
+          searches: topSearches,
+        }
+      };
+    });
+  }
+}

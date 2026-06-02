@@ -10,6 +10,7 @@ export const API_ENDPOINTS = {
     login: `${API_V1}/auth/login`,
     logout: `${API_V1}/auth/logout`,
     me: `${API_V1}/auth/me`,
+    updateProfile: `${API_V1}/auth/profile`,
   },
   // Cart
   cart: {
@@ -25,6 +26,7 @@ export const API_ENDPOINTS = {
   },
   // Products / Shop (Mock/Real routing placeholders)
   products: {
+    recommended: `${API_V1}/products/recommended`,
     list: `${API_V1}/products`,
     detail: (slug: string) => `${API_V1}/products/${slug}`,
     coupons: (slug: string) => `${API_V1}/products/${slug}/coupons`,
@@ -37,6 +39,7 @@ export const API_ENDPOINTS = {
   orders: {
     base: `${API_V1}/orders`,
     detail: (id: string) => `${API_V1}/orders/${id}`,
+    updateStatus: (id: string) => `${API_V1}/orders/${id}/status`,
   },
   // Payments
   payments: {
@@ -51,6 +54,35 @@ export const API_ENDPOINTS = {
     delete: (id: string) => `${API_V1}/coupons/${id}`,
     apply: `${API_V1}/coupons/apply`,
     forCart: `${API_V1}/coupons/cart`,
+  },
+  // Users
+  users: {
+    adminList: `${API_V1}/users/admin`,
+  },
+  // Addresses
+  addresses: {
+    base: `${API_V1}/addresses`,
+    byId: (id: string) => `${API_V1}/addresses/${id}`,
+  },
+  // Reviews
+  reviews: {
+    list: (productId: string) => `${API_V1}/reviews/product/${productId}`,
+    summary: (productId: string) => `${API_V1}/reviews/product/${productId}/summary`,
+  },
+  // Questions & Answers
+  qa: {
+    list: (productId: string) => `${API_V1}/qa/product/${productId}`,
+    ask: `${API_V1}/qa`,
+    answer: `${API_V1}/qa/answer`,
+    sellerQuestions: `${API_V1}/qa/seller`,
+    sellerProducts: `${API_V1}/qa/seller/products`,
+  },
+  // Notifications
+  notifications: {
+    list: `${API_V1}/notifications`,
+    unreadCount: `${API_V1}/notifications/unread-count`,
+    markRead: (id: string) => `${API_V1}/notifications/${id}/read`,
+    markAllRead: `${API_V1}/notifications/read-all`,
   },
 } as const;
 

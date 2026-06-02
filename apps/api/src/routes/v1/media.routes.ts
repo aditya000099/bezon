@@ -24,6 +24,6 @@ const upload = multer({
 });
 
 // Media Upload Endpoints
-router.post('/upload', authenticateUser, requireRole(['seller', 'admin']), upload.single('image'), uploadImage);
+router.post('/upload', authenticateUser, requireRole(['customer', 'seller', 'admin']), upload.single('image'), uploadImage);
 
 export default router;

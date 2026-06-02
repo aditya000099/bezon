@@ -1,13 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Loader2, Package, Search, AlertTriangle, RefreshCw, Check } from 'lucide-react';
-import api from '../../lib/api';
-import { API_ENDPOINTS } from '../../config/api.config';
-import { useToast } from '../../context/ToastContext';
-import type { Product } from '@bezon/types';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Loader2,
+  Package,
+  Search,
+  AlertTriangle,
+  RefreshCw,
+  Check,
+} from "lucide-react";
+import api from "../../lib/api";
+import { API_ENDPOINTS } from "../../config/api.config";
+import { useToast } from "../../context/ToastContext";
+import type { Product } from "@bezon/types";
 
 interface FlatInventoryItem {
   productId: string;
@@ -31,7 +38,7 @@ export const SellerInventory: React.FC = () => {
   const { toast } = useToast();
   const [items, setItems] = useState<FlatInventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [filterLowStock, setFilterLowStock] = useState(false);
 
   const fetchInventory = async () => {
@@ -61,7 +68,9 @@ export const SellerInventory: React.FC = () => {
         setItems(flatItems);
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Could not fetch shop inventory.');
+      toast.error(
+        err.response?.data?.message || "Could not fetch shop inventory.",
+      );
     } finally {
       setLoading(false);
     }
@@ -77,7 +86,7 @@ export const SellerInventory: React.FC = () => {
     const newAlert = Number(item.tempAlert);
 
     if (isNaN(newStock) || newStock < 0 || isNaN(newAlert) || newAlert < 0) {
-      toast.error('Stock and Low Stock threshold must be positive integers.');
+      toast.error("Stock and Low Stock threshold must be positive integers.");
       return;
     }
 
@@ -108,7 +117,9 @@ export const SellerInventory: React.FC = () => {
         setItems(applyUpdate);
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to update variant stock.');
+      toast.error(
+        err.response?.data?.message || "Failed to update variant stock.",
+      );
       const resetLoading = [...items];
       resetLoading[index].updating = false;
       setItems(resetLoading);
@@ -128,7 +139,8 @@ export const SellerInventory: React.FC = () => {
     const matchesSearch =
       item.productTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.sku.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (item.productBrand && item.productBrand.toLowerCase().includes(searchQuery.toLowerCase()));
+      (item.productBrand &&
+        item.productBrand.toLowerCase().includes(searchQuery.toLowerCase()));
 
     const isLowStock = item.stock <= item.lowStockAlert;
 
@@ -146,18 +158,28 @@ export const SellerInventory: React.FC = () => {
             <Package className="h-5 w-5" />
           </div>
           <div>
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Total Tracked SKUs</span>
-            <span className="text-xl font-extrabold text-slate-800">{items.length} Variants</span>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">
+              Total Tracked SKUs
+            </span>
+            <span className="text-xl font-extrabold text-slate-800">
+              {items.length} Variants
+            </span>
           </div>
         </Card>
 
         <Card className="bg-white border border-slate-200 shadow-sm flex items-center gap-4 p-5">
-          <div className={`h-10 w-10 rounded-lg flex items-center justify-center shrink-0 ${lowStockCount > 0 ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600'}`}>
+          <div
+            className={`h-10 w-10 rounded-lg flex items-center justify-center shrink-0 ${lowStockCount > 0 ? "bg-amber-50 text-amber-600" : "bg-emerald-50 text-emerald-600"}`}
+          >
             <AlertTriangle className="h-5 w-5" />
           </div>
           <div>
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Low Stock Alerts</span>
-            <span className={`text-xl font-extrabold ${lowStockCount > 0 ? 'text-amber-600' : 'text-emerald-600'}`}>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">
+              Low Stock Alerts
+            </span>
+            <span
+              className={`text-xl font-extrabold ${lowStockCount > 0 ? "text-amber-600" : "text-emerald-600"}`}
+            >
               {lowStockCount} items low
             </span>
           </div>
@@ -178,14 +200,19 @@ export const SellerInventory: React.FC = () => {
         </div>
         <div className="flex gap-3 w-full sm:w-auto justify-end">
           <Button
-            variant={filterLowStock ? 'destructive' : 'outline'}
+            variant={filterLowStock ? "destructive" : "outline"}
             className="text-xs font-bold flex items-center gap-1.5"
             onClick={() => setFilterLowStock(!filterLowStock)}
           >
             <AlertTriangle className="h-3.5 w-3.5" />
-            {filterLowStock ? 'Show All Items' : 'Show Low Stock'}
+            {filterLowStock ? "Show All Items" : "Show Low Stock"}
           </Button>
-          <Button size="icon" variant="outline" className="h-10 w-10" onClick={fetchInventory}>
+          <Button
+            size="icon"
+            variant="outline"
+            className="h-10 w-10"
+            onClick={fetchInventory}
+          >
             <RefreshCw className="h-4 w-4" />
           </Button>
         </div>
@@ -193,15 +220,17 @@ export const SellerInventory: React.FC = () => {
 
       {/* Inventory Listings Table */}
       {loading ? (
-        <div className="flex flex-col items-center justify-center min-h-[300px] text-slate-400 gap-2">
+        <div className="flex flex-col items-center justify-center min-h-75 text-slate-400 gap-2">
           <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
           <p className="text-sm font-semibold">Loading stock levels...</p>
         </div>
       ) : filteredItems.length === 0 ? (
-        <Card className="flex flex-col items-center justify-center min-h-[300px] text-slate-400 p-8 border-dashed border-2 bg-white/50">
+        <Card className="flex flex-col items-center justify-center min-h-75 text-slate-400 p-8 border-dashed border-2 bg-white/50">
           <Package className="h-12 w-12 text-slate-300 mb-2" />
           <p className="font-bold text-slate-700">No matching items found</p>
-          <p className="text-xs text-slate-400 mt-1">Inventory list matches all standard criteria.</p>
+          <p className="text-xs text-slate-400 mt-1">
+            Inventory list matches all standard criteria.
+          </p>
         </Card>
       ) : (
         <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
@@ -217,18 +246,31 @@ export const SellerInventory: React.FC = () => {
             </thead>
             <tbody className="divide-y divide-slate-100 text-sm text-slate-700">
               {filteredItems.map((item, idx) => {
-                const globalIndex = items.findIndex((i) => i.variantId === item.variantId);
+                const globalIndex = items.findIndex(
+                  (i) => i.variantId === item.variantId,
+                );
                 const isLow = item.stock <= item.lowStockAlert;
                 const attributesText = Object.entries(item.attributes)
                   .map(([k, v]) => `${k}: ${v}`)
-                  .join(', ');
+                  .join(", ");
 
                 return (
-                  <tr key={item.variantId} className={`hover:bg-slate-50/50 transition-colors ${isLow ? 'bg-amber-50/20' : ''}`}>
+                  <tr
+                    key={item.variantId}
+                    className={`hover:bg-slate-50/50 transition-colors ${isLow ? "bg-amber-50/20" : ""}`}
+                  >
                     <td className="px-6 py-4">
-                      <p className="font-mono text-xs font-bold text-slate-900">{item.sku}</p>
-                      <p className="font-bold text-slate-800 mt-0.5 line-clamp-1">{item.productTitle}</p>
-                      {attributesText && <p className="text-[10px] text-slate-400 mt-0.5">{attributesText}</p>}
+                      <p className="font-mono text-xs font-bold text-slate-900">
+                        {item.sku}
+                      </p>
+                      <p className="font-bold text-slate-800 mt-0.5 line-clamp-1">
+                        {item.productTitle}
+                      </p>
+                      {attributesText && (
+                        <p className="text-[10px] text-slate-400 mt-0.5">
+                          {attributesText}
+                        </p>
+                      )}
                     </td>
                     <td className="px-6 py-4 font-bold text-slate-800">
                       ₹{item.price.toLocaleString()}
@@ -294,7 +336,9 @@ export const SellerInventory: React.FC = () => {
                           size="sm"
                           variant="ghost"
                           className="text-xs font-semibold px-2 py-1 flex items-center gap-1 h-8 text-slate-500 hover:text-slate-800"
-                          onClick={() => navigate(`/seller/products?edit=${item.productId}`)}
+                          onClick={() =>
+                            navigate(`/seller/products?edit=${item.productId}`)
+                          }
                         >
                           Edit Info
                         </Button>

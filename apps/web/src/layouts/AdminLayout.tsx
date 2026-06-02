@@ -9,6 +9,7 @@ export const AdminLayout: React.FC = () => {
 
   const links = [
     { to: '/admin', label: 'Dashboard', icon: LayoutDashboard },
+    { to: '/admin/users', label: 'Platform Users', icon: Users },
     { to: '/admin/orders', label: 'All Orders', icon: ClipboardList },
     { to: '/admin/deliveries', label: 'Delivery Ops', icon: Truck },
     { to: '/admin/sellers', label: 'Sellers Management', icon: ShieldAlert },

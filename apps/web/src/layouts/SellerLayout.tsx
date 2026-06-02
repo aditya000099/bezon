@@ -1,6 +1,8 @@
-import React from 'react';
-import { Link, Outlet, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import React, { useState, useEffect } from "react";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import api from "../lib/api";
+import { API_ENDPOINTS } from "../config/api.config";
 import {
   LayoutDashboard,
   ShoppingBag,
@@ -10,19 +12,40 @@ import {
   LogOut,
   Store,
   Tag,
-} from 'lucide-react';
+  Bell,
+  MessageSquare,
+} from "lucide-react";
 
 export const SellerLayout: React.FC = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      try {
+        const res = await api.get(API_ENDPOINTS.notifications.unreadCount);
+        if (res.data.success) {
+          setUnreadCount(res.data.data?.count ?? res.data.data ?? 0);
+        }
+      } catch (err) {
+        console.error("Failed to fetch unread count", err);
+      }
+    };
+    fetchUnreadCount();
+    const interval = setInterval(fetchUnreadCount, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const links = [
-    { to: '/seller', label: 'Dashboard', icon: LayoutDashboard },
-    { to: '/seller/products', label: 'My Products', icon: ShoppingBag },
-    { to: '/seller/coupons', label: 'Coupons', icon: Tag },
-    { to: '/seller/orders', label: 'Order Queue', icon: ClipboardList },
-    { to: '/seller/inventory', label: 'Inventory', icon: Package },
-    { to: '/seller/settings', label: 'Shop Settings', icon: Settings },
+    { to: "/seller", label: "Dashboard", icon: LayoutDashboard },
+    { to: "/seller/products", label: "My Products", icon: ShoppingBag },
+    { to: "/seller/coupons", label: "Coupons", icon: Tag },
+    { to: "/seller/qa", label: "Q&A", icon: MessageSquare },
+    { to: "/seller/orders", label: "Order Queue", icon: ClipboardList },
+    { to: "/seller/inventory", label: "Inventory", icon: Package },
+    { to: "/seller/settings", label: "Shop Settings", icon: Settings },
   ];
 
   return (
@@ -38,16 +61,16 @@ export const SellerLayout: React.FC = () => {
             const Icon = link.icon;
             const isActive =
               location.pathname === link.to ||
-              (link.to === '/seller/products' &&
-                location.pathname.startsWith('/seller/add-product'));
+              (link.to === "/seller/products" &&
+                location.pathname.startsWith("/seller/add-product"));
             return (
               <Link
                 key={link.to}
                 to={link.to}
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
                   isActive
-                    ? 'bg-primary/10 text-primary'
-                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
+                    ? "bg-primary/10 text-primary"
+                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-800"
                 }`}
               >
                 <Icon className="h-5 w-5" />
@@ -73,6 +96,18 @@ export const SellerLayout: React.FC = () => {
         <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8">
           <h2 className="text-xl font-bold text-slate-800">Seller Dashboard</h2>
           <div className="flex items-center gap-4">
+            <button
+              onClick={() => navigate("/seller/qa")}
+              className="relative p-2 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors"
+              title="Notifications"
+            >
+              <Bell className="h-5 w-5" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 h-4 min-w-4 px-1 flex items-center justify-center rounded-full bg-rose-500 text-white text-[10px] font-bold leading-none">
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </span>
+              )}
+            </button>
             <div className="text-right">
               <p className="text-sm font-semibold text-slate-800">
                 {user?.name}

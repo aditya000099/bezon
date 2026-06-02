@@ -25,6 +25,11 @@ import { OrdersPage } from '../pages/customer/OrdersPage';
 import { OrderDetailPage } from '../pages/customer/OrderDetailPage';
 import { WishlistPage } from '../pages/customer/WishlistPage';
 import { ProfilePage } from '../pages/customer/ProfilePage';
+import { EditProfilePage } from '../pages/customer/EditProfilePage';
+import { AddressesPage } from '../pages/customer/AddressesPage';
+import { TermsConditionsPage } from '../pages/customer/TermsConditionsPage';
+import { PrivacyPolicyPage } from '../pages/customer/PrivacyPolicyPage';
+
 
 // Seller Pages
 import { SellerDashboard } from '../pages/seller/SellerDashboard';
@@ -33,6 +38,7 @@ import { SellerOrders } from '../pages/seller/SellerOrders';
 import { SellerInventory } from '../pages/seller/SellerInventory';
 import { SellerSettings } from '../pages/seller/SellerSettings';
 import { SellerCoupons } from '../pages/seller/SellerCoupons';
+import { SellerQA } from '@/pages/seller/SellerQA';
 
 // Delivery Pages
 import { DeliveryQueue } from '../pages/delivery/DeliveryQueue';
@@ -41,12 +47,14 @@ import { DeliveryProfile } from '../pages/delivery/DeliveryProfile';
 
 // Admin Pages
 import { AdminDashboard } from '../pages/admin/AdminDashboard';
-import { AdminOrders } from '../pages/admin/AdminOrders';
-import { AdminDeliveries } from '../pages/admin/AdminDeliveries';
+import { AdminProducts } from '../pages/admin/AdminProducts';
 import { AdminSellers } from '../pages/admin/AdminSellers';
 import { AdminPartners } from '../pages/admin/AdminPartners';
-import { AdminProducts } from '../pages/admin/AdminProducts';
+import { AdminOrders } from '../pages/admin/AdminOrders';
+import { AdminDeliveries } from '../pages/admin/AdminDeliveries';
+import { AdminUsers } from '../pages/admin/AdminUsers';
 import { SellerAddProduct } from '@/pages/seller/SellerAddProduct';
+import { SellerOrderDetail } from '@/pages/seller/SellerOrderDetail';
 
 export const AppRouter: React.FC = () => {
   return (
@@ -88,6 +96,10 @@ export const AppRouter: React.FC = () => {
           <Route path="orders/:id" element={<OrderDetailPage />} />
           <Route path="wishlist" element={<WishlistPage />} />
           <Route path="profile" element={<ProfilePage />} />
+          <Route path="profile/edit" element={<EditProfilePage />} />
+          <Route path="addresses" element={<AddressesPage />} />
+          <Route path="terms-and-conditions" element={<TermsConditionsPage />} />
+          <Route path="privacy-policy" element={<PrivacyPolicyPage />} />
         </Route>
 
         {/* Seller Route Group */}
@@ -103,9 +115,11 @@ export const AppRouter: React.FC = () => {
           <Route path="products" element={<SellerProducts />} />
           <Route path="add-product" element={<SellerAddProduct />} />
           <Route path="orders" element={<SellerOrders />} />
+          <Route path="orders/:id" element={<SellerOrderDetail />} />
           <Route path="inventory" element={<SellerInventory />} />
           <Route path="settings" element={<SellerSettings />} />
           <Route path="coupons" element={<SellerCoupons />} />
+          <Route path="qa" element={<SellerQA />} />
         </Route>
 
         {/* Delivery Route Group */}
@@ -132,11 +146,12 @@ export const AppRouter: React.FC = () => {
           }
         >
           <Route index element={<AdminDashboard />} />
-          <Route path="orders" element={<AdminOrders />} />
-          <Route path="deliveries" element={<AdminDeliveries />} />
+          <Route path="products" element={<AdminProducts />} />
           <Route path="sellers" element={<AdminSellers />} />
           <Route path="partners" element={<AdminPartners />} />
-          <Route path="products" element={<AdminProducts />} />
+          <Route path="orders" element={<AdminOrders />} />
+          <Route path="deliveries" element={<AdminDeliveries />} />
+          <Route path="users" element={<AdminUsers />} />
         </Route>
 
         {/* Catch-all Redirect */}

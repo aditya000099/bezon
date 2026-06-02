@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, ArrowLeft, Clock, MapPin, Package, ShieldCheck, Truck, ShoppingBag } from 'lucide-react';
+import { Loader2, ArrowLeft, Clock, MapPin, Package, Truck, ShoppingBag } from 'lucide-react';
 import api from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api.config';
 import { useToast } from '../../context/ToastContext';
+import { WriteReviewModal } from '../../components/reviews/WriteReviewModal';
+import { OrderTrackingStepper } from '../../components/ui/OrderTrackingStepper';
 
 interface TimelineEvent {
   id: string;
@@ -37,6 +39,7 @@ interface OrderDetail {
   };
   items: {
     id: string;
+    productId: string;
     productTitle: string;
     sku: string;
     qty: number;
@@ -52,6 +55,10 @@ export const OrderDetailPage: React.FC = () => {
   const { toast } = useToast();
   const [order, setOrder] = useState<OrderDetail | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Review Modal State
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [selectedOrderItem, setSelectedOrderItem] = useState<{ id: string; productId: string; title: string } | null>(null);
 
   const fetchOrderDetail = async () => {
     setLoading(true);
@@ -70,11 +77,6 @@ export const OrderDetailPage: React.FC = () => {
   useEffect(() => {
     fetchOrderDetail();
   }, [id]);
-
-  const getStatusStepIndex = (status: string) => {
-    const steps = ['placed', 'confirmed', 'packed', 'ready_for_pickup', 'shipped', 'out_for_delivery', 'delivered'];
-    return steps.indexOf(status);
-  };
 
   if (loading) {
     return (
@@ -97,11 +99,6 @@ export const OrderDetailPage: React.FC = () => {
     );
   }
 
-  const activeStep = getStatusStepIndex(order.status);
-  const isCancelled = order.status === 'cancelled';
-  const stepsList = ['Placed', 'Confirmed', 'Packed', 'Shipped', 'Delivered'];
-  const stepStatusMapping = [0, 1, 2, 4, 6]; // indices in getStatusStepIndex
-
   return (
     <div className="flex flex-col gap-6 max-w-4xl mx-auto">
       <div className="flex items-center gap-4">
@@ -115,60 +112,8 @@ export const OrderDetailPage: React.FC = () => {
         </h1>
       </div>
 
-      {/* Progress tracking indicator */}
-      {!isCancelled && (
-        <Card className="bg-white border-slate-200 shadow-sm p-6 overflow-x-auto">
-          <div className="flex items-center justify-between min-w-[600px] px-8 relative">
-            {/* Horizontal progress bar background */}
-            <div className="absolute top-[18px] left-[52px] right-[52px] h-1 bg-slate-100 z-0" />
-            <div
-              className="absolute top-[18px] left-[52px] h-1 bg-indigo-500 z-0 transition-all duration-500"
-              style={{
-                width: `${
-                  activeStep < 0
-                    ? 0
-                    : activeStep >= 6
-                    ? 100
-                    : (activeStep / 6) * 100
-                }%`,
-              }}
-            />
-
-            {stepsList.map((step, idx) => {
-              const targetStatusIndex = stepStatusMapping[idx];
-              const completed = activeStep >= targetStatusIndex;
-              const current = activeStep === targetStatusIndex;
-
-              return (
-                <div key={idx} className="flex flex-col items-center gap-2 z-10 w-24">
-                  <div
-                    className={`h-9 w-9 rounded-full flex items-center justify-center font-bold text-sm transition-colors border-2 ${
-                      completed
-                        ? 'bg-indigo-600 border-indigo-600 text-white shadow-md'
-                        : 'bg-white border-slate-200 text-slate-400'
-                    } ${current ? 'ring-4 ring-indigo-100 border-indigo-500' : ''}`}
-                  >
-                    {idx + 1}
-                  </div>
-                  <span className={`text-xs font-bold ${completed ? 'text-indigo-600' : 'text-slate-400'}`}>
-                    {step}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </Card>
-      )}
-
-      {isCancelled && (
-        <Card className="bg-rose-50 border border-rose-200 p-4 rounded-xl flex gap-3 text-sm text-rose-800">
-          <AlertCircle className="h-5 w-5 text-rose-600 mt-0.5 shrink-0" />
-          <div>
-            <p className="font-bold text-rose-900">This order has been cancelled.</p>
-            <p className="text-xs text-rose-700 mt-0.5">Any authorization hold or payment captured is refunded automatically.</p>
-          </div>
-        </Card>
-      )}
+      {/* Progress tracking stepper */}
+      <OrderTrackingStepper currentStatus={order.status} />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Shipment item list & delivery destinations */}
@@ -179,7 +124,7 @@ export const OrderDetailPage: React.FC = () => {
             </CardHeader>
             <CardContent className="p-6 divide-y divide-slate-100">
               {order.items.map((item) => (
-                <div key={item.id} className="py-4 first:pt-0 last:pb-0 flex justify-between items-center gap-4">
+                <div key={item.id} className="py-4 first:pt-0 last:pb-0 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                   <div className="flex gap-3 items-center">
                     <div className="h-12 w-12 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-center overflow-hidden shrink-0">
                       {item.imageUrl ? (
@@ -193,9 +138,28 @@ export const OrderDetailPage: React.FC = () => {
                       <p className="text-xs text-slate-400 font-mono mt-0.5">{item.sku}</p>
                     </div>
                   </div>
-                  <div className="text-right shrink-0">
-                    <p className="font-bold text-slate-900 text-sm">₹{(Number(item.unitPrice) * item.qty).toLocaleString()}</p>
-                    <p className="text-[10px] text-slate-400 mt-0.5">₹{Number(item.unitPrice).toLocaleString()} &times; {item.qty}</p>
+                  <div className="flex justify-between sm:justify-end items-center gap-4 sm:min-w-[120px]">
+                    {order.status === 'delivered' && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-xs font-bold border-indigo-200 text-indigo-700 hover:bg-indigo-50"
+                        onClick={() => {
+                          setSelectedOrderItem({
+                            id: item.id,
+                            productId: item.productId, // wait, does order API return productId inside items? Yes. wait, interface check.
+                            title: item.productTitle,
+                          });
+                          setReviewModalOpen(true);
+                        }}
+                      >
+                        Write Review
+                      </Button>
+                    )}
+                    <div className="text-right shrink-0">
+                      <p className="font-bold text-slate-900 text-sm">₹{(Number(item.unitPrice) * item.qty).toLocaleString()}</p>
+                      <p className="text-[10px] text-slate-400 mt-0.5">₹{Number(item.unitPrice).toLocaleString()} &times; {item.qty}</p>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -284,25 +248,21 @@ export const OrderDetailPage: React.FC = () => {
           </Card>
         </div>
       </div>
+
+      {selectedOrderItem && (
+        <WriteReviewModal
+          isOpen={reviewModalOpen}
+          onClose={() => {
+            setReviewModalOpen(false);
+            setTimeout(() => setSelectedOrderItem(null), 200);
+          }}
+          orderItemId={selectedOrderItem.id}
+          productId={selectedOrderItem.productId}
+          productTitle={selectedOrderItem.title}
+          onSuccess={fetchOrderDetail}
+        />
+      )}
     </div>
   );
 };
 
-const AlertCircle = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    {...props}
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <circle cx="12" cy="12" r="10" />
-    <line x1="12" y1="8" x2="12" y2="12" />
-    <line x1="12" y1="16" x2="12.01" y2="16" />
-  </svg>
-);
