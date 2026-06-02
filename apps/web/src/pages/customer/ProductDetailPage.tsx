@@ -24,6 +24,7 @@ import {
 import { useCart } from "../../context/CartContext";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
+import { useWishlist } from "../../context/WishlistContext";
 import api from "../../lib/api";
 import { API_ENDPOINTS } from "../../config/api.config";
 import type { Product } from "@bezon/types";
@@ -44,6 +45,7 @@ export const ProductDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const { addItem } = useCart();
   const { toast } = useToast();
+  const { toggleWishlist, isInWishlist } = useWishlist();
   const navigate = useNavigate();
 
   const [product, setProduct] = useState<
@@ -197,7 +199,7 @@ export const ProductDetailPage: React.FC = () => {
 
   const handleAddToWishlist = () => {
     if (!currentProduct) return;
-    toast.success(`${currentProduct.title} saved to Wishlist!`);
+    toggleWishlist(currentProduct.id, currentProduct.title);
   };
 
   const handleAskQuestion = async () => {
@@ -541,14 +543,16 @@ export const ProductDetailPage: React.FC = () => {
                 Out of Stock
               </Button>
             )}
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-12 w-12 border-slate-200 hover:text-rose-500 hover:border-rose-200 transition-colors"
-              onClick={handleAddToWishlist}
-            >
-              <Heart className="h-5 w-5" />
-            </Button>
+             <Button
+               variant="outline"
+               size="icon"
+               className={`h-12 w-12 border-slate-200 hover:text-rose-500 hover:border-rose-200 transition-colors ${
+                 currentProduct && isInWishlist(currentProduct.id) ? 'bg-rose-50/50 border-rose-200 text-rose-500 hover:bg-rose-100/50' : ''
+               }`}
+               onClick={handleAddToWishlist}
+             >
+               <Heart className={`h-5 w-5 ${currentProduct && isInWishlist(currentProduct.id) ? 'fill-rose-500 text-rose-500' : 'text-slate-400'}`} />
+             </Button>
           </div>
         </div>
       </div>

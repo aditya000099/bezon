@@ -21,6 +21,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { GoogleAddressInput } from "../../components/ui/GoogleAddressInput";
 
 // Types representing what an Address looks like, matching our database schema!
 interface Address {
@@ -35,6 +36,8 @@ interface Address {
   pincode: string;
   country: string;
   isDefault: boolean;
+  lat?: number | null;
+  lng?: number | null;
 }
 
 export const AddressesPage: React.FC = () => {
@@ -60,6 +63,8 @@ export const AddressesPage: React.FC = () => {
   const [pincode, setPincode] = useState("");
   const [country, setCountry] = useState("India");
   const [isDefault, setIsDefault] = useState(false);
+  const [lat, setLat] = useState<number | null>(null);
+  const [lng, setLng] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
 
   // When the page loads, fetch all addresses from the backend database!
@@ -95,6 +100,8 @@ export const AddressesPage: React.FC = () => {
     setPincode("");
     setCountry("India");
     setIsDefault(false);
+    setLat(null);
+    setLng(null);
     setShowForm(false);
     setEditingAddress(null);
   };
@@ -112,6 +119,8 @@ export const AddressesPage: React.FC = () => {
     setPincode(address.pincode || "");
     setCountry(address.country || "India");
     setIsDefault(address.isDefault || false);
+    setLat(address.lat || null);
+    setLng(address.lng || null);
     setShowForm(true);
   };
 
@@ -146,7 +155,9 @@ export const AddressesPage: React.FC = () => {
       state,
       pincode,
       country,
-      isDefault
+      isDefault,
+      lat: lat || undefined,
+      lng: lng || undefined,
     };
 
     try {
@@ -285,6 +296,29 @@ export const AddressesPage: React.FC = () => {
                     onChange={(e) => setLabel(e.target.value)}
                     className="rounded-xl border-slate-200 text-xs mt-2"
                   />
+                )}
+              </div>
+
+              {/* Google Maps Places Autocomplete Search */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                  <Compass className="h-3.5 w-3.5 text-indigo-500" /> Search Address on Google Maps (Auto-fills inputs)
+                </label>
+                <GoogleAddressInput
+                  onAddressSelect={(selected) => {
+                    setLine1(selected.addressLine);
+                    setCity(selected.city);
+                    setState(selected.state);
+                    setPincode(selected.pincode);
+                    setLat(selected.lat);
+                    setLng(selected.lng);
+                  }}
+                  defaultValue={editingAddress ? `${editingAddress.line1}, ${editingAddress.city}, ${editingAddress.state}` : ''}
+                />
+                {lat && lng && (
+                  <span className="text-[10px] font-bold text-emerald-600 mt-1 flex items-center gap-1 bg-emerald-50/50 self-start px-2 py-0.5 rounded-md border border-emerald-100">
+                    <CheckCircle className="h-3 w-3" /> Location Geocoded: {lat.toFixed(5)}, {lng.toFixed(5)}
+                  </span>
                 )}
               </div>
 

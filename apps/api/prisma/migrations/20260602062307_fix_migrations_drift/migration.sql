@@ -20,10 +20,10 @@ CREATE TYPE "DeliveryStatus" AS ENUM ('assigned', 'accepted', 'picked_up', 'in_t
 CREATE TYPE "DiscountType" AS ENUM ('percentage', 'flat');
 
 -- CreateEnum
-CREATE TYPE "CouponScope" AS ENUM ('all', 'category', 'product');
+CREATE TYPE "CouponScope" AS ENUM ('all', 'category', 'product', 'variantGroup');
 
 -- CreateEnum
-CREATE TYPE "NotificationType" AS ENUM ('order_placed', 'order_confirmed', 'order_shipped', 'order_delivered', 'order_cancelled', 'order_failed', 'return_requested', 'return_approved', 'new_task_assigned', 'low_stock', 'general');
+CREATE TYPE "NotificationType" AS ENUM ('order_placed', 'order_confirmed', 'order_shipped', 'order_delivered', 'order_cancelled', 'order_failed', 'return_requested', 'return_approved', 'new_task_assigned', 'low_stock', 'question_asked', 'new_review', 'general');
 
 -- CreateTable
 CREATE TABLE "users" (
@@ -52,9 +52,11 @@ CREATE TABLE "sellers" (
     "logo_url" TEXT,
     "status" "SellerStatus" NOT NULL DEFAULT 'pending',
     "avg_dispatch_days" SMALLINT NOT NULL DEFAULT 2,
+    "bank_name_enc" TEXT,
     "bank_account_enc" TEXT,
     "ifsc_enc" TEXT,
     "gstin" VARCHAR(15),
+    "pan_number" VARCHAR(10),
     "total_sales" DECIMAL(14,2) NOT NULL DEFAULT 0,
     "total_orders" INTEGER NOT NULL DEFAULT 0,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -211,6 +213,7 @@ CREATE TABLE "orders" (
     "coupon_code" VARCHAR(50),
     "total" DECIMAL(12,2) NOT NULL,
     "cancel_reason" TEXT,
+    "bill_url" TEXT,
     "idempotency_key" UUID NOT NULL DEFAULT gen_random_uuid(),
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -298,6 +301,7 @@ CREATE TABLE "notifications" (
     "title" VARCHAR(120) NOT NULL,
     "body" TEXT,
     "data" JSONB NOT NULL DEFAULT '{}',
+    "target_url" TEXT,
     "is_read" BOOLEAN NOT NULL DEFAULT false,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -345,6 +349,7 @@ CREATE TABLE "coupons" (
     "scope_type" "CouponScope" NOT NULL DEFAULT 'all',
     "scope_category_id" UUID,
     "scope_product_id" UUID,
+    "scope_variant_group_id" UUID,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -360,6 +365,71 @@ CREATE TABLE "coupon_usages" (
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "coupon_usages_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "user_activities" (
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "user_id" UUID,
+    "activity_type" VARCHAR(50) NOT NULL,
+    "product_id" UUID,
+    "search_query" VARCHAR(200),
+    "metadata" JSONB DEFAULT '{}',
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "user_activities_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "reviews" (
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "user_id" UUID NOT NULL,
+    "product_id" UUID NOT NULL,
+    "order_item_id" UUID NOT NULL,
+    "rating" SMALLINT NOT NULL,
+    "review_text" TEXT,
+    "edit_count" SMALLINT NOT NULL DEFAULT 0,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "reviews_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "review_images" (
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "review_id" UUID NOT NULL,
+    "url" TEXT NOT NULL,
+    "s3_key" TEXT,
+    "sort_order" SMALLINT NOT NULL DEFAULT 0,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "review_images_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "product_questions" (
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "product_id" UUID NOT NULL,
+    "user_id" UUID NOT NULL,
+    "variant_id" UUID,
+    "question" TEXT NOT NULL,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ NOT NULL,
+
+    CONSTRAINT "product_questions_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "product_answers" (
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "question_id" UUID NOT NULL,
+    "user_id" UUID NOT NULL,
+    "answer" TEXT NOT NULL,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ NOT NULL,
+
+    CONSTRAINT "product_answers_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -545,6 +615,39 @@ CREATE INDEX "coupon_usages_user_id_idx" ON "coupon_usages"("user_id");
 -- CreateIndex
 CREATE UNIQUE INDEX "cu_unique" ON "coupon_usages"("coupon_id", "user_id", "order_id");
 
+-- CreateIndex
+CREATE INDEX "user_activities_user_id_idx" ON "user_activities"("user_id");
+
+-- CreateIndex
+CREATE INDEX "user_activities_activity_type_idx" ON "user_activities"("activity_type");
+
+-- CreateIndex
+CREATE INDEX "user_activities_created_at_idx" ON "user_activities"("created_at");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "reviews_order_item_id_key" ON "reviews"("order_item_id");
+
+-- CreateIndex
+CREATE INDEX "reviews_product_id_idx" ON "reviews"("product_id");
+
+-- CreateIndex
+CREATE INDEX "reviews_user_id_idx" ON "reviews"("user_id");
+
+-- CreateIndex
+CREATE INDEX "review_images_review_id_idx" ON "review_images"("review_id");
+
+-- CreateIndex
+CREATE INDEX "product_questions_product_id_idx" ON "product_questions"("product_id");
+
+-- CreateIndex
+CREATE INDEX "product_questions_user_id_idx" ON "product_questions"("user_id");
+
+-- CreateIndex
+CREATE INDEX "product_answers_question_id_idx" ON "product_answers"("question_id");
+
+-- CreateIndex
+CREATE INDEX "product_answers_user_id_idx" ON "product_answers"("user_id");
+
 -- AddForeignKey
 ALTER TABLE "sellers" ADD CONSTRAINT "sellers_user_fk" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -634,3 +737,33 @@ ALTER TABLE "coupon_usages" ADD CONSTRAINT "cu_user_fk" FOREIGN KEY ("user_id") 
 
 -- AddForeignKey
 ALTER TABLE "coupon_usages" ADD CONSTRAINT "cu_order_fk" FOREIGN KEY ("order_id") REFERENCES "orders"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "user_activities" ADD CONSTRAINT "user_activities_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "user_activities" ADD CONSTRAINT "user_activities_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "products"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "reviews" ADD CONSTRAINT "reviews_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "reviews" ADD CONSTRAINT "reviews_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "products"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "reviews" ADD CONSTRAINT "reviews_order_item_id_fkey" FOREIGN KEY ("order_item_id") REFERENCES "order_items"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "review_images" ADD CONSTRAINT "review_images_review_id_fkey" FOREIGN KEY ("review_id") REFERENCES "reviews"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "product_questions" ADD CONSTRAINT "pq_product_fk" FOREIGN KEY ("product_id") REFERENCES "products"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "product_questions" ADD CONSTRAINT "pq_user_fk" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "product_answers" ADD CONSTRAINT "pa_question_fk" FOREIGN KEY ("question_id") REFERENCES "product_questions"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "product_answers" ADD CONSTRAINT "pa_user_fk" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;

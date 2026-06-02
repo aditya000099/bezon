@@ -20,6 +20,7 @@ import {
   Tag,
   Calendar,
   Activity,
+  Download,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import api from '../../lib/api';
@@ -147,7 +148,7 @@ export const SellerOrderDetail: React.FC = () => {
           </Link>
           <div>
             <h1 className="text-2xl font-bold text-slate-800 tracking-tight font-mono">
-              Order {order.id}
+              Order #{order.orderNumber}
             </h1>
             <div className="flex items-center gap-2 text-sm text-slate-500 mt-1 font-medium">
               <Calendar className="h-4 w-4" />
@@ -175,6 +176,14 @@ export const SellerOrderDetail: React.FC = () => {
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200">
               Pending
             </span>
+          )}
+          {order.billUrl && (
+            <a href={order.billUrl} target="_blank" rel="noopener noreferrer">
+              <Button variant="outline" size="sm" className="ml-2 font-bold text-slate-700 border-slate-300">
+                <Download className="h-4 w-4 mr-2" />
+                Invoice
+              </Button>
+            </a>
           )}
         </div>
       </div>
@@ -298,7 +307,7 @@ export const SellerOrderDetail: React.FC = () => {
         {/* Right Column: Summaries & Controls */}
         <div className="space-y-6">
           {/* Status Controls */}
-          <Card className="bg-indigo-50 border-indigo-100 shadow-sm">
+          <Card className="bg-indigo-50 border-indigo-100 shadow-sm animate-in fade-in slide-in-from-top-3 duration-200">
             <CardHeader>
               <CardTitle className="text-base font-bold text-indigo-900 flex items-center gap-2">
                 Update Order Status
@@ -309,24 +318,39 @@ export const SellerOrderDetail: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="flex flex-col gap-2">
-                {orderStatuses.map((status) => (
-                  <Button
-                    key={status}
-                    variant={order.status === status ? 'default' : 'outline'}
-                    disabled={
-                      updating ||
-                      order.status === status ||
-                      (status === 'placed' && order.status !== 'placed')
+                {(() => {
+                  const statusFlow = ['placed', 'confirmed', 'ready_for_pickup', 'out_for_delivery', 'delivered'];
+                  const currentFlowIndex = statusFlow.indexOf(order.status);
+                  const isTerminal = order.status === 'delivered' || order.status === 'cancelled';
+
+                  return orderStatuses.map((status) => {
+                    const targetFlowIndex = statusFlow.indexOf(status);
+                    
+                    let isDisabled = updating || isTerminal;
+                    if (!isTerminal) {
+                      if (status === 'cancelled') {
+                        isDisabled = false;
+                      } else if (targetFlowIndex !== -1 && currentFlowIndex !== -1) {
+                        isDisabled = targetFlowIndex <= currentFlowIndex;
+                      }
                     }
-                    className={`justify-start capitalize font-bold ${order.status === status ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-white border-indigo-200 text-indigo-700 hover:bg-indigo-100'}`}
-                    onClick={() => handleUpdateStatus(status)}
-                  >
-                    {updating && order.status !== status ? (
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    ) : null}
-                    {status.replace(/_/g, ' ')}
-                  </Button>
-                ))}
+
+                    return (
+                      <Button
+                        key={status}
+                        variant={order.status === status ? 'default' : 'outline'}
+                        disabled={isDisabled}
+                        className={`justify-start capitalize font-bold ${order.status === status ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-white border-indigo-200 text-indigo-700 hover:bg-indigo-100'}`}
+                        onClick={() => handleUpdateStatus(status)}
+                      >
+                        {updating && order.status !== status ? (
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        ) : null}
+                        {status.replace(/_/g, ' ')}
+                      </Button>
+                    );
+                  });
+                })()}
               </div>
             </CardContent>
           </Card>
@@ -416,6 +440,81 @@ export const SellerOrderDetail: React.FC = () => {
                   </p>
                 )}
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Fulfillment & Courier */}
+          <Card className="bg-white border-slate-200 shadow-sm animate-in fade-in slide-in-from-top-4 duration-250">
+            <CardHeader className="border-b border-slate-100 pb-4">
+              <CardTitle className="text-base font-bold text-slate-800 flex items-center gap-2">
+                <Truck className="h-5 w-5 text-indigo-500" />
+                Fulfillment & Courier
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 space-y-4">
+              {order.delivery ? (
+                <div>
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                      Delivery Status
+                    </span>
+                    <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border uppercase tracking-wider ${
+                      order.delivery.status === 'delivered'
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        : order.delivery.status === 'delivery_failed'
+                        ? 'bg-rose-50 text-rose-700 border-rose-200'
+                        : 'bg-indigo-50 text-indigo-700 border-indigo-200 animate-pulse'
+                    }`}>
+                      {order.delivery.status.replace(/_/g, ' ')}
+                    </span>
+                  </div>
+
+                  {order.delivery.partner ? (
+                    <div className="space-y-2 text-sm">
+                      <div>
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">
+                          Assigned Courier
+                        </p>
+                        <p className="font-semibold text-slate-800">
+                          {order.delivery.partner.user?.name}
+                        </p>
+                        {order.delivery.partner.user?.phone && (
+                          <p className="text-xs text-slate-500 font-medium">
+                            Phone: {order.delivery.partner.user.phone}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="border-t border-slate-50 pt-2">
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">
+                          Vehicle Details
+                        </p>
+                        <p className="text-xs text-slate-700 capitalize font-semibold">
+                          {order.delivery.partner.vehicleType} {order.delivery.partner.vehicleNumber ? `— ${order.delivery.partner.vehicleNumber}` : ''}
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-slate-50 border border-slate-100 p-3 rounded-xl text-center">
+                      <p className="text-xs font-bold text-amber-600 uppercase tracking-wider">
+                        Searching for Courier...
+                      </p>
+                      <p className="text-[10px] text-slate-400 mt-1 font-medium leading-relaxed">
+                        Automatic cron scheduler will allocate the nearest active delivery partner within a minute.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="bg-slate-50 border border-slate-100 p-3 rounded-xl text-center">
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                    Fulfillment Not Started
+                  </p>
+                  <p className="text-[10px] text-slate-400 mt-1 font-medium leading-relaxed">
+                    A delivery assignment will trigger automatically once the order status becomes confirmed.
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

@@ -9,16 +9,18 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ShoppingBag, Star, Search, Loader2, Sparkles } from "lucide-react";
+import { ShoppingBag, Star, Search, Loader2, Sparkles, Heart } from "lucide-react";
 import type { Product, Category } from "@bezon/types";
 import api from "../../lib/api";
 import { API_ENDPOINTS } from "../../config/api.config";
 import { useToast } from "../../context/ToastContext";
 import { useCart } from "../../context/CartContext";
+import { useWishlist } from "../../context/WishlistContext";
 
 export const ShopPage: React.FC = () => {
   const { toast } = useToast();
   const { addItem } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
 
   // Catalogue and Categories states
   const [products, setProducts] = useState<Product[]>([]);
@@ -166,15 +168,23 @@ export const ShopPage: React.FC = () => {
               {recommendedProducts.map((p) => (
                 <Card
                   key={p.id}
-                  className="overflow-hidden border-2 border-indigo-100 shadow-sm hover:shadow-indigo-100/50 transition-all f
-lex flex-col justify-between bg-linear-to-b from-indigo-50/30 to-white relative"
+                  className="overflow-hidden border-2 border-indigo-100 shadow-sm hover:shadow-indigo-100/50 transition-all flex flex-col justify-between bg-linear-to-b from-indigo-50/30 to-white relative"
                 >
                   <div
-                    className="absolute top-2 left-2 z-10 bg-indigo-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercas
-e tracking-wider shadow-sm"
+                    className="absolute top-2 left-2 z-10 bg-indigo-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm"
                   >
                     Picked for you
                   </div>
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      toggleWishlist(p.id, p.title);
+                    }}
+                    className="absolute top-2 right-2 z-10 h-7 w-7 bg-white/85 hover:bg-white text-slate-400 hover:text-rose-500 border border-slate-100 rounded-full flex items-center justify-center shadow-sm backdrop-blur-xs transition-colors"
+                  >
+                    <Heart className={`h-4 w-4 ${isInWishlist(p.id) ? "fill-rose-500 text-rose-500" : "text-slate-400"}`} />
+                  </button>
                   <Link to={`/shop/products/${p.slug}`}>
                     <div
                       className="aspect-square bg-slate-50 border-b border-slate-100 flex items-center justify-center text-slate-300 font
@@ -265,8 +275,18 @@ e tracking-wider shadow-sm"
           {products.map((p) => (
             <Card
               key={p.id}
-              className="overflow-hidden border border-slate-200 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between bg-white"
+              className="overflow-hidden border border-slate-200 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between bg-white relative"
             >
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  toggleWishlist(p.id, p.title);
+                }}
+                className="absolute top-2 right-2 z-10 h-7 w-7 bg-white/85 hover:bg-white text-slate-400 hover:text-rose-500 border border-slate-100 rounded-full flex items-center justify-center shadow-sm backdrop-blur-xs transition-colors"
+              >
+                <Heart className={`h-4 w-4 ${isInWishlist(p.id) ? "fill-rose-500 text-rose-500" : "text-slate-400"}`} />
+              </button>
               <Link to={`/shop/products/${p.slug}`}>
                 <div className="aspect-square bg-slate-50 border-b border-slate-100 flex items-center justify-center text-slate-300 font-semibold text-xs select-none cursor-pointer overflow-hidden">
                   {(() => {

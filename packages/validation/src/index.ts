@@ -22,6 +22,8 @@ export const addressSchema = z.object({
   state: z.string().min(2, 'State must be at least 2 characters long'),
   pincode: z.string().regex(/^\d{6}$/, 'Pincode must be exactly 6 digits'),
   country: z.string().min(2, 'Country must be at least 2 characters long').default('India'),
+  lat: z.number().optional().nullable(),
+  lng: z.number().optional().nullable(),
 });
 
 export const imagePayloadSchema = z.object({
@@ -94,6 +96,12 @@ export const reviewImageSchema = z.object({
 export const reviewSchema = z.object({
   orderItemId: z.string().uuid('Invalid order item ID'),
   productId: z.string().uuid('Invalid product ID'),
+  rating: z.number().int().min(1).max(5, 'Rating must be between 1 and 5'),
+  reviewText: z.string().max(1000).optional(),
+  images: z.array(reviewImageSchema).max(5, 'Maximum 5 images per review').default([]),
+});
+
+export const editReviewSchema = z.object({
   rating: z.number().int().min(1).max(5, 'Rating must be between 1 and 5'),
   reviewText: z.string().max(1000).optional(),
   images: z.array(reviewImageSchema).max(5, 'Maximum 5 images per review').default([]),

@@ -18,6 +18,11 @@ export const API_ENDPOINTS = {
     items: `${API_V1}/cart/items`,
     itemById: (id: string) => `${API_V1}/cart/items/${id}`,
   },
+  // Wishlist
+  wishlist: {
+    base: `${API_V1}/wishlist`,
+    toggle: (productId: string) => `${API_V1}/wishlist/toggle/${productId}`,
+  },
   // Categories
   categories: `${API_V1}/categories`,
   // Media Uploads
@@ -83,6 +88,22 @@ export const API_ENDPOINTS = {
     unreadCount: `${API_V1}/notifications/unread-count`,
     markRead: (id: string) => `${API_V1}/notifications/${id}/read`,
     markAllRead: `${API_V1}/notifications/read-all`,
+  },
+  // Sellers
+  sellers: {
+    settings: `${API_V1}/sellers/settings`,
+  },
+  // Config
+  config: {
+    googleMapsKey: `${API_V1}/config/google-maps-key`,
+  },
+  // Delivery Partner
+  delivery: {
+    profile: `${API_V1}/delivery/profile`,
+    location: `${API_V1}/delivery/location`,
+    queue: `${API_V1}/delivery/queue`,
+    history: `${API_V1}/delivery/history`,
+    updateStatus: (id: string) => `${API_V1}/delivery/assignments/${id}/status`,
   },
 } as const;
 

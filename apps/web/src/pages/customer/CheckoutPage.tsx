@@ -155,10 +155,17 @@ export const CheckoutPage: React.FC = () => {
 
     setIsProcessing(true);
     try {
-      const response = await api.post(API_ENDPOINTS.payments.createOrder, {
-        address: formData,
+      const payload: any = {
         couponCode: appliedCoupon?.code || undefined,
-      });
+      };
+
+      if (selectedAddressId && selectedAddressId !== 'manual') {
+        payload.addressId = selectedAddressId;
+      } else {
+        payload.address = formData;
+      }
+
+      const response = await api.post(API_ENDPOINTS.payments.createOrder, payload);
 
       if (response.data.success) {
         setRazorpayOrderId(response.data.data.razorpayOrderId);
