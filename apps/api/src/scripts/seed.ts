@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import prisma from '../db/client.js';
+import { CryptoUtil } from '../utils/crypto.util.js';
 
 async function seed() {
   console.log('🌱 Starting Bezon Database Seeding...');
@@ -67,6 +68,11 @@ async function seed() {
       shopSlug: 'acoustic-labs',
       status: 'approved',
       description: 'High fidelity audio equipment and premium acoustics.',
+      gstin: '22AAAAA0000A1Z5',
+      panNumber: 'ABCDE1234F',
+      bankNameEnc: CryptoUtil.encrypt('State Bank of India'),
+      bankAccountEnc: CryptoUtil.encrypt('1234567890'),
+      ifscEnc: CryptoUtil.encrypt('SBIN0001234'),
     },
   });
 
@@ -88,6 +94,11 @@ async function seed() {
       shopSlug: 'sartorial-goods',
       status: 'approved',
       description: 'Finest hand-made leather wallets and clothing accessories.',
+      gstin: '27BBBBB1111B2Z6',
+      panNumber: 'VWXYZ5678G',
+      bankNameEnc: CryptoUtil.encrypt('HDFC Bank'),
+      bankAccountEnc: CryptoUtil.encrypt('0987654321'),
+      ifscEnc: CryptoUtil.encrypt('HDFC0004321'),
     },
   });
 
@@ -260,8 +271,102 @@ async function seed() {
     },
   });
 
-  console.log('✅ Products & variants successfully seeded.');
-  console.log('🎉 Bezon database seeding completed successfully!');
+  const wgWallet2 = await prisma.product.create({
+    data: {
+      sellerId: seller2Profile.id,
+      categoryId: catApparel.id,
+      variantGroupId: vgWallet.id,
+      title: 'Minimalist Leather Wallet',
+      slug: 'minimalist-leather-wallet-brn',
+      brand: 'Sartorial',
+      status: 'published',
+      description: 'Hand-crafted minimalist leather wallet designed to hold essential cards and cash without the bulk. Premium full-grain leather in Tan Brown.',
+      sku: 'SR-WLT-BRN',
+      basePrice: 1999,
+      comparePrice: 2499,
+      totalStock: 15,
+      lowStockAlert: 3,
+      attributes: { color: 'Tan Brown' },
+    },
+  });
+
+  await prisma.productImage.create({
+    data: {
+      productId: wgWallet2.id,
+      url: 'https://images.unsplash.com/photo-1627123424574-724758594e93?w=500&auto=format&fit=crop',
+      altText: 'Minimalist Leather Wallet - Tan Brown',
+      isPrimary: true,
+      sortOrder: 0,
+    },
+  });
+
+  // Additional New Products
+  console.log('📦 Seeding Additional New Products...');
+  
+  const catHome = await prisma.category.create({
+    data: {
+      name: 'Home & Kitchen',
+      slug: 'home-kitchen',
+      description: 'Premium home decor, kitchenware, and living essentials.',
+    },
+  });
+
+  const productCoffee = await prisma.product.create({
+    data: {
+      sellerId: seller1Profile.id,
+      categoryId: catHome.id,
+      title: 'Artisan Pour-Over Coffee Maker',
+      slug: 'artisan-pour-over-coffee-maker',
+      brand: 'BrewMaster',
+      status: 'published',
+      description: 'Elegant glass pour-over coffee maker with a reusable stainless steel filter. Perfect for crafting a clean, rich cup of coffee every morning.',
+      sku: 'BM-CFF-MKB',
+      basePrice: 2499,
+      comparePrice: 3000,
+      totalStock: 30,
+      lowStockAlert: 10,
+    },
+  });
+
+  await prisma.productImage.create({
+    data: {
+      productId: productCoffee.id,
+      url: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=500&auto=format&fit=crop',
+      altText: 'Artisan Pour-Over Coffee Maker',
+      isPrimary: true,
+      sortOrder: 0,
+    },
+  });
+
+  const productLamp = await prisma.product.create({
+    data: {
+      sellerId: seller2Profile.id,
+      categoryId: catHome.id,
+      title: 'Modern Minimalist Desk Lamp',
+      slug: 'modern-minimalist-desk-lamp',
+      brand: 'Lumina',
+      status: 'published',
+      description: 'Sleek, minimalist LED desk lamp with adjustable brightness and color temperature. Features wireless charging pad in the base.',
+      sku: 'LUM-DL-WHT',
+      basePrice: 3499,
+      comparePrice: 4999,
+      totalStock: 25,
+      lowStockAlert: 5,
+    },
+  });
+
+  await prisma.productImage.create({
+    data: {
+      productId: productLamp.id,
+      url: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=500&auto=format&fit=crop',
+      altText: 'Modern Minimalist Desk Lamp',
+      isPrimary: true,
+      sortOrder: 0,
+    },
+  });
+
+  console.log('✅ Additional Products seeded successfully.');
+  console.log('🎉 Database seeding complete!');
 }
 
 seed()
