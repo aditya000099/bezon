@@ -90,6 +90,13 @@ export class OrderService {
                 slug: true,
                 images: true,
               }
+            },
+            review: {
+              include: {
+                images: {
+                  orderBy: { sortOrder: 'asc' }
+                }
+              }
             }
           }
         },

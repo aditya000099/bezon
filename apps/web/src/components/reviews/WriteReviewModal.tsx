@@ -12,6 +12,7 @@ interface WriteReviewModalProps {
   orderItemId: string;
   productId: string;
   productTitle: string;
+  existingReview?: any;
   onSuccess: () => void;
 }
 
@@ -21,6 +22,7 @@ export const WriteReviewModal: React.FC<WriteReviewModalProps> = ({
   orderItemId,
   productId,
   productTitle,
+  existingReview,
   onSuccess,
 }) => {
   const { toast } = useToast();
@@ -34,6 +36,22 @@ export const WriteReviewModal: React.FC<WriteReviewModalProps> = ({
   const MAX_REVIEW_IMAGES = 5;
   const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
   const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
+  // Initialize state when modal opens
+  React.useEffect(() => {
+    if (isOpen) {
+      if (existingReview) {
+        setRating(existingReview.rating || 0);
+        setReviewText(existingReview.reviewText || '');
+        setImages(existingReview.images || []);
+      } else {
+        setRating(0);
+        setReviewText('');
+        setImages([]);
+      }
+      setHoverRating(0);
+    }
+  }, [isOpen, existingReview]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
@@ -100,14 +118,23 @@ export const WriteReviewModal: React.FC<WriteReviewModalProps> = ({
 
     setIsSubmitting(true);
     try {
-      await api.post('/api/v1/reviews', {
-        orderItemId,
-        productId,
-        rating,
-        reviewText,
-        images,
-      });
-      toast.success('Review submitted successfully! Note: Once created, reviews cannot be modified.');
+      if (existingReview) {
+        await api.patch(`/api/v1/reviews/${existingReview.id}/edit`, {
+          rating,
+          reviewText,
+          images: images.map((img, i) => ({ ...img, sortOrder: i })), // re-sort
+        });
+        toast.success('Review updated successfully!');
+      } else {
+        await api.post('/api/v1/reviews', {
+          orderItemId,
+          productId,
+          rating,
+          reviewText,
+          images: images.map((img, i) => ({ ...img, sortOrder: i })),
+        });
+        toast.success('Review submitted successfully!');
+      }
       onSuccess();
       onClose();
     } catch (err: any) {

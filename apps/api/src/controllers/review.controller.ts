@@ -12,6 +12,17 @@ export class ReviewController {
     }
   }
 
+  static async editReview(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user!.id;
+      const reviewId = req.params.id as string;
+      const review = await ReviewService.editReview(reviewId, userId, req.body);
+      res.json({ success: true, data: review });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   static async getProductReviews(req: Request, res: Response, next: NextFunction) {
     try {
       const productId = req.params.productId as string;

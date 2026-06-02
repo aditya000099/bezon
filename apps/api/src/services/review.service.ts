@@ -86,7 +86,96 @@ export class ReviewService {
         },
       });
 
+      // Notify the seller
+      const productForNotif = await tx.product.findUnique({
+        where: { id: validatedData.productId },
+        include: { seller: { select: { userId: true } } },
+      });
+
+      if (productForNotif) {
+        const { NotificationService } = await import('./notification.service.js');
+        NotificationService.create(
+          productForNotif.seller.userId,
+          'new_review',
+          'New Product Review',
+          `Someone left a ${validatedData.rating}-star review on "${productForNotif.title}"`,
+          { productSlug: productForNotif.slug, reviewId: review.id },
+          `/seller/products`, // Assuming they check reviews in their products list or order queue
+        ).catch((err) => console.error('Failed to create review notification:', err));
+      }
+
       return review;
+    });
+  }
+
+  static async editReview(reviewId: string, userId: string, data: any) {
+    const { editReviewSchema } = await import('@bezon/validation');
+    const validatedData = editReviewSchema.parse(data);
+
+    const review = await prisma.review.findUnique({
+      where: { id: reviewId },
+      include: { images: true },
+    });
+
+    if (!review) {
+      const err = new Error('Review not found');
+      (err as any).status = 404;
+      throw err;
+    }
+
+    if (review.userId !== userId) {
+      const err = new Error('You do not own this review');
+      (err as any).status = 403;
+      throw err;
+    }
+
+    if (review.editCount > 0) {
+      const err = new Error('This review has already been edited once');
+      (err as any).status = 400;
+      throw err;
+    }
+
+    return await prisma.$transaction(async (tx) => {
+      // Delete old images
+      await tx.reviewImage.deleteMany({
+        where: { reviewId },
+      });
+
+      const updatedReview = await tx.review.update({
+        where: { id: reviewId },
+        data: {
+          rating: validatedData.rating,
+          reviewText: validatedData.reviewText,
+          editCount: { increment: 1 },
+          images: {
+            create: validatedData.images.map((img: any) => ({
+              url: img.url,
+              s3Key: img.s3Key,
+              sortOrder: img.sortOrder,
+            })),
+          },
+        },
+        include: { images: true },
+      });
+
+      // Recalculate average rating if rating changed
+      if (review.rating !== validatedData.rating) {
+        const aggregation = await tx.review.aggregate({
+          where: { productId: review.productId },
+          _avg: { rating: true },
+          _count: { rating: true },
+        });
+
+        const avgRating = aggregation._avg.rating || 0;
+        const reviewCount = aggregation._count.rating || 0;
+
+        await tx.product.update({
+          where: { id: review.productId },
+          data: { avgRating, reviewCount },
+        });
+      }
+
+      return updatedReview;
     });
   }
 
