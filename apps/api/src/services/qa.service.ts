@@ -47,6 +47,7 @@ export class QAService {
       'New Question on Your Product',
       `Someone asked a question about "${product.title}"`,
       { productSlug: product.slug, questionId: question.id },
+      `/seller/qa?questionId=${question.id}`,
     ).catch((err) => console.error('Failed to create question notification:', err));
 
     return question;

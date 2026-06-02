@@ -9,9 +9,10 @@ export class NotificationService {
     title: string,
     body: string,
     data: Record<string, any> = {},
+    targetUrl?: string,
   ) {
     return prisma.notification.create({
-      data: { userId, type, title, body, data },
+      data: { userId, type, title, body, data, targetUrl },
     });
   }
 

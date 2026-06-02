@@ -50,6 +50,7 @@ export type NotificationType =
   | 'new_task_assigned'
   | 'low_stock'
   | 'question_asked'
+  | 'new_review'
   | 'general';
 
 export interface User {
@@ -271,6 +272,32 @@ export interface Notification {
   title: string;
   body?: string;
   data: Record<string, any>;
+  targetUrl?: string;
   isRead: boolean;
   createdAt: string;
+}
+
+export interface ReviewImage {
+  id: string;
+  reviewId: string;
+  url: string;
+  s3Key?: string;
+  sortOrder: number;
+  createdAt: string | Date;
+}
+
+export interface Review {
+  id: string;
+  userId: string;
+  productId: string;
+  orderItemId: string;
+  rating: number;
+  reviewText?: string;
+  editCount: number;
+  createdAt: string | Date;
+  updatedAt: string | Date;
+  user?: User;
+  product?: Product;
+  orderItem?: OrderItem;
+  images?: ReviewImage[];
 }
