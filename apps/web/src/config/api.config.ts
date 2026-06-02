@@ -45,6 +45,7 @@ export const API_ENDPOINTS = {
     base: `${API_V1}/orders`,
     detail: (id: string) => `${API_V1}/orders/${id}`,
     updateStatus: (id: string) => `${API_V1}/orders/${id}/status`,
+    policyAction: (id: string) => `${API_V1}/orders/${id}/policy-action`,
   },
   // Payments
   payments: {
@@ -104,6 +105,14 @@ export const API_ENDPOINTS = {
     queue: `${API_V1}/delivery/queue`,
     history: `${API_V1}/delivery/history`,
     updateStatus: (id: string) => `${API_V1}/delivery/assignments/${id}/status`,
+  },
+  // Policies
+  policies: {
+    list: `${API_V1}/policies`,
+    create: `${API_V1}/policies`,
+    update: (id: string) => `${API_V1}/policies/${id}`,
+    toggle: (id: string) => `${API_V1}/policies/${id}/toggle`,
+    delete: (id: string) => `${API_V1}/policies/${id}`,
   },
 } as const;
 

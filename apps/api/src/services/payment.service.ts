@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import crypto from 'crypto';
 import prisma from '../db/client.js';
 import { PdfUtil } from '../utils/pdf.util.js';
@@ -104,6 +105,8 @@ export class PaymentService {
             pincode: addressPayload.pincode.trim(),
             country: addressPayload.country ? addressPayload.country.trim() : 'India',
             isDefault: false,
+            lat: addressPayload.lat !== undefined && addressPayload.lat !== null ? new Prisma.Decimal(addressPayload.lat) : null,
+            lng: addressPayload.lng !== undefined && addressPayload.lng !== null ? new Prisma.Decimal(addressPayload.lng) : null,
           },
         });
       }

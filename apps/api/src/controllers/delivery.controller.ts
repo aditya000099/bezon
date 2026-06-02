@@ -277,6 +277,7 @@ export const updateAssignmentStatus = async (req: Request, res: Response, next: 
 
     const delivery = await prisma.delivery.findUnique({
       where: { id },
+      include: { order: true },
     });
 
     if (!delivery || delivery.partnerId !== partner.id) {
@@ -329,16 +330,41 @@ export const updateAssignmentStatus = async (req: Request, res: Response, next: 
         },
       });
 
-      // 3. Map delivery status change back to the Order model!
+      // 3. Map delivery status change back to the Order model based on current workflow!
       let orderStatus: string | null = null;
-      if (newStatus === 'picked_up') {
-        orderStatus = 'shipped';
-      } else if (newStatus === 'in_transit' || newStatus === 'out_for_delivery') {
-        orderStatus = 'out_for_delivery';
-      } else if (newStatus === 'delivered') {
-        orderStatus = 'delivered';
-      } else if (newStatus === 'delivery_failed') {
-        orderStatus = 'delivery_failed';
+      const currentOrderStatus = delivery.order?.status;
+
+      if (currentOrderStatus === 'return_approved') {
+        if (newStatus === 'delivered') {
+          orderStatus = 'returned_to_origin';
+        }
+      } else if (currentOrderStatus === 'replacement_approved' || currentOrderStatus === 'replacement_shipped') {
+        if (newStatus === 'picked_up') {
+          orderStatus = 'replacement_shipped';
+        } else if (newStatus === 'in_transit' || newStatus === 'out_for_delivery') {
+          orderStatus = 'replacement_shipped';
+        } else if (newStatus === 'delivered') {
+          orderStatus = 'replaced';
+        } else if (newStatus === 'delivery_failed') {
+          orderStatus = 'delivery_failed';
+        }
+      } else if (currentOrderStatus === 'refund_approved') {
+        if (newStatus === 'delivered') {
+          orderStatus = 'refunded';
+        } else if (newStatus === 'delivery_failed') {
+          orderStatus = 'delivery_failed';
+        }
+      } else {
+        // Standard flow
+        if (newStatus === 'picked_up') {
+          orderStatus = 'shipped';
+        } else if (newStatus === 'in_transit' || newStatus === 'out_for_delivery') {
+          orderStatus = 'out_for_delivery';
+        } else if (newStatus === 'delivered') {
+          orderStatus = 'delivered';
+        } else if (newStatus === 'delivery_failed') {
+          orderStatus = 'delivery_failed';
+        }
       }
 
       if (orderStatus) {

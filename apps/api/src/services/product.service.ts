@@ -71,6 +71,9 @@ export class ProductService {
         seller: {
           select: { id: true, shopName: true, shopSlug: true },
         },
+        policies: {
+          include: { policy: true },
+        },
       },
     });
 
@@ -91,6 +94,9 @@ export class ProductService {
         },
         include: {
           images: { orderBy: { sortOrder: 'asc' }, take: 1 },
+          policies: {
+            include: { policy: true },
+          },
         }
       });
     }
@@ -109,7 +115,7 @@ export class ProductService {
 
   // Create a new product and optionally link it
   static async createProduct(userId: string, data: any) {
-    const { title, brand, description, categoryId, status, basePrice, comparePrice, totalStock, lowStockAlert, weightGrams, sku, attributes, images, linkedProductIds } = data;
+    const { title, brand, description, categoryId, status, basePrice, comparePrice, totalStock, lowStockAlert, weightGrams, sku, attributes, images, linkedProductIds, policyIds } = data;
 
     // Make sure this user is an approved seller
     const seller = await prisma.seller.findUnique({ where: { userId } });
@@ -193,6 +199,15 @@ export class ProductService {
         }
       }
 
+      // Attach policies if provided
+      if (Array.isArray(policyIds) && policyIds.length > 0) {
+        for (const policyId of policyIds) {
+          await tx.productPolicy.create({
+            data: { productId: productObj.id, policyId },
+          });
+        }
+      }
+
       return productObj;
     });
 
@@ -201,7 +216,7 @@ export class ProductService {
 
   // Update a specific product
   static async updateProduct(userId: string, productId: string, data: any) {
-    const { title, brand, description, basePrice, comparePrice, totalStock, categoryId, status, attributes, lowStockAlert, weightGrams, sku, linkedProductIds } = data;
+    const { title, brand, description, basePrice, comparePrice, totalStock, categoryId, status, attributes, lowStockAlert, weightGrams, sku, linkedProductIds, policyIds } = data;
 
     const seller = await prisma.seller.findUnique({ where: { userId } });
     if (!seller) {
@@ -271,6 +286,17 @@ export class ProductService {
           variantGroupId: currentVariantGroupId
         },
       });
+
+      // Update policies if provided
+      if (Array.isArray(policyIds)) {
+        await tx.productPolicy.deleteMany({ where: { productId } });
+        for (const policyId of policyIds) {
+          await tx.productPolicy.create({
+            data: { productId, policyId },
+          });
+        }
+      }
+
       return p;
     });
 
@@ -318,6 +344,9 @@ export class ProductService {
         category: true,
         variantGroup: true,
         images: { orderBy: { sortOrder: 'asc' }, take: 1 },
+        policies: {
+          include: { policy: true },
+        },
       },
     });
   }

@@ -48,6 +48,7 @@ export const productSchema = z.object({
   weightGrams: z.number().int().positive().optional(),
   images: z.array(imagePayloadSchema).default([]),
   variantGroupId: z.string().optional(),
+  policyIds: z.array(z.string().uuid()).default([]),
 });
 
 export const createProductSchema = productSchema.extend({
@@ -116,4 +117,11 @@ export const questionSchema = z.object({
 export const answerSchema = z.object({
   questionId: z.string().uuid('Invalid question ID'),
   answer: z.string().min(2, 'Answer must be at least 2 characters').max(1000, 'Answer cannot exceed 1000 characters'),
+});
+
+export const policySchema = z.object({
+  type: z.enum(['return', 'refund', 'replace'], { message: 'Policy type is required' }),
+  title: z.string().min(3, 'Title must be at least 3 characters').max(120, 'Title cannot exceed 120 characters'),
+  description: z.string().max(500, 'Description cannot exceed 500 characters').optional(),
+  durationDays: z.number().int().min(1, 'Duration must be at least 1 day').max(365, 'Duration cannot exceed 365 days'),
 });

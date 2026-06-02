@@ -11,6 +11,9 @@ import {
   MessageSquare,
   Send,
   Store,
+  RotateCcw,
+  Banknote,
+  RefreshCw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -516,14 +519,46 @@ export const ProductDetailPage: React.FC = () => {
               "No description available for this product."}
           </p>
 
-          <div className="flex gap-3 items-center bg-indigo-50/30 border border-indigo-50 rounded-xl p-4 text-xs text-slate-600">
-            <ShieldCheck className="h-5 w-5 text-indigo-500 shrink-0" />
-            <p>
-              <strong>Fulfillment Promise:</strong> Direct merchant dispatch.
-              Eligible for return within 7 days of verified photographic
-              delivery receipt.
-            </p>
-          </div>
+          {/* Product Policies */}
+          {currentProduct?.policies && (currentProduct.policies as any[]).length > 0 ? (
+            <div className="flex flex-col gap-2">
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                <ShieldCheck className="h-4 w-4 text-indigo-500" />
+                Product Policies
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {(currentProduct.policies as any[]).map((pp: any) => {
+                  const policy = pp.policy;
+                  if (!policy) return null;
+                  const config: Record<string, { icon: any; bg: string; text: string; border: string }> = {
+                    return: { icon: RotateCcw, bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-100' },
+                    refund: { icon: Banknote, bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-100' },
+                    replace: { icon: RefreshCw, bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-100' },
+                  };
+                  const c = config[policy.type] || config.return;
+                  const Icon = c.icon;
+                  return (
+                    <div
+                      key={pp.id}
+                      className={`flex items-center gap-2 ${c.bg} ${c.border} border rounded-lg px-3 py-2 text-xs ${c.text}`}
+                    >
+                      <Icon className="h-3.5 w-3.5 shrink-0" />
+                      <span className="font-semibold">{policy.title}</span>
+                      <span className="opacity-70">{policy.durationDays} days</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ) : (
+            <div className="flex gap-3 items-center bg-indigo-50/30 border border-indigo-50 rounded-xl p-4 text-xs text-slate-600">
+              <ShieldCheck className="h-5 w-5 text-indigo-500 shrink-0" />
+              <p>
+                <strong>Fulfillment Promise:</strong> Direct merchant dispatch.
+                Standard platform policies apply.
+              </p>
+            </div>
+          )}
 
           <div className="flex gap-3 mt-2">
             {currentStock > 0 ? (

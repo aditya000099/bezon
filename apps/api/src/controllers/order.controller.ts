@@ -79,3 +79,34 @@ export const updateOrderStatus = async (req: Request, res: Response, next: NextF
     next(err);
   }
 };
+
+/**
+ * Request a policy action (return, refund, replace) on a delivered order item
+ */
+export const requestOrderPolicyAction = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const id = req.params.id as string;
+    const { actionType, itemId, reason } = req.body;
+
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: 'Unauthorized session.' });
+    }
+
+    if (!actionType || !itemId) {
+      return res.status(400).json({ success: false, message: 'actionType and itemId are required.' });
+    }
+
+    const order = await OrderService.requestOrderPolicyAction(id, actionType, itemId, reason, {
+      id: req.user.id,
+      role: req.user.role,
+    });
+
+    res.json({
+      success: true,
+      data: order,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+

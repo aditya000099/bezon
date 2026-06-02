@@ -56,7 +56,7 @@ export const getProductBySlug = async (req: Request, res: Response, next: NextFu
  */
 export const createProduct = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { title, brand, description, categoryId, status, basePrice, comparePrice, totalStock, lowStockAlert, weightGrams, sku, attributes, images, linkedProductIds } = req.body;
+    const { title, brand, description, categoryId, status, basePrice, comparePrice, totalStock, lowStockAlert, weightGrams, sku, attributes, images, linkedProductIds, policyIds } = req.body;
 
     if (!req.user) {
       return res.status(401).json({ success: false, message: 'Unauthorized session.' });
@@ -68,7 +68,7 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
       description,
       categoryId,
       status,
-      basePrice, comparePrice, totalStock, lowStockAlert, weightGrams, sku, attributes, images, linkedProductIds
+      basePrice, comparePrice, totalStock, lowStockAlert, weightGrams, sku, attributes, images, linkedProductIds, policyIds
     });
 
     res.status(201).json({
@@ -91,7 +91,7 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
 export const updateProduct = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const productId = req.params.id as string;
-    const { title, brand, description, basePrice, comparePrice, totalStock, categoryId, status, attributes, lowStockAlert, weightGrams, sku, linkedProductIds } = req.body;
+    const { title, brand, description, basePrice, comparePrice, totalStock, categoryId, status, attributes, lowStockAlert, weightGrams, sku, linkedProductIds, policyIds } = req.body;
 
     if (!req.user) {
       return res.status(401).json({ success: false, message: 'Unauthorized session.' });
@@ -111,6 +111,7 @@ export const updateProduct = async (req: Request, res: Response, next: NextFunct
       weightGrams,
       sku,
       linkedProductIds,
+      policyIds,
     });
 
     res.json({

@@ -3,6 +3,14 @@ import { useParams, Link } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import {
   Loader2,
   ArrowLeft,
   Clock,
@@ -12,6 +20,9 @@ import {
   ShoppingBag,
   Star,
   Download,
+  RotateCcw,
+  Banknote,
+  RefreshCw,
 } from 'lucide-react';
 import api from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api.config';
@@ -57,6 +68,18 @@ interface OrderDetail {
     unitPrice: number;
     totalPrice: number;
     imageUrl?: string;
+    product?: {
+      policies?: {
+        policy?: {
+          id: string;
+          type: 'return' | 'refund' | 'replace';
+          title: string;
+          description?: string;
+          durationDays: number;
+          isActive: boolean;
+        };
+      }[];
+    };
     review?: {
       id: string;
       rating: number;
@@ -67,6 +90,9 @@ interface OrderDetail {
     };
   }[];
   timeline: TimelineEvent[];
+  delivery?: {
+    deliveredAt: string | null;
+  } | null;
 }
 
 export const OrderDetailPage: React.FC = () => {
@@ -83,6 +109,49 @@ export const OrderDetailPage: React.FC = () => {
     title: string;
   } | null>(null);
   const [existingReview, setExistingReview] = useState<any>(null);
+
+  // Policy Action State
+  const [policyModalOpen, setPolicyModalOpen] = useState(false);
+  const [selectedPolicyItem, setSelectedPolicyItem] = useState<{
+    id: string;
+    productId: string;
+    title: string;
+    actionType: 'return' | 'refund' | 'replace';
+    durationDays: number;
+  } | null>(null);
+  const [policyReason, setPolicyReason] = useState('');
+  const [submittingPolicy, setSubmittingPolicy] = useState(false);
+
+  const handlePolicyActionSubmit = async () => {
+    if (!selectedPolicyItem || !order) return;
+    if (!policyReason.trim()) {
+      toast.warning('Please provide a reason for your request.');
+      return;
+    }
+
+    setSubmittingPolicy(true);
+    try {
+      const res = await api.post(API_ENDPOINTS.orders.policyAction(order.id), {
+        actionType: selectedPolicyItem.actionType,
+        itemId: selectedPolicyItem.id,
+        reason: policyReason.trim(),
+      });
+
+      if (res.data.success) {
+        toast.success(
+          `Successfully submitted ${selectedPolicyItem.actionType} request for ${selectedPolicyItem.title}`,
+        );
+        setPolicyModalOpen(false);
+        setPolicyReason('');
+        setSelectedPolicyItem(null);
+        await fetchOrderDetail();
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to submit request.');
+    } finally {
+      setSubmittingPolicy(false);
+    }
+  };
 
   const fetchOrderDetail = async () => {
     setLoading(true);
@@ -175,45 +244,144 @@ export const OrderDetailPage: React.FC = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6 divide-y divide-slate-100">
-              {order.items.map((item) => (
-                <div
-                  key={item.id}
-                  className="py-4 first:pt-0 last:pb-0 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4"
-                >
-                  <div className="flex gap-3 items-center">
-                    <div className="h-12 w-12 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-center overflow-hidden shrink-0">
-                      {item.imageUrl ? (
-                        <img
-                          src={item.imageUrl}
-                          alt={item.productTitle}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <ShoppingBag className="h-6 w-6 text-slate-300" />
+              {order.items.map((item) => {
+                // Find active policies
+                const policies = item.product?.policies || [];
+                const activePolicies = policies
+                  .map((pp: any) => pp.policy)
+                  .filter((p: any) => p && p.isActive);
+
+                // Helper to check window validity
+                const getPolicyExpiryStatus = (p: any) => {
+                  if (!order.delivery?.deliveredAt)
+                    return { valid: false, text: '' };
+                  const deliveryTime = new Date(
+                    order.delivery.deliveredAt,
+                  ).getTime();
+                  const expirationTime =
+                    deliveryTime + p.durationDays * 24 * 60 * 60 * 1000;
+                  const valid = Date.now() <= expirationTime;
+                  return { valid, expiryDate: new Date(expirationTime) };
+                };
+
+                return (
+                  <div
+                    key={item.id}
+                    className="py-4 first:pt-0 last:pb-0 flex flex-col gap-3 border-b border-slate-100 last:border-b-0"
+                  >
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                      <div className="flex gap-3 items-center">
+                        <div className="h-12 w-12 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-center overflow-hidden shrink-0">
+                          {item.imageUrl ? (
+                            <img
+                              src={item.imageUrl}
+                              alt={item.productTitle}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <ShoppingBag className="h-6 w-6 text-slate-300" />
+                          )}
+                        </div>
+                        <div>
+                          <p className="font-bold text-slate-800 text-sm line-clamp-1">
+                            {item.productTitle}
+                          </p>
+                          <p className="text-xs text-slate-400 font-mono mt-0.5">
+                            {item.sku}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex justify-between sm:justify-end items-center gap-4 sm:min-w-30">
+                        <div className="text-right shrink-0">
+                          <p className="font-bold text-slate-900 text-sm">
+                            ₹
+                            {(
+                              Number(item.unitPrice) * item.qty
+                            ).toLocaleString()}
+                          </p>
+                          <p className="text-[10px] text-slate-400 mt-0.5">
+                            ₹{Number(item.unitPrice).toLocaleString()} &times;{' '}
+                            {item.qty}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Policy Action Buttons */}
+                    {order.status === 'delivered' &&
+                      activePolicies.length > 0 && (
+                        <div className="flex flex-wrap gap-2 pt-2 border-t border-dashed border-slate-100">
+                          {activePolicies.map((p: any) => {
+                            const { valid } = getPolicyExpiryStatus(p);
+                            if (!valid) return null;
+
+                            const btnConfigs: Record<
+                              string,
+                              {
+                                label: string;
+                                icon: any;
+                                borderClass: string;
+                                textClass: string;
+                                bgClass: string;
+                              }
+                            > = {
+                              return: {
+                                label: 'Request Return',
+                                icon: RotateCcw,
+                                borderClass:
+                                  'border-blue-200 hover:border-blue-300',
+                                textClass: 'text-blue-700',
+                                bgClass: 'bg-blue-50/50 hover:bg-blue-50',
+                              },
+                              refund: {
+                                label: 'Request Refund',
+                                icon: Banknote,
+                                borderClass:
+                                  'border-emerald-200 hover:border-emerald-300',
+                                textClass: 'text-emerald-700',
+                                bgClass: 'bg-emerald-50/50 hover:bg-emerald-50',
+                              },
+                              replace: {
+                                label: 'Request Replacement',
+                                icon: RefreshCw,
+                                borderClass:
+                                  'border-amber-200 hover:border-amber-300',
+                                textClass: 'text-amber-700',
+                                bgClass: 'bg-amber-50/50 hover:bg-amber-50',
+                              },
+                            };
+
+                            const config =
+                              btnConfigs[p.type] || btnConfigs.return;
+                            const Icon = config.icon;
+
+                            return (
+                              <Button
+                                key={p.id}
+                                variant="outline"
+                                size="sm"
+                                className={`text-[10px] font-bold h-7 gap-1.5 px-3 rounded-md transition-all ${config.borderClass} ${config.textClass} ${config.bgClass}`}
+                                onClick={() => {
+                                  setSelectedPolicyItem({
+                                    id: item.id,
+                                    productId: item.productId,
+                                    title: item.productTitle,
+                                    actionType: p.type,
+                                    durationDays: p.durationDays,
+                                  });
+                                  setPolicyModalOpen(true);
+                                }}
+                              >
+                                <Icon className="h-3.5 w-3.5" />
+                                {config.label} ({p.durationDays}d)
+                              </Button>
+                            );
+                          })}
+                        </div>
                       )}
-                    </div>
-                    <div>
-                      <p className="font-bold text-slate-800 text-sm line-clamp-1">
-                        {item.productTitle}
-                      </p>
-                      <p className="text-xs text-slate-400 font-mono mt-0.5">
-                        {item.sku}
-                      </p>
-                    </div>
                   </div>
-                  <div className="flex justify-between sm:justify-end items-center gap-4 sm:min-w-30">
-                    <div className="text-right shrink-0">
-                      <p className="font-bold text-slate-900 text-sm">
-                        ₹{(Number(item.unitPrice) * item.qty).toLocaleString()}
-                      </p>
-                      <p className="text-[10px] text-slate-400 mt-0.5">
-                        ₹{Number(item.unitPrice).toLocaleString()} &times;{' '}
-                        {item.qty}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </CardContent>
           </Card>
 
@@ -493,6 +661,59 @@ export const OrderDetailPage: React.FC = () => {
           existingReview={existingReview}
           onSuccess={fetchOrderDetail}
         />
+      )}
+
+      {selectedPolicyItem && (
+        <Dialog open={policyModalOpen} onOpenChange={setPolicyModalOpen}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle className="capitalize flex items-center gap-2">
+                Request {selectedPolicyItem.actionType}
+              </DialogTitle>
+              <DialogDescription>
+                Submit a request for "{selectedPolicyItem.title}". This action
+                is subject to the {selectedPolicyItem.durationDays}-day policy
+                window.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  Reason for Request
+                </label>
+                <textarea
+                  placeholder={`Explain why you are requesting a ${selectedPolicyItem.actionType}...`}
+                  value={policyReason}
+                  onChange={(e) => setPolicyReason(e.target.value)}
+                  className="w-full min-h-24 resize-none rounded-md border border-slate-200 p-3 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setPolicyModalOpen(false);
+                  setPolicyReason('');
+                  setSelectedPolicyItem(null);
+                }}
+                disabled={submittingPolicy}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handlePolicyActionSubmit}
+                disabled={submittingPolicy || !policyReason.trim()}
+                className="font-bold bg-indigo-600 hover:bg-indigo-700 text-white"
+              >
+                {submittingPolicy ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                ) : null}
+                Submit Request
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );
