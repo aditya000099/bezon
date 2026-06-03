@@ -1,3 +1,4 @@
+import './polyfill.js';
 import * as tf from '@tensorflow/tfjs-node';
 import * as nsfw from 'nsfwjs';
 
