@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import React, { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Loader2,
   Image as ImageIcon,
@@ -8,11 +8,11 @@ import {
   Link as LinkIcon,
   CheckCircle2,
   ShieldCheck,
-} from "lucide-react";
-import api from "../../../lib/api";
-import { API_ENDPOINTS } from "../../../config/api.config";
-import { useToast } from "../../../context/ToastContext";
-import type { Category, Product } from "@bezon/types";
+} from 'lucide-react';
+import api from '../../../lib/api';
+import { API_ENDPOINTS } from '../../../config/api.config';
+import { useToast } from '../../../context/ToastContext';
+import type { Category, Product } from '@bezon/types';
 
 interface ImagePayload {
   url: string;
@@ -37,26 +37,26 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const [submitting, setSubmitting] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
 
-  const [title, setTitle] = useState("");
-  const [brand, setBrand] = useState("");
-  const [description, setDescription] = useState("");
-  const [categoryId, setCategoryId] = useState("");
-  const [status, setStatus] = useState<"draft" | "published">("published");
+  const [title, setTitle] = useState('');
+  const [brand, setBrand] = useState('');
+  const [description, setDescription] = useState('');
+  const [categoryId, setCategoryId] = useState('');
+  const [status, setStatus] = useState<'draft' | 'published'>('published');
 
-  const [sku, setSku] = useState("");
-  const [basePrice, setBasePrice] = useState<number | string>("");
-  const [comparePrice, setComparePrice] = useState<number | string>("");
+  const [sku, setSku] = useState('');
+  const [basePrice, setBasePrice] = useState<number | string>('');
+  const [comparePrice, setComparePrice] = useState<number | string>('');
   const [totalStock, setTotalStock] = useState<number | string>(10);
   const [lowStockAlert, setLowStockAlert] = useState<number | string>(3);
 
-  const [attrKey, setAttrKey] = useState("Color");
-  const [attrVal, setAttrVal] = useState("");
+  const [attrKey, setAttrKey] = useState('Color');
+  const [attrVal, setAttrVal] = useState('');
 
   const [images, setImages] = useState<ImagePayload[]>([]);
 
   // For linking existing products
   const [sellerProducts, setSellerProducts] = useState<Product[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
   const [linkedProductIds, setLinkedProductIds] = useState<string[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [availablePolicies, setAvailablePolicies] = useState<any[]>([]);
@@ -96,7 +96,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           setAvailablePolicies(polRes.data.data);
         }
       } catch (err) {
-        console.error("Failed to load dependencies", err);
+        console.error('Failed to load dependencies', err);
       } finally {
         setLoadingCategories(false);
         setLoadingProducts(false);
@@ -108,15 +108,15 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
   useEffect(() => {
     if (product) {
-      setTitle(product.title || "");
-      setBrand(product.brand || "");
-      setDescription(product.description || "");
-      setCategoryId(product.categoryId || "");
-      setStatus(product.status === "published" ? "published" : "draft");
+      setTitle(product.title || '');
+      setBrand(product.brand || '');
+      setDescription(product.description || '');
+      setCategoryId(product.categoryId || '');
+      setStatus(product.status === 'published' ? 'published' : 'draft');
 
-      setSku(product.sku || "");
-      setBasePrice(product.basePrice ? Number(product.basePrice) : "");
-      setComparePrice(product.comparePrice ? Number(product.comparePrice) : "");
+      setSku(product.sku || '');
+      setBasePrice(product.basePrice ? Number(product.basePrice) : '');
+      setComparePrice(product.comparePrice ? Number(product.comparePrice) : '');
       setTotalStock(product.totalStock || 0);
       setLowStockAlert(product.lowStockAlert || 5);
 
@@ -127,14 +127,14 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         setAttrKey(entries[0][0]);
         setAttrVal(entries[0][1]);
       } else {
-        setAttrKey("Color");
-        setAttrVal("");
+        setAttrKey('Color');
+        setAttrVal('');
       }
 
       setImages(
         (product.images || []).map((img) => ({
           url: img.url,
-          s3Key: img.s3Key || "",
+          s3Key: img.s3Key || '',
           isPrimary: img.isPrimary,
         })),
       );
@@ -159,10 +159,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       const currentImages = [...images];
       for (let i = 0; i < files.length; i++) {
         const formData = new FormData();
-        formData.append("image", files[i]);
+        formData.append('image', files[i]);
 
         const uploadRes = await api.post(API_ENDPOINTS.media.upload, formData, {
-          headers: { "Content-Type": "multipart/form-data" },
+          headers: { 'Content-Type': 'multipart/form-data' },
         });
 
         if (uploadRes.data.success) {
@@ -175,9 +175,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         }
       }
       setImages(currentImages);
-      toast.success("Images uploaded successfully.");
+      toast.success('Images uploaded successfully.');
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Image upload failed.");
+      toast.error(err.response?.data?.message || 'Image upload failed.');
     } finally {
       setUploadingImage(false);
     }
@@ -219,17 +219,17 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     e.preventDefault();
 
     if (!categoryId) {
-      toast.error("Please select a category.");
+      toast.error('Please select a category.');
       return;
     }
 
     if (!title || !sku || !basePrice) {
-      toast.error("Title, SKU, and Base Price are required.");
+      toast.error('Title, SKU, and Base Price are required.');
       return;
     }
 
     if (images.length === 0) {
-      toast.error("At least one image is required.");
+      toast.error('At least one image is required.');
       return;
     }
 
@@ -259,15 +259,15 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
       if (isEditMode && product) {
         await api.put(API_ENDPOINTS.products.update(product.id), payload);
-        toast.success("Product updated successfully.");
+        toast.success('Product updated successfully.');
       } else {
         await api.post(API_ENDPOINTS.products.create, payload);
-        toast.success("Product registered successfully.");
+        toast.success('Product registered successfully.');
       }
 
       if (onSuccess) onSuccess();
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Failed to save product.");
+      toast.error(err.response?.data?.message || 'Failed to save product.');
     } finally {
       setSubmitting(false);
     }
@@ -341,7 +341,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               Description
             </label>
             <textarea
-              className="flex min-h-[100px] w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex min-h-25 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               placeholder="Detailed description of the product..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -464,7 +464,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               {images.map((img, iIdx) => (
                 <div
                   key={iIdx}
-                  className={`relative aspect-square rounded-lg border-2 overflow-hidden group ${img.isPrimary ? "border-primary shadow-sm" : "border-transparent"}`}
+                  className={`relative aspect-square rounded-lg border-2 overflow-hidden group ${img.isPrimary ? 'border-primary shadow-sm' : 'border-transparent'}`}
                 >
                   <img
                     src={img.url}
@@ -554,13 +554,13 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                     onClick={() => toggleLinkedProduct(p.id)}
                     className={`flex items-center justify-between p-3 rounded-lg text-left transition-colors border ${
                       isLinked
-                        ? "border-indigo-200 bg-indigo-50/50"
-                        : "border-transparent hover:bg-slate-50"
+                        ? 'border-indigo-200 bg-indigo-50/50'
+                        : 'border-transparent hover:bg-slate-50'
                     }`}
                   >
                     <div className="flex items-center gap-3">
                       <div
-                        className={`h-4 w-4 rounded-sm flex items-center justify-center shrink-0 border ${isLinked ? "bg-indigo-600 border-indigo-600" : "border-slate-300"}`}
+                        className={`h-4 w-4 rounded-sm flex items-center justify-center shrink-0 border ${isLinked ? 'bg-indigo-600 border-indigo-600' : 'border-slate-300'}`}
                       >
                         {isLinked && (
                           <CheckCircle2 className="h-3 w-3 text-white" />
@@ -627,14 +627,14 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             {availablePolicies.map((policy: any) => {
               const isSelected = selectedPolicyIds.includes(policy.id);
               const typeColors: Record<string, string> = {
-                return: "bg-blue-50 border-blue-200 text-blue-700",
-                refund: "bg-emerald-50 border-emerald-200 text-emerald-700",
-                replace: "bg-amber-50 border-amber-200 text-amber-700",
+                return: 'bg-blue-50 border-blue-200 text-blue-700',
+                refund: 'bg-emerald-50 border-emerald-200 text-emerald-700',
+                replace: 'bg-amber-50 border-amber-200 text-amber-700',
               };
               const typeIcons: Record<string, string> = {
-                return: "↩️",
-                refund: "💰",
-                replace: "🔄",
+                return: '↩️',
+                refund: '💰',
+                replace: '🔄',
               };
               return (
                 <button
@@ -643,15 +643,15 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   onClick={() => togglePolicy(policy.id)}
                   className={`flex items-start gap-3 p-3 rounded-xl text-left transition-all border-2 ${
                     isSelected
-                      ? "border-indigo-400 bg-indigo-50/50 shadow-sm"
-                      : "border-slate-100 hover:border-slate-200 hover:bg-slate-50/50"
+                      ? 'border-indigo-400 bg-indigo-50/50 shadow-sm'
+                      : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50/50'
                   }`}
                 >
                   <div
                     className={`h-5 w-5 rounded flex items-center justify-center shrink-0 mt-0.5 border ${
                       isSelected
-                        ? "bg-indigo-600 border-indigo-600"
-                        : "border-slate-300"
+                        ? 'bg-indigo-600 border-indigo-600'
+                        : 'border-slate-300'
                     }`}
                   >
                     {isSelected && (
@@ -664,14 +664,14 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                         {policy.title}
                       </span>
                       <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase border ${typeColors[policy.type] || "bg-slate-100 text-slate-600"}`}
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase border ${typeColors[policy.type] || 'bg-slate-100 text-slate-600'}`}
                       >
-                        {typeIcons[policy.type] || ""} {policy.type}
+                        {typeIcons[policy.type] || ''} {policy.type}
                       </span>
                     </div>
                     <p className="text-xs text-slate-500 mt-1">
                       {policy.durationDays}-day window
-                      {policy.description ? ` — ${policy.description}` : ""}
+                      {policy.description ? ` — ${policy.description}` : ''}
                     </p>
                   </div>
                 </button>
@@ -692,7 +692,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         </Button>
         <Button type="submit" disabled={submitting}>
           {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {isEditMode ? "Save Changes" : "Publish Product"}
+          {isEditMode ? 'Save Changes' : 'Publish Product'}
         </Button>
       </div>
     </form>

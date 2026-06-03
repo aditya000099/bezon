@@ -18,6 +18,7 @@ import configRouter from './config.routes.js';
 import deliveryRouter from './delivery.routes.js';
 import policyRouter from './policy.routes.js';
 import applicationRouter from './application.routes.js';
+import supportChatRouter from './support-chat.routes.js';
 
 const router = Router();
 
@@ -41,5 +42,6 @@ router.use('/config', configRouter);
 router.use('/delivery', deliveryRouter);
 router.use('/policies', policyRouter);
 router.use('/applications', applicationRouter);
+router.use('/support', supportChatRouter);
 
 export default router;

@@ -29,6 +29,7 @@ import { API_ENDPOINTS } from '../../config/api.config';
 import { useToast } from '../../context/ToastContext';
 import { WriteReviewModal } from '../../components/reviews/WriteReviewModal';
 import { OrderTrackingStepper } from '../../components/ui/OrderTrackingStepper';
+import { SupportChatWidget } from '../../components/SupportChatWidget';
 
 interface TimelineEvent {
   id: string;
@@ -645,6 +646,15 @@ export const OrderDetailPage: React.FC = () => {
               )}
             </CardContent>
           </Card>
+
+          {/* AI Support Chat Container */}
+          <SupportChatWidget
+            context={{
+              type: 'order',
+              orderId: order.id,
+              orderNumber: order.orderNumber,
+            }}
+          />
         </div>
       </div>
 
@@ -665,7 +675,7 @@ export const OrderDetailPage: React.FC = () => {
 
       {selectedPolicyItem && (
         <Dialog open={policyModalOpen} onOpenChange={setPolicyModalOpen}>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="sm:max-w-106.25">
             <DialogHeader>
               <DialogTitle className="capitalize flex items-center gap-2">
                 Request {selectedPolicyItem.actionType}

@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { MediaService } from '../services/media.service.js';
+import { checkNsfw } from '../utils/nsfw.js';
 
 /**
  * Handle image uploads to S3 with robust local fallback
@@ -11,6 +12,15 @@ export const uploadImage = async (req: Request, res: Response, next: NextFunctio
       return res.status(400).json({
         success: false,
         message: 'No file supplied for upload.',
+      });
+    }
+
+    // Scan the image for NSFW content before uploading
+    const moderation = await checkNsfw(file.buffer);
+    if (moderation.isNsfw) {
+      return res.status(400).json({
+        success: false,
+        message: 'Image upload rejected: NSFW content detected.',
       });
     }
 

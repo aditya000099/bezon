@@ -43,18 +43,18 @@ enum OrderStatus {
   delivered
   cancelled
   delivery_failed
-  
+
   return_requested
   return_approved
   returned_to_origin
   return_rejected
-  
+
   refund_requested
   refund_approved
   refunding
   refunded
   refund_rejected
-  
+
   replacement_requested
   replacement_approved
   replacement_shipped
@@ -117,17 +117,17 @@ enum PolicyType {
 }
 
 model User {
-  id              String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name            String           @db.VarChar(120)
-  email           String           @unique(map: "users_email_unique") @db.VarChar(254)
-  phone           String?          @db.VarChar(20)
-  passwordHash    String           @map("password_hash")
-  role            UserRole         @default(customer)
-  avatarUrl       String?          @map("avatar_url")
-  isActive        Boolean          @default(true) @map("is_active")
-  emailVerified   Boolean          @default(false) @map("email_verified")
-  createdAt       DateTime         @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt       DateTime         @default(now()) @map("updated_at") @db.Timestamptz
+  id              String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name            String            @db.VarChar(120)
+  email           String            @unique(map: "users_email_unique") @db.VarChar(254)
+  phone           String?           @db.VarChar(20)
+  passwordHash    String            @map("password_hash")
+  role            UserRole          @default(customer)
+  avatarUrl       String?           @map("avatar_url")
+  isActive        Boolean           @default(true) @map("is_active")
+  emailVerified   Boolean           @default(false) @map("email_verified")
+  createdAt       DateTime          @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime          @default(now()) @map("updated_at") @db.Timestamptz
   seller          Seller?
   deliveryPartner DeliveryPartner?
   addresses       Address[]
@@ -253,44 +253,44 @@ model VariantGroup {
 }
 
 model Product {
-  id             String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  sellerId       String           @map("seller_id") @db.Uuid
-  categoryId     String?          @map("category_id") @db.Uuid
-  variantGroupId String?          @map("variant_group_id") @db.Uuid
-  title          String           @db.VarChar(255)
-  slug           String           @unique @db.VarChar(255)
+  id             String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sellerId       String        @map("seller_id") @db.Uuid
+  categoryId     String?       @map("category_id") @db.Uuid
+  variantGroupId String?       @map("variant_group_id") @db.Uuid
+  title          String        @db.VarChar(255)
+  slug           String        @unique @db.VarChar(255)
   description    String?
-  brand          String?          @db.VarChar(80)
-  status         ProductStatus    @default(draft)
-  sku            String           @unique @db.VarChar(80)
-  attributes     Json             @default("{}")
-  basePrice      Decimal          @map("base_price") @db.Decimal(10, 2)
-  comparePrice   Decimal?         @map("compare_price") @db.Decimal(10, 2)
-  totalStock     Int              @default(0) @map("total_stock")
-  lowStockAlert  Int              @default(5) @map("low_stock_alert")
-  weightGrams    Int?             @map("weight_grams")
-  metaTitle      String?          @map("meta_title") @db.VarChar(160)
-  metaDesc       String?          @map("meta_desc") @db.VarChar(320)
-  viewCount      Int              @default(0) @map("view_count")
-  soldCount      Int              @default(0) @map("sold_count")
-  avgRating      Decimal?         @map("avg_rating") @db.Decimal(3, 2)
-  reviewCount    Int              @default(0) @map("review_count")
-  createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt      DateTime         @default(now()) @map("updated_at") @db.Timestamptz
-  
-  seller         Seller           @relation(fields: [sellerId], references: [id], onDelete: Cascade, map: "products_seller_fk")
-  category       Category?        @relation(fields: [categoryId], references: [id], onDelete: SetNull, map: "products_category_fk")
-  variantGroup   VariantGroup?    @relation(fields: [variantGroupId], references: [id], onDelete: SetNull, map: "products_variant_group_fk")
-  
-  images         ProductImage[]
-  cartItems      CartItem[]
-  orderItems     OrderItem[]
-  wishlists      Wishlist[]
-  coupons        Coupon[]
-  activities     UserActivity[]
-  reviews        Review[]
-  questions      ProductQuestion[]
-  policies       ProductPolicy[]
+  brand          String?       @db.VarChar(80)
+  status         ProductStatus @default(draft)
+  sku            String        @unique @db.VarChar(80)
+  attributes     Json          @default("{}")
+  basePrice      Decimal       @map("base_price") @db.Decimal(10, 2)
+  comparePrice   Decimal?      @map("compare_price") @db.Decimal(10, 2)
+  totalStock     Int           @default(0) @map("total_stock")
+  lowStockAlert  Int           @default(5) @map("low_stock_alert")
+  weightGrams    Int?          @map("weight_grams")
+  metaTitle      String?       @map("meta_title") @db.VarChar(160)
+  metaDesc       String?       @map("meta_desc") @db.VarChar(320)
+  viewCount      Int           @default(0) @map("view_count")
+  soldCount      Int           @default(0) @map("sold_count")
+  avgRating      Decimal?      @map("avg_rating") @db.Decimal(3, 2)
+  reviewCount    Int           @default(0) @map("review_count")
+  createdAt      DateTime      @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt      DateTime      @default(now()) @map("updated_at") @db.Timestamptz
+
+  seller       Seller        @relation(fields: [sellerId], references: [id], onDelete: Cascade, map: "products_seller_fk")
+  category     Category?     @relation(fields: [categoryId], references: [id], onDelete: SetNull, map: "products_category_fk")
+  variantGroup VariantGroup? @relation(fields: [variantGroupId], references: [id], onDelete: SetNull, map: "products_variant_group_fk")
+
+  images     ProductImage[]
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+  wishlists  Wishlist[]
+  coupons    Coupon[]
+  activities UserActivity[]
+  reviews    Review[]
+  questions  ProductQuestion[]
+  policies   ProductPolicy[]
 
   @@index([sellerId])
   @@index([categoryId])
@@ -303,15 +303,15 @@ model Product {
 }
 
 model ProductImage {
-  id           String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  productId    String         @map("product_id") @db.Uuid
-  url          String
-  s3Key        String?        @map("s3_key")
-  altText      String?        @map("alt_text") @db.VarChar(160)
-  sortOrder    Int            @default(0) @map("sort_order") @db.SmallInt
-  isPrimary    Boolean        @default(false) @map("is_primary")
-  createdAt    DateTime       @default(now()) @map("created_at") @db.Timestamptz
-  product      Product        @relation(fields: [productId], references: [id], onDelete: Cascade, map: "pi_product_fk")
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  productId String   @map("product_id") @db.Uuid
+  url       String
+  s3Key     String?  @map("s3_key")
+  altText   String?  @map("alt_text") @db.VarChar(160)
+  sortOrder Int      @default(0) @map("sort_order") @db.SmallInt
+  isPrimary Boolean  @default(false) @map("is_primary")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade, map: "pi_product_fk")
 
   @@index([productId])
   @@map("product_images")
@@ -330,8 +330,8 @@ model Address {
   pincode   String   @db.VarChar(10)
   country   String   @default("India") @db.VarChar(60)
   isDefault Boolean  @default(false) @map("is_default")
-  lat       Decimal?   @db.Decimal(9, 6)
-  lng       Decimal?   @db.Decimal(9, 6)
+  lat       Decimal? @db.Decimal(9, 6)
+  lng       Decimal? @db.Decimal(9, 6)
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, map: "addr_user_fk")
@@ -352,14 +352,14 @@ model Cart {
 }
 
 model CartItem {
-  id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  cartId        String         @map("cart_id") @db.Uuid
-  productId     String         @map("product_id") @db.Uuid
-  qty           Int            @default(1) @db.SmallInt
-  priceSnapshot Decimal        @map("price_snapshot") @db.Decimal(10, 2)
-  addedAt       DateTime       @default(now()) @map("added_at") @db.Timestamptz
-  cart          Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade, map: "ci_cart_fk")
-  product       Product        @relation(fields: [productId], references: [id], onDelete: Cascade, map: "ci_product_fk")
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  cartId        String   @map("cart_id") @db.Uuid
+  productId     String   @map("product_id") @db.Uuid
+  qty           Int      @default(1) @db.SmallInt
+  priceSnapshot Decimal  @map("price_snapshot") @db.Decimal(10, 2)
+  addedAt       DateTime @default(now()) @map("added_at") @db.Timestamptz
+  cart          Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade, map: "ci_cart_fk")
+  product       Product  @relation(fields: [productId], references: [id], onDelete: Cascade, map: "ci_product_fk")
 
   @@unique([cartId, productId], map: "ci_unique_product")
   @@index([cartId])
@@ -408,18 +408,18 @@ model Order {
 }
 
 model OrderItem {
-  id           String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  orderId      String         @map("order_id") @db.Uuid
-  productId    String         @map("product_id") @db.Uuid
-  productTitle String         @map("product_title") @db.VarChar(255)
-  variantAttrs Json           @map("variant_attrs")
-  sku          String         @db.VarChar(80)
-  imageUrl     String?        @map("image_url")
-  qty          Int            @db.SmallInt
-  unitPrice    Decimal        @map("unit_price") @db.Decimal(10, 2)
-  totalPrice   Decimal        @map("total_price") @db.Decimal(12, 2)
-  order        Order          @relation(fields: [orderId], references: [id], onDelete: Cascade, map: "oi_order_fk")
-  product      Product        @relation(fields: [productId], references: [id], map: "oi_product_fk")
+  id           String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderId      String  @map("order_id") @db.Uuid
+  productId    String  @map("product_id") @db.Uuid
+  productTitle String  @map("product_title") @db.VarChar(255)
+  variantAttrs Json    @map("variant_attrs")
+  sku          String  @db.VarChar(80)
+  imageUrl     String? @map("image_url")
+  qty          Int     @db.SmallInt
+  unitPrice    Decimal @map("unit_price") @db.Decimal(10, 2)
+  totalPrice   Decimal @map("total_price") @db.Decimal(12, 2)
+  order        Order   @relation(fields: [orderId], references: [id], onDelete: Cascade, map: "oi_order_fk")
+  product      Product @relation(fields: [productId], references: [id], map: "oi_product_fk")
   review       Review?
 
   @@index([orderId])
@@ -443,23 +443,23 @@ model OrderTimeline {
 }
 
 model Delivery {
-  id                String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  orderId           String             @unique @map("order_id") @db.Uuid
-  partnerId         String?            @map("partner_id") @db.Uuid
-  status            DeliveryStatus     @default(assigned)
-  proofImageUrl     String?            @map("proof_image_url")
-  proofS3Key        String?            @map("proof_s3_key")
-  failureReason     String?            @map("failure_reason") @db.VarChar(200)
-  failureNotes      String?            @map("failure_notes")
-  attemptCount      Int                @default(0) @map("attempt_count") @db.SmallInt
-  assignedAt        DateTime           @default(now()) @map("assigned_at") @db.Timestamptz
-  acceptedAt        DateTime?          @map("accepted_at") @db.Timestamptz
-  pickedUpAt        DateTime?          @map("picked_up_at") @db.Timestamptz
-  deliveredAt       DateTime?          @map("delivered_at") @db.Timestamptz
-  updatedAt         DateTime           @default(now()) @map("updated_at") @db.Timestamptz
-  order             Order              @relation(fields: [orderId], references: [id], map: "del_order_fk")
-  partner           DeliveryPartner?   @relation(fields: [partnerId], references: [id], map: "del_partner_fk")
-  timeline          DeliveryTimeline[]
+  id            String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderId       String             @unique @map("order_id") @db.Uuid
+  partnerId     String?            @map("partner_id") @db.Uuid
+  status        DeliveryStatus     @default(assigned)
+  proofImageUrl String?            @map("proof_image_url")
+  proofS3Key    String?            @map("proof_s3_key")
+  failureReason String?            @map("failure_reason") @db.VarChar(200)
+  failureNotes  String?            @map("failure_notes")
+  attemptCount  Int                @default(0) @map("attempt_count") @db.SmallInt
+  assignedAt    DateTime           @default(now()) @map("assigned_at") @db.Timestamptz
+  acceptedAt    DateTime?          @map("accepted_at") @db.Timestamptz
+  pickedUpAt    DateTime?          @map("picked_up_at") @db.Timestamptz
+  deliveredAt   DateTime?          @map("delivered_at") @db.Timestamptz
+  updatedAt     DateTime           @default(now()) @map("updated_at") @db.Timestamptz
+  order         Order              @relation(fields: [orderId], references: [id], map: "del_order_fk")
+  partner       DeliveryPartner?   @relation(fields: [partnerId], references: [id], map: "del_partner_fk")
+  timeline      DeliveryTimeline[]
 
   @@index([partnerId])
   @@index([status])
@@ -537,31 +537,31 @@ model Payment {
 }
 
 model Coupon {
-  id              String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  code            String       @unique @db.VarChar(50)
-  sellerId        String       @map("seller_id") @db.Uuid
-  description     String       @db.VarChar(200)
-  discountType    DiscountType @map("discount_type")
-  discountValue   Decimal      @map("discount_value") @db.Decimal(10, 2)
-  maxDiscount     Decimal?     @map("max_discount") @db.Decimal(10, 2)
-  minOrderValue   Decimal      @default(0) @map("min_order_value") @db.Decimal(10, 2)
-  maxUses         Int?         @map("max_uses")
-  maxUsesPerUser  Int          @default(1) @map("max_uses_per_user")
-  usedCount       Int          @default(0) @map("used_count")
-  validFrom       DateTime     @map("valid_from") @db.Timestamptz
-  validUntil      DateTime     @map("valid_until") @db.Timestamptz
-  isActive        Boolean      @default(true) @map("is_active")
-  scopeType       CouponScope  @default(all) @map("scope_type")
-  scopeCategoryId String?      @map("scope_category_id") @db.Uuid
-  scopeProductId       String?      @map("scope_product_id") @db.Uuid
-  scopeVariantGroupId  String?      @map("scope_variant_group_id") @db.Uuid
-  createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt       DateTime     @default(now()) @map("updated_at") @db.Timestamptz
-  seller          Seller       @relation(fields: [sellerId], references: [id], onDelete: Cascade, map: "coupon_seller_fk")
-  scopeCategory   Category?    @relation(fields: [scopeCategoryId], references: [id], onDelete: SetNull, map: "coupon_category_fk")
-  scopeProduct    Product?     @relation(fields: [scopeProductId], references: [id], onDelete: SetNull, map: "coupon_product_fk")
-  orders          Order[]
-  usages          CouponUsage[]
+  id                  String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code                String        @unique @db.VarChar(50)
+  sellerId            String        @map("seller_id") @db.Uuid
+  description         String        @db.VarChar(200)
+  discountType        DiscountType  @map("discount_type")
+  discountValue       Decimal       @map("discount_value") @db.Decimal(10, 2)
+  maxDiscount         Decimal?      @map("max_discount") @db.Decimal(10, 2)
+  minOrderValue       Decimal       @default(0) @map("min_order_value") @db.Decimal(10, 2)
+  maxUses             Int?          @map("max_uses")
+  maxUsesPerUser      Int           @default(1) @map("max_uses_per_user")
+  usedCount           Int           @default(0) @map("used_count")
+  validFrom           DateTime      @map("valid_from") @db.Timestamptz
+  validUntil          DateTime      @map("valid_until") @db.Timestamptz
+  isActive            Boolean       @default(true) @map("is_active")
+  scopeType           CouponScope   @default(all) @map("scope_type")
+  scopeCategoryId     String?       @map("scope_category_id") @db.Uuid
+  scopeProductId      String?       @map("scope_product_id") @db.Uuid
+  scopeVariantGroupId String?       @map("scope_variant_group_id") @db.Uuid
+  createdAt           DateTime      @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime      @default(now()) @map("updated_at") @db.Timestamptz
+  seller              Seller        @relation(fields: [sellerId], references: [id], onDelete: Cascade, map: "coupon_seller_fk")
+  scopeCategory       Category?     @relation(fields: [scopeCategoryId], references: [id], onDelete: SetNull, map: "coupon_category_fk")
+  scopeProduct        Product?      @relation(fields: [scopeProductId], references: [id], onDelete: SetNull, map: "coupon_product_fk")
+  orders              Order[]
+  usages              CouponUsage[]
 
   @@index([sellerId])
   @@index([code])
@@ -595,8 +595,8 @@ model UserActivity {
   metadata     Json?    @default("{}") // Additional data like keywords, category, variants, price
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
 
-  user         User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  product      Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  user    User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([activityType])
@@ -605,21 +605,21 @@ model UserActivity {
 }
 
 model Review {
-  id          String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId      String         @map("user_id") @db.Uuid
-  productId   String         @map("product_id") @db.Uuid
-  orderItemId String         @unique @map("order_item_id") @db.Uuid
-  rating      Int            @db.SmallInt
-  reviewText  String?        @map("review_text")
-  editCount   Int            @default(0) @map("edit_count") @db.SmallInt
-  createdAt   DateTime       @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt   DateTime       @default(now()) @map("updated_at") @db.Timestamptz
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  productId   String   @map("product_id") @db.Uuid
+  orderItemId String   @unique @map("order_item_id") @db.Uuid
+  rating      Int      @db.SmallInt
+  reviewText  String?  @map("review_text")
+  editCount   Int      @default(0) @map("edit_count") @db.SmallInt
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @default(now()) @map("updated_at") @db.Timestamptz
 
-  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  product     Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
-  orderItem   OrderItem      @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
-  
-  images      ReviewImage[]
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  orderItem OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+
+  images ReviewImage[]
 
   @@index([productId])
   @@index([userId])
@@ -634,23 +634,23 @@ model ReviewImage {
   sortOrder Int      @default(0) @map("sort_order") @db.SmallInt
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
 
-  review    Review   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
 
   @@index([reviewId])
   @@map("review_images")
 }
 
 model ProductQuestion {
-  id         String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  productId  String           @map("product_id") @db.Uuid
-  userId     String           @map("user_id") @db.Uuid
-  variantId  String?          @map("variant_id") @db.Uuid
-  question   String
-  createdAt  DateTime         @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt  DateTime         @updatedAt @map("updated_at") @db.Timestamptz
-  product    Product          @relation(fields: [productId], references: [id], onDelete: Cascade, map: "pq_product_fk")
-  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade, map: "pq_user_fk")
-  answers    ProductAnswer[]
+  id        String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  productId String          @map("product_id") @db.Uuid
+  userId    String          @map("user_id") @db.Uuid
+  variantId String?         @map("variant_id") @db.Uuid
+  question  String
+  createdAt DateTime        @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime        @updatedAt @map("updated_at") @db.Timestamptz
+  product   Product         @relation(fields: [productId], references: [id], onDelete: Cascade, map: "pq_product_fk")
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade, map: "pq_user_fk")
+  answers   ProductAnswer[]
 
   @@index([productId])
   @@index([userId])
@@ -658,14 +658,14 @@ model ProductQuestion {
 }
 
 model ProductAnswer {
-  id          String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  questionId  String          @map("question_id") @db.Uuid
-  userId      String          @map("user_id") @db.Uuid
-  answer      String
-  createdAt   DateTime        @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt   DateTime        @updatedAt @map("updated_at") @db.Timestamptz
-  question    ProductQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade, map: "pa_question_fk")
-  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade, map: "pa_user_fk")
+  id         String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  questionId String          @map("question_id") @db.Uuid
+  userId     String          @map("user_id") @db.Uuid
+  answer     String
+  createdAt  DateTime        @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt  DateTime        @updatedAt @map("updated_at") @db.Timestamptz
+  question   ProductQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade, map: "pa_question_fk")
+  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade, map: "pa_user_fk")
 
   @@index([questionId])
   @@index([userId])
@@ -673,14 +673,14 @@ model ProductAnswer {
 }
 
 model Policy {
-  id           String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id           String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   type         PolicyType
-  title        String         @db.VarChar(120)
+  title        String          @db.VarChar(120)
   description  String?
-  durationDays Int            @map("duration_days") @db.SmallInt
-  isActive     Boolean        @default(true) @map("is_active")
-  createdAt    DateTime       @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt    DateTime       @default(now()) @map("updated_at") @db.Timestamptz
+  durationDays Int             @map("duration_days") @db.SmallInt
+  isActive     Boolean         @default(true) @map("is_active")
+  createdAt    DateTime        @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime        @default(now()) @map("updated_at") @db.Timestamptz
   products     ProductPolicy[]
 
   @@index([type])

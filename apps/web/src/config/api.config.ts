@@ -121,6 +121,10 @@ export const API_ENDPOINTS = {
     toggle: (id: string) => `${API_V1}/policies/${id}/toggle`,
     delete: (id: string) => `${API_V1}/policies/${id}`,
   },
+  // Support Chat
+  support: {
+    chat: `${API_V1}/support/chat`,
+  },
 } as const;
 
 export default API_ENDPOINTS;
