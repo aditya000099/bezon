@@ -143,7 +143,20 @@ export class AuthService {
         avatarUrl: true,
         isActive: true,
         seller: {
-          select: { id: true, shopName: true, shopSlug: true, status: true, rejectionReason: true },
+          select: {
+            id: true,
+            shopName: true,
+            shopSlug: true,
+            status: true,
+            rejectionReason: true,
+            description: true,
+            gstin: true,
+            panNumber: true,
+            addressLine: true,
+            city: true,
+            state: true,
+            pincode: true,
+          },
         },
       },
     });

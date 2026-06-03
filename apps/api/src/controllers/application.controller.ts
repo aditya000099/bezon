@@ -99,11 +99,6 @@ export const getSellerStatus = async (req: Request, res: Response, next: NextFun
 export const getApplications = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const applications = await prisma.seller.findMany({
-      where: {
-        status: {
-          in: ['pending', 'rejected'],
-        },
-      },
       include: {
         user: {
           select: { name: true, email: true, phone: true },
@@ -130,6 +125,10 @@ export const approveSeller = async (req: Request, res: Response, next: NextFunct
     const seller = await prisma.seller.findUnique({ where: { id } });
     if (!seller) {
       return res.status(404).json({ success: false, message: 'Seller application not found.' });
+    }
+
+    if (seller.status !== 'pending') {
+      return res.status(400).json({ success: false, message: 'Only pending applications can be approved.' });
     }
 
     const updated = await prisma.seller.update({
@@ -174,6 +173,10 @@ export const rejectSeller = async (req: Request, res: Response, next: NextFuncti
       return res.status(404).json({ success: false, message: 'Seller application not found.' });
     }
 
+    if (seller.status !== 'pending') {
+      return res.status(400).json({ success: false, message: 'Only pending applications can be rejected.' });
+    }
+
     const updated = await prisma.seller.update({
       where: { id },
       data: {
@@ -195,6 +198,66 @@ export const rejectSeller = async (req: Request, res: Response, next: NextFuncti
     res.json({
       success: true,
       message: 'Seller application rejected.',
+      data: updated,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const suspendSeller = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const id = req.params.id as string;
+
+    const seller = await prisma.seller.findUnique({ where: { id } });
+    if (!seller) {
+      return res.status(404).json({ success: false, message: 'Seller not found.' });
+    }
+
+    if (seller.status !== 'approved') {
+      return res.status(400).json({ success: false, message: 'Only approved sellers can be suspended.' });
+    }
+
+    const updated = await prisma.seller.update({
+      where: { id },
+      data: {
+        status: 'suspended',
+      },
+    });
+
+    res.json({
+      success: true,
+      message: 'Seller suspended.',
+      data: updated,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const reactivateSeller = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const id = req.params.id as string;
+
+    const seller = await prisma.seller.findUnique({ where: { id } });
+    if (!seller) {
+      return res.status(404).json({ success: false, message: 'Seller not found.' });
+    }
+
+    if (seller.status !== 'suspended') {
+      return res.status(400).json({ success: false, message: 'Only suspended sellers can be reactivated.' });
+    }
+
+    const updated = await prisma.seller.update({
+      where: { id },
+      data: {
+        status: 'approved',
+      },
+    });
+
+    res.json({
+      success: true,
+      message: 'Seller reactivated.',
       data: updated,
     });
   } catch (err) {

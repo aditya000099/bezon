@@ -7,6 +7,7 @@ import { API_ENDPOINTS } from '../../config/api.config';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { ShieldAlert } from 'lucide-react';
 
 export const BecomeSellerPage: React.FC = () => {
   const { user, checkAuth } = useAuth();
@@ -25,6 +26,22 @@ export const BecomeSellerPage: React.FC = () => {
     state: '',
     pincode: '',
   });
+
+  useEffect(() => {
+    if (user?.seller) {
+      setFormData({
+        shopName: user.seller.shopName || '',
+        shopSlug: user.seller.shopSlug || '',
+        description: user.seller.description || '',
+        gstin: user.seller.gstin || '',
+        panNumber: user.seller.panNumber || '',
+        addressLine: user.seller.addressLine || '',
+        city: user.seller.city || '',
+        state: user.seller.state || '',
+        pincode: user.seller.pincode || '',
+      });
+    }
+  }, [user]);
 
   // If already approved, redirect to seller dashboard
   useEffect(() => {
@@ -71,6 +88,37 @@ export const BecomeSellerPage: React.FC = () => {
       setLoading(false);
     }
   };
+
+  if (user?.seller?.status === 'suspended') {
+    return (
+      <div className="max-w-2xl mx-auto py-10 px-4">
+        <Card className="border-rose-100 bg-rose-50/10 shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-rose-800 flex items-center gap-2">
+              <ShieldAlert className="h-6 w-6 text-rose-600" />
+              Seller Account Suspended
+            </CardTitle>
+            <CardDescription>
+              You are currently unable to apply or access the seller portal.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-slate-700 text-sm">
+              Your seller account has been suspended by an administrator due to policy violations or review guidelines.
+            </p>
+            <p className="text-slate-400 text-xs mt-2">
+              To appeal this suspension, or to get more information, please contact our support team.
+            </p>
+          </CardContent>
+          <CardFooter>
+            <Button onClick={() => navigate('/shop/profile')} variant="outline" className="w-full">
+              Return to Profile
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
+    );
+  }
 
   if (user?.seller?.status === 'pending') {
     return (

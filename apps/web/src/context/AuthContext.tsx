@@ -16,6 +16,13 @@ export interface User {
     shopSlug: string;
     status: 'pending' | 'approved' | 'rejected' | 'suspended';
     rejectionReason: string | null;
+    description?: string | null;
+    gstin?: string | null;
+    panNumber?: string | null;
+    addressLine?: string | null;
+    city?: string | null;
+    state?: string | null;
+    pincode?: string | null;
   } | null;
 }
 

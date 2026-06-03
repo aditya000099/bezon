@@ -8,6 +8,7 @@ import {
   Heart,
   FileText,
   Shield,
+  ShieldAlert,
   LogOut,
   ChevronRight,
 } from "lucide-react";
@@ -198,6 +199,21 @@ export const ProfilePage: React.FC = () => {
                 <Link to="/seller">
                   <Button className="w-full">Go to Seller Dashboard</Button>
                 </Link>
+              </div>
+            )}
+
+            {user?.seller?.status === 'suspended' && (
+              <div className="text-center">
+                <div className="inline-flex items-center justify-center p-3 bg-rose-50 text-rose-600 rounded-full mb-3">
+                  <ShieldAlert className="h-6 w-6" />
+                </div>
+                <h3 className="font-semibold text-slate-900 mb-1 text-base">Account Suspended</h3>
+                <p className="text-slate-500 text-sm leading-relaxed mb-2">
+                  Your seller account has been suspended by the system administrator.
+                </p>
+                <p className="text-slate-400 text-xs">
+                  If you believe this is an error or would like to appeal, please contact support.
+                </p>
               </div>
             )}
           </div>

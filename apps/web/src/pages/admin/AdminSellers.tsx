@@ -19,6 +19,7 @@ export const AdminSellers: React.FC = () => {
   const [selectedApp, setSelectedApp] = useState<any | null>(null);
   const [rejectReason, setRejectReason] = useState('');
   const [showRejectInput, setShowRejectInput] = useState(false);
+  const [activeTab, setActiveTab] = useState<'pending' | 'approved' | 'suspended' | 'rejected'>('pending');
   const { toast } = useToast();
 
   const fetchApplications = async () => {
@@ -74,6 +75,36 @@ export const AdminSellers: React.FC = () => {
     }
   };
 
+  const handleSuspend = async () => {
+    if (!selectedApp) return;
+    try {
+      const response = await api.post(`/api/v1/applications/admin/${selectedApp.id}/suspend`);
+      if (response.data.success) {
+        toast.success('Seller suspended successfully');
+        setSelectedApp(null);
+        fetchApplications();
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to suspend seller');
+    }
+  };
+
+  const handleReactivate = async () => {
+    if (!selectedApp) return;
+    try {
+      const response = await api.post(`/api/v1/applications/admin/${selectedApp.id}/reactivate`);
+      if (response.data.success) {
+        toast.success('Seller reactivated successfully');
+        setSelectedApp(null);
+        fetchApplications();
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to reactivate seller');
+    }
+  };
+
+  const filteredApps = applications.filter(app => app.status === activeTab);
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -84,19 +115,31 @@ export const AdminSellers: React.FC = () => {
       </div>
 
       <div className="space-y-4 mt-4">
+        <div className="flex space-x-2 border-b pb-2 overflow-x-auto">
+          {['pending', 'approved', 'suspended', 'rejected'].map(tab => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab as any)}
+              className={`px-4 py-2 text-sm font-medium rounded-md whitespace-nowrap ${activeTab === tab ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100'}`}
+            >
+              {tab.charAt(0).toUpperCase() + tab.slice(1)} ({applications.filter(a => a.status === tab).length})
+            </button>
+          ))}
+        </div>
+
         <Card>
           <CardHeader>
-            <CardTitle>Pending Applications</CardTitle>
-            <CardDescription>Review and approve users applying to become sellers.</CardDescription>
+            <CardTitle>{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Sellers</CardTitle>
+            <CardDescription>Manage {activeTab} seller accounts.</CardDescription>
           </CardHeader>
           <CardContent>
             {loading ? (
               <div className="py-8 text-center text-slate-500">Loading applications...</div>
-            ) : applications.length === 0 ? (
-              <div className="py-8 text-center text-slate-500">No pending applications found.</div>
+            ) : filteredApps.length === 0 ? (
+              <div className="py-8 text-center text-slate-500">No {activeTab} sellers found.</div>
             ) : (
               <div className="divide-y border rounded-md">
-                {applications.map((app) => (
+                {filteredApps.map((app) => (
                   <div key={app.id} className="p-4 flex items-center justify-between hover:bg-slate-50">
                     <div>
                       <h4 className="font-semibold text-lg">{app.shopName}</h4>
@@ -114,7 +157,7 @@ export const AdminSellers: React.FC = () => {
                       setSelectedApp(app);
                       setShowRejectInput(false);
                       setRejectReason('');
-                    }}>Review Application</Button>
+                    }}>View Details</Button>
                   </div>
                 ))}
               </div>
@@ -194,8 +237,18 @@ export const AdminSellers: React.FC = () => {
               <>
                 <Button variant="outline" onClick={() => setSelectedApp(null)}>Close</Button>
                 <div className="flex gap-2">
-                  <Button variant="destructive" onClick={() => setShowRejectInput(true)}>Reject Application</Button>
-                  <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={handleApprove}>Approve Seller</Button>
+                  {selectedApp?.status === 'pending' && (
+                    <>
+                      <Button variant="destructive" onClick={() => setShowRejectInput(true)}>Reject Application</Button>
+                      <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={handleApprove}>Approve Seller</Button>
+                    </>
+                  )}
+                  {selectedApp?.status === 'approved' && (
+                    <Button variant="destructive" onClick={handleSuspend}>Suspend Seller</Button>
+                  )}
+                  {selectedApp?.status === 'suspended' && (
+                    <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={handleReactivate}>Reactivate Seller</Button>
+                  )}
                 </div>
               </>
             )}

@@ -12,5 +12,7 @@ router.get('/status', authenticateUser, ApplicationController.getSellerStatus);
 router.get('/admin/applications', authenticateUser, requireRole(['admin']), ApplicationController.getApplications);
 router.post('/admin/:id/approve', authenticateUser, requireRole(['admin']), ApplicationController.approveSeller);
 router.post('/admin/:id/reject', authenticateUser, requireRole(['admin']), ApplicationController.rejectSeller);
+router.post('/admin/:id/suspend', authenticateUser, requireRole(['admin']), ApplicationController.suspendSeller);
+router.post('/admin/:id/reactivate', authenticateUser, requireRole(['admin']), ApplicationController.reactivateSeller);
 
 export default router;
