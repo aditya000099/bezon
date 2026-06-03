@@ -48,6 +48,8 @@ export const API_ENDPOINTS = {
     detail: (id: string) => `${API_V1}/orders/${id}`,
     updateStatus: (id: string) => `${API_V1}/orders/${id}/status`,
     policyAction: (id: string) => `${API_V1}/orders/${id}/policy-action`,
+    sellerMe: `${API_V1}/orders/seller/me`,
+    sellerDetail: (id: string) => `${API_V1}/orders/seller/me/${id}`,
   },
   // Payments
   payments: {
@@ -75,7 +77,8 @@ export const API_ENDPOINTS = {
   // Reviews
   reviews: {
     list: (productId: string) => `${API_V1}/reviews/product/${productId}`,
-    summary: (productId: string) => `${API_V1}/reviews/product/${productId}/summary`,
+    summary: (productId: string) =>
+      `${API_V1}/reviews/product/${productId}/summary`,
   },
   // Questions & Answers
   qa: {
@@ -95,6 +98,7 @@ export const API_ENDPOINTS = {
   // Sellers
   sellers: {
     settings: `${API_V1}/sellers/settings`,
+    stats: `${API_V1}/sellers/stats`,
     shop: (shopSlug: string) => `${API_V1}/sellers/shop/${shopSlug}`,
   },
   // Config

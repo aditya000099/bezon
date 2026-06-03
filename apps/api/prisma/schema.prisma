@@ -16,6 +16,7 @@ enum UserRole {
 enum SellerStatus {
   pending
   approved
+  rejected
   suspended
 }
 
@@ -151,6 +152,7 @@ model Seller {
   bankNameEnc     String?      @map("bank_name_enc")
   bankAccountEnc  String?      @map("bank_account_enc")
   ifscEnc         String?      @map("ifsc_enc")
+  rejectionReason String?      @map("rejection_reason")
   gstin           String?      @db.VarChar(15)
   panNumber       String?      @map("pan_number") @db.VarChar(10)
   addressLine     String?      @map("address_line") @db.VarChar(200)

@@ -1,6 +1,6 @@
-import prisma from '../db/client.js';
-import { createProductSchema, productSchema } from '@bezon/validation';
-import type { ProductStatus } from '@bezon/types';
+import prisma from "../db/client.js";
+import { createProductSchema, productSchema } from "@bezon/validation";
+import type { ProductStatus } from "@bezon/types";
 
 export class ProductService {
   // Fetch published products with search, filters, and pagination
@@ -17,13 +17,13 @@ export class ProductService {
     const limitNum = Math.max(1, Number(limit));
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { status: 'published' };
+    const where: any = { status: "published" };
 
     if (search) {
       where.OR = [
-        { title: { contains: search.toString(), mode: 'insensitive' } },
-        { brand: { contains: search.toString(), mode: 'insensitive' } },
-        { description: { contains: search.toString(), mode: 'insensitive' } },
+        { title: { contains: search.toString(), mode: "insensitive" } },
+        { brand: { contains: search.toString(), mode: "insensitive" } },
+        { description: { contains: search.toString(), mode: "insensitive" } },
       ];
     }
 
@@ -31,10 +31,10 @@ export class ProductService {
       where.category = { slug: category.toString() };
     }
 
-    let orderBy: any = { createdAt: 'desc' };
-    if (sort === 'price-asc') orderBy = { basePrice: 'asc' };
-    else if (sort === 'price-desc') orderBy = { basePrice: 'desc' };
-    else if (sort === 'popular') orderBy = { viewCount: 'desc' };
+    let orderBy: any = { createdAt: "desc" };
+    if (sort === "price-asc") orderBy = { basePrice: "asc" };
+    else if (sort === "price-desc") orderBy = { basePrice: "desc" };
+    else if (sort === "popular") orderBy = { viewCount: "desc" };
 
     const [products, totalCount] = await prisma.$transaction([
       prisma.product.findMany({
@@ -44,7 +44,7 @@ export class ProductService {
         take: limitNum,
         include: {
           category: true,
-          images: { orderBy: { sortOrder: 'asc' } },
+          images: { orderBy: { sortOrder: "asc" } },
         },
       }),
       prisma.product.count({ where }),
@@ -66,7 +66,7 @@ export class ProductService {
     const product = await prisma.product.findUnique({
       where: { slug },
       include: {
-        images: { orderBy: { sortOrder: 'asc' } },
+        images: { orderBy: { sortOrder: "asc" } },
         category: true,
         seller: {
           select: { id: true, shopName: true, shopSlug: true },
@@ -77,8 +77,8 @@ export class ProductService {
       },
     });
 
-    if (!product || product.status !== 'published') {
-      const err = new Error('Product not found.');
+    if (!product || product.status !== "published") {
+      const err = new Error("Product not found.");
       (err as any).status = 404;
       throw err;
     }
@@ -89,11 +89,11 @@ export class ProductService {
       siblings = await prisma.product.findMany({
         where: {
           variantGroupId: product.variantGroupId,
-          status: 'published',
+          status: "published",
           id: { not: product.id }, // Optional: exclude self, or include self and map
         },
         include: {
-          images: { orderBy: { sortOrder: 'asc' }, take: 1 },
+          images: { orderBy: { sortOrder: "asc" }, take: 1 },
           policies: {
             include: { policy: true },
           },
@@ -107,7 +107,7 @@ export class ProductService {
         where: { id: product.id },
         data: { viewCount: { increment: 1 } },
       })
-      .catch((err) => console.error('Failed to increment viewCount', err));
+      .catch((err) => console.error("Failed to increment viewCount", err));
 
     return {
       ...product,
@@ -137,8 +137,8 @@ export class ProductService {
 
     // Make sure this user is an approved seller
     const seller = await prisma.seller.findUnique({ where: { userId } });
-    if (!seller || seller.status !== 'approved') {
-      const err = new Error('Only approved merchants can register products.');
+    if (!seller || seller.status !== "approved") {
+      const err = new Error("Only approved merchants can register products.");
       (err as any).status = 403;
       throw err;
     }
@@ -182,8 +182,8 @@ export class ProductService {
 
       // Build a URL-friendly slug from title + sku
       const slug =
-        (title + '-' + sku).toLowerCase().replace(/[^a-z0-9]+/g, '-') +
-        '-' +
+        (title + "-" + sku).toLowerCase().replace(/[^a-z0-9]+/g, "-") +
+        "-" +
         Math.random().toString(36).substring(2, 6);
 
       const productObj = await tx.product.create({
@@ -195,7 +195,7 @@ export class ProductService {
           slug,
           brand: brand || null,
           description: description || null,
-          status: status || 'draft',
+          status: status || "draft",
           sku,
           attributes: attributes || {},
           basePrice,
@@ -259,7 +259,7 @@ export class ProductService {
 
     const seller = await prisma.seller.findUnique({ where: { userId } });
     if (!seller) {
-      const err = new Error('Seller profile required.');
+      const err = new Error("Seller profile required.");
       (err as any).status = 403;
       throw err;
     }
@@ -268,13 +268,13 @@ export class ProductService {
       where: { id: productId },
     });
     if (!product) {
-      const err = new Error('Product not found.');
+      const err = new Error("Product not found.");
       (err as any).status = 404;
       throw err;
     }
 
     if (product.sellerId !== seller.id) {
-      const err = new Error('Not authorized to update this product.');
+      const err = new Error("Not authorized to update this product.");
       (err as any).status = 403;
       throw err;
     }
@@ -378,18 +378,18 @@ export class ProductService {
       where: { id: productId },
     });
     if (!product) {
-      const err = new Error('Product not found.');
+      const err = new Error("Product not found.");
       (err as any).status = 404;
       throw err;
     }
 
-    if (user && user.role !== 'admin' && product.sellerId !== user.id) {
+    if (user && user.role !== "admin" && product.sellerId !== user.id) {
       // Need to find seller profile if user ID is provided (seller profile ID != user ID)
       const seller = await prisma.seller.findUnique({
         where: { userId: user.id },
       });
       if (!seller || seller.id !== product.sellerId) {
-        const err = new Error('Not authorized to archive this product.');
+        const err = new Error("Not authorized to archive this product.");
         (err as any).status = 403;
         throw err;
       }
@@ -397,7 +397,7 @@ export class ProductService {
 
     return await prisma.product.update({
       where: { id: productId },
-      data: { status: 'archived' },
+      data: { status: "archived" },
     });
   }
 
@@ -405,18 +405,18 @@ export class ProductService {
   static async getSellerProducts(userId: string) {
     const seller = await prisma.seller.findUnique({ where: { userId } });
     if (!seller) {
-      const err = new Error('Seller profile not found.');
+      const err = new Error("Seller profile not found.");
       (err as any).status = 404;
       throw err;
     }
 
     return await prisma.product.findMany({
       where: { sellerId: seller.id },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
       include: {
         category: true,
         variantGroup: true,
-        images: { orderBy: { sortOrder: 'asc' }, take: 1 },
+        images: { orderBy: { sortOrder: "asc" }, take: 1 },
         policies: {
           include: { policy: true },
         },
@@ -428,7 +428,7 @@ export class ProductService {
   static async getProductById(userId: string, productId: string) {
     const seller = await prisma.seller.findUnique({ where: { userId } });
     if (!seller) {
-      const err = new Error('Seller profile required.');
+      const err = new Error("Seller profile required.");
       (err as any).status = 403;
       throw err;
     }
@@ -437,18 +437,21 @@ export class ProductService {
       where: { id: productId },
       include: {
         category: true,
-        images: { orderBy: { sortOrder: 'asc' } },
+        images: { orderBy: { sortOrder: "asc" } },
+        policies: {
+          include: { policy: true },
+        },
       },
     });
 
     if (!product) {
-      const err = new Error('Product not found.');
+      const err = new Error("Product not found.");
       (err as any).status = 404;
       throw err;
     }
 
     if (product.sellerId !== seller.id) {
-      const err = new Error('Not authorized to view this product.');
+      const err = new Error("Not authorized to view this product.");
       (err as any).status = 403;
       throw err;
     }
@@ -460,7 +463,7 @@ export class ProductService {
   static async getProductStats(userId: string, productId: string) {
     const seller = await prisma.seller.findUnique({ where: { userId } });
     if (!seller) {
-      const err = new Error('Seller profile required.');
+      const err = new Error("Seller profile required.");
       (err as any).status = 403;
       throw err;
     }
@@ -470,13 +473,13 @@ export class ProductService {
     });
 
     if (!product) {
-      const err = new Error('Product not found.');
+      const err = new Error("Product not found.");
       (err as any).status = 404;
       throw err;
     }
 
     if (product.sellerId !== seller.id) {
-      const err = new Error('Not authorized to view this product stats.');
+      const err = new Error("Not authorized to view this product stats.");
       (err as any).status = 403;
       throw err;
     }
@@ -491,7 +494,7 @@ export class ProductService {
       where: {
         productId,
         order: {
-          status: 'delivered',
+          status: "delivered",
         },
       },
       select: {

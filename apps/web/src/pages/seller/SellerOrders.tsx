@@ -39,7 +39,7 @@ export const SellerOrders: React.FC = () => {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const res = await api.get(API_ENDPOINTS.orders.base);
+      const res = await api.get(API_ENDPOINTS.orders.sellerMe);
       if (res.data.success) {
         setOrders(res.data.data);
       }

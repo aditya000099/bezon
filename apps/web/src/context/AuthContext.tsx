@@ -10,6 +10,13 @@ export interface User {
   role: 'customer' | 'seller' | 'delivery' | 'admin';
   avatarUrl?: string;
   isActive: boolean;
+  seller?: {
+    id: string;
+    shopName: string;
+    shopSlug: string;
+    status: 'pending' | 'approved' | 'rejected' | 'suspended';
+    rejectionReason: string | null;
+  } | null;
 }
 
 interface AuthContextType {

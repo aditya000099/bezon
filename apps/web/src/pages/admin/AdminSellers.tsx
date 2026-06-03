@@ -1,10 +1,207 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import api from '../../lib/api';
+import { useToast } from '../../context/ToastContext';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 export const AdminSellers: React.FC = () => {
+  const [applications, setApplications] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedApp, setSelectedApp] = useState<any | null>(null);
+  const [rejectReason, setRejectReason] = useState('');
+  const [showRejectInput, setShowRejectInput] = useState(false);
+  const { toast } = useToast();
+
+  const fetchApplications = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get('/api/v1/applications/admin/applications');
+      if (response.data.success) {
+        setApplications(response.data.data);
+      }
+    } catch (err: any) {
+      toast.error('Failed to load applications');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchApplications();
+  }, []);
+
+  const handleApprove = async () => {
+    if (!selectedApp) return;
+    try {
+      const response = await api.post(`/api/v1/applications/admin/${selectedApp.id}/approve`);
+      if (response.data.success) {
+        toast.success('Seller approved successfully');
+        setSelectedApp(null);
+        fetchApplications();
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to approve seller');
+    }
+  };
+
+  const handleReject = async () => {
+    if (!selectedApp || !rejectReason.trim()) {
+      toast.error('Rejection reason is required');
+      return;
+    }
+    try {
+      const response = await api.post(`/api/v1/applications/admin/${selectedApp.id}/reject`, {
+        reason: rejectReason,
+      });
+      if (response.data.success) {
+        toast.success('Seller application rejected');
+        setSelectedApp(null);
+        setShowRejectInput(false);
+        setRejectReason('');
+        fetchApplications();
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to reject seller');
+    }
+  };
+
   return (
-    <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-      <h3 className="font-bold text-slate-800 text-lg mb-2">Merchant Verification</h3>
-      <p className="text-slate-500 text-sm">Review, approve, or suspend vendor shop accounts and edit payout schedules.</p>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Sellers</h1>
+          <p className="text-muted-foreground">Manage seller accounts and applications</p>
+        </div>
+      </div>
+
+      <div className="space-y-4 mt-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Pending Applications</CardTitle>
+            <CardDescription>Review and approve users applying to become sellers.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <div className="py-8 text-center text-slate-500">Loading applications...</div>
+            ) : applications.length === 0 ? (
+              <div className="py-8 text-center text-slate-500">No pending applications found.</div>
+            ) : (
+              <div className="divide-y border rounded-md">
+                {applications.map((app) => (
+                  <div key={app.id} className="p-4 flex items-center justify-between hover:bg-slate-50">
+                    <div>
+                      <h4 className="font-semibold text-lg">{app.shopName}</h4>
+                      <div className="text-sm text-slate-500 flex gap-4 mt-1">
+                        <span>User: {app.user?.name} ({app.user?.email})</span>
+                        <span>Applied: {new Date(app.createdAt).toLocaleDateString()}</span>
+                      </div>
+                      <div className="mt-2 inline-flex">
+                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${app.status === 'pending' ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'}`}>
+                          {app.status.toUpperCase()}
+                        </span>
+                      </div>
+                    </div>
+                    <Button onClick={() => {
+                      setSelectedApp(app);
+                      setShowRejectInput(false);
+                      setRejectReason('');
+                    }}>Review Application</Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      <Dialog open={!!selectedApp} onOpenChange={(open) => !open && setSelectedApp(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Review Seller Application</DialogTitle>
+            <DialogDescription>Review the details provided by the user before approving or rejecting.</DialogDescription>
+          </DialogHeader>
+          
+          {selectedApp && (
+            <div className="space-y-6 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <h5 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Store Information</h5>
+                  <p className="font-medium">{selectedApp.shopName}</p>
+                  <p className="text-sm text-slate-600">Slug: {selectedApp.shopSlug}</p>
+                </div>
+                <div>
+                  <h5 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">User Information</h5>
+                  <p className="font-medium">{selectedApp.user?.name}</p>
+                  <p className="text-sm text-slate-600">{selectedApp.user?.email}</p>
+                  {selectedApp.user?.phone && <p className="text-sm text-slate-600">{selectedApp.user?.phone}</p>}
+                </div>
+              </div>
+
+              <div>
+                <h5 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Description</h5>
+                <p className="text-sm">{selectedApp.description || 'No description provided.'}</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <h5 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Business Documents</h5>
+                  <p className="text-sm"><span className="font-medium">PAN:</span> {selectedApp.panNumber}</p>
+                  <p className="text-sm"><span className="font-medium">GSTIN:</span> {selectedApp.gstin || 'N/A'}</p>
+                </div>
+                <div>
+                  <h5 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Business Address</h5>
+                  <p className="text-sm">{selectedApp.addressLine}</p>
+                  <p className="text-sm">{selectedApp.city}, {selectedApp.state} {selectedApp.pincode}</p>
+                </div>
+              </div>
+
+              {selectedApp.status === 'rejected' && (
+                <div className="bg-red-50 text-red-800 p-3 rounded-md text-sm">
+                  <span className="font-semibold">Previous Rejection Reason:</span> {selectedApp.rejectionReason}
+                </div>
+              )}
+
+              {showRejectInput && (
+                <div className="space-y-2 pt-4 border-t">
+                  <label className="text-sm font-medium text-red-600">Reason for Rejection *</label>
+                  <textarea 
+                    value={rejectReason}
+                    onChange={(e) => setRejectReason(e.target.value)}
+                    placeholder="Explain why the application is being rejected so the user can fix the issues and re-apply..."
+                    rows={3}
+                    className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                  <div className="flex justify-end gap-2 mt-2">
+                    <Button variant="ghost" size="sm" onClick={() => setShowRejectInput(false)}>Cancel</Button>
+                    <Button variant="destructive" size="sm" onClick={handleReject}>Confirm Rejection</Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          <DialogFooter className="gap-2 sm:gap-0">
+            {!showRejectInput && (
+              <>
+                <Button variant="outline" onClick={() => setSelectedApp(null)}>Close</Button>
+                <div className="flex gap-2">
+                  <Button variant="destructive" onClick={() => setShowRejectInput(true)}>Reject Application</Button>
+                  <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={handleApprove}>Approve Seller</Button>
+                </div>
+              </>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

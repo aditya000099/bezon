@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 // Guards
 import { RoleGuard } from './RoleGuard';
 import { GuestGuard } from './GuestGuard';
+import { SellerGuard } from './SellerGuard';
 
 // Layouts
 import { CustomerLayout } from '../layouts/CustomerLayout';
@@ -29,8 +30,8 @@ import { EditProfilePage } from '../pages/customer/EditProfilePage';
 import { AddressesPage } from '../pages/customer/AddressesPage';
 import { TermsConditionsPage } from '../pages/customer/TermsConditionsPage';
 import { PrivacyPolicyPage } from '../pages/customer/PrivacyPolicyPage';
+import { BecomeSellerPage } from '../pages/customer/BecomeSellerPage';
 import { SellerShopPage } from '../pages/customer/SellerShopPage';
-
 
 // Seller Pages
 import { SellerDashboard } from '../pages/seller/SellerDashboard';
@@ -87,7 +88,7 @@ export const AppRouter: React.FC = () => {
         <Route
           path="/shop"
           element={
-            <RoleGuard allowedRoles={['customer']}>
+            <RoleGuard allowedRoles={['customer', 'seller']}>
               <CustomerLayout />
             </RoleGuard>
           }
@@ -101,8 +102,12 @@ export const AppRouter: React.FC = () => {
           <Route path="wishlist" element={<WishlistPage />} />
           <Route path="profile" element={<ProfilePage />} />
           <Route path="profile/edit" element={<EditProfilePage />} />
+          <Route path="become-seller" element={<BecomeSellerPage />} />
           <Route path="addresses" element={<AddressesPage />} />
-          <Route path="terms-and-conditions" element={<TermsConditionsPage />} />
+          <Route
+            path="terms-and-conditions"
+            element={<TermsConditionsPage />}
+          />
           <Route path="privacy-policy" element={<PrivacyPolicyPage />} />
           <Route path="sellers/:shopSlug" element={<SellerShopPage />} />
         </Route>
@@ -111,9 +116,9 @@ export const AppRouter: React.FC = () => {
         <Route
           path="/seller"
           element={
-            <RoleGuard allowedRoles={['seller']}>
+            <SellerGuard>
               <SellerLayout />
-            </RoleGuard>
+            </SellerGuard>
           }
         >
           <Route index element={<SellerDashboard />} />

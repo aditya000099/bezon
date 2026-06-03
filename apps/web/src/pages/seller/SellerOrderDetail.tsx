@@ -41,7 +41,7 @@ export const SellerOrderDetail: React.FC = () => {
   const fetchOrderDetails = async () => {
     try {
       setLoading(true);
-      const res = await api.get(API_ENDPOINTS.orders.detail(id!));
+      const res = await api.get(API_ENDPOINTS.orders.sellerDetail(id!));
       if (res.data.success) {
         setOrder(res.data.data);
       }
