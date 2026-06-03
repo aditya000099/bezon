@@ -1,21 +1,30 @@
-import React from 'react';
-import { Link, Outlet, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { LayoutDashboard, Users, ShoppingBag, ClipboardList, ShieldAlert, Truck, LogOut, ShieldCheck } from 'lucide-react';
+import React from "react";
+import { Link, Outlet, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import {
+  LayoutDashboard,
+  Users,
+  ShoppingBag,
+  ClipboardList,
+  ShieldAlert,
+  Truck,
+  LogOut,
+  ShieldCheck,
+} from "lucide-react";
 
 export const AdminLayout: React.FC = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
 
   const links = [
-    { to: '/admin', label: 'Dashboard', icon: LayoutDashboard },
-    { to: '/admin/users', label: 'Platform Users', icon: Users },
-    { to: '/admin/orders', label: 'All Orders', icon: ClipboardList },
-    { to: '/admin/deliveries', label: 'Delivery Ops', icon: Truck },
-    { to: '/admin/sellers', label: 'Sellers Management', icon: ShieldAlert },
-    { to: '/admin/partners', label: 'Delivery Partners', icon: Users },
-    { to: '/admin/products', label: 'Products Audit', icon: ShoppingBag },
-    { to: '/admin/policies', label: 'Policies', icon: ShieldCheck },
+    { to: "/admin", label: "Dashboard", icon: LayoutDashboard },
+    { to: "/admin/users", label: "Platform Users", icon: Users },
+    { to: "/admin/orders", label: "All Orders", icon: ClipboardList },
+    { to: "/admin/deliveries", label: "Delivery Partners", icon: Users },
+    { to: "/admin/sellers", label: "Sellers Management", icon: ShieldAlert },
+    { to: "/admin/partners", label: "Delivery Ops", icon: Truck },
+    { to: "/admin/products", label: "Products Audit", icon: ShoppingBag },
+    { to: "/admin/policies", label: "Policies", icon: ShieldCheck },
   ];
 
   return (
@@ -36,8 +45,8 @@ export const AdminLayout: React.FC = () => {
                 to={link.to}
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
                   isActive
-                    ? 'bg-primary text-white'
-                    : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                    ? "bg-primary text-white"
+                    : "text-slate-400 hover:bg-slate-800 hover:text-white"
                 }`}
               >
                 <Icon className="h-5 w-5" />
@@ -61,11 +70,17 @@ export const AdminLayout: React.FC = () => {
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
         <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 shadow-sm">
-          <h2 className="text-xl font-bold text-slate-800">Admin Control Panel</h2>
+          <h2 className="text-xl font-bold text-slate-800">
+            Admin Control Panel
+          </h2>
           <div className="flex items-center gap-4">
             <div className="text-right">
-              <p className="text-sm font-semibold text-slate-800">{user?.name}</p>
-              <p className="text-xs text-rose-600 font-bold uppercase tracking-wider">{user?.role}</p>
+              <p className="text-sm font-semibold text-slate-800">
+                {user?.name}
+              </p>
+              <p className="text-xs text-rose-600 font-bold uppercase tracking-wider">
+                {user?.role}
+              </p>
             </div>
             <div className="h-9 w-9 rounded-full bg-slate-200 border border-slate-300 flex items-center justify-center text-slate-700 font-semibold">
               {user?.name.charAt(0).toUpperCase()}
