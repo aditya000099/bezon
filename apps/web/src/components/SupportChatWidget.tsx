@@ -436,7 +436,7 @@ export const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({
 
       {/* Scroll to bottom button */}
       {showScrollDown && (
-        <div className="absolute bottom-18 left-1/2 -tranzinc-x-1/2">
+        <div className="absolute bottom-18 left-1/2 -translate-x-1/2">
           <button
             onClick={() => scrollToBottom()}
             className="p-2 rounded-full bg-zinc-900 text-white hover:bg-zinc-800 transition-colors"

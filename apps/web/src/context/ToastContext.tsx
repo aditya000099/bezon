@@ -58,7 +58,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
     <ToastContext.Provider value={{ toast }}>
       {children}
       {/* Toast Render Overlay - Dynamic Island Style */}
-      <div className="fixed top-20 left-1/2 -tranzinc-x-1/2 z-50 flex flex-col items-center gap-3 pointer-events-none">
+      <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-3 pointer-events-none">
         <AnimatePresence mode="popLayout">
           {toasts.map((t) => {
             let Icon = Info;

@@ -46,7 +46,7 @@ export const DeliveryLayout: React.FC = () => {
       </main>
 
       {/* Mobile Bottom Navigation Bar */}
-      <nav className="fixed bottom-0 left-1/2 -tranzinc-x-1/2 w-full max-w-md bg-white border-t border-zinc-200 h-16 flex items-center justify-around z-40 shadow-inner">
+      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t border-zinc-200 h-16 flex items-center justify-around z-40 shadow-inner">
         {bottomNavItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.to;
