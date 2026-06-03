@@ -1,32 +1,32 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Users,
   ShoppingBag,
   ShieldCheck,
-  DollarSign,
-  Activity,
+  CurrencyInr,
+  ActivityIcon,
   FileText,
-  AlertCircle,
+  WarningCircle,
   Database,
-  Server,
+  HardDrives,
   Clock,
-  LayoutList,
+  ListDashes,
   ArrowRight,
-  PackageSearch,
-  Undo2,
-  Loader2,
-} from "lucide-react";
+  Package,
+  ArrowCounterClockwise,
+  Spinner,
+} from '@phosphor-icons/react';
 import {
   Card,
   CardHeader,
   CardTitle,
   CardDescription,
   CardContent,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { useToast } from "../../context/ToastContext";
-import api from "../../lib/api";
+} from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { useToast } from '../../context/ToastContext';
+import api from '../../lib/api';
 
 export const AdminDashboard: React.FC = () => {
   const { toast } = useToast();
@@ -45,17 +45,17 @@ export const AdminDashboard: React.FC = () => {
         const [sellersRes, deliveryRes, usersRes, ordersRes, healthRes] =
           await Promise.all([
             api
-              .get("/api/v1/applications/admin/applications")
+              .get('/api/v1/applications/admin/applications')
               .catch(() => ({ data: { data: [] } })),
             api
-              .get("/api/v1/applications/admin/delivery/applications")
+              .get('/api/v1/applications/admin/delivery/applications')
               .catch(() => ({ data: { data: [] } })),
             api
-              .get("/api/v1/users/admin")
+              .get('/api/v1/users/admin')
               .catch(() => ({ data: { data: [] } })),
-            api.get("/api/v1/orders").catch(() => ({ data: { data: [] } })),
+            api.get('/api/v1/orders').catch(() => ({ data: { data: [] } })),
             api
-              .get("/api/v1/health")
+              .get('/api/v1/health')
               .catch(() => ({ data: { success: false } })),
           ]);
 
@@ -68,11 +68,11 @@ export const AdminDashboard: React.FC = () => {
         // 1. Process recent applications
         const sellersWithRole = sellers.map((s: any) => ({
           ...s,
-          appType: "Seller",
+          appType: 'Seller',
         }));
         const deliveryWithRole = delivery.map((d: any) => ({
           ...d,
-          appType: "Delivery Partner",
+          appType: 'Delivery Partner',
         }));
         const combined = [...sellersWithRole, ...deliveryWithRole].sort(
           (a, b) =>
@@ -82,19 +82,19 @@ export const AdminDashboard: React.FC = () => {
 
         // 2. Compute and set metrics
         const totalSellersCount = sellers.filter(
-          (s: any) => s.status === "approved",
+          (s: any) => s.status === 'approved',
         ).length;
         const totalDeliveryCount = delivery.filter(
-          (d: any) => d.status === "approved",
+          (d: any) => d.status === 'approved',
         ).length;
         const pendingSellersCount = sellers.filter(
-          (s: any) => s.status === "pending",
+          (s: any) => s.status === 'pending',
         ).length;
         const pendingDeliveryCount = delivery.filter(
-          (d: any) => d.status === "pending",
+          (d: any) => d.status === 'pending',
         ).length;
         const totalCustomersCount = users.filter(
-          (u: any) => u.role === "customer",
+          (u: any) => u.role === 'customer',
         ).length;
 
         // Compute GMV (Gross Merchandise Value) from all orders
@@ -102,17 +102,17 @@ export const AdminDashboard: React.FC = () => {
           (sum: number, o: any) => sum + parseFloat(o.total || 0),
           0,
         );
-        const formattedGMV = new Intl.NumberFormat("en-IN", {
-          style: "currency",
-          currency: "INR",
+        const formattedGMV = new Intl.NumberFormat('en-IN', {
+          style: 'currency',
+          currency: 'INR',
         }).format(gmvValue);
 
         // Pending returns / refunds / replacements count
         const pendingReturnsCount = orders.filter((o: any) =>
           [
-            "return_requested",
-            "refund_requested",
-            "replacement_requested",
+            'return_requested',
+            'refund_requested',
+            'replacement_requested',
           ].includes(o.status),
         ).length;
 
@@ -133,20 +133,20 @@ export const AdminDashboard: React.FC = () => {
         });
 
         // 4. Set health status
-        if (health.success || health.database === "connected") {
+        if (health.success || health.database === 'connected') {
           setHealthStatus({
-            api: "Operational",
+            api: 'Operational',
             database:
-              health.database === "connected" ? "Operational" : "Degraded",
-            jobs: "Operational",
-            queue: "Normal",
+              health.database === 'connected' ? 'Operational' : 'Degraded',
+            jobs: 'Operational',
+            queue: 'Normal',
           });
         } else {
           setHealthStatus({
-            api: "Operational",
-            database: "Unknown",
-            jobs: "Operational",
-            queue: "Normal",
+            api: 'Operational',
+            database: 'Unknown',
+            jobs: 'Operational',
+            queue: 'Normal',
           });
         }
 
@@ -154,13 +154,13 @@ export const AdminDashboard: React.FC = () => {
         const activityList: any[] = [];
 
         sellers.forEach((s: any) => {
-          if (s.status === "approved") {
+          if (s.status === 'approved') {
             activityList.push({
               title: `Seller Approved: ${s.shopName}`,
               time: new Date(s.updatedAt || s.createdAt).toLocaleDateString(),
               timestamp: new Date(s.updatedAt || s.createdAt).getTime(),
             });
-          } else if (s.status === "pending") {
+          } else if (s.status === 'pending') {
             activityList.push({
               title: `New Seller Application: ${s.shopName}`,
               time: new Date(s.createdAt).toLocaleDateString(),
@@ -170,14 +170,14 @@ export const AdminDashboard: React.FC = () => {
         });
 
         delivery.forEach((d: any) => {
-          const name = d.user?.name || d.vehicleNumber || "Partner";
-          if (d.status === "approved") {
+          const name = d.user?.name || d.vehicleNumber || 'Partner';
+          if (d.status === 'approved') {
             activityList.push({
               title: `Delivery Partner Approved: ${name}`,
               time: new Date(d.approvedAt || d.createdAt).toLocaleDateString(),
               timestamp: new Date(d.approvedAt || d.createdAt).getTime(),
             });
-          } else if (d.status === "pending") {
+          } else if (d.status === 'pending') {
             activityList.push({
               title: `New Delivery Application: ${name}`,
               time: new Date(d.createdAt).toLocaleDateString(),
@@ -187,7 +187,7 @@ export const AdminDashboard: React.FC = () => {
         });
 
         orders.forEach((o: any) => {
-          const statusText = o.status.replace(/_/g, " ");
+          const statusText = o.status.replace(/_/g, ' ');
           activityList.push({
             title: `Order ${statusText.charAt(0).toUpperCase() + statusText.slice(1)}: ${o.orderNumber || o.id.slice(0, 8)}`,
             time: new Date(o.updatedAt || o.createdAt).toLocaleDateString(),
@@ -201,7 +201,7 @@ export const AdminDashboard: React.FC = () => {
           activityList.length > 0 ? activityList.slice(0, 5) : [],
         );
       } catch (err) {
-        toast.error("Failed to load dashboard metrics");
+        toast.error('Failed to load dashboard metrics');
       } finally {
         setLoadingApps(false);
       }
@@ -209,9 +209,9 @@ export const AdminDashboard: React.FC = () => {
     fetchDashboardData();
   }, [toast]);
 
-  const renderEmptyState = (message: string = "No data available") => (
+  const renderEmptyState = (message: string = 'No data available') => (
     <div className="flex flex-col items-center justify-center p-6 text-slate-400 bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
-      <Activity className="h-6 w-6 mb-2 text-slate-300" />
+      <ActivityIcon className="h-6 w-6 mb-2 text-slate-300" />
       <span className="text-sm font-medium">{message}</span>
     </div>
   );
@@ -244,7 +244,7 @@ export const AdminDashboard: React.FC = () => {
               Platform GMV
             </span>
             <div className="h-8 w-8 bg-indigo-50 rounded-lg flex items-center justify-center text-indigo-600">
-              <DollarSign className="h-4 w-4" />
+              <CurrencyInr className="h-4 w-4" />
             </div>
           </div>
           {loadingApps ? (
@@ -319,7 +319,7 @@ export const AdminDashboard: React.FC = () => {
               Network Size
             </span>
             <div className="h-8 w-8 bg-amber-50 rounded-lg flex items-center justify-center text-amber-600">
-              <Activity className="h-4 w-4" />
+              <ActivityIcon className="h-4 w-4" />
             </div>
           </div>
           {loadingApps ? (
@@ -356,14 +356,14 @@ export const AdminDashboard: React.FC = () => {
           <Card className="bg-white border-slate-200 shadow-sm">
             <CardHeader className="pb-4 border-b border-slate-100">
               <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                <AlertCircle className="h-5 w-5 text-amber-500" />
+                <WarningCircle className="h-5 w-5 text-amber-500" />
                 Pending Actions Needed
               </CardTitle>
             </CardHeader>
             <CardContent className="p-0">
               {loadingApps ? (
                 <div className="flex items-center justify-center p-12 text-slate-500">
-                  <Loader2 className="h-6 w-6 animate-spin text-indigo-500 mr-2" />
+                  <Spinner className="h-6 w-6 animate-spin text-indigo-500 mr-2" />
                   <span className="text-sm font-medium">
                     Loading pending actions...
                   </span>
@@ -386,7 +386,7 @@ export const AdminDashboard: React.FC = () => {
                           <p className="text-xs text-slate-500">
                             {pendingActions.sellers !== null
                               ? `${pendingActions.sellers} pending review`
-                              : "No data available"}
+                              : 'No data available'}
                           </p>
                         </div>
                       </div>
@@ -409,7 +409,7 @@ export const AdminDashboard: React.FC = () => {
                           <p className="text-xs text-slate-500">
                             {pendingActions.delivery !== null
                               ? `${pendingActions.delivery} pending review`
-                              : "No data available"}
+                              : 'No data available'}
                           </p>
                         </div>
                       </div>
@@ -423,7 +423,7 @@ export const AdminDashboard: React.FC = () => {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className="bg-rose-100 text-rose-700 p-2 rounded-lg">
-                          <PackageSearch className="h-5 w-5" />
+                          <Package className="h-5 w-5" />
                         </div>
                         <div>
                           <p className="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
@@ -432,7 +432,7 @@ export const AdminDashboard: React.FC = () => {
                           <p className="text-xs text-slate-500">
                             {pendingActions.products !== null
                               ? `${pendingActions.products} pending audits`
-                              : "No data available"}
+                              : 'No data available'}
                           </p>
                         </div>
                       </div>
@@ -446,7 +446,7 @@ export const AdminDashboard: React.FC = () => {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className="bg-indigo-100 text-indigo-700 p-2 rounded-lg">
-                          <Undo2 className="h-5 w-5" />
+                          <ArrowCounterClockwise className="h-5 w-5" />
                         </div>
                         <div>
                           <p className="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
@@ -455,7 +455,7 @@ export const AdminDashboard: React.FC = () => {
                           <p className="text-xs text-slate-500">
                             {pendingActions.returns !== null
                               ? `${pendingActions.returns} pending approvals`
-                              : "No data available"}
+                              : 'No data available'}
                           </p>
                         </div>
                       </div>
@@ -466,7 +466,7 @@ export const AdminDashboard: React.FC = () => {
               ) : (
                 <div className="p-8">
                   {renderEmptyState(
-                    "Pending actions metrics not available yet",
+                    'Pending actions metrics not available yet',
                   )}
                 </div>
               )}
@@ -532,7 +532,7 @@ export const AdminDashboard: React.FC = () => {
                               {app.user?.name ||
                                 app.shopName ||
                                 app.vehicleNumber ||
-                                "Unknown"}
+                                'Unknown'}
                             </div>
                             <div className="text-xs text-slate-400">
                               {app.user?.email}
@@ -541,9 +541,9 @@ export const AdminDashboard: React.FC = () => {
                           <td className="px-6 py-4">
                             <span
                               className={`px-2 py-1 rounded-md text-[10px] font-bold tracking-wider ${
-                                app.appType === "Seller"
-                                  ? "bg-purple-50 text-purple-700"
-                                  : "bg-blue-50 text-blue-700"
+                                app.appType === 'Seller'
+                                  ? 'bg-purple-50 text-purple-700'
+                                  : 'bg-blue-50 text-blue-700'
                               }`}
                             >
                               {app.appType}
@@ -552,13 +552,13 @@ export const AdminDashboard: React.FC = () => {
                           <td className="px-6 py-4">
                             <span
                               className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                                app.status === "approved"
-                                  ? "bg-emerald-50 text-emerald-700"
-                                  : app.status === "pending"
-                                    ? "bg-amber-50 text-amber-700"
-                                    : app.status === "suspended"
-                                      ? "bg-rose-50 text-rose-700"
-                                      : "bg-slate-100 text-slate-600"
+                                app.status === 'approved'
+                                  ? 'bg-emerald-50 text-emerald-700'
+                                  : app.status === 'pending'
+                                    ? 'bg-amber-50 text-amber-700'
+                                    : app.status === 'suspended'
+                                      ? 'bg-rose-50 text-rose-700'
+                                      : 'bg-slate-100 text-slate-600'
                               }`}
                             >
                               {app.status}
@@ -602,7 +602,7 @@ export const AdminDashboard: React.FC = () => {
             <CardContent>
               {loadingApps ? (
                 <div className="flex items-center justify-center p-8 text-slate-500">
-                  <Loader2 className="h-5 w-5 animate-spin text-indigo-500 mr-2" />
+                  <Spinner className="h-5 w-5 animate-spin text-indigo-500 mr-2" />
                   <span className="text-xs font-medium">
                     Loading activities...
                   </span>
@@ -627,10 +627,10 @@ export const AdminDashboard: React.FC = () => {
                     ))}
                   </div>
                 ) : (
-                  renderEmptyState("No recent activity logs found")
+                  renderEmptyState('No recent activity logs found')
                 )
               ) : (
-                renderEmptyState("No activity data available")
+                renderEmptyState('No activity data available')
               )}
             </CardContent>
           </Card>
@@ -646,7 +646,7 @@ export const AdminDashboard: React.FC = () => {
             <CardContent className="space-y-4">
               {loadingApps ? (
                 <div className="flex items-center justify-center p-8 text-slate-500">
-                  <Loader2 className="h-5 w-5 animate-spin text-indigo-500 mr-2" />
+                  <Spinner className="h-5 w-5 animate-spin text-indigo-500 mr-2" />
                   <span className="text-xs font-medium">
                     Checking systems...
                   </span>
@@ -655,14 +655,14 @@ export const AdminDashboard: React.FC = () => {
                 <>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-sm text-slate-600">
-                      <Server className="h-4 w-4" />
+                      <HardDrives className="h-4 w-4" />
                       API Status
                     </div>
                     <span
                       className={`text-xs font-bold px-2 py-1 rounded ${
-                        healthStatus.api === "Operational"
-                          ? "text-emerald-600 bg-emerald-50"
-                          : "text-rose-600 bg-rose-50"
+                        healthStatus.api === 'Operational'
+                          ? 'text-emerald-600 bg-emerald-50'
+                          : 'text-rose-600 bg-rose-50'
                       }`}
                     >
                       {healthStatus.api}
@@ -675,9 +675,9 @@ export const AdminDashboard: React.FC = () => {
                     </div>
                     <span
                       className={`text-xs font-bold px-2 py-1 rounded ${
-                        healthStatus.database === "Operational"
-                          ? "text-emerald-600 bg-emerald-50"
-                          : "text-rose-600 bg-rose-50"
+                        healthStatus.database === 'Operational'
+                          ? 'text-emerald-600 bg-emerald-50'
+                          : 'text-rose-600 bg-rose-50'
                       }`}
                     >
                       {healthStatus.database}
@@ -694,7 +694,7 @@ export const AdminDashboard: React.FC = () => {
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-sm text-slate-600">
-                      <LayoutList className="h-4 w-4" />
+                      <ListDashes className="h-4 w-4" />
                       Queue Status
                     </div>
                     <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded">
@@ -703,7 +703,7 @@ export const AdminDashboard: React.FC = () => {
                   </div>
                 </>
               ) : (
-                renderEmptyState("Monitoring unavailable")
+                renderEmptyState('Monitoring unavailable')
               )}
             </CardContent>
           </Card>
