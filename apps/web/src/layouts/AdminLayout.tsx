@@ -1,6 +1,6 @@
-import React from 'react';
-import { Link, Outlet, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import React from "react";
+import { Link, Outlet, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import {
   SquaresFour,
   Users,
@@ -10,21 +10,21 @@ import {
   Truck,
   SignOut,
   ShieldCheck,
-} from '@phosphor-icons/react';
+} from "@phosphor-icons/react";
 
 export const AdminLayout: React.FC = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
 
   const links = [
-    { to: '/admin', label: 'Dashboard', icon: SquaresFour },
-    { to: '/admin/users', label: 'Platform Users', icon: Users },
-    { to: '/admin/orders', label: 'All Orders', icon: ClipboardText },
-    { to: '/admin/deliveries', label: 'Delivery Ops', icon: Truck },
-    { to: '/admin/sellers', label: 'Sellers Management', icon: ShieldWarning },
-    { to: '/admin/partners', label: 'Delivery Partners', icon: Users },
-    { to: '/admin/products', label: 'Products Audit', icon: ShoppingBag },
-    { to: '/admin/policies', label: 'Policies', icon: ShieldCheck },
+    { to: "/admin", label: "Dashboard", icon: SquaresFour },
+    { to: "/admin/users", label: "Platform Users", icon: Users },
+    { to: "/admin/orders", label: "All Orders", icon: ClipboardText },
+    { to: "/admin/deliveries", label: "Delivery Partners", icon: Users },
+    { to: "/admin/sellers", label: "Sellers Management", icon: ShieldWarning },
+    { to: "/admin/partners", label: "Delivery Ops", icon: Truck },
+    { to: "/admin/products", label: "Products Audit", icon: ShoppingBag },
+    { to: "/admin/policies", label: "Policies", icon: ShieldCheck },
   ];
 
   return (
@@ -45,8 +45,8 @@ export const AdminLayout: React.FC = () => {
                 to={link.to}
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
                   isActive
-                    ? 'bg-primary text-white'
-                    : 'text-zinc-400 hover:bg-zinc-800 hover:text-white'
+                    ? "bg-primary text-white"
+                    : "text-zinc-400 hover:bg-zinc-800 hover:text-white"
                 }`}
               >
                 <Icon className="h-5 w-5" />
