@@ -29,6 +29,7 @@ import { EditProfilePage } from '../pages/customer/EditProfilePage';
 import { AddressesPage } from '../pages/customer/AddressesPage';
 import { TermsConditionsPage } from '../pages/customer/TermsConditionsPage';
 import { PrivacyPolicyPage } from '../pages/customer/PrivacyPolicyPage';
+import { SellerShopPage } from '../pages/customer/SellerShopPage';
 
 
 // Seller Pages
@@ -103,6 +104,7 @@ export const AppRouter: React.FC = () => {
           <Route path="addresses" element={<AddressesPage />} />
           <Route path="terms-and-conditions" element={<TermsConditionsPage />} />
           <Route path="privacy-policy" element={<PrivacyPolicyPage />} />
+          <Route path="sellers/:shopSlug" element={<SellerShopPage />} />
         </Route>
 
         {/* Seller Route Group */}

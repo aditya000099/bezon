@@ -105,3 +105,43 @@ export const updateSettings = async (req: Request, res: Response, next: NextFunc
     next(err);
   }
 };
+
+/**
+ * Public endpoint to fetch seller shop profile and their published products
+ */
+export const getSellerShopBySlug = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const shopSlug = req.params.shopSlug as string;
+    const seller = await prisma.seller.findUnique({
+      where: { shopSlug },
+      select: {
+        id: true,
+        shopName: true,
+        shopSlug: true,
+        description: true,
+        logoUrl: true,
+        city: true,
+        state: true,
+        products: {
+          where: { status: 'published' },
+          include: {
+            images: { orderBy: { sortOrder: 'asc' } },
+            category: true,
+          },
+        },
+      },
+    });
+
+    if (!seller) {
+      res.status(404).json({ success: false, message: 'Seller shop not found.' });
+      return;
+    }
+
+    res.json({
+      success: true,
+      data: seller,
+    });
+  } catch (err) {
+    next(err);
+  }
+};

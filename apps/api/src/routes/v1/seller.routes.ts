@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
   getSettings,
   updateSettings,
+  getSellerShopBySlug,
 } from '../../controllers/seller.controller.js';
 import {
   authenticateUser,
@@ -10,7 +11,10 @@ import {
 
 const router = Router();
 
-// All seller routes require auth and seller role
+// Public route to view seller shop (no auth required)
+router.get('/shop/:shopSlug', getSellerShopBySlug);
+
+// All other seller routes require auth and seller role
 router.use(authenticateUser, requireRole(['seller']));
 
 router.get('/settings', getSettings);

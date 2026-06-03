@@ -95,6 +95,7 @@ export const API_ENDPOINTS = {
   // Sellers
   sellers: {
     settings: `${API_V1}/sellers/settings`,
+    shop: (shopSlug: string) => `${API_V1}/sellers/shop/${shopSlug}`,
   },
   // Config
   config: {

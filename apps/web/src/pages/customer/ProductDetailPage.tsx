@@ -52,7 +52,10 @@ export const ProductDetailPage: React.FC = () => {
   const navigate = useNavigate();
 
   const [product, setProduct] = useState<
-    (Product & { familyMembers?: Product[] }) | null
+    (Product & {
+      familyMembers?: Product[];
+      seller?: { id: string; shopName: string; shopSlug: string };
+    }) | null
   >(null);
   const [loading, setLoading] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -366,6 +369,18 @@ export const ProductDetailPage: React.FC = () => {
             <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight leading-tight">
               {currentProduct?.title || product.title}
             </h1>
+            {product.seller && (
+              <div className="flex items-center gap-1.5 mt-2 text-sm text-slate-500">
+                <span>Sold by:</span>
+                <Link
+                  to={`/shop/sellers/${product.seller.shopSlug}`}
+                  className="font-bold text-indigo-600 hover:text-indigo-800 hover:underline flex items-center gap-1"
+                >
+                  <Store className="h-4 w-4 shrink-0 text-indigo-500" />
+                  {product.seller.shopName}
+                </Link>
+              </div>
+            )}
             <div className="flex items-center gap-3 mt-3">
               <div className="flex items-center gap-0.5">
                 {[1, 2, 3, 4, 5].map((star) => (
