@@ -24,6 +24,23 @@ export interface User {
     state?: string | null;
     pincode?: string | null;
   } | null;
+  deliveryPartner?: {
+    id: string;
+    status: 'pending' | 'approved' | 'rejected' | 'suspended';
+    vehicleType: string;
+    vehicleNumber?: string | null;
+    isAvailable: boolean;
+    aadhaarNumber?: string | null;
+    panNumber?: string | null;
+    drivingLicense?: string | null;
+    emergencyContactName?: string | null;
+    emergencyContactPhone?: string | null;
+    rejectionReason: string | null;
+    addressLine?: string | null;
+    city?: string | null;
+    state?: string | null;
+    pincode?: string | null;
+  } | null;
 }
 
 interface AuthContextType {

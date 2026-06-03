@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authenticateUser, requireRole } from '../../middleware/auth.middleware.js';
+import { authenticateUser, requireDeliveryPartner } from '../../middleware/auth.middleware.js';
 import {
   getProfile,
   updateProfile,
@@ -12,7 +12,7 @@ import {
 const router = Router();
 
 // Secure routes under delivery partner credentials
-router.use(authenticateUser, requireRole(['delivery']));
+router.use(authenticateUser, requireDeliveryPartner);
 
 router.get('/profile', getProfile);
 router.patch('/profile', updateProfile);

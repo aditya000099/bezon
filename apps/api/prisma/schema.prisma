@@ -20,6 +20,13 @@ enum SellerStatus {
   suspended
 }
 
+enum DeliveryPartnerStatus {
+  pending
+  approved
+  rejected
+  suspended
+}
+
 enum ProductStatus {
   draft
   published
@@ -178,9 +185,22 @@ model Seller {
 model DeliveryPartner {
   id             String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId         String     @unique(map: "dp_user_unique") @map("user_id") @db.Uuid
+  status         DeliveryPartnerStatus @default(pending)
   vehicleType    String     @default("bike") @map("vehicle_type") @db.VarChar(30)
   vehicleNumber  String?    @map("vehicle_number") @db.VarChar(20)
-  isAvailable    Boolean    @default(true) @map("is_available")
+  isAvailable    Boolean    @default(false) @map("is_available")
+  aadhaarNumber  String?    @map("aadhaar_number") @db.VarChar(20)
+  panNumber      String?    @map("pan_number") @db.VarChar(10)
+  drivingLicense String?    @map("driving_license") @db.VarChar(20)
+  emergencyContactName  String? @map("emergency_contact_name") @db.VarChar(100)
+  emergencyContactPhone String? @map("emergency_contact_phone") @db.VarChar(20)
+  rejectionReason String?    @map("rejection_reason")
+  approvedAt     DateTime?  @map("approved_at") @db.Timestamptz
+  approvedBy     String?    @map("approved_by") @db.Uuid
+  rejectedAt     DateTime?  @map("rejected_at") @db.Timestamptz
+  rejectedBy     String?    @map("rejected_by") @db.Uuid
+  suspendedAt    DateTime?  @map("suspended_at") @db.Timestamptz
+  suspendedBy    String?    @map("suspended_by") @db.Uuid
   currentLat     Decimal?   @map("current_lat") @db.Decimal(9, 6)
   currentLng     Decimal?   @map("current_lng") @db.Decimal(9, 6)
   totalDelivered Int        @default(0) @map("total_delivered")
@@ -197,6 +217,7 @@ model DeliveryPartner {
   user           User       @relation(fields: [userId], references: [id], onDelete: Cascade, map: "dp_user_fk")
   deliveries     Delivery[]
 
+  @@index([status])
   @@index([isAvailable])
   @@index([userId])
   @@map("delivery_partners")

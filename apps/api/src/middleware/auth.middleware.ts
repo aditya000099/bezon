@@ -18,6 +18,10 @@ declare global {
           status: string;
           rejectionReason: string | null;
         } | null;
+        deliveryPartner?: {
+          status: string;
+          rejectionReason: string | null;
+        } | null;
       };
     }
   }
@@ -79,8 +83,19 @@ export const authenticateUser = async (req: Request, res: Response, next: NextFu
       });
     }
 
+    let deliveryPartner = null;
+    try {
+      deliveryPartner = await prisma.deliveryPartner.findUnique({
+        where: { userId: decoded.userId },
+        select: { status: true, rejectionReason: true },
+      });
+    } catch (e: any) {
+      // Gracefully handle unmigrated database columns
+      console.warn(`authenticateUser DeliveryPartner query failed (likely pending DB migration): ${e.message}`);
+    }
+
     // Attach to request
-    req.user = user as any;
+    req.user = { ...user, deliveryPartner } as any;
     next();
   } catch (err: any) {
     if (err.name === 'JsonWebTokenError') {
@@ -184,5 +199,27 @@ export const requireSellerOrAdmin = async (req: Request, res: Response, next: Ne
     success: false,
     message: 'Access denied. Active seller profile or admin role required.',
   });
+};
+
+/**
+ * Middleware to require an approved delivery partner profile
+ */
+export const requireDeliveryPartner = async (req: Request, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    return res.status(401).json({
+      success: false,
+      message: 'Unauthorized. Authenticated session required.',
+    });
+  }
+
+  // Verify delivery partner profile exists and is approved from DB (via authenticateUser middleware query)
+  if (req.user.deliveryPartner?.status !== 'approved') {
+    return res.status(403).json({
+      success: false,
+      message: 'Access denied. Active delivery partner profile required.',
+    });
+  }
+
+  next();
 };
 

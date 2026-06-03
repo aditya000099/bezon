@@ -11,6 +11,7 @@ import {
   ShieldAlert,
   LogOut,
   ChevronRight,
+  Truck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -210,6 +211,73 @@ export const ProfilePage: React.FC = () => {
                 <h3 className="font-semibold text-slate-900 mb-1 text-base">Account Suspended</h3>
                 <p className="text-slate-500 text-sm leading-relaxed mb-2">
                   Your seller account has been suspended by the system administrator.
+                </p>
+                <p className="text-slate-400 text-xs">
+                  If you believe this is an error or would like to appeal, please contact support.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Delivery Partner Account */}
+        <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+          <div className="p-4 bg-slate-50 border-b border-slate-200">
+            <h2 className="text-sm font-bold text-slate-700 uppercase tracking-wider">
+              Delivery Partner Account
+            </h2>
+          </div>
+          <div className="p-6">
+            {!user?.deliveryPartner && (
+              <div className="text-center">
+                <p className="text-slate-600 mb-4 text-sm">Want to deliver orders? Join our team as a delivery partner.</p>
+                <Link to="/shop/become-delivery-partner">
+                  <Button className="w-full">Become a Delivery Partner</Button>
+                </Link>
+              </div>
+            )}
+            
+            {user?.deliveryPartner?.status === 'pending' && (
+              <div className="text-center">
+                <div className="inline-flex items-center justify-center p-3 bg-amber-50 text-amber-500 rounded-full mb-3">
+                  <FileText className="h-6 w-6" />
+                </div>
+                <h3 className="font-medium text-slate-900 mb-1">Application Pending Review</h3>
+                <p className="text-slate-500 text-sm">We are currently reviewing your application.</p>
+              </div>
+            )}
+
+            {user?.deliveryPartner?.status === 'rejected' && (
+              <div className="text-center">
+                <div className="bg-red-50 text-red-700 p-3 rounded text-sm text-left mb-4">
+                  <p className="font-semibold mb-1">Application Rejected</p>
+                  <p>{user.deliveryPartner.rejectionReason}</p>
+                </div>
+                <Link to="/shop/become-delivery-partner">
+                  <Button variant="outline" className="w-full">Re-apply</Button>
+                </Link>
+              </div>
+            )}
+
+            {user?.deliveryPartner?.status === 'approved' && (
+              <div className="text-center flex flex-col gap-3">
+                <p className="text-emerald-600 font-medium text-sm flex items-center justify-center gap-1">
+                  <Truck className="h-4 w-4" /> Approved Delivery Partner
+                </p>
+                <Link to="/delivery">
+                  <Button className="w-full">Go to Delivery Dashboard</Button>
+                </Link>
+              </div>
+            )}
+
+            {user?.deliveryPartner?.status === 'suspended' && (
+              <div className="text-center">
+                <div className="inline-flex items-center justify-center p-3 bg-rose-50 text-rose-600 rounded-full mb-3">
+                  <ShieldAlert className="h-6 w-6" />
+                </div>
+                <h3 className="font-semibold text-slate-900 mb-1 text-base">Account Suspended</h3>
+                <p className="text-slate-500 text-sm leading-relaxed mb-2">
+                  Your delivery partner account has been suspended by the system administrator.
                 </p>
                 <p className="text-slate-400 text-xs">
                   If you believe this is an error or would like to appeal, please contact support.

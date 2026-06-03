@@ -60,14 +60,6 @@ export class AuthService {
             status: 'pending',
           },
         });
-      } else if (userRole === 'delivery') {
-        await tx.deliveryPartner.create({
-          data: {
-            userId: user.id,
-            vehicleType: 'bike',
-            isAvailable: true,
-          },
-        });
       }
 
       return user;
@@ -167,7 +159,34 @@ export class AuthService {
       throw err;
     }
 
-    return user;
+    let deliveryPartner = null;
+    try {
+      deliveryPartner = await prisma.deliveryPartner.findUnique({
+        where: { userId },
+        select: {
+          id: true,
+          status: true,
+          vehicleType: true,
+          vehicleNumber: true,
+          isAvailable: true,
+          aadhaarNumber: true,
+          panNumber: true,
+          drivingLicense: true,
+          emergencyContactName: true,
+          emergencyContactPhone: true,
+          rejectionReason: true,
+          addressLine: true,
+          city: true,
+          state: true,
+          pincode: true,
+        },
+      });
+    } catch (e: any) {
+      // Gracefully handle unmigrated database columns so other user features don't crash
+      console.warn(`DeliveryPartner query failed (likely pending DB migration): ${e.message}`);
+    }
+
+    return { ...user, deliveryPartner };
   }
 
   /**
