@@ -79,6 +79,10 @@ export class AuthService {
   static async loginUser(email: string, passwordPlain: string) {
     const user = await prisma.user.findUnique({
       where: { email },
+      include: {
+        seller: true,
+        deliveryPartner: true,
+      },
     });
 
     if (!user) {
@@ -116,6 +120,8 @@ export class AuthService {
         role: user.role,
         avatarUrl: user.avatarUrl,
         isActive: user.isActive,
+        seller: user.seller,
+        deliveryPartner: user.deliveryPartner,
       },
       token,
     };

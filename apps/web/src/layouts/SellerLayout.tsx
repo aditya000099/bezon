@@ -117,7 +117,10 @@ export const SellerLayout: React.FC = () => {
       <aside className="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0">
         <div className="h-16 flex items-center px-6 border-b border-slate-200 gap-2 overflow-hidden">
           <Store className="h-6 w-6 text-primary shrink-0" />
-          <span className="font-bold text-lg text-slate-800 truncate" title={user?.seller?.shopName || "Bezon Seller"}>
+          <span
+            className="font-bold text-lg text-slate-800 truncate"
+            title={user?.seller?.shopName || "Bezon Seller"}
+          >
             {user?.seller?.shopName || "Bezon Seller"}
           </span>
         </div>
@@ -161,12 +164,6 @@ export const SellerLayout: React.FC = () => {
         <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8">
           <h2 className="text-xl font-bold text-slate-800">Seller Dashboard</h2>
           <div className="flex items-center gap-4">
-            <Link to="/shop">
-              <Button variant="outline" size="sm" className="hidden sm:flex text-slate-600 border-slate-200 hover:bg-slate-50 gap-2">
-                <ExternalLink className="h-4 w-4" />
-                Back to Shop
-              </Button>
-            </Link>
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => {

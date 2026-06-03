@@ -30,9 +30,17 @@ export const LoginPage: React.FC = () => {
 
     setLoading(true);
     try {
-      await login(email, password);
+      const user = await login(email, password);
       toast.success('Successfully logged in!');
-      navigate(from === '/' ? '/login' : from, { replace: true });
+      
+      let redirectPath = '/shop';
+      if (user.role === 'admin') redirectPath = '/admin';
+      else if (user.role === 'seller') redirectPath = '/seller';
+      else if (user.role === 'delivery') redirectPath = '/delivery';
+
+      // Use 'from' if it's a specific deep link, otherwise default to role dashboard
+      const finalRedirect = (from === '/' || from === '/login') ? redirectPath : from;
+      navigate(finalRedirect, { replace: true });
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Login failed. Please check credentials.');
     } finally {

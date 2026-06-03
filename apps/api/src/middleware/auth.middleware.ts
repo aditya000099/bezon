@@ -165,11 +165,11 @@ export const requireSeller = async (req: Request, res: Response, next: NextFunct
     });
   }
 
-  // Check if they are an approved seller
-  if (req.user.seller?.status !== 'approved') {
+  // Check if they are a seller with an approved status
+  if (req.user.role !== 'seller' || req.user.seller?.status !== 'approved') {
     return res.status(403).json({
       success: false,
-      message: 'Access denied. Active seller profile required.',
+      message: 'Access denied. Active seller role required.',
     });
   }
 
@@ -191,7 +191,7 @@ export const requireSellerOrAdmin = async (req: Request, res: Response, next: Ne
     return next();
   }
 
-  if (req.user.seller?.status === 'approved') {
+  if (req.user.role === 'seller' && req.user.seller?.status === 'approved') {
     return next();
   }
 
@@ -212,11 +212,32 @@ export const requireDeliveryPartner = async (req: Request, res: Response, next: 
     });
   }
 
-  // Verify delivery partner profile exists and is approved from DB (via authenticateUser middleware query)
-  if (req.user.deliveryPartner?.status !== 'approved') {
+  // Verify delivery partner profile exists, is approved, and role is correctly set
+  if (req.user.role !== 'delivery' || req.user.deliveryPartner?.status !== 'approved') {
     return res.status(403).json({
       success: false,
-      message: 'Access denied. Active delivery partner profile required.',
+      message: 'Access denied. Active delivery partner role required.',
+    });
+  }
+
+  next();
+};
+
+/**
+ * Middleware to require a customer role
+ */
+export const requireCustomer = async (req: Request, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    return res.status(401).json({
+      success: false,
+      message: 'Unauthorized. Authenticated session required.',
+    });
+  }
+
+  if (req.user.role !== 'customer') {
+    return res.status(403).json({
+      success: false,
+      message: 'Access denied. Customer role required.',
     });
   }
 

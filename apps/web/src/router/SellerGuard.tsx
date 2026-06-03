@@ -22,9 +22,20 @@ export const SellerGuard: React.FC<SellerGuardProps> = ({ children }) => {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Seller profile must exist and be approved
-  if (user.role !== 'admin' && user.seller?.status !== 'approved') {
-    return <Navigate to="/shop" replace />;
+  if (user.role !== 'admin') {
+    if (user.role !== 'seller') {
+      return <Navigate to="/shop" replace />;
+    }
+    if (user.seller?.status !== 'approved') {
+      return (
+        <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-center">
+          <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 max-w-md">
+            <h2 className="text-xl font-bold text-slate-800 mb-2">Access Denied</h2>
+            <p className="text-slate-600 mb-6">Your seller account is currently {user.seller?.status}. You cannot access the seller dashboard.</p>
+          </div>
+        </div>
+      );
+    }
   }
 
   return <>{children}</>;

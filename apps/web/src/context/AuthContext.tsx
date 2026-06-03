@@ -46,7 +46,7 @@ export interface User {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
 }
@@ -76,7 +76,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const response = await api.post(API_ENDPOINTS.auth.login, { email, password });
     if (response.data.success) {
       setUser(response.data.data);
+      return response.data.data;
     }
+    throw new Error('Login failed');
   };
 
   const logout = async () => {

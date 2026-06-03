@@ -136,6 +136,11 @@ export const approveSeller = async (req: Request, res: Response, next: NextFunct
       data: {
         status: 'approved',
         rejectionReason: null,
+        user: {
+          update: {
+            role: 'seller',
+          },
+        },
       },
     });
 
@@ -252,6 +257,11 @@ export const reactivateSeller = async (req: Request, res: Response, next: NextFu
       where: { id },
       data: {
         status: 'approved',
+        user: {
+          update: {
+            role: 'seller'
+          }
+        }
       },
     });
 
@@ -399,6 +409,11 @@ export const approveDeliveryPartner = async (req: Request, res: Response, next: 
           rejectionReason: null,
           approvedAt: new Date(),
           approvedBy: adminId,
+          user: {
+            update: {
+              role: 'delivery',
+            },
+          },
         },
       });
 
@@ -549,6 +564,11 @@ export const reactivateDeliveryPartner = async (req: Request, res: Response, nex
           isAvailable: true,
           approvedAt: new Date(),
           approvedBy: adminId,
+          user: {
+            update: {
+              role: 'delivery',
+            },
+          },
         },
       });
 

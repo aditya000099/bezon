@@ -90,7 +90,7 @@ export const AppRouter: React.FC = () => {
         <Route
           path="/shop"
           element={
-            <RoleGuard allowedRoles={['customer', 'seller']}>
+            <RoleGuard allowedRoles={['customer']}>
               <CustomerLayout />
             </RoleGuard>
           }

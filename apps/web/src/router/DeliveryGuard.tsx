@@ -22,9 +22,20 @@ export const DeliveryGuard: React.FC<DeliveryGuardProps> = ({ children }) => {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Delivery partner profile must exist and be approved
-  if (user.role !== 'admin' && user.deliveryPartner?.status !== 'approved') {
-    return <Navigate to="/shop" replace />;
+  if (user.role !== 'admin') {
+    if (user.role !== 'delivery') {
+      return <Navigate to="/shop" replace />;
+    }
+    if (user.deliveryPartner?.status !== 'approved') {
+      return (
+        <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-center">
+          <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 max-w-md">
+            <h2 className="text-xl font-bold text-slate-800 mb-2">Access Denied</h2>
+            <p className="text-slate-600 mb-6">Your delivery partner account is currently {user.deliveryPartner?.status}. You cannot access the delivery dashboard.</p>
+          </div>
+        </div>
+      );
+    }
   }
 
   return <>{children}</>;
