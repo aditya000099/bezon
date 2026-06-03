@@ -10,6 +10,7 @@ import dotenv from 'dotenv';
 import prisma from './db/client.js';
 import apiRouter from './routes/index.js';
 import { DeliveryMatchingService } from './services/delivery_matching.service.js';
+import { initNsfw } from './utils/nsfw.js';
 
 dotenv.config();
 
@@ -85,8 +86,15 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 });
 
 // Start Server
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`[Bezon Server] Running on port ${PORT}`);
+
+  // Pre-load NSFW model
+  try {
+    await initNsfw();
+  } catch (error) {
+    console.error('[NSFW] Failed to initialize NSFW model:', error);
+  }
 
   // Schedule the unassigned delivery allocation cron to run every 60 seconds
   setInterval(() => {
