@@ -10,15 +10,15 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
-  Loader2,
+  Spinner,
   Truck,
   ShieldCheck,
   User,
   Compass,
   Star,
-  Navigation,
+  NavigationArrow,
   MapPin,
-} from 'lucide-react';
+} from '@phosphor-icons/react';
 import api from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api.config';
 import { useToast } from '../../context/ToastContext';
@@ -108,8 +108,8 @@ export const DeliveryProfile: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-75 text-slate-500">
-        <Loader2 className="h-8 w-8 animate-spin mb-4 text-indigo-600" />
+      <div className="flex flex-col items-center justify-center min-h-75 text-zinc-500">
+        <Spinner className="h-8 w-8 animate-spin mb-4 text-teal-600" />
         <p className="font-bold">Loading courier profile...</p>
       </div>
     );
@@ -118,16 +118,16 @@ export const DeliveryProfile: React.FC = () => {
   return (
     <div className="flex flex-col gap-6 max-w-md mx-auto pb-10">
       {/* Driver Header Summary Card */}
-      <div className="bg-linear-to-br from-slate-900 to-indigo-950 text-white rounded-2xl p-5 shadow-md flex flex-col gap-4">
+      <div className="bg-linear-to-br from-zinc-900 to-teal-950 text-white rounded-2xl p-5 shadow-md flex flex-col gap-4">
         <div className="flex items-center gap-3">
-          <div className="h-12 w-12 rounded-full bg-indigo-500/25 border border-indigo-400/40 flex items-center justify-center text-xl font-bold">
+          <div className="h-12 w-12 rounded-full bg-teal-500/25 border border-teal-400/40 flex items-center justify-center text-xl font-bold">
             {stats.userName.slice(0, 1).toUpperCase()}
           </div>
           <div>
             <h2 className="font-extrabold text-lg leading-tight">
               {stats.userName}
             </h2>
-            <p className="text-slate-400 text-xs mt-0.5">
+            <p className="text-zinc-400 text-xs mt-0.5">
               {stats.userEmail} • {stats.userPhone || 'No Phone'}
             </p>
           </div>
@@ -136,15 +136,15 @@ export const DeliveryProfile: React.FC = () => {
         {/* Deliverer Quick Stats */}
         <div className="grid grid-cols-3 bg-white/5 backdrop-blur-md rounded-xl p-3 border border-white/10 text-center gap-2">
           <div className="flex flex-col">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
               Completed
             </span>
-            <span className="text-base font-extrabold text-indigo-300 mt-0.5">
+            <span className="text-base font-extrabold text-teal-300 mt-0.5">
               {stats.totalDelivered}
             </span>
           </div>
           <div className="flex flex-col border-x border-white/10">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
               Failed
             </span>
             <span className="text-base font-extrabold text-rose-400 mt-0.5">
@@ -152,7 +152,7 @@ export const DeliveryProfile: React.FC = () => {
             </span>
           </div>
           <div className="flex flex-col items-center justify-center">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
               Rating
             </span>
             <span className="text-base font-extrabold text-amber-400 mt-0.5 flex items-center gap-0.5 justify-center">
@@ -164,16 +164,16 @@ export const DeliveryProfile: React.FC = () => {
       </div>
 
       {/* Online/Offline Toggle */}
-      <div className="flex justify-between items-center bg-white border border-slate-200 rounded-2xl p-4 shadow-sm animate-in fade-in slide-in-from-top-3 duration-200">
+      <div className="flex justify-between items-center bg-white border border-zinc-200 rounded-2xl p-4 shadow-sm animate-in fade-in slide-in-from-top-3 duration-200">
         <div className="flex items-center gap-3">
           <div
-            className={`h-3 w-3 rounded-full ${formData.isAvailable ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'}`}
+            className={`h-3 w-3 rounded-full ${formData.isAvailable ? 'bg-emerald-500 animate-pulse' : 'bg-zinc-300'}`}
           ></div>
           <div>
-            <p className="text-sm font-extrabold text-slate-800">
+            <p className="text-sm font-extrabold text-zinc-800">
               Duty Status: {formData.isAvailable ? 'ONLINE' : 'OFFLINE'}
             </p>
-            <p className="text-[10px] text-slate-400 mt-0.5">
+            <p className="text-[10px] text-zinc-400 mt-0.5">
               {formData.isAvailable
                 ? 'You are visible for location matching'
                 : 'You are currently resting'}
@@ -195,19 +195,19 @@ export const DeliveryProfile: React.FC = () => {
       {/* Vehicle details & Address form */}
       <form onSubmit={handleSave} className="flex flex-col gap-6">
         {/* Vehicle Card */}
-        <Card className="bg-white border-slate-200 shadow-sm rounded-2xl overflow-hidden">
-          <CardHeader className="border-b border-slate-100 pb-3 p-5">
-            <CardTitle className="text-base font-extrabold text-slate-800 flex items-center gap-2">
-              <Truck className="h-5 w-5 text-indigo-600" /> Vehicle Information
+        <Card className="bg-white border-zinc-200 shadow-sm rounded-2xl overflow-hidden">
+          <CardHeader className="border-b border-zinc-100 pb-3 p-5">
+            <CardTitle className="text-base font-extrabold text-zinc-800 flex items-center gap-2">
+              <Truck className="h-5 w-5 text-teal-600" /> Vehicle Information
             </CardTitle>
           </CardHeader>
           <CardContent className="p-5 flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+              <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
                 Vehicle Type
               </label>
               <select
-                className="flex h-10 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                className="flex h-10 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
                 value={formData.vehicleType}
                 onChange={(e) =>
                   setFormData({ ...formData, vehicleType: e.target.value })
@@ -221,7 +221,7 @@ export const DeliveryProfile: React.FC = () => {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+              <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
                 Number Plate info
               </label>
               <Input
@@ -239,10 +239,10 @@ export const DeliveryProfile: React.FC = () => {
         </Card>
 
         {/* Courier Base Location Card */}
-        <Card className="bg-white border-slate-200 shadow-sm rounded-2xl overflow-hidden">
-          <CardHeader className="border-b border-slate-100 pb-3 p-5">
-            <CardTitle className="text-base font-extrabold text-slate-800 flex items-center gap-2">
-              <Navigation className="h-5 w-5 text-indigo-600" /> Base Address
+        <Card className="bg-white border-zinc-200 shadow-sm rounded-2xl overflow-hidden">
+          <CardHeader className="border-b border-zinc-100 pb-3 p-5">
+            <CardTitle className="text-base font-extrabold text-zinc-800 flex items-center gap-2">
+              <NavigationArrow className="h-5 w-5 text-teal-600" /> Base Address
               (Google Maps)
             </CardTitle>
             <CardDescription className="text-xs font-medium">
@@ -251,7 +251,7 @@ export const DeliveryProfile: React.FC = () => {
           </CardHeader>
           <CardContent className="p-5 flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+              <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
                 Search Home Location
               </label>
               <GoogleAddressInput
@@ -276,7 +276,7 @@ export const DeliveryProfile: React.FC = () => {
 
             <div className="grid grid-cols-2 gap-3.5">
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
                   Street Address
                 </label>
                 <Input
@@ -289,7 +289,7 @@ export const DeliveryProfile: React.FC = () => {
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
                   City
                 </label>
                 <Input
@@ -302,7 +302,7 @@ export const DeliveryProfile: React.FC = () => {
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
                   State
                 </label>
                 <Input
@@ -315,7 +315,7 @@ export const DeliveryProfile: React.FC = () => {
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
                   Pincode
                 </label>
                 <Input
@@ -336,13 +336,13 @@ export const DeliveryProfile: React.FC = () => {
               </div>
             )}
           </CardContent>
-          <CardFooter className="bg-slate-50 border-t border-slate-100 p-4 flex justify-end">
+          <CardFooter className="bg-zinc-50 border-t border-zinc-100 p-4 flex justify-end">
             <Button
               type="submit"
               disabled={saving}
               className="w-full rounded-xl font-bold"
             >
-              {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {saving && <Spinner className="h-4 w-4 mr-2 animate-spin" />}
               Save Courier Settings
             </Button>
           </CardFooter>

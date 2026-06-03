@@ -1,18 +1,19 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
-  Send,
-  Bot,
+  PaperPlaneRight,
+  Robot,
   User as UserIcon,
-  Loader2,
+  Spinner,
   Package,
-  RotateCcw,
-  HelpCircle,
-  Sparkles,
-  ChevronDown,
-  Trash2,
-} from 'lucide-react';
+  ArrowCounterClockwise,
+  Question,
+  Sparkle,
+  CaretDown,
+  Trash,
+} from '@phosphor-icons/react';
 import { API_ENDPOINTS } from '../config/api.config';
 import { useAuth } from '../context/AuthContext';
+import { AskAiButton } from './ui/AskAiButton';
 
 interface Message {
   id: string;
@@ -270,12 +271,12 @@ export const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({
           message: "Where's my order? Can you help me track it?",
         },
         {
-          icon: RotateCcw,
+          icon: ArrowCounterClockwise,
           label: 'Return / Refund',
           message: 'I need help with a return or refund for my order.',
         },
         {
-          icon: HelpCircle,
+          icon: Question,
           label: 'Product question',
           message: 'I have a question about a product.',
         },
@@ -290,12 +291,12 @@ export const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({
           message: `Where is my delivery for order #${context.orderNumber}?`,
         },
         {
-          icon: RotateCcw,
+          icon: ArrowCounterClockwise,
           label: 'Check return eligibility',
           message: `Can you check if order #${context.orderNumber} is eligible for a return, refund, or replacement?`,
         },
         {
-          icon: HelpCircle,
+          icon: Question,
           label: 'Delivery partner details',
           message: `Can you show me the delivery guy details for order #${context.orderNumber}?`,
         },
@@ -304,17 +305,17 @@ export const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({
 
     return [
       {
-        icon: HelpCircle,
+        icon: Question,
         label: 'Product specifications',
         message: `Can you give me the details and specifications for product "${context.productTitle}"?`,
       },
       {
-        icon: RotateCcw,
+        icon: ArrowCounterClockwise,
         label: 'Return policy duration',
         message: `What return or refund policies apply to product "${context.productTitle}"?`,
       },
       {
-        icon: Sparkles,
+        icon: Sparkle,
         label: 'Check rating reviews',
         message: `What are reviews and ratings saying about product "${context.productTitle}"?`,
       },
@@ -337,27 +338,27 @@ export const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({
   const quickActions = getContextActions();
 
   return (
-    <div className="w-full h-120 rounded-2xl border border-slate-200 bg-white flex flex-col overflow-hidden shadow-sm">
+    <div className="w-full h-[500px] rounded-3xl bg-secondary/20 flex flex-col overflow-hidden relative">
       {/* Header */}
-      <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+      <div className="px-6 py-4 flex items-center justify-between bg-transparent">
         <div className="flex items-center gap-3">
           <div className="relative">
-            <div className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center shadow-sm">
-              <Bot className="h-5 w-5 text-slate-600" />
+            <div className="w-10 h-10 rounded-2xl bg-white flex items-center justify-center">
+              <Robot className="h-5 w-5 text-zinc-600" />
             </div>
             <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-slate-800">Bezon AI</h3>
+            <h3 className="text-sm font-bold text-zinc-800">Bezon AI</h3>
           </div>
         </div>
         {messages.length > 0 && (
           <button
             onClick={handleClearChat}
             title="Reset Chat"
-            className="p-1.5 rounded-lg hover:bg-slate-200 text-slate-400 hover:text-rose-500 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-zinc-200 text-zinc-400 hover:text-rose-500 transition-colors"
           >
-            <Trash2 className="h-4.5 w-4.5" />
+            <Trash className="h-4.5 w-4.5" />
           </button>
         )}
       </div>
@@ -366,21 +367,20 @@ export const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({
       <div
         ref={messagesContainerRef}
         onScroll={handleScroll}
-        className="flex-1 overflow-y-auto px-4 py-4 space-y-4 scroll-smooth bg-white"
+        className="flex-1 overflow-y-auto px-6 py-4 space-y-4 scroll-smooth bg-transparent"
         style={{
-          scrollbarWidth: 'thin',
-          scrollbarColor: 'rgb(226 232 240) transparent',
+          scrollbarWidth: 'none',
         }}
       >
         {messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center px-4 max-w-xl mx-auto">
-            <div className="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center mb-4 shadow-sm">
-              <Sparkles className="h-7 w-7 text-slate-400" />
+          <div className="flex flex-col items-center justify-center h-full text-center px-4 max-w-2xl mx-auto">
+            <div className="w-16 h-16 rounded-3xl bg-white flex items-center justify-center mb-4">
+              <Sparkle className="h-7 w-7 text-zinc-400" />
             </div>
-            <h4 className="text-slate-800 font-bold text-base mb-2">
+            <h4 className="text-zinc-800 font-bold text-base mb-2">
               Bezon Support AI
             </h4>
-            <p className="text-slate-500 text-xs mb-6 leading-relaxed">
+            <p className="text-zinc-500 text-xs mb-6 leading-relaxed">
               {getWelcomeMessage()}
             </p>
             <div className="w-full space-y-2">
@@ -388,9 +388,9 @@ export const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({
                 <button
                   key={action.label}
                   onClick={() => sendMessage(action.message)}
-                  className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-left text-xs text-slate-700 hover:bg-slate-100 hover:border-slate-300 transition-all shadow-sm group"
+                  className="w-full flex items-center gap-4 px-5 py-3 rounded-2xl bg-white text-left text-xs font-bold text-zinc-700 hover:bg-white/80 transition-all group"
                 >
-                  <action.icon className="h-4.5 w-4.5 text-slate-400 group-hover:text-slate-600 shrink-0" />
+                  <action.icon className="h-4.5 w-4.5 text-zinc-400 group-hover:text-zinc-600 shrink-0" />
                   <span>{action.label}</span>
                 </button>
               ))}
@@ -403,29 +403,29 @@ export const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({
               className={`flex gap-2.5 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               {msg.role === 'assistant' && (
-                <div className="shrink-0 w-7 h-7 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center mt-0.5">
-                  <Bot className="h-3.5 w-3.5 text-slate-600" />
+                <div className="shrink-0 w-8 h-8 rounded-2xl bg-white flex items-center justify-center mt-0.5">
+                  <Robot className="h-3.5 w-3.5 text-zinc-600" />
                 </div>
               )}
               <div
-                className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-xs leading-relaxed whitespace-pre-wrap border ${
+                className={`max-w-[85%] rounded-2xl px-5 py-3 text-xs leading-relaxed whitespace-pre-wrap ${
                   msg.role === 'user'
-                    ? 'bg-slate-900 border-slate-950 text-white rounded-br-md shadow-sm'
-                    : 'bg-slate-50 border-slate-200 text-slate-700 rounded-bl-md'
+                    ? 'bg-zinc-900 text-white rounded-br-md'
+                    : 'bg-white text-zinc-700 rounded-bl-md'
                 }`}
               >
                 {msg.content || (
-                  <div className="flex items-center gap-2 text-slate-400">
-                    <Loader2 className="h-3.5 w-3.5 animate-spin text-slate-400" />
-                    <span className="text-[10px] text-slate-500">
+                  <div className="flex items-center gap-2 text-zinc-400">
+                    <Spinner className="h-3.5 w-3.5 animate-spin text-zinc-400" />
+                    <span className="text-[10px] text-zinc-500">
                       Checking data...
                     </span>
                   </div>
                 )}
               </div>
               {msg.role === 'user' && (
-                <div className="shrink-0 w-7 h-7 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center mt-0.5">
-                  <UserIcon className="h-3.5 w-3.5 text-slate-600" />
+                <div className="shrink-0 w-8 h-8 rounded-2xl bg-zinc-200 flex items-center justify-center mt-0.5">
+                  <UserIcon className="h-3.5 w-3.5 text-zinc-600" />
                 </div>
               )}
             </div>
@@ -436,12 +436,12 @@ export const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({
 
       {/* Scroll to bottom button */}
       {showScrollDown && (
-        <div className="absolute bottom-18 left-1/2 -translate-x-1/2">
+        <div className="absolute bottom-18 left-1/2 -tranzinc-x-1/2">
           <button
             onClick={() => scrollToBottom()}
-            className="p-1.5 rounded-full bg-slate-800 text-white hover:bg-slate-700 shadow-md transition-colors"
+            className="p-2 rounded-full bg-zinc-900 text-white hover:bg-zinc-800 transition-colors"
           >
-            <ChevronDown className="h-4.5 w-4.5" />
+            <CaretDown className="h-4.5 w-4.5" />
           </button>
         </div>
       )}
@@ -449,9 +449,9 @@ export const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({
       {/* Input Form */}
       <form
         onSubmit={handleSubmit}
-        className="px-4 py-3 border-t border-slate-200 bg-slate-50"
+        className="px-6 py-4 bg-transparent mt-auto"
       >
-        <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3 py-1.5 focus-within:border-slate-400 transition-colors">
+        <div className="flex items-center gap-3 bg-white rounded-2xl px-4 py-2 transition-colors">
           <input
             ref={inputRef}
             type="text"
@@ -459,19 +459,12 @@ export const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask about this order or product..."
             disabled={isStreaming}
-            className="flex-1 bg-transparent text-xs text-slate-800 placeholder-slate-400 outline-none py-1.5"
+            className="flex-1 bg-transparent text-xs text-zinc-800 placeholder-zinc-400 outline-none py-1.5"
           />
-          <button
+          <AskAiButton
             type="submit"
-            disabled={!input.trim() || isStreaming}
-            className="p-2 rounded-lg bg-slate-900 text-white hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-slate-900 transition-all shrink-0"
-          >
-            {isStreaming ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <Send className="h-3.5 w-3.5" />
-            )}
-          </button>
+            isGenerating={isStreaming || !input.trim()}
+          />
         </div>
       </form>
     </div>

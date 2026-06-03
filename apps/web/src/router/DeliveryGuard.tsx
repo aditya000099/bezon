@@ -28,10 +28,16 @@ export const DeliveryGuard: React.FC<DeliveryGuardProps> = ({ children }) => {
     }
     if (user.deliveryPartner?.status !== 'approved') {
       return (
-        <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-center">
-          <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 max-w-md">
-            <h2 className="text-xl font-bold text-slate-800 mb-2">Access Denied</h2>
-            <p className="text-slate-600 mb-6">Your delivery partner account is currently {user.deliveryPartner?.status}. You cannot access the delivery dashboard.</p>
+        <div className="min-h-screen bg-zinc-50 flex flex-col items-center justify-center p-6 text-center">
+          <div className="bg-white p-8 rounded-2xl shadow-sm border border-zinc-200 max-w-md">
+            <h2 className="text-xl font-bold text-zinc-800 mb-2">
+              Access Denied
+            </h2>
+            <p className="text-zinc-600 mb-6">
+              Your delivery partner account is currently{' '}
+              {user.deliveryPartner?.status}. You cannot access the delivery
+              dashboard.
+            </p>
           </div>
         </div>
       );

@@ -3,18 +3,18 @@ import {
   Check,
   X,
   ShoppingBag,
-  CircleCheck,
+  CheckCircle,
   Package,
   Truck,
   MapPin,
-  ClipboardList,
+  ClipboardText,
   ThumbsUp,
   Warehouse,
-  Banknote,
-  RefreshCw,
-  HeartHandshake,
-  AlertCircle,
-} from 'lucide-react';
+  Money,
+  ArrowsClockwise,
+  Handshake,
+  WarningCircle,
+} from '@phosphor-icons/react';
 
 type StepDef = {
   label: string;
@@ -25,32 +25,60 @@ type StepDef = {
 
 const STEPS_STANDARD: StepDef[] = [
   { label: 'Order Placed', icon: ShoppingBag, statuses: ['placed'] },
-  { label: 'Confirmed', icon: CircleCheck, statuses: ['confirmed'] },
+  { label: 'Confirmed', icon: CheckCircle, statuses: ['confirmed'] },
   { label: 'Packed', icon: Package, statuses: ['packed'] },
   { label: 'Shipped', icon: Truck, statuses: ['ready_for_pickup', 'shipped'] },
-  { label: 'Delivered', icon: MapPin, statuses: ['out_for_delivery', 'delivered'] },
+  {
+    label: 'Delivered',
+    icon: MapPin,
+    statuses: ['out_for_delivery', 'delivered'],
+  },
 ];
 
 const STEPS_RETURN: StepDef[] = [
   { label: 'Delivered', icon: MapPin, statuses: ['delivered'] },
-  { label: 'Return Requested', icon: ClipboardList, statuses: ['return_requested', 'return_rejected'] },
+  {
+    label: 'Return Requested',
+    icon: ClipboardText,
+    statuses: ['return_requested', 'return_rejected'],
+  },
   { label: 'Approved', icon: ThumbsUp, statuses: ['return_approved'] },
   { label: 'Item Received', icon: Warehouse, statuses: ['returned_to_origin'] },
 ];
 
 const STEPS_REFUND: StepDef[] = [
-  { label: 'Delivered', icon: MapPin, statuses: ['delivered', 'returned_to_origin'] },
-  { label: 'Refund Requested', icon: ClipboardList, statuses: ['refund_requested', 'refund_rejected'] },
-  { label: 'Approved', icon: ThumbsUp, statuses: ['refund_approved', 'refunding'] },
-  { label: 'Refunded', icon: Banknote, statuses: ['refunded'] },
+  {
+    label: 'Delivered',
+    icon: MapPin,
+    statuses: ['delivered', 'returned_to_origin'],
+  },
+  {
+    label: 'Refund Requested',
+    icon: ClipboardText,
+    statuses: ['refund_requested', 'refund_rejected'],
+  },
+  {
+    label: 'Approved',
+    icon: ThumbsUp,
+    statuses: ['refund_approved', 'refunding'],
+  },
+  { label: 'Refunded', icon: Money, statuses: ['refunded'] },
 ];
 
 const STEPS_REPLACE: StepDef[] = [
-  { label: 'Delivered', icon: MapPin, statuses: ['delivered', 'returned_to_origin'] },
-  { label: 'Replace Requested', icon: ClipboardList, statuses: ['replacement_requested', 'replacement_rejected'] },
+  {
+    label: 'Delivered',
+    icon: MapPin,
+    statuses: ['delivered', 'returned_to_origin'],
+  },
+  {
+    label: 'Replace Requested',
+    icon: ClipboardText,
+    statuses: ['replacement_requested', 'replacement_rejected'],
+  },
   { label: 'Approved', icon: ThumbsUp, statuses: ['replacement_approved'] },
   { label: 'Repl. Shipped', icon: Truck, statuses: ['replacement_shipped'] },
-  { label: 'Replaced', icon: HeartHandshake, statuses: ['replaced'] },
+  { label: 'Replaced', icon: Handshake, statuses: ['replaced'] },
 ];
 
 const STATUS_ORDER_STANDARD = [
@@ -87,54 +115,96 @@ const STATUS_ORDER_REPLACE = [
 ];
 
 export function getFlowConfig(currentStatus: string) {
-  if (['return_requested', 'return_approved', 'returned_to_origin', 'return_rejected'].includes(currentStatus)) {
+  if (
+    [
+      'return_requested',
+      'return_approved',
+      'returned_to_origin',
+      'return_rejected',
+    ].includes(currentStatus)
+  ) {
     return {
       steps: STEPS_RETURN,
       statusOrder: STATUS_ORDER_RETURN,
       title: 'Return Tracker',
-      flowName: 'return'
+      flowName: 'return',
     };
   }
-  if (['refund_requested', 'refund_approved', 'refunding', 'refunded', 'refund_rejected'].includes(currentStatus)) {
+  if (
+    [
+      'refund_requested',
+      'refund_approved',
+      'refunding',
+      'refunded',
+      'refund_rejected',
+    ].includes(currentStatus)
+  ) {
     return {
       steps: STEPS_REFUND,
       statusOrder: STATUS_ORDER_REFUND,
       title: 'Refund Tracker',
-      flowName: 'refund'
+      flowName: 'refund',
     };
   }
-  if (['replacement_requested', 'replacement_approved', 'replacement_shipped', 'replaced', 'replacement_rejected'].includes(currentStatus)) {
+  if (
+    [
+      'replacement_requested',
+      'replacement_approved',
+      'replacement_shipped',
+      'replaced',
+      'replacement_rejected',
+    ].includes(currentStatus)
+  ) {
     return {
       steps: STEPS_REPLACE,
       statusOrder: STATUS_ORDER_REPLACE,
       title: 'Replacement Tracker',
-      flowName: 'replace'
+      flowName: 'replace',
     };
   }
   return {
     steps: STEPS_STANDARD,
     statusOrder: STATUS_ORDER_STANDARD,
     title: 'Order Tracker',
-    flowName: 'standard'
+    flowName: 'standard',
   };
 }
 
-function resolveStatus(currentStatus: string, steps: StepDef[], statusOrder: string[]) {
+function resolveStatus(
+  currentStatus: string,
+  steps: StepDef[],
+  statusOrder: string[],
+) {
   const isCancelled = currentStatus === 'cancelled';
-  const isRejected = ['return_rejected', 'refund_rejected', 'replacement_rejected'].includes(currentStatus);
+  const isRejected = [
+    'return_rejected',
+    'refund_rejected',
+    'replacement_rejected',
+  ].includes(currentStatus);
 
   if (isCancelled) {
-    return { resolvedStepIndex: -1, isIntermediate: false, isCancelled: true, isRejected: false };
+    return {
+      resolvedStepIndex: -1,
+      isIntermediate: false,
+      isCancelled: true,
+      isRejected: false,
+    };
   }
 
   let mappedStatus = currentStatus;
   if (currentStatus === 'return_rejected') mappedStatus = 'return_requested';
   if (currentStatus === 'refund_rejected') mappedStatus = 'refund_requested';
-  if (currentStatus === 'replacement_rejected') mappedStatus = 'replacement_requested';
+  if (currentStatus === 'replacement_rejected')
+    mappedStatus = 'replacement_requested';
 
   const flatIdx = statusOrder.indexOf(mappedStatus);
   if (flatIdx === -1) {
-    return { resolvedStepIndex: 0, isIntermediate: false, isCancelled: false, isRejected };
+    return {
+      resolvedStepIndex: 0,
+      isIntermediate: false,
+      isCancelled: false,
+      isRejected,
+    };
   }
 
   let stepIndex = -1;
@@ -150,7 +220,12 @@ function resolveStatus(currentStatus: string, steps: StepDef[], statusOrder: str
     }
   }
 
-  return { resolvedStepIndex: stepIndex, isIntermediate, isCancelled: false, isRejected };
+  return {
+    resolvedStepIndex: stepIndex,
+    isIntermediate,
+    isCancelled: false,
+    isRejected,
+  };
 }
 
 /* ─── Connector ───────────────────────────────────────────────── */
@@ -158,7 +233,7 @@ function resolveStatus(currentStatus: string, steps: StepDef[], statusOrder: str
 type ConnectorFill = 'full' | 'half' | 'none';
 
 const Connector: React.FC<{ fill: ConnectorFill }> = ({ fill }) => {
-  const bg = fill === 'none' ? 'bg-slate-200' : 'bg-slate-200';
+  const bg = fill === 'none' ? 'bg-zinc-200' : 'bg-zinc-200';
   const fgWidth =
     fill === 'full' ? 'w-full' : fill === 'half' ? 'w-1/2' : 'w-0';
   const fgHeight =
@@ -218,9 +293,9 @@ const StepCircle: React.FC<{
     return (
       <div className="relative flex items-center justify-center shrink-0">
         {/* Pulse ring */}
-        <span className="absolute h-11 w-11 rounded-full bg-indigo-400/30 animate-ping" />
-        <span className="absolute h-11 w-11 rounded-full bg-indigo-100 animate-pulse" />
-        <div className="relative h-9 w-9 rounded-full bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-200">
+        <span className="absolute h-11 w-11 rounded-full bg-teal-400/30 animate-ping" />
+        <span className="absolute h-11 w-11 rounded-full bg-teal-100 animate-pulse" />
+        <div className="relative h-9 w-9 rounded-full bg-teal-600 flex items-center justify-center shadow-lg shadow-teal-200">
           <Icon className="h-4 w-4 text-white" strokeWidth={2.5} />
         </div>
       </div>
@@ -229,7 +304,7 @@ const StepCircle: React.FC<{
 
   // future
   return (
-    <div className="h-9 w-9 rounded-full bg-slate-100 border-2 border-slate-200 flex items-center justify-center text-slate-400 text-sm font-bold shrink-0">
+    <div className="h-9 w-9 rounded-full bg-zinc-100 border-2 border-zinc-200 flex items-center justify-center text-zinc-400 text-sm font-bold shrink-0">
       {stepIndex + 1}
     </div>
   );
@@ -275,8 +350,8 @@ export const OrderTrackingStepper: React.FC<{ currentStatus: string }> = ({
   };
 
   return (
-    <div className="w-full rounded-xl border border-slate-200 bg-white shadow-sm p-5 sm:p-6 overflow-hidden">
-      <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">
+    <div className="w-full rounded-2xl bg-card p-5 sm:p-6 overflow-hidden">
+      <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-4">
         {title}
       </div>
       {/* Desktop: horizontal row | Mobile: vertical column */}
@@ -294,27 +369,23 @@ export const OrderTrackingStepper: React.FC<{ currentStatus: string }> = ({
             <React.Fragment key={step.label}>
               {/* Step node */}
               <div className="flex flex-row md:flex-col items-center md:items-center gap-3 md:gap-2 md:min-w-[80px]">
-                <StepCircle
-                  state={state}
-                  stepIndex={idx}
-                  Icon={step.icon}
-                />
+                <StepCircle state={state} stepIndex={idx} Icon={step.icon} />
                 <div className="flex flex-col md:items-center">
                   <span
                     className={`text-sm md:text-xs font-semibold leading-tight ${
                       state === 'completed'
                         ? 'text-emerald-700'
                         : state === 'current'
-                          ? 'text-indigo-700'
+                          ? 'text-teal-700'
                           : state === 'cancelled'
                             ? 'text-rose-700'
-                            : 'text-slate-400'
+                            : 'text-zinc-400'
                     }`}
                   >
                     {state === 'cancelled' ? labelText : step.label}
                   </span>
                   {state === 'current' && (
-                    <span className="text-[10px] text-indigo-400 font-medium mt-0.5">
+                    <span className="text-[10px] text-teal-400 font-medium mt-0.5">
                       In Progress
                     </span>
                   )}
@@ -347,7 +418,7 @@ export const OrderTrackingStepper: React.FC<{ currentStatus: string }> = ({
       {/* Rejected banner */}
       {isRejected && (
         <div className="mt-5 flex items-start gap-3 rounded-lg bg-rose-50 border border-rose-200 px-4 py-3 text-sm text-rose-800">
-          <AlertCircle className="h-5 w-5 text-rose-600 mt-0.5 shrink-0" />
+          <WarningCircle className="h-5 w-5 text-rose-600 mt-0.5 shrink-0" />
           <div>
             <p className="font-bold text-rose-900">
               Your {flowName} request was rejected by the merchant.

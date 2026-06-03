@@ -1,24 +1,24 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft, PlusCircle } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ProductForm } from "./components/ProductForm";
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, PlusCircle } from '@phosphor-icons/react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { ProductForm } from './components/ProductForm';
 
 export const SellerAddProduct: React.FC = () => {
   const navigate = useNavigate();
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col sm:flex-row gap-4 justify-between items-center bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+      <div className="flex flex-col sm:flex-row gap-4 justify-between items-center bg-white border border-zinc-200 rounded-xl p-4 shadow-sm">
         <div>
-          <p className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest">
+          <p className="text-[10px] font-bold text-teal-600 uppercase tracking-widest">
             Seller Products
           </p>
-          <h1 className="text-xl font-extrabold text-slate-800 mt-1 flex items-center gap-2">
-            <PlusCircle className="h-5 w-5 text-indigo-500" /> Add Product
+          <h1 className="text-xl font-extrabold text-zinc-800 mt-1 flex items-center gap-2">
+            <PlusCircle className="h-5 w-5 text-teal-500" /> Add Product
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="text-sm text-zinc-500 mt-1">
             Create a new product listing with the same catalog controls used in
             the product dialog.
           </p>
@@ -26,27 +26,27 @@ export const SellerAddProduct: React.FC = () => {
 
         <Button
           variant="outline"
-          onClick={() => navigate("/seller/products")}
+          onClick={() => navigate('/seller/products')}
           className="w-full sm:w-auto font-bold flex items-center gap-2 hover:cursor-pointer"
         >
           <ArrowLeft className="h-4 w-4" /> Back to Products
         </Button>
       </div>
 
-      <Card className="bg-white border border-slate-200 shadow-sm">
+      <Card className="bg-white border border-zinc-200 shadow-sm">
         <CardHeader className="pb-0">
-          <CardTitle className="text-xl font-bold text-slate-800">
+          <CardTitle className="text-xl font-bold text-zinc-800">
             Register New Product
           </CardTitle>
-          <p className="text-slate-500 text-sm mt-1">
+          <p className="text-zinc-500 text-sm mt-1">
             Publish item attributes, pricing details, manage variants, and
             upload gallery imagery.
           </p>
         </CardHeader>
         <CardContent>
           <ProductForm
-            onCancel={() => navigate("/seller/products")}
-            onSuccess={() => navigate("/seller/products")}
+            onCancel={() => navigate('/seller/products')}
+            onSuccess={() => navigate('/seller/products')}
           />
         </CardContent>
       </Card>

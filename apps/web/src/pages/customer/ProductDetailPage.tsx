@@ -1,20 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
-  ArrowLeft,
-  Star,
-  ShieldCheck,
-  Heart,
-  ShoppingBag,
-  Loader2,
-  BadgePercent,
-  MessageSquare,
-  Send,
-  Store,
-  RotateCcw,
-  Banknote,
-  RefreshCw,
-} from 'lucide-react';
+  ArrowLeftIcon,
+  StarIcon,
+  ShieldCheckeredIcon,
+  HeartIcon,
+  ShoppingBagIcon,
+  SpinnerIcon,
+  SealPercentIcon,
+  ChatTeardropTextIcon,
+  PaperPlaneRightIcon,
+  ArrowCounterClockwiseIcon,
+  Money,
+  ArrowsClockwiseIcon,
+  SparkleIcon,
+  StorefrontIcon,
+  ShieldCheckIcon,
+} from '@phosphor-icons/react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -272,8 +274,8 @@ export const ProductDetailPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-100 text-slate-400 gap-2">
-        <Loader2 className="h-10 w-10 animate-spin text-indigo-500" />
+      <div className="flex flex-col items-center justify-center min-h-100 text-zinc-400 gap-2">
+        <SpinnerIcon className="h-10 w-10 animate-spin text-teal-500" />
         <p className="text-sm font-semibold">
           Loading product specifications...
         </p>
@@ -283,9 +285,9 @@ export const ProductDetailPage: React.FC = () => {
 
   if (!product) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-100 text-slate-400 text-center gap-4">
-        <ShoppingBag className="h-16 w-16 text-slate-200" />
-        <h2 className="text-xl font-bold text-slate-700">Product not found</h2>
+      <div className="flex flex-col items-center justify-center min-h-100 text-zinc-400 text-center gap-4">
+        <ShoppingBagIcon className="h-16 w-16 text-zinc-200" />
+        <h2 className="text-xl font-bold text-zinc-700">Product not found</h2>
         <Link to="/shop">
           <Button variant="default">Return to Marketplace</Button>
         </Link>
@@ -300,17 +302,17 @@ export const ProductDetailPage: React.FC = () => {
           <Button
             variant="ghost"
             size="sm"
-            className="gap-2 text-slate-500 hover:text-slate-900"
+            className="gap-2 text-zinc-500 hover:text-zinc-900"
           >
-            <ArrowLeft className="h-4 w-4" /> Back to Shop
+            <ArrowLeftIcon className="h-4 w-4" /> Back to Shop
           </Button>
         </Link>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
         <div className="flex flex-col gap-4">
-          <Card className="overflow-hidden border border-slate-200 bg-white">
-            <CardContent className="p-0 aspect-square flex items-center justify-center bg-slate-50 relative overflow-hidden">
+          <Card className="overflow-hidden border border-zinc-200 bg-white">
+            <CardContent className="p-0 aspect-square flex items-center justify-center bg-zinc-50 relative overflow-hidden">
               {currentImages.length > 0 ? (
                 <img
                   src={
@@ -320,7 +322,7 @@ export const ProductDetailPage: React.FC = () => {
                   className="h-full w-full object-cover"
                 />
               ) : (
-                <ShoppingBag className="h-24 w-24 text-slate-200" />
+                <ShoppingBagIcon className="h-24 w-24 text-zinc-200" />
               )}
               {currentStock > 0 ? (
                 <div className="absolute top-4 left-4 bg-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
@@ -342,7 +344,7 @@ export const ProductDetailPage: React.FC = () => {
                   className={`aspect-square bg-white border rounded-lg flex items-center justify-center overflow-hidden cursor-pointer transition-colors ${
                     activeImageIndex === i
                       ? 'border-primary ring-2 ring-primary/20'
-                      : 'border-slate-200 hover:border-slate-300'
+                      : 'border-zinc-200 hover:border-zinc-300'
                   }`}
                 >
                   <img
@@ -359,26 +361,26 @@ export const ProductDetailPage: React.FC = () => {
         <div className="flex flex-col gap-6">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-[10px] font-bold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full uppercase tracking-wider">
+              <span className="text-[10px] font-bold bg-zinc-100 text-zinc-600 px-2.5 py-1 rounded-full uppercase tracking-wider">
                 {product.category?.name || 'Catalogue Item'}
               </span>
               {product.brand && (
-                <span className="text-slate-400 text-xs font-semibold">
+                <span className="text-zinc-400 text-xs font-semibold">
                   Brand: {product.brand}
                 </span>
               )}
             </div>
-            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight leading-tight">
+            <h1 className="text-3xl font-extrabold text-zinc-900 tracking-tight leading-tight">
               {currentProduct?.title || product.title}
             </h1>
             {product.seller && (
-              <div className="flex items-center gap-1.5 mt-2 text-sm text-slate-500">
+              <div className="flex items-center gap-1.5 mt-2 text-sm text-zinc-500">
                 <span>Sold by:</span>
                 <Link
                   to={`/shop/sellers/${product.seller.shopSlug}`}
-                  className="font-bold text-indigo-600 hover:text-indigo-800 hover:underline flex items-center gap-1"
+                  className="font-bold text-teal-600 hover:text-teal-800 hover:underline flex items-center gap-1"
                 >
-                  <Store className="h-4 w-4 shrink-0 text-indigo-500" />
+                  <StorefrontIcon className="h-4 w-4 shrink-0 text-teal-500" />
                   {product.seller.shopName}
                 </Link>
               </div>
@@ -386,7 +388,7 @@ export const ProductDetailPage: React.FC = () => {
             <div className="flex items-center gap-3 mt-3">
               <div className="flex items-center gap-0.5">
                 {[1, 2, 3, 4, 5].map((star) => (
-                  <Star
+                  <StarIcon
                     key={star}
                     className={`h-4 w-4 ${
                       star <=
@@ -394,7 +396,7 @@ export const ProductDetailPage: React.FC = () => {
                         product.avgRating ? Number(product.avgRating) : 0,
                       )
                         ? 'fill-amber-500 text-amber-500'
-                        : 'fill-slate-100 text-slate-200'
+                        : 'fill-zinc-100 text-zinc-200'
                     }`}
                   />
                 ))}
@@ -404,20 +406,20 @@ export const ProductDetailPage: React.FC = () => {
                     : '0.0'}
                 </span>
               </div>
-              <span className="text-slate-300">|</span>
-              <span className="text-slate-500 text-sm font-medium hover:underline cursor-pointer">
+              <span className="text-zinc-300">|</span>
+              <span className="text-zinc-500 text-sm font-medium hover:underline cursor-pointer">
                 {product.reviewCount || 0} reviews
               </span>
             </div>
           </div>
 
-          <div className="bg-slate-50/50 border border-slate-100 rounded-xl p-5 flex flex-col gap-2">
+          <div className="bg-zinc-50/50 border border-zinc-100 rounded-xl p-5 flex flex-col gap-2">
             <div className="flex items-baseline gap-3">
-              <span className="text-4xl font-extrabold text-slate-900">
+              <span className="text-4xl font-extrabold text-zinc-900">
                 ₹{currentPrice.toLocaleString()}
               </span>
               {currentComparePrice && (
-                <span className="text-slate-400 line-through text-sm">
+                <span className="text-zinc-400 line-through text-sm">
                   ₹{currentComparePrice.toLocaleString()}
                 </span>
               )}
@@ -433,7 +435,7 @@ export const ProductDetailPage: React.FC = () => {
                 </span>
               )}
             </div>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-zinc-400">
               SKU: <span className="font-mono">{currentSku}</span>
             </p>
           </div>
@@ -441,8 +443,8 @@ export const ProductDetailPage: React.FC = () => {
           {coupons.length > 0 && (
             <div className="flex flex-col gap-3">
               <div className="flex items-center gap-2">
-                <BadgePercent className="h-4 w-4 text-indigo-500" />
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <SealPercentIcon className="h-4 w-4 text-teal-500" />
+                <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
                   Available Coupons
                 </span>
               </div>
@@ -456,21 +458,21 @@ export const ProductDetailPage: React.FC = () => {
                       key={coupon.id}
                       className={`border rounded-xl p-3.5 flex items-center justify-between transition-all ${
                         meetsMin
-                          ? 'border-indigo-200 bg-indigo-50/30 hover:border-indigo-300'
-                          : 'border-slate-100 bg-slate-50/30 opacity-60'
+                          ? 'border-teal-200 bg-teal-50/30 hover:border-teal-300'
+                          : 'border-zinc-100 bg-zinc-50/30 opacity-60'
                       }`}
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="bg-white border border-dashed border-indigo-300 rounded-lg px-2.5 py-1.5 shrink-0">
-                          <span className="font-mono font-extrabold text-indigo-700 text-xs tracking-wider">
+                        <div className="bg-white border border-dashed border-teal-300 rounded-lg px-2.5 py-1.5 shrink-0">
+                          <span className="font-mono font-extrabold text-teal-700 text-xs tracking-wider">
                             {coupon.code}
                           </span>
                         </div>
                         <div className="min-w-0">
-                          <p className="text-xs font-semibold text-slate-700 truncate">
+                          <p className="text-xs font-semibold text-zinc-700 truncate">
                             {coupon.description}
                           </p>
-                          <p className="text-[10px] text-slate-400 mt-0.5">
+                          <p className="text-[10px] text-zinc-400 mt-0.5">
                             {coupon.discountType === 'percentage'
                               ? `${Number(coupon.discountValue)}% off${coupon.maxDiscount ? ` (up to ₹${Number(coupon.maxDiscount)})` : ''}`
                               : `₹${Number(coupon.discountValue)} off`}
@@ -489,7 +491,7 @@ export const ProductDetailPage: React.FC = () => {
                           </p>
                         </div>
                       ) : (
-                        <p className="text-[10px] text-slate-400 font-medium shrink-0 ml-3">
+                        <p className="text-[10px] text-zinc-400 font-medium shrink-0 ml-3">
                           Min ₹{Number(coupon.minOrderValue)}
                         </p>
                       )}
@@ -502,7 +504,7 @@ export const ProductDetailPage: React.FC = () => {
 
           {allEditions.length > 1 && (
             <div className="flex flex-col gap-4">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+              <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
                 Select Edition
               </label>
               <div className="flex gap-3 flex-wrap">
@@ -516,11 +518,11 @@ export const ProductDetailPage: React.FC = () => {
                       className={`min-w-30 border rounded-lg p-3 text-left transition-all ${
                         currentProduct?.id === p.id
                           ? 'border-primary bg-primary/5 text-primary-foreground ring-2 ring-primary/20'
-                          : 'border-slate-200 bg-white hover:border-slate-300 text-slate-700'
+                          : 'border-zinc-200 bg-white hover:border-zinc-300 text-zinc-700'
                       }`}
                     >
                       <p className="text-xs font-bold text-black">{labelStr}</p>
-                      <p className="text-sm font-extrabold mt-1 text-slate-900">
+                      <p className="text-sm font-extrabold mt-1 text-zinc-900">
                         ₹{Number(p.basePrice).toLocaleString()}
                       </p>
                     </button>
@@ -530,7 +532,7 @@ export const ProductDetailPage: React.FC = () => {
             </div>
           )}
 
-          <p className="text-sm text-slate-600 leading-relaxed">
+          <p className="text-sm text-zinc-600 leading-relaxed">
             {currentProduct?.description ||
               product.description ||
               'No description available for this product.'}
@@ -540,8 +542,8 @@ export const ProductDetailPage: React.FC = () => {
           {currentProduct?.policies &&
           (currentProduct.policies as any[]).length > 0 ? (
             <div className="flex flex-col gap-2">
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-                <ShieldCheck className="h-4 w-4 text-indigo-500" />
+              <p className="text-xs font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
+                <ShieldCheckIcon className="h-4 w-4 text-teal-500" />
                 Product Policies
               </p>
               <div className="flex flex-wrap gap-2">
@@ -553,19 +555,19 @@ export const ProductDetailPage: React.FC = () => {
                     { icon: any; bg: string; text: string; border: string }
                   > = {
                     return: {
-                      icon: RotateCcw,
+                      icon: ArrowCounterClockwiseIcon,
                       bg: 'bg-blue-50',
                       text: 'text-blue-700',
                       border: 'border-blue-100',
                     },
                     refund: {
-                      icon: Banknote,
+                      icon: Money,
                       bg: 'bg-emerald-50',
                       text: 'text-emerald-700',
                       border: 'border-emerald-100',
                     },
                     replace: {
-                      icon: RefreshCw,
+                      icon: ArrowsClockwiseIcon,
                       bg: 'bg-amber-50',
                       text: 'text-amber-700',
                       border: 'border-amber-100',
@@ -589,8 +591,8 @@ export const ProductDetailPage: React.FC = () => {
               </div>
             </div>
           ) : (
-            <div className="flex gap-3 items-center bg-indigo-50/30 border border-indigo-50 rounded-xl p-4 text-xs text-slate-600">
-              <ShieldCheck className="h-5 w-5 text-indigo-500 shrink-0" />
+            <div className="flex gap-3 items-center bg-teal-50/30 border border-teal-50 rounded-xl p-4 text-xs text-zinc-600">
+              <ShieldCheckIcon className="h-5 w-5 text-teal-500 shrink-0" />
               <p>
                 <strong>Fulfillment Promise:</strong> Direct merchant dispatch.
                 Standard platform policies apply.
@@ -619,15 +621,15 @@ export const ProductDetailPage: React.FC = () => {
             <Button
               variant="outline"
               size="icon"
-              className={`h-12 w-12 border-slate-200 hover:text-rose-500 hover:border-rose-200 transition-colors ${
+              className={`h-12 w-12 border-zinc-200 hover:text-rose-500 hover:border-rose-200 transition-colors ${
                 currentProduct && isInWishlist(currentProduct.id)
                   ? 'bg-rose-50/50 border-rose-200 text-rose-500 hover:bg-rose-100/50'
                   : ''
               }`}
               onClick={handleAddToWishlist}
             >
-              <Heart
-                className={`h-5 w-5 ${currentProduct && isInWishlist(currentProduct.id) ? 'fill-rose-500 text-rose-500' : 'text-slate-400'}`}
+              <HeartIcon
+                className={`h-5 w-5 ${currentProduct && isInWishlist(currentProduct.id) ? 'fill-rose-500 text-rose-500' : 'text-zinc-400'}`}
               />
             </Button>
           </div>
@@ -635,11 +637,16 @@ export const ProductDetailPage: React.FC = () => {
       </div>
 
       {/* AI Support Chat Section */}
-      <div className="mt-8 border-t border-slate-100 pt-10">
-        <h2 className="text-2xl font-extrabold text-slate-900 mb-8">
-          AI Product Assistant
-        </h2>
-        <div className="max-w-4xl">
+      <div className="mt-12 rounded-[2rem] p-4 sm:p-2 bg-white/50 relative overflow-hidden w-full">
+        {/* <div className="flex flex-col lg:flex-row gap-10 items-stretch justify-between w-full"> */}
+        {/* <div className="lg:w-1/3 flex flex-col justify-center">
+            <p className="text-zinc-400 text-sm leading-relaxed">
+              Have a question about this product? Ask our AI assistant to
+              instantly check specifications, summarize reviews, or explain
+              return policies.
+            </p>
+          </div> */}
+        <div className=" bg-white/5 backdrop-blur-xl rounded-[2rem] border border-white/10 p-2">
           <SupportChatWidget
             context={{
               type: 'product',
@@ -650,22 +657,23 @@ export const ProductDetailPage: React.FC = () => {
           />
         </div>
       </div>
+      {/* </div> */}
 
       {/* Customer Reviews Section */}
-      <div className="mt-8 border-t border-slate-100 pt-10">
-        <h2 className="text-2xl font-extrabold text-slate-900 mb-8">
+      <div className="mt-8 border-t border-zinc-100 pt-10">
+        <h2 className="text-2xl font-extrabold text-zinc-900 mb-8">
           Customer Reviews
         </h2>
 
         {loadingReviews ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
+            <SpinnerIcon className="h-8 w-8 animate-spin text-teal-500" />
           </div>
         ) : !reviewSummary || reviewSummary.totalCount === 0 ? (
-          <div className="bg-slate-50 rounded-2xl p-12 flex flex-col items-center justify-center text-center">
-            <Star className="h-12 w-12 text-slate-300 mb-3" />
-            <h3 className="text-lg font-bold text-slate-700">No reviews yet</h3>
-            <p className="text-sm text-slate-500 mt-1">
+          <div className="bg-zinc-50/80 rounded-4xl p-12 flex flex-col items-center justify-center text-center">
+            <StarIcon className="h-12 w-12 text-zinc-300 mb-3" />
+            <h3 className="text-lg font-bold text-zinc-700">No reviews yet</h3>
+            <p className="text-sm text-zinc-500 mt-1">
               Be the first to review this product after your purchase is
               delivered!
             </p>
@@ -674,25 +682,25 @@ export const ProductDetailPage: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
             {/* Review Summary */}
             <div className="flex flex-col gap-6">
-              <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+              <div className="bg-zinc-50/80 border-0 rounded-4xl p-8">
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="text-5xl font-black text-slate-900">
+                  <div className="text-5xl font-black text-zinc-900">
                     {reviewSummary.avgRating.toFixed(1)}
                   </div>
                   <div className="flex flex-col gap-1">
                     <div className="flex gap-1">
                       {[1, 2, 3, 4, 5].map((star) => (
-                        <Star
+                        <StarIcon
                           key={star}
                           className={`h-5 w-5 ${
                             star <= Math.round(reviewSummary.avgRating)
                               ? 'fill-amber-500 text-amber-500'
-                              : 'fill-slate-100 text-slate-200'
+                              : 'fill-zinc-100 text-zinc-200'
                           }`}
                         />
                       ))}
                     </div>
-                    <span className="text-sm font-semibold text-slate-500">
+                    <span className="text-sm font-semibold text-zinc-500">
                       {reviewSummary.totalCount} ratings
                     </span>
                   </div>
@@ -711,17 +719,17 @@ export const ProductDetailPage: React.FC = () => {
                         key={star}
                         className="flex items-center gap-3 text-sm"
                       >
-                        <span className="font-bold text-slate-700 w-4">
+                        <span className="font-bold text-zinc-700 w-4">
                           {star}
                         </span>
-                        <Star className="h-3 w-3 fill-amber-500 text-amber-500 shrink-0" />
-                        <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                        <StarIcon className="h-3 w-3 fill-amber-500 text-amber-500 shrink-0" />
+                        <div className="flex-1 h-2 bg-zinc-100 rounded-full overflow-hidden">
                           <div
                             className="h-full bg-amber-400 rounded-full"
                             style={{ width: `${percentage}%` }}
                           />
                         </div>
-                        <span className="text-slate-500 w-8 text-right text-xs font-semibold">
+                        <span className="text-zinc-500 w-8 text-right text-xs font-semibold">
                           {count}
                         </span>
                       </div>
@@ -736,10 +744,10 @@ export const ProductDetailPage: React.FC = () => {
               {reviews.map((review) => (
                 <div
                   key={review.id}
-                  className="border-b border-slate-100 pb-6 last:border-0"
+                  className="border-b border-zinc-100 pb-6 last:border-0"
                 >
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="h-10 w-10 bg-indigo-100 rounded-full flex items-center justify-center font-bold text-indigo-700 shrink-0 overflow-hidden">
+                    <div className="h-10 w-10 bg-teal-50 rounded-full flex items-center justify-center font-bold text-teal-500 shrink-0 overflow-hidden">
                       {review.user?.avatarUrl ? (
                         <img
                           src={review.user.avatarUrl}
@@ -751,10 +759,10 @@ export const ProductDetailPage: React.FC = () => {
                       )}
                     </div>
                     <div className="flex flex-col">
-                      <span className="font-bold text-slate-800 text-sm">
+                      <span className="font-bold text-zinc-800 text-sm">
                         {review.user?.name || 'Verified Buyer'}
                       </span>
-                      <span className="text-xs text-slate-400">
+                      <span className="text-xs text-zinc-400">
                         {new Date(review.createdAt).toLocaleDateString(
                           'en-US',
                           { year: 'numeric', month: 'long', day: 'numeric' },
@@ -765,19 +773,19 @@ export const ProductDetailPage: React.FC = () => {
 
                   <div className="flex gap-0.5 mb-3">
                     {[1, 2, 3, 4, 5].map((star) => (
-                      <Star
+                      <StarIcon
                         key={star}
                         className={`h-4 w-4 ${
                           star <= review.rating
                             ? 'fill-amber-500 text-amber-500'
-                            : 'fill-slate-100 text-slate-200'
+                            : 'fill-zinc-100 text-zinc-200'
                         }`}
                       />
                     ))}
                   </div>
 
                   {review.reviewText && (
-                    <p className="text-sm text-slate-700 leading-relaxed mb-4">
+                    <p className="text-sm text-zinc-700 leading-relaxed mb-4">
                       {review.reviewText}
                     </p>
                   )}
@@ -787,7 +795,7 @@ export const ProductDetailPage: React.FC = () => {
                       {review.images.map((img: any) => (
                         <div
                           key={img.id}
-                          className="h-20 w-20 rounded-xl overflow-hidden border border-slate-200"
+                          className="h-20 w-20 rounded-xl overflow-hidden border border-zinc-200"
                         >
                           <img
                             src={img.url}
@@ -806,14 +814,14 @@ export const ProductDetailPage: React.FC = () => {
       </div>
 
       {/* Questions & Answers Section */}
-      <div className="mt-8 border-t border-slate-100 pt-10">
+      <div className="mt-8 border-t border-zinc-100 pt-10">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <div>
-            <h2 className="text-2xl font-extrabold text-slate-900 flex items-center gap-3">
-              <MessageSquare className="h-6 w-6 text-indigo-500" />
+            <h2 className="text-2xl font-extrabold text-zinc-900 flex items-center gap-3">
+              <ChatTeardropTextIcon className="h-6 w-6 text-teal-500" />
               Questions & Answers
             </h2>
-            <p className="text-sm text-slate-500 mt-1">
+            <p className="text-sm text-zinc-500 mt-1">
               {questionsTotalCount} question
               {questionsTotalCount !== 1 ? 's' : ''} about this product
             </p>
@@ -826,7 +834,7 @@ export const ProductDetailPage: React.FC = () => {
                 setQuestionsPage(1);
                 setQuestions([]);
               }}
-              className="text-sm border border-slate-200 rounded-lg px-3 py-2 text-slate-600 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="text-sm border border-zinc-200 rounded-lg px-3 py-2 text-zinc-600 bg-white focus:outline-none focus:ring-2 focus:ring-teal-500"
             >
               <option value="recent">Most Recent</option>
               <option value="answered">Answered</option>
@@ -837,7 +845,7 @@ export const ProductDetailPage: React.FC = () => {
                 onClick={() => setAskModalOpen(true)}
                 className="font-bold gap-2"
               >
-                <MessageSquare className="h-4 w-4" /> Ask a Question
+                <ChatTeardropTextIcon className="h-4 w-4" /> Ask a Question
               </Button>
             )}
           </div>
@@ -845,15 +853,15 @@ export const ProductDetailPage: React.FC = () => {
 
         {loadingQuestions && questions.length === 0 ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
+            <SpinnerIcon className="h-8 w-8 animate-spin text-teal-500" />
           </div>
         ) : questions.length === 0 ? (
-          <div className="bg-slate-50 rounded-2xl p-12 flex flex-col items-center justify-center text-center">
-            <MessageSquare className="h-12 w-12 text-slate-300 mb-3" />
-            <h3 className="text-lg font-bold text-slate-700">
+          <div className="bg-zinc-50/80 rounded-[2rem] p-12 flex flex-col items-center justify-center text-center">
+            <ChatTeardropTextIcon className="h-12 w-12 text-zinc-300 mb-3" />
+            <h3 className="text-lg font-bold text-zinc-700">
               No questions yet
             </h3>
-            <p className="text-sm text-slate-500 mt-1">
+            <p className="text-sm text-zinc-500 mt-1">
               Be the first to ask a question about this product!
             </p>
           </div>
@@ -862,20 +870,20 @@ export const ProductDetailPage: React.FC = () => {
             {questions.map((q) => (
               <div
                 key={q.id}
-                className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm"
+                className="bg-zinc-50/80 border-0 rounded-[2rem] p-8"
               >
                 {/* Question */}
                 <div className="flex items-start gap-3 mb-4">
-                  <div className="h-8 w-8 bg-indigo-100 rounded-full flex items-center justify-center font-bold text-indigo-700 shrink-0 text-sm">
+                  <div className="h-8 w-8 bg-teal-100 rounded-full flex items-center justify-center font-bold text-teal-700 shrink-0 text-sm">
                     Q
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-semibold text-slate-800">
+                    <p className="text-sm font-semibold text-zinc-800">
                       {q.question}
                     </p>
-                    <p className="text-xs text-slate-400 mt-1">
+                    <p className="text-xs text-zinc-400 mt-1">
                       Asked by{' '}
-                      <span className="font-medium text-slate-500">
+                      <span className="font-medium text-zinc-500">
                         {q.user?.name || 'Anonymous'}
                       </span>
                       {' · '}
@@ -892,22 +900,23 @@ export const ProductDetailPage: React.FC = () => {
                 {q.answers && q.answers.length > 0 && (
                   <div className="ml-11 flex flex-col gap-3 mb-4">
                     {q.answers.map((a: any) => (
-                      <div key={a.id} className="bg-slate-50 rounded-xl p-4">
+                      <div key={a.id} className="bg-white/60 rounded-xl p-4">
                         <div className="flex items-center gap-2 mb-2">
-                          <span className="text-sm font-semibold text-slate-700">
+                          <span className="text-sm font-semibold text-zinc-700">
                             {a.user?.name || 'Anonymous'}
                           </span>
                           {a.badge === 'seller' && (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-700">
-                              <Store className="h-3 w-3" /> Seller
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-100 text-teal-700">
+                              <StorefrontIcon className="h-3 w-3" /> Seller
                             </span>
                           )}
                           {a.badge === 'verified_buyer' && (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">
-                              <ShieldCheck className="h-3 w-3" /> Verified Buyer
+                              <ShieldCheckIcon className="h-3 w-3" /> Verified
+                              Buyer
                             </span>
                           )}
-                          <span className="text-xs text-slate-400">
+                          <span className="text-xs text-zinc-400">
                             {new Date(a.createdAt).toLocaleDateString('en-US', {
                               year: 'numeric',
                               month: 'short',
@@ -915,7 +924,7 @@ export const ProductDetailPage: React.FC = () => {
                             })}
                           </span>
                         </div>
-                        <p className="text-sm text-slate-600">{a.answer}</p>
+                        <p className="text-sm text-zinc-600">{a.answer}</p>
                       </div>
                     ))}
                   </div>
@@ -929,7 +938,7 @@ export const ProductDetailPage: React.FC = () => {
                       value={answerText}
                       onChange={(e) => setAnswerText(e.target.value)}
                       placeholder="Write your answer..."
-                      className="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="flex-1 border border-zinc-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
                       onKeyDown={(e) =>
                         e.key === 'Enter' && handleSubmitAnswer(q.id)
                       }
@@ -941,9 +950,9 @@ export const ProductDetailPage: React.FC = () => {
                       className="gap-1 font-bold"
                     >
                       {submittingAnswer ? (
-                        <Loader2 className="h-3 w-3 animate-spin" />
+                        <SpinnerIcon className="h-3 w-3 animate-spin" />
                       ) : (
-                        <Send className="h-3 w-3" />
+                        <PaperPlaneRightIcon className="h-3 w-3" />
                       )}
                       Reply
                     </Button>
@@ -954,7 +963,7 @@ export const ProductDetailPage: React.FC = () => {
                         setAnsweringId(null);
                         setAnswerText('');
                       }}
-                      className="text-slate-400"
+                      className="text-zinc-400"
                     >
                       Cancel
                     </Button>
@@ -962,7 +971,7 @@ export const ProductDetailPage: React.FC = () => {
                 ) : user ? (
                   <button
                     onClick={() => setAnsweringId(q.id)}
-                    className="ml-11 text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors"
+                    className="ml-11 text-xs font-semibold text-teal-600 hover:text-teal-800 transition-colors"
                   >
                     Answer this question
                   </button>
@@ -977,10 +986,10 @@ export const ProductDetailPage: React.FC = () => {
                   variant="outline"
                   onClick={() => setQuestionsPage((prev) => prev + 1)}
                   disabled={loadingQuestions}
-                  className="font-bold gap-2"
+                  className="font-bold gap-2 rounded-xl h-12 border-0 bg-zinc-50 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
                 >
                   {loadingQuestions ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <SpinnerIcon className="h-4 w-4 animate-spin" />
                   ) : null}
                   Load More Questions
                 </Button>
@@ -995,9 +1004,9 @@ export const ProductDetailPage: React.FC = () => {
         open={askModalOpen}
         onOpenChange={(open) => !open && setAskModalOpen(false)}
       >
-        <DialogContent className="max-w-md bg-white border border-slate-200 shadow-2xl p-6 rounded-2xl">
+        <DialogContent className="max-w-md bg-white border-0 shadow-2xl p-8 rounded-[2rem]">
           <DialogHeader>
-            <DialogTitle className="text-xl font-extrabold text-slate-800">
+            <DialogTitle className="text-xl font-extrabold text-zinc-800">
               Ask a Question
             </DialogTitle>
           </DialogHeader>
@@ -1006,26 +1015,26 @@ export const ProductDetailPage: React.FC = () => {
               value={newQuestion}
               onChange={(e) => setNewQuestion(e.target.value)}
               placeholder="What would you like to know about this product?"
-              className="w-full h-28 p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-sm text-slate-700"
+              className="w-full h-28 p-3 rounded-xl border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none text-sm text-zinc-700"
               maxLength={500}
             />
             <div className="flex justify-between mt-1">
-              <span className="text-[10px] text-slate-400">
+              <span className="text-[10px] text-zinc-400">
                 Minimum 10 characters
               </span>
-              <span className="text-[10px] text-slate-400">
+              <span className="text-[10px] text-zinc-400">
                 {newQuestion.length}/500
               </span>
             </div>
           </div>
           <DialogFooter>
             <Button
-              className="w-full font-bold h-11 bg-indigo-600 hover:bg-indigo-700 text-white"
+              className="w-full font-bold h-11 bg-teal-600 hover:bg-teal-700 text-white"
               onClick={handleAskQuestion}
               disabled={askingQuestion || newQuestion.trim().length < 10}
             >
               {askingQuestion ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <SpinnerIcon className="h-4 w-4 animate-spin" />
               ) : (
                 'Post Question'
               )}

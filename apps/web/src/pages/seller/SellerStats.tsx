@@ -1,30 +1,30 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft,
-  BarChart3,
+  ChartBar,
   Eye,
   ShoppingBag,
-  DollarSign,
+  CurrencyDollar,
   Star,
   Heart,
   Package,
-  MessageSquare,
-  Loader2,
-  TrendingUp,
-  AlertCircle,
-} from "lucide-react";
+  ChatTeardropText,
+  Spinner,
+  TrendUp,
+  WarningCircle,
+} from '@phosphor-icons/react';
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
   CardDescription,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import api from "../../lib/api";
-import { API_ENDPOINTS } from "../../config/api.config";
-import { useToast } from "../../context/ToastContext";
+} from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import api from '../../lib/api';
+import { API_ENDPOINTS } from '../../config/api.config';
+import { useToast } from '../../context/ToastContext';
 
 interface ProductStats {
   title: string;
@@ -60,9 +60,9 @@ export const SellerStats: React.FC = () => {
       } catch (err: any) {
         toast.error(
           err.response?.data?.message ||
-            "Failed to load product performance metrics.",
+            'Failed to load product performance metrics.',
         );
-        navigate("/seller/products");
+        navigate('/seller/products');
       } finally {
         setLoading(false);
       }
@@ -72,8 +72,8 @@ export const SellerStats: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-slate-400 gap-2">
-        <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
+      <div className="flex flex-col items-center justify-center min-h-[400px] text-zinc-400 gap-2">
+        <Spinner className="h-8 w-8 animate-spin text-teal-500" />
         <p className="text-sm font-semibold">Aggregating listing stats...</p>
       </div>
     );
@@ -86,23 +86,22 @@ export const SellerStats: React.FC = () => {
   return (
     <div className="flex flex-col gap-6 max-w-5xl mx-auto">
       {/* Top Banner */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-between items-center bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+      <div className="flex flex-col sm:flex-row gap-4 justify-between items-center bg-white border border-zinc-200 rounded-xl p-4 shadow-sm">
         <div>
-          <p className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest">
+          <p className="text-[10px] font-bold text-teal-600 uppercase tracking-widest">
             Business Insights
           </p>
-          <h1 className="text-xl font-extrabold text-slate-800 mt-1 flex items-center gap-2">
-            <BarChart3 className="h-5 w-5 text-indigo-500" /> Product
-            Performance
+          <h1 className="text-xl font-extrabold text-zinc-800 mt-1 flex items-center gap-2">
+            <ChartBar className="h-5 w-5 text-teal-500" /> Product Performance
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5 font-mono">
-            {stats.title} ({stats.sku}) • {stats.brand || "Unbranded"}
+          <p className="text-xs text-zinc-500 mt-0.5 font-mono">
+            {stats.title} ({stats.sku}) • {stats.brand || 'Unbranded'}
           </p>
         </div>
 
         <Button
           variant="outline"
-          onClick={() => navigate("/seller/products")}
+          onClick={() => navigate('/seller/products')}
           className="w-full sm:w-auto font-bold flex items-center gap-2 hover:cursor-pointer"
         >
           <ArrowLeft className="h-4 w-4" /> Back to Products
@@ -112,16 +111,16 @@ export const SellerStats: React.FC = () => {
       {/* 1. Top Summary Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {/* Views */}
-        <Card className="bg-white border border-slate-200 shadow-xs hover:shadow-sm transition-shadow">
+        <Card className="bg-white border border-zinc-200 shadow-xs hover:shadow-sm transition-shadow">
           <CardContent className="p-5 flex items-center gap-4">
             <div className="p-3 rounded-lg bg-blue-50 text-blue-600">
               <Eye className="h-6 w-6" />
             </div>
             <div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+              <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
                 Total Views
               </p>
-              <h2 className="text-2xl font-black text-slate-800 mt-1">
+              <h2 className="text-2xl font-black text-zinc-800 mt-1">
                 {stats.viewCount.toLocaleString()}
               </h2>
             </div>
@@ -129,16 +128,16 @@ export const SellerStats: React.FC = () => {
         </Card>
 
         {/* Sold */}
-        <Card className="bg-white border border-slate-200 shadow-xs hover:shadow-sm transition-shadow">
+        <Card className="bg-white border border-zinc-200 shadow-xs hover:shadow-sm transition-shadow">
           <CardContent className="p-5 flex items-center gap-4">
             <div className="p-3 rounded-lg bg-emerald-50 text-emerald-600">
               <ShoppingBag className="h-6 w-6" />
             </div>
             <div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+              <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
                 Units Sold
               </p>
-              <h2 className="text-2xl font-black text-slate-800 mt-1">
+              <h2 className="text-2xl font-black text-zinc-800 mt-1">
                 {stats.soldCount.toLocaleString()}
               </h2>
             </div>
@@ -146,16 +145,16 @@ export const SellerStats: React.FC = () => {
         </Card>
 
         {/* Revenue */}
-        <Card className="bg-white border border-slate-200 shadow-xs hover:shadow-sm transition-shadow">
+        <Card className="bg-white border border-zinc-200 shadow-xs hover:shadow-sm transition-shadow">
           <CardContent className="p-5 flex items-center gap-4">
-            <div className="p-3 rounded-lg bg-indigo-50 text-indigo-600">
-              <DollarSign className="h-6 w-6" />
+            <div className="p-3 rounded-lg bg-teal-50 text-teal-600">
+              <CurrencyDollar className="h-6 w-6" />
             </div>
             <div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+              <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
                 Total Revenue
               </p>
-              <h2 className="text-2xl font-black text-slate-800 mt-1">
+              <h2 className="text-2xl font-black text-zinc-800 mt-1">
                 ₹{stats.revenue.toLocaleString()}
               </h2>
             </div>
@@ -163,18 +162,18 @@ export const SellerStats: React.FC = () => {
         </Card>
 
         {/* Rating */}
-        <Card className="bg-white border border-slate-200 shadow-xs hover:shadow-sm transition-shadow">
+        <Card className="bg-white border border-zinc-200 shadow-xs hover:shadow-sm transition-shadow">
           <CardContent className="p-5 flex items-center gap-4">
             <div className="p-3 rounded-lg bg-amber-50 text-amber-500">
               <Star className="h-6 w-6 fill-amber-500 text-amber-500" />
             </div>
             <div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+              <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
                 Average Rating
               </p>
-              <h2 className="text-2xl font-black text-slate-800 mt-1 flex items-baseline gap-1">
+              <h2 className="text-2xl font-black text-zinc-800 mt-1 flex items-baseline gap-1">
                 {stats.avgRating.toFixed(1)}
-                <span className="text-xs font-normal text-slate-400">/5.0</span>
+                <span className="text-xs font-normal text-zinc-400">/5.0</span>
               </h2>
             </div>
           </CardContent>
@@ -184,21 +183,21 @@ export const SellerStats: React.FC = () => {
       {/* 2. Secondary Insights Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Reviews Summary */}
-        <Card className="bg-white border border-slate-200 shadow-xs">
-          <CardHeader className="pb-2 border-b border-slate-50">
-            <CardTitle className="text-sm font-bold text-slate-800 flex items-center gap-2">
-              <MessageSquare className="h-4 w-4 text-slate-500" /> Customer
+        <Card className="bg-white border border-zinc-200 shadow-xs">
+          <CardHeader className="pb-2 border-b border-zinc-50">
+            <CardTitle className="text-sm font-bold text-zinc-800 flex items-center gap-2">
+              <ChatTeardropText className="h-4 w-4 text-zinc-500" /> Customer
               Feedback
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6 flex flex-col justify-center items-center h-48 text-center gap-2">
-            <h3 className="text-4xl font-black text-slate-800">
+            <h3 className="text-4xl font-black text-zinc-800">
               {stats.reviewCount}
             </h3>
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+            <p className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
               Verified Reviews
             </p>
-            <p className="text-[10px] text-slate-400 mt-2 max-w-[200px]">
+            <p className="text-[10px] text-zinc-400 mt-2 max-w-[200px]">
               Feedback rating calculated from customer reviews submitted for
               delivered items.
             </p>
@@ -206,21 +205,21 @@ export const SellerStats: React.FC = () => {
         </Card>
 
         {/* Wishlist Summary */}
-        <Card className="bg-white border border-slate-200 shadow-xs">
-          <CardHeader className="pb-2 border-b border-slate-50">
-            <CardTitle className="text-sm font-bold text-slate-800 flex items-center gap-2">
-              <Heart className="h-4 w-4 text-slate-500" /> Wishlist Demand
+        <Card className="bg-white border border-zinc-200 shadow-xs">
+          <CardHeader className="pb-2 border-b border-zinc-50">
+            <CardTitle className="text-sm font-bold text-zinc-800 flex items-center gap-2">
+              <Heart className="h-4 w-4 text-zinc-500" /> Wishlist Demand
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6 flex flex-col justify-center items-center h-48 text-center gap-2">
             <h3 className="text-4xl font-black text-rose-500 flex items-center gap-1">
-              <Heart className="h-8 w-8 fill-rose-500 text-rose-500" />{" "}
+              <Heart className="h-8 w-8 fill-rose-500 text-rose-500" />{' '}
               {stats.wishlistSaves}
             </h3>
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+            <p className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
               Wishlist Saves
             </p>
-            <p className="text-[10px] text-slate-400 mt-2 max-w-[200px]">
+            <p className="text-[10px] text-zinc-400 mt-2 max-w-[200px]">
               Tracks customer shopping interest. Shows how many customers added
               this item to faves.
             </p>
@@ -228,30 +227,30 @@ export const SellerStats: React.FC = () => {
         </Card>
 
         {/* Stock Summary */}
-        <Card className="bg-white border border-slate-200 shadow-xs">
-          <CardHeader className="pb-2 border-b border-slate-50">
-            <CardTitle className="text-sm font-bold text-slate-800 flex items-center gap-2">
-              <Package className="h-4 w-4 text-slate-500" /> Inventory Tracking
+        <Card className="bg-white border border-zinc-200 shadow-xs">
+          <CardHeader className="pb-2 border-b border-zinc-50">
+            <CardTitle className="text-sm font-bold text-zinc-800 flex items-center gap-2">
+              <Package className="h-4 w-4 text-zinc-500" /> Inventory Tracking
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6 flex flex-col justify-center items-center h-48 text-center gap-3">
             <h3
-              className={`text-4xl font-black ${isLowStock ? "text-rose-600" : "text-slate-800"}`}
+              className={`text-4xl font-black ${isLowStock ? 'text-rose-600' : 'text-zinc-800'}`}
             >
-              {stats.totalStock}{" "}
-              <span className="text-sm font-normal text-slate-400">units</span>
+              {stats.totalStock}{' '}
+              <span className="text-sm font-normal text-zinc-400">units</span>
             </h3>
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+            <p className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
               Remaining Stock
             </p>
 
             {isLowStock ? (
               <span className="text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-100 px-2 py-0.5 rounded flex items-center gap-1 animate-pulse">
-                <AlertCircle className="h-3 w-3" /> Low Stock Alert threshold (
-                {stats.lowStockAlert})
+                <WarningCircle className="h-3 w-3" /> Low Stock Alert threshold
+                ({stats.lowStockAlert})
               </span>
             ) : (
-              <span className="text-[10px] font-semibold text-slate-400 bg-slate-50 px-2 py-0.5 rounded">
+              <span className="text-[10px] font-semibold text-zinc-400 bg-zinc-50 px-2 py-0.5 rounded">
                 Alert Threshold: {stats.lowStockAlert} units
               </span>
             )}
@@ -260,41 +259,41 @@ export const SellerStats: React.FC = () => {
       </div>
 
       {/* Revenue growth trend details card */}
-      <Card className="bg-white border border-slate-200 shadow-xs">
-        <CardHeader className="pb-4 border-b border-slate-100 flex flex-row justify-between items-center">
+      <Card className="bg-white border border-zinc-200 shadow-xs">
+        <CardHeader className="pb-4 border-b border-zinc-100 flex flex-row justify-between items-center">
           <div>
-            <CardTitle className="text-base font-bold text-slate-800">
+            <CardTitle className="text-base font-bold text-zinc-800">
               Business Health Summary
             </CardTitle>
-            <CardDescription className="text-xs text-slate-400">
+            <CardDescription className="text-xs text-zinc-400">
               Insights aggregated from live product listing parameters
             </CardDescription>
           </div>
-          <TrendingUp className="h-5 w-5 text-indigo-500" />
+          <TrendUp className="h-5 w-5 text-teal-500" />
         </CardHeader>
-        <CardContent className="p-6 space-y-4 text-sm text-slate-600">
+        <CardContent className="p-6 space-y-4 text-sm text-zinc-600">
           <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
             <div>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">
+              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block">
                 Unit Base Price
               </span>
-              <span className="font-extrabold text-slate-800 mt-1 block">
+              <span className="font-extrabold text-zinc-800 mt-1 block">
                 ₹{stats.basePrice.toLocaleString()}
               </span>
             </div>
             <div>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">
+              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block">
                 Delivered Orders Volume
               </span>
-              <span className="font-extrabold text-slate-800 mt-1 block">
+              <span className="font-extrabold text-zinc-800 mt-1 block">
                 ₹{stats.revenue.toLocaleString()} ({stats.soldCount} units)
               </span>
             </div>
             <div>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">
+              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block">
                 Product Rating Index
               </span>
-              <span className="font-extrabold text-slate-800 mt-1 block">
+              <span className="font-extrabold text-zinc-800 mt-1 block">
                 {stats.avgRating.toFixed(2)} ★ ({stats.reviewCount} reviews)
               </span>
             </div>

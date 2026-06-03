@@ -1,27 +1,34 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { useToast } from "../../context/ToastContext";
-import api from "../../lib/api";
-import { API_ENDPOINTS } from "../../config/api.config";
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { useToast } from '../../context/ToastContext';
+import api from '../../lib/api';
+import { API_ENDPOINTS } from '../../config/api.config';
 import {
   ArrowLeft,
   MapPin,
   Plus,
-  Trash2,
-  Edit2,
+  Trash,
+  PencilSimple,
   CheckCircle,
-  Home,
+  House,
   Briefcase,
   Globe,
-  Loader2,
+  Spinner,
   User,
   Phone,
-  Compass
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { GoogleAddressInput } from "../../components/ui/GoogleAddressInput";
+  Compass,
+} from '@phosphor-icons/react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { GoogleAddressInput } from '../../components/ui/GoogleAddressInput';
 
 // Types representing what an Address looks like, matching our database schema!
 interface Address {
@@ -42,7 +49,7 @@ interface Address {
 
 export const AddressesPage: React.FC = () => {
   const { toast } = useToast();
-  
+
   // State for storing the list of addresses fetched from the backend database!
   const [addresses, setAddresses] = useState<Address[]>([]);
   // Loading state so we can display a cool spinner while downloading data!
@@ -53,15 +60,15 @@ export const AddressesPage: React.FC = () => {
   const [editingAddress, setEditingAddress] = useState<Address | null>(null);
 
   // Form input field states!
-  const [label, setLabel] = useState("Home");
-  const [fullName, setFullName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [line1, setLine1] = useState("");
-  const [line2, setLine2] = useState("");
-  const [city, setCity] = useState("");
-  const [state, setState] = useState("");
-  const [pincode, setPincode] = useState("");
-  const [country, setCountry] = useState("India");
+  const [label, setLabel] = useState('House');
+  const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [line1, setLine1] = useState('');
+  const [line2, setLine2] = useState('');
+  const [city, setCity] = useState('');
+  const [state, setState] = useState('');
+  const [pincode, setPincode] = useState('');
+  const [country, setCountry] = useState('India');
   const [isDefault, setIsDefault] = useState(false);
   const [lat, setLat] = useState<number | null>(null);
   const [lng, setLng] = useState<number | null>(null);
@@ -81,8 +88,10 @@ export const AddressesPage: React.FC = () => {
         setAddresses(response.data.data);
       }
     } catch (err: any) {
-      console.error("Failed to load addresses:", err);
-      toast.error(err.response?.data?.message || "Failed to load saved addresses.");
+      console.error('Failed to load addresses:', err);
+      toast.error(
+        err.response?.data?.message || 'Failed to load saved addresses.',
+      );
     } finally {
       setLoading(false);
     }
@@ -90,15 +99,15 @@ export const AddressesPage: React.FC = () => {
 
   // Resets all form fields to default/empty values
   const resetForm = () => {
-    setLabel("Home");
-    setFullName("");
-    setPhone("");
-    setLine1("");
-    setLine2("");
-    setCity("");
-    setState("");
-    setPincode("");
-    setCountry("India");
+    setLabel('House');
+    setFullName('');
+    setPhone('');
+    setLine1('');
+    setLine2('');
+    setCity('');
+    setState('');
+    setPincode('');
+    setCountry('India');
     setIsDefault(false);
     setLat(null);
     setLng(null);
@@ -109,15 +118,15 @@ export const AddressesPage: React.FC = () => {
   // Fills the form fields with an address we want to edit
   const startEdit = (address: Address) => {
     setEditingAddress(address);
-    setLabel(address.label || "Home");
-    setFullName(address.fullName || "");
-    setPhone(address.phone || "");
-    setLine1(address.line1 || "");
-    setLine2(address.line2 || "");
-    setCity(address.city || "");
-    setState(address.state || "");
-    setPincode(address.pincode || "");
-    setCountry(address.country || "India");
+    setLabel(address.label || 'House');
+    setFullName(address.fullName || '');
+    setPhone(address.phone || '');
+    setLine1(address.line1 || '');
+    setLine2(address.line2 || '');
+    setCity(address.city || '');
+    setState(address.state || '');
+    setPincode(address.pincode || '');
+    setCountry(address.country || 'India');
     setIsDefault(address.isDefault || false);
     setLat(address.lat || null);
     setLng(address.lng || null);
@@ -129,18 +138,25 @@ export const AddressesPage: React.FC = () => {
     e.preventDefault();
 
     // Client-side quick validation to prevent typing errors!
-    if (!fullName.trim() || !phone.trim() || !line1.trim() || !city.trim() || !state.trim() || !pincode.trim()) {
-      toast.warning("Please fill out all required fields marked with *");
+    if (
+      !fullName.trim() ||
+      !phone.trim() ||
+      !line1.trim() ||
+      !city.trim() ||
+      !state.trim() ||
+      !pincode.trim()
+    ) {
+      toast.warning('Please fill out all required fields marked with *');
       return;
     }
 
     if (!/^\d{6}$/.test(pincode)) {
-      toast.warning("Pincode must be exactly 6 digits.");
+      toast.warning('Pincode must be exactly 6 digits.');
       return;
     }
 
     if (phone.length < 7) {
-      toast.warning("Phone number must be at least 7 digits.");
+      toast.warning('Phone number must be at least 7 digits.');
       return;
     }
 
@@ -163,9 +179,12 @@ export const AddressesPage: React.FC = () => {
     try {
       if (editingAddress) {
         // CALL BACKEND PUT API to update existing address details!
-        const response = await api.put(API_ENDPOINTS.addresses.byId(editingAddress.id), payload);
+        const response = await api.put(
+          API_ENDPOINTS.addresses.byId(editingAddress.id),
+          payload,
+        );
         if (response.data.success) {
-          toast.success("Address updated successfully!");
+          toast.success('Address updated successfully!');
           resetForm();
           fetchAddresses();
         }
@@ -173,14 +192,14 @@ export const AddressesPage: React.FC = () => {
         // CALL BACKEND POST API to create a brand new address!
         const response = await api.post(API_ENDPOINTS.addresses.base, payload);
         if (response.data.success) {
-          toast.success("New address saved successfully!");
+          toast.success('New address saved successfully!');
           resetForm();
           fetchAddresses();
         }
       }
     } catch (err: any) {
-      console.error("Failed to save address:", err);
-      toast.error(err.response?.data?.message || "Failed to save address.");
+      console.error('Failed to save address:', err);
+      toast.error(err.response?.data?.message || 'Failed to save address.');
     } finally {
       setSaving(false);
     }
@@ -188,19 +207,21 @@ export const AddressesPage: React.FC = () => {
 
   // Delete a saved address after a quick check
   const handleDelete = async (addressId: string) => {
-    if (!window.confirm("Are you sure you want to delete this address?")) {
+    if (!window.confirm('Are you sure you want to delete this address?')) {
       return;
     }
 
     try {
-      const response = await api.delete(API_ENDPOINTS.addresses.byId(addressId));
+      const response = await api.delete(
+        API_ENDPOINTS.addresses.byId(addressId),
+      );
       if (response.data.success) {
-        toast.success("Address deleted successfully.");
+        toast.success('Address deleted successfully.');
         fetchAddresses();
       }
     } catch (err: any) {
-      console.error("Failed to delete address:", err);
-      toast.error(err.response?.data?.message || "Could not delete address.");
+      console.error('Failed to delete address:', err);
+      toast.error(err.response?.data?.message || 'Could not delete address.');
     }
   };
 
@@ -210,15 +231,19 @@ export const AddressesPage: React.FC = () => {
 
     try {
       const response = await api.put(API_ENDPOINTS.addresses.byId(address.id), {
-        isDefault: true
+        isDefault: true,
       });
       if (response.data.success) {
-        toast.success(`"${address.label}" set as your default shipping address.`);
+        toast.success(
+          `"${address.label}" set as your default shipping address.`,
+        );
         fetchAddresses();
       }
     } catch (err: any) {
-      console.error("Failed to set default address:", err);
-      toast.error(err.response?.data?.message || "Could not update default address.");
+      console.error('Failed to set default address:', err);
+      toast.error(
+        err.response?.data?.message || 'Could not update default address.',
+      );
     }
   };
 
@@ -228,7 +253,7 @@ export const AddressesPage: React.FC = () => {
       <div className="flex items-center justify-between">
         <Link
           to="/shop/profile"
-          className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-indigo-600 transition-colors"
+          className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-600 hover:text-teal-600 transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Profile
@@ -236,7 +261,7 @@ export const AddressesPage: React.FC = () => {
         {!showForm && (
           <Button
             onClick={() => setShowForm(true)}
-            className="rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold inline-flex items-center gap-2 shadow-sm"
+            className="rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold inline-flex items-center gap-2 shadow-sm"
           >
             <Plus className="h-4 w-4" /> Add Address
           </Button>
@@ -245,64 +270,69 @@ export const AddressesPage: React.FC = () => {
 
       {/* Address Edit/Add Form Container */}
       {showForm && (
-        <Card className="border border-slate-200 shadow-sm rounded-2xl overflow-hidden bg-white animate-in fade-in slide-in-from-top-4 duration-250">
-          <CardHeader className="bg-slate-50 border-b border-slate-100 p-6">
-            <CardTitle className="text-xl font-bold text-slate-800">
-              {editingAddress ? "Edit Saved Address" : "Add New Saved Address"}
+        <Card className="border-0 bg-zinc-50/80 shadow-none rounded-[2rem] overflow-hidden animate-in fade-in slide-in-from-top-4 duration-250">
+          <CardHeader className="bg-zinc-100/50 p-6">
+            <CardTitle className="text-xl font-bold text-zinc-800">
+              {editingAddress ? 'Edit Saved Address' : 'Add New Saved Address'}
             </CardTitle>
-            <CardDescription className="text-slate-500 font-medium">
-              Provide your delivery coordinates so we can ship your orders directly to you.
+            <CardDescription className="text-zinc-500 font-medium">
+              Provide your delivery coordinates so we can ship your orders
+              directly to you.
             </CardDescription>
           </CardHeader>
 
           <form onSubmit={handleSubmit}>
             <CardContent className="p-6 flex flex-col gap-5">
-              
-              {/* Address Label (Home / Work / Other) */}
+              {/* Address Label (House / Work / Other) */}
               <div className="flex flex-col gap-2">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
                   Address Label / Tag
                 </label>
                 <div className="flex flex-wrap gap-2">
-                  {["Home", "Work", "Other"].map((item) => (
+                  {['House', 'Work', 'Other'].map((item) => (
                     <button
                       key={item}
                       type="button"
                       onClick={() => setLabel(item)}
                       className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                         label === item
-                          ? "bg-indigo-600 text-white border-2 border-indigo-600"
-                          : "bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100"
+                          ? 'bg-teal-600 text-white border-2 border-teal-600'
+                          : 'bg-zinc-50 text-zinc-600 border border-zinc-200 hover:bg-zinc-100'
                       }`}
                     >
                       <div className="flex items-center gap-1.5">
-                        {item === "Home" && <Home className="h-3.5 w-3.5" />}
-                        {item === "Work" && <Briefcase className="h-3.5 w-3.5" />}
-                        {item === "Other" && <MapPin className="h-3.5 w-3.5" />}
+                        {item === 'House' && <House className="h-3.5 w-3.5" />}
+                        {item === 'Work' && (
+                          <Briefcase className="h-3.5 w-3.5" />
+                        )}
+                        {item === 'Other' && <MapPin className="h-3.5 w-3.5" />}
                         {item}
                       </div>
                     </button>
                   ))}
-                  {label !== "Home" && label !== "Work" && label !== "Other" && (
-                    <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-2 rounded-xl">
-                      Custom: {label}
-                    </span>
-                  )}
+                  {label !== 'House' &&
+                    label !== 'Work' &&
+                    label !== 'Other' && (
+                      <span className="text-xs font-bold text-teal-600 bg-teal-50 px-3 py-2 rounded-xl">
+                        Custom: {label}
+                      </span>
+                    )}
                 </div>
                 {/* Text input if they want to name it something custom like "Parent's House" */}
-                {label === "Other" && (
+                {label === 'Other' && (
                   <Input
                     placeholder="Enter custom label (e.g. My Cabin)"
                     onChange={(e) => setLabel(e.target.value)}
-                    className="rounded-xl border-slate-200 text-xs mt-2"
+                    className="rounded-xl border-zinc-200 text-xs mt-2"
                   />
                 )}
               </div>
 
               {/* Google Maps Places Autocomplete Search */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-                  <Compass className="h-3.5 w-3.5 text-indigo-500" /> Search Address on Google Maps (Auto-fills inputs)
+                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
+                  <Compass className="h-3.5 w-3.5 text-teal-500" /> Search
+                  Address on Google Maps (Auto-fills inputs)
                 </label>
                 <GoogleAddressInput
                   onAddressSelect={(selected) => {
@@ -313,80 +343,103 @@ export const AddressesPage: React.FC = () => {
                     setLat(selected.lat);
                     setLng(selected.lng);
                   }}
-                  defaultValue={editingAddress ? `${editingAddress.line1}, ${editingAddress.city}, ${editingAddress.state}` : ''}
+                  defaultValue={
+                    editingAddress
+                      ? `${editingAddress.line1}, ${editingAddress.city}, ${editingAddress.state}`
+                      : ''
+                  }
                 />
                 {lat && lng && (
                   <span className="text-[10px] font-bold text-emerald-600 mt-1 flex items-center gap-1 bg-emerald-50/50 self-start px-2 py-0.5 rounded-md border border-emerald-100">
-                    <CheckCircle className="h-3 w-3" /> Location Geocoded: {lat.toFixed(5)}, {lng.toFixed(5)}
+                    <CheckCircle className="h-3 w-3" /> Location Geocoded:{' '}
+                    {lat.toFixed(5)}, {lng.toFixed(5)}
                   </span>
                 )}
               </div>
 
               {/* Grid of Inputs */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                
                 {/* Full Name input */}
                 <div className="flex flex-col gap-1.5">
-                  <label htmlFor="fullname-input" className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-                    <User className="h-3.5 w-3.5 text-slate-400" /> Receiver's Full Name *
+                  <label
+                    htmlFor="fullname-input"
+                    className="text-xs font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5"
+                  >
+                    <User className="h-3.5 w-3.5 text-zinc-400" /> Receiver's
+                    Full Name *
                   </label>
                   <Input
                     id="fullname-input"
                     placeholder="e.g. Jane Doe"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    className="rounded-xl border-slate-200"
+                    className="rounded-xl border-zinc-200"
                     required
                   />
                 </div>
 
                 {/* Phone Number input */}
                 <div className="flex flex-col gap-1.5">
-                  <label htmlFor="phone-input" className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-                    <Phone className="h-3.5 w-3.5 text-slate-400" /> Delivery Phone *
+                  <label
+                    htmlFor="phone-input"
+                    className="text-xs font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5"
+                  >
+                    <Phone className="h-3.5 w-3.5 text-zinc-400" /> Delivery
+                    Phone *
                   </label>
                   <Input
                     id="phone-input"
                     placeholder="e.g. 9876543210"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="rounded-xl border-slate-200"
+                    className="rounded-xl border-zinc-200"
                     required
                   />
                 </div>
 
                 {/* Street Address Line 1 */}
                 <div className="flex flex-col gap-1.5 md:col-span-2">
-                  <label htmlFor="line1-input" className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-                    <MapPin className="h-3.5 w-3.5 text-slate-400" /> Street Address (Line 1) *
+                  <label
+                    htmlFor="line1-input"
+                    className="text-xs font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5"
+                  >
+                    <MapPin className="h-3.5 w-3.5 text-zinc-400" /> Street
+                    Address (Line 1) *
                   </label>
                   <Input
                     id="line1-input"
                     placeholder="Flat number, building name, street name"
                     value={line1}
                     onChange={(e) => setLine1(e.target.value)}
-                    className="rounded-xl border-slate-200"
+                    className="rounded-xl border-zinc-200"
                     required
                   />
                 </div>
 
                 {/* Street Address Line 2 */}
                 <div className="flex flex-col gap-1.5 md:col-span-2">
-                  <label htmlFor="line2-input" className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-                    <MapPin className="h-3.5 w-3.5 text-slate-300" /> Landmark / Apartment Name (Line 2)
+                  <label
+                    htmlFor="line2-input"
+                    className="text-xs font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5"
+                  >
+                    <MapPin className="h-3.5 w-3.5 text-zinc-300" /> Landmark /
+                    Apartment Name (Line 2)
                   </label>
                   <Input
                     id="line2-input"
                     placeholder="e.g. Near Big Bazaar"
                     value={line2}
                     onChange={(e) => setLine2(e.target.value)}
-                    className="rounded-xl border-slate-200"
+                    className="rounded-xl border-zinc-200"
                   />
                 </div>
 
                 {/* City */}
                 <div className="flex flex-col gap-1.5">
-                  <label htmlFor="city-input" className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <label
+                    htmlFor="city-input"
+                    className="text-xs font-bold text-zinc-500 uppercase tracking-wider"
+                  >
                     City / Town *
                   </label>
                   <Input
@@ -394,14 +447,17 @@ export const AddressesPage: React.FC = () => {
                     placeholder="e.g. Mumbai"
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
-                    className="rounded-xl border-slate-200"
+                    className="rounded-xl border-zinc-200"
                     required
                   />
                 </div>
 
                 {/* State */}
                 <div className="flex flex-col gap-1.5">
-                  <label htmlFor="state-input" className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <label
+                    htmlFor="state-input"
+                    className="text-xs font-bold text-zinc-500 uppercase tracking-wider"
+                  >
                     State *
                   </label>
                   <Input
@@ -409,62 +465,67 @@ export const AddressesPage: React.FC = () => {
                     placeholder="e.g. Maharashtra"
                     value={state}
                     onChange={(e) => setState(e.target.value)}
-                    className="rounded-xl border-slate-200"
+                    className="rounded-xl border-zinc-200"
                     required
                   />
                 </div>
 
                 {/* Pincode */}
                 <div className="flex flex-col gap-1.5">
-                  <label htmlFor="pincode-input" className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-                    <Compass className="h-3.5 w-3.5 text-slate-400" /> Pincode (6 Digits) *
+                  <label
+                    htmlFor="pincode-input"
+                    className="text-xs font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5"
+                  >
+                    <Compass className="h-3.5 w-3.5 text-zinc-400" /> Pincode (6
+                    Digits) *
                   </label>
                   <Input
                     id="pincode-input"
                     placeholder="e.g. 400054"
                     value={pincode}
                     onChange={(e) => setPincode(e.target.value)}
-                    className="rounded-xl border-slate-200"
+                    className="rounded-xl border-zinc-200"
                     required
                   />
                 </div>
 
                 {/* Country */}
                 <div className="flex flex-col gap-1.5">
-                  <label htmlFor="country-input" className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-                    <Globe className="h-3.5 w-3.5 text-slate-400" /> Country
+                  <label
+                    htmlFor="country-input"
+                    className="text-xs font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5"
+                  >
+                    <Globe className="h-3.5 w-3.5 text-zinc-400" /> Country
                   </label>
                   <Input
                     id="country-input"
                     value={country}
                     onChange={(e) => setCountry(e.target.value)}
-                    className="rounded-xl border-slate-200"
+                    className="rounded-xl border-zinc-200"
                     required
                   />
                 </div>
-
               </div>
 
               {/* Set Default Address Switch */}
-              <div className="flex items-center gap-3.5 py-3 border-t border-slate-100 mt-2">
+              <div className="flex items-center gap-3.5 py-3 border-t border-zinc-100 mt-2">
                 <input
                   id="default-address-checkbox"
                   type="checkbox"
                   checked={isDefault}
                   onChange={(e) => setIsDefault(e.target.checked)}
-                  className="h-5 w-5 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500 cursor-pointer"
+                  className="h-5 w-5 text-teal-600 border-zinc-300 rounded focus:ring-teal-500 cursor-pointer"
                 />
                 <label
                   htmlFor="default-address-checkbox"
-                  className="text-sm font-semibold text-slate-700 cursor-pointer select-none"
+                  className="text-sm font-semibold text-zinc-700 cursor-pointer select-none"
                 >
                   Set as my default shipping address
                 </label>
               </div>
-
             </CardContent>
 
-            <CardFooter className="bg-slate-50 border-t border-slate-100 p-6 flex flex-col sm:flex-row items-center justify-end gap-3">
+            <CardFooter className="bg-zinc-100/50 p-6 flex flex-col sm:flex-row items-center justify-end gap-3">
               <Button
                 type="button"
                 variant="outline"
@@ -476,14 +537,14 @@ export const AddressesPage: React.FC = () => {
               <Button
                 type="submit"
                 disabled={saving}
-                className="w-full sm:w-auto rounded-xl bg-indigo-600 hover:bg-indigo-700 font-bold inline-flex items-center justify-center gap-2 px-6"
+                className="w-full sm:w-auto rounded-xl bg-teal-600 hover:bg-teal-700 font-bold inline-flex items-center justify-center gap-2 px-6"
               >
                 {saving ? (
                   <>
-                    <Loader2 className="h-4 w-4 animate-spin" /> Saving...
+                    <Spinner className="h-4 w-4 animate-spin" /> Saving...
                   </>
                 ) : (
-                  "Save Address"
+                  'Save Address'
                 )}
               </Button>
             </CardFooter>
@@ -493,23 +554,28 @@ export const AddressesPage: React.FC = () => {
 
       {/* Main Address List Container */}
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-20 bg-white border border-slate-200 rounded-2xl shadow-sm">
-          <Loader2 className="h-10 w-10 text-indigo-600 animate-spin" />
-          <p className="text-slate-500 font-bold mt-4">Loading your saved addresses...</p>
+        <div className="flex flex-col items-center justify-center py-20 bg-zinc-50/80 rounded-[2rem]">
+          <Spinner className="h-10 w-10 text-teal-600 animate-spin" />
+          <p className="text-zinc-500 font-bold mt-4">
+            Loading your saved addresses...
+          </p>
         </div>
       ) : addresses.length === 0 ? (
         // Empty state UI if there are no addresses!
-        <div className="flex flex-col items-center justify-center py-16 px-6 text-center bg-white border border-slate-200 rounded-2xl shadow-sm">
-          <div className="p-4 bg-slate-50 rounded-full text-slate-400">
+        <div className="flex flex-col items-center justify-center py-16 px-6 text-center bg-zinc-50/80 rounded-[2rem]">
+          <div className="p-4 bg-zinc-50 rounded-full text-zinc-400">
             <MapPin className="h-12 w-12" />
           </div>
-          <h3 className="text-lg font-bold text-slate-800 mt-4">No Saved Addresses Found</h3>
-          <p className="text-slate-500 text-sm max-w-sm mt-2">
-            You haven't registered any addresses yet. Add an address now to make checkouts incredibly fast!
+          <h3 className="text-lg font-bold text-zinc-800 mt-4">
+            No Saved Addresses Found
+          </h3>
+          <p className="text-zinc-500 text-sm max-w-sm mt-2">
+            You haven't registered any addresses yet. Add an address now to make
+            checkouts incredibly fast!
           </p>
           <Button
             onClick={() => setShowForm(true)}
-            className="rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold mt-6 inline-flex items-center gap-2"
+            className="rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold mt-6 inline-flex items-center gap-2"
           >
             <Plus className="h-4 w-4" /> Add Your First Address
           </Button>
@@ -520,82 +586,94 @@ export const AddressesPage: React.FC = () => {
           {addresses.map((addr) => (
             <Card
               key={addr.id}
-              className={`border transition-all rounded-2xl overflow-hidden shadow-sm flex flex-col justify-between ${
+              className={`border-0 transition-all rounded-[2rem] overflow-hidden flex flex-col justify-between ${
                 addr.isDefault
-                  ? "border-indigo-600 ring-2 ring-indigo-50"
-                  : "border-slate-200 hover:border-slate-300"
+                  ? 'bg-zinc-100/80 ring-4 ring-teal-50/50'
+                  : 'bg-zinc-50/80 hover:bg-zinc-100/60'
               }`}
             >
-              <CardHeader className="pb-3 border-b border-slate-100 flex flex-row items-center justify-between p-5 bg-slate-50/50">
+              <CardHeader className="pb-3 flex flex-row items-center justify-between p-6 bg-zinc-100/50">
                 <div className="flex items-center gap-2.5">
                   <div
                     className={`p-1.5 rounded-lg border ${
                       addr.isDefault
-                        ? "bg-indigo-50 text-indigo-600 border-indigo-100"
-                        : "bg-white text-slate-500 border-slate-200"
+                        ? 'bg-teal-50 text-teal-600 border-teal-100'
+                        : 'bg-white text-zinc-500 border-zinc-200'
                     }`}
                   >
-                    {addr.label === "Home" && <Home className="h-4 w-4" />}
-                    {addr.label === "Work" && <Briefcase className="h-4 w-4" />}
-                    {addr.label !== "Home" && addr.label !== "Work" && <MapPin className="h-4 w-4" />}
+                    {addr.label === 'House' && <House className="h-4 w-4" />}
+                    {addr.label === 'Work' && <Briefcase className="h-4 w-4" />}
+                    {addr.label !== 'House' && addr.label !== 'Work' && (
+                      <MapPin className="h-4 w-4" />
+                    )}
                   </div>
-                  <span className="font-extrabold text-sm text-slate-800 uppercase tracking-wider">
+                  <span className="font-extrabold text-sm text-zinc-800 uppercase tracking-wider">
                     {addr.label}
                   </span>
                 </div>
                 {addr.isDefault && (
-                  <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-full border border-indigo-100 uppercase tracking-wider flex items-center gap-1 shadow-sm">
+                  <span className="text-[10px] font-bold text-teal-700 bg-teal-50 px-2.5 py-1 rounded-full border border-teal-100 uppercase tracking-wider flex items-center gap-1 shadow-sm">
                     <CheckCircle className="h-3 w-3" /> Default
                   </span>
                 )}
               </CardHeader>
 
-              <CardContent className="p-5 flex-1 flex flex-col gap-3">
-                
+              <CardContent className="p-6 flex-1 flex flex-col gap-4">
                 {/* Receiver Name */}
                 <div className="flex items-start gap-3">
-                  <User className="h-4.5 w-4.5 text-slate-400 mt-0.5" />
+                  <User className="h-4.5 w-4.5 text-zinc-400 mt-0.5" />
                   <div>
-                    <p className="font-extrabold text-slate-800 text-sm">{addr.fullName}</p>
-                    <span className="text-slate-400 text-[11px] font-bold uppercase tracking-wider">Receiver</span>
+                    <p className="font-extrabold text-zinc-800 text-sm">
+                      {addr.fullName}
+                    </p>
+                    <span className="text-zinc-400 text-[11px] font-bold uppercase tracking-wider">
+                      Receiver
+                    </span>
                   </div>
                 </div>
 
                 {/* Receiver Phone */}
                 <div className="flex items-start gap-3">
-                  <Phone className="h-4.5 w-4.5 text-slate-400 mt-0.5" />
+                  <Phone className="h-4.5 w-4.5 text-zinc-400 mt-0.5" />
                   <div>
-                    <p className="font-bold text-slate-700 text-sm">{addr.phone}</p>
-                    <span className="text-slate-400 text-[11px] font-bold uppercase tracking-wider">Contact Number</span>
+                    <p className="font-bold text-zinc-700 text-sm">
+                      {addr.phone}
+                    </p>
+                    <span className="text-zinc-400 text-[11px] font-bold uppercase tracking-wider">
+                      Contact Number
+                    </span>
                   </div>
                 </div>
 
                 {/* Address lines */}
-                <div className="flex items-start gap-3 mt-1.5 pt-2.5 border-t border-slate-100">
-                  <MapPin className="h-4.5 w-4.5 text-indigo-500 mt-0.5" />
-                  <div className="text-slate-600 text-xs font-semibold leading-relaxed">
+                <div className="flex items-start gap-3 mt-1.5 pt-2.5 border-t border-zinc-100">
+                  <MapPin className="h-4.5 w-4.5 text-teal-500 mt-0.5" />
+                  <div className="text-zinc-600 text-xs font-semibold leading-relaxed">
                     <p>{addr.line1}</p>
-                    {addr.line2 && <p className="text-slate-500">{addr.line2}</p>}
-                    <p className="mt-1 font-bold text-slate-800">
+                    {addr.line2 && (
+                      <p className="text-zinc-500">{addr.line2}</p>
+                    )}
+                    <p className="mt-1 font-bold text-zinc-800">
                       {addr.city}, {addr.state} – {addr.pincode}
                     </p>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{addr.country}</p>
+                    <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">
+                      {addr.country}
+                    </p>
                   </div>
                 </div>
-
               </CardContent>
 
-              <CardFooter className="bg-slate-50 border-t border-slate-100 p-4 flex items-center justify-between gap-2">
+              <CardFooter className="bg-zinc-100/50 p-5 flex items-center justify-between gap-2">
                 {/* Set default option */}
                 {!addr.isDefault ? (
                   <button
                     onClick={() => handleSetDefault(addr)}
-                    className="text-xs font-bold text-slate-500 hover:text-indigo-600 transition-colors flex items-center gap-1.5"
+                    className="text-xs font-bold text-zinc-500 hover:text-teal-600 transition-colors flex items-center gap-1.5"
                   >
                     Set as Default
                   </button>
                 ) : (
-                  <span className="text-xs font-bold text-indigo-600 flex items-center gap-1">
+                  <span className="text-xs font-bold text-teal-600 flex items-center gap-1">
                     <CheckCircle className="h-3.5 w-3.5" /> Primary Address
                   </span>
                 )}
@@ -604,17 +682,17 @@ export const AddressesPage: React.FC = () => {
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => startEdit(addr)}
-                    className="p-1.5 text-slate-500 hover:text-indigo-600 hover:bg-slate-100 rounded-lg transition-all"
+                    className="p-1.5 text-zinc-500 hover:text-teal-600 hover:bg-zinc-100 rounded-lg transition-all"
                     title="Edit Address"
                   >
-                    <Edit2 className="h-4 w-4" />
+                    <PencilSimple className="h-4 w-4" />
                   </button>
                   <button
                     onClick={() => handleDelete(addr.id)}
-                    className="p-1.5 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
+                    className="p-1.5 text-zinc-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
                     title="Delete Address"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash className="h-4 w-4" />
                   </button>
                 </div>
               </CardFooter>
