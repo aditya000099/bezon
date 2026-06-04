@@ -23,6 +23,7 @@ import { useToast } from '../../context/ToastContext';
 import api from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api.config';
 import { addressSchema } from '@bezon/validation';
+import { fireConfetti } from '@/components/ui/confetti';
 import {
   MapPin,
   Phone,
@@ -245,6 +246,7 @@ export const CheckoutPage: React.FC = () => {
         toast.success(
           `Coupon ${res.data.data.code} applied! You save ₹${res.data.data.discount}`,
         );
+        fireConfetti({ particleCount: 150, spread: 100 });
       }
     } catch (err: any) {
       setCouponError(err.response?.data?.message || 'Invalid coupon code.');
@@ -740,6 +742,7 @@ export const CheckoutPage: React.FC = () => {
                                     toast.success(
                                       `Coupon ${res.data.data.code} applied! You save ₹${res.data.data.discount}`,
                                     );
+                                    fireConfetti({ particleCount: 150, spread: 100 });
                                   }
                                 })
                                 .catch((err: any) => {

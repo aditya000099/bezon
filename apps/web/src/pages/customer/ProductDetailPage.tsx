@@ -311,7 +311,7 @@ export const ProductDetailPage: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
         <div className="flex flex-col gap-4">
-          <Card className="overflow-hidden border border-zinc-200 bg-white">
+          <Card className="overflow-hidden bg-white">
             <CardContent className="p-0 aspect-square flex items-center justify-center bg-zinc-50 relative overflow-hidden">
               {currentImages.length > 0 ? (
                 <img
