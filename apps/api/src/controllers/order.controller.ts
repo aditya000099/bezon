@@ -152,3 +152,27 @@ export const getSellerOrderById = async (req: Request, res: Response, next: Next
   }
 };
 
+
+/**
+ * Cancel a customer order
+ */
+export const cancelCustomerOrder = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const id = req.params.id as string;
+    const { cancelReason } = req.body;
+
+    if (!req.user || req.user.role !== 'customer') {
+      return res.status(401).json({ success: false, message: 'Unauthorized session.' });
+    }
+
+    const order = await OrderService.cancelCustomerOrder(id, req.user.id, cancelReason);
+
+    res.json({
+      success: true,
+      message: 'Order cancelled successfully.',
+      data: order,
+    });
+  } catch (err) {
+    next(err);
+  }
+};

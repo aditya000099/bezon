@@ -154,6 +154,37 @@ export const OrderDetailPage: React.FC = () => {
     }
   };
 
+  // Cancellation State
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
+  const [cancelling, setCancelling] = useState(false);
+
+  const handleCancelOrder = async () => {
+    if (!order) return;
+    if (!cancelReason) {
+      toast.warning('Please select a cancellation reason.');
+      return;
+    }
+
+    setCancelling(true);
+    try {
+      const res = await api.post(API_ENDPOINTS.orders.cancel(order.id), {
+        cancelReason
+      });
+
+      if (res.data.success) {
+        toast.success('Order cancelled successfully.');
+        setCancelModalOpen(false);
+        setCancelReason('');
+        await fetchOrderDetail();
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to cancel order.');
+    } finally {
+      setCancelling(false);
+    }
+  };
+
   const fetchOrderDetail = async () => {
     setLoading(true);
     try {
@@ -209,17 +240,29 @@ export const OrderDetailPage: React.FC = () => {
               <ArrowLeft className="h-4 w-4" /> Back to History
             </Button>
           </Link>
-          {order.billUrl && (
-            <a href={order.billUrl} target="_blank" rel="noopener noreferrer">
+          <div className="flex gap-2">
+            {(order.status === 'placed' || order.status === 'confirmed') && (
               <Button
                 variant="outline"
                 size="sm"
-                className="gap-2 font-bold bg-zinc-50 text-zinc-700 border-0"
+                className="gap-2 font-bold text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-rose-200"
+                onClick={() => setCancelModalOpen(true)}
               >
-                <Download className="h-4 w-4" /> Download Bill
+                Cancel Order
               </Button>
-            </a>
-          )}
+            )}
+            {order.billUrl && (
+              <a href={order.billUrl} target="_blank" rel="noopener noreferrer">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2 font-bold bg-zinc-50 text-zinc-700 border-0"
+                >
+                  <Download className="h-4 w-4" /> Download Bill
+                </Button>
+              </a>
+            )}
+          </div>
         </div>
         <h1 className="text-xl font-extrabold text-zinc-900 tracking-tight sm:text-2xl">
           Order Tracker{' '}
@@ -719,6 +762,62 @@ export const OrderDetailPage: React.FC = () => {
                   <Spinner className="h-4 w-4 animate-spin mr-2" />
                 ) : null}
                 Submit Request
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {cancelModalOpen && (
+        <Dialog open={cancelModalOpen} onOpenChange={setCancelModalOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-rose-600 flex items-center gap-2">
+                Cancel Order
+              </DialogTitle>
+              <DialogDescription>
+                Are you sure you want to cancel this order? Once cancelled, this action cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
+                  Reason for Cancellation
+                </label>
+                <select
+                  value={cancelReason}
+                  onChange={(e) => setCancelReason(e.target.value)}
+                  className="w-full rounded-md border border-zinc-200 p-3 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500 bg-white"
+                >
+                  <option value="" disabled>Select a reason...</option>
+                  <option value="Ordered by mistake">Ordered by mistake</option>
+                  <option value="Found a better price">Found a better price</option>
+                  <option value="Delivery taking too long">Delivery taking too long</option>
+                  <option value="Changed my mind">Changed my mind</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setCancelModalOpen(false);
+                  setCancelReason('');
+                }}
+                disabled={cancelling}
+              >
+                Keep Order
+              </Button>
+              <Button
+                onClick={handleCancelOrder}
+                disabled={cancelling || !cancelReason}
+                className="font-bold bg-rose-600 hover:bg-rose-700 text-white"
+              >
+                {cancelling ? (
+                  <Spinner className="h-4 w-4 animate-spin mr-2" />
+                ) : null}
+                Confirm Cancellation
               </Button>
             </DialogFooter>
           </DialogContent>

@@ -542,4 +542,61 @@ export class OrderService {
 
     return order;
   }
+
+  /**
+   * Cancels a customer order before fulfillment begins
+   */
+  static async cancelCustomerOrder(orderId: string, customerId: string, cancelReason?: string) {
+    const order = await prisma.order.findUnique({
+      where: { id: orderId }
+    });
+
+    if (!order) {
+      const err = new Error('Order not found.');
+      (err as any).status = 404;
+      throw err;
+    }
+
+    if (order.customerId !== customerId) {
+      const err = new Error('Access denied.');
+      (err as any).status = 403;
+      throw err;
+    }
+
+    if (order.status !== 'placed' && order.status !== 'confirmed') {
+      const err = new Error('Order can no longer be cancelled.');
+      (err as any).status = 400;
+      throw err;
+    }
+
+    return await prisma.$transaction(async (tx) => {
+      let nextPaymentStatus = order.paymentStatus;
+      if (order.paymentStatus === 'paid') {
+        nextPaymentStatus = 'refund_initiated';
+      }
+
+      const updatedOrder = await tx.order.update({
+        where: { id: orderId },
+        data: {
+          status: 'cancelled',
+          paymentStatus: nextPaymentStatus,
+          cancelReason: cancelReason || null,
+          cancelledAt: new Date(),
+          cancelledBy: customerId
+        }
+      });
+
+      await tx.orderTimeline.create({
+        data: {
+          orderId: order.id,
+          status: 'cancelled',
+          note: `Customer cancelled the order. ${cancelReason ? `Reason: ${cancelReason}` : ''}`,
+          actorId: customerId,
+          actorRole: 'customer'
+        }
+      });
+
+      return updatedOrder;
+    });
+  }
 }
