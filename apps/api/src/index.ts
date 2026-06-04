@@ -75,6 +75,17 @@ app.use((req: Request, res: Response) => {
 
 // Global Error Handler
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  // Intercept Prisma Errors to prevent them from leaking raw DB schema info to the UI
+  if (err.name === 'PrismaClientValidationError' || err.name === 'PrismaClientKnownRequestError') {
+    console.error(`[Prisma Error] ${err.name} at ${req.method} ${req.url}`);
+    console.error(err.message); // Log full query details to server only
+
+    return res.status(400).json({
+      success: false,
+      message: 'Database validation failed: Invalid ID or parameters provided.',
+    });
+  }
+
   console.error(err.stack);
   res.status(err.status || 500).json({
     success: false,

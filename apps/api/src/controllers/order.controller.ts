@@ -137,6 +137,12 @@ export const getSellerOrderById = async (req: Request, res: Response, next: Next
   try {
     const id = req.params.id as string;
 
+    // Validate UUID to prevent Prisma Validation Errors
+    const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+    if (!id || id === 'undefined' || !uuidRegex.test(id)) {
+      return res.status(400).json({ success: false, message: 'Invalid order ID format.' });
+    }
+
     if (!req.user) {
       return res.status(401).json({ success: false, message: 'Unauthorized session.' });
     }
@@ -166,6 +172,36 @@ export const cancelCustomerOrder = async (req: Request, res: Response, next: Nex
     }
 
     const order = await OrderService.cancelCustomerOrder(id, req.user.id, cancelReason);
+
+    res.json({
+      success: true,
+      message: 'Order cancelled successfully.',
+      data: order,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Cancel an order by a seller
+ */
+export const cancelSellerOrder = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const id = req.params.id as string;
+    const { cancelReason } = req.body;
+
+    // Validate UUID to prevent Prisma Validation Errors
+    const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+    if (!id || id === 'undefined' || !uuidRegex.test(id)) {
+      return res.status(400).json({ success: false, message: 'Invalid order ID format.' });
+    }
+
+    if (!req.user || req.user.role !== 'seller') {
+      return res.status(401).json({ success: false, message: 'Unauthorized session.' });
+    }
+
+    const order = await OrderService.cancelSellerOrder(id, req.user.id, cancelReason);
 
     res.json({
       success: true,

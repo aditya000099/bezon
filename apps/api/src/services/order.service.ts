@@ -599,4 +599,82 @@ export class OrderService {
       return updatedOrder;
     });
   }
+
+  /**
+   * Cancel an order by a seller
+   */
+  static async cancelSellerOrder(orderId: string, userId: string, cancelReason?: string) {
+    const seller = await prisma.seller.findUnique({
+      where: { userId }
+    });
+
+    if (!seller) {
+      const err = new Error('Seller profile not found.');
+      (err as any).status = 404;
+      throw err;
+    }
+
+    // Pre-flight check
+    const order = await prisma.order.findUnique({
+      where: { id: orderId }
+    });
+
+    if (!order) {
+      const err = new Error('Order not found.');
+      (err as any).status = 404;
+      throw err;
+    }
+
+    if (order.sellerId !== seller.id) {
+      const err = new Error('Access denied.');
+      (err as any).status = 403;
+      throw err;
+    }
+
+    const ALLOWED_STATUSES = ['placed', 'confirmed', 'packed'];
+    if (!ALLOWED_STATUSES.includes(order.status)) {
+      const err = new Error('Order can no longer be cancelled.');
+      (err as any).status = 400;
+      throw err;
+    }
+
+    return await prisma.$transaction(async (tx) => {
+      // Re-fetch inside transaction with a lock/check to prevent race conditions
+      const currentOrder = await tx.order.findUnique({
+        where: { id: orderId }
+      });
+
+      if (!currentOrder || !ALLOWED_STATUSES.includes(currentOrder.status)) {
+        throw Object.assign(new Error('Order state changed. Cancellation aborted.'), { status: 409 });
+      }
+
+      let nextPaymentStatus = currentOrder.paymentStatus;
+      if (currentOrder.paymentStatus === 'paid') {
+        nextPaymentStatus = 'refund_initiated';
+      }
+
+      const updatedOrder = await tx.order.update({
+        where: { id: orderId },
+        data: {
+          status: 'cancelled',
+          paymentStatus: nextPaymentStatus,
+          cancelReason: cancelReason || null,
+          cancelledAt: new Date(),
+          cancelledBy: seller.id
+        }
+      });
+
+      await tx.orderTimeline.create({
+        data: {
+          orderId: order.id,
+          status: 'cancelled',
+          note: `Seller cancelled the order. ${cancelReason ? `Reason: ${cancelReason}` : ''}`,
+          actorId: seller.userId,
+          actorRole: 'seller'
+        }
+      });
+
+      return updatedOrder;
+    });
+  }
 }

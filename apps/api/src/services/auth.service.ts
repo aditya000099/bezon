@@ -77,6 +77,12 @@ export class AuthService {
    * Log user in, verifying credentials and active status
    */
   static async loginUser(email: string, passwordPlain: string) {
+    if (!email) {
+      const err = new Error('Email is required for sign in.');
+      (err as any).status = 400;
+      throw err;
+    }
+
     const user = await prisma.user.findUnique({
       where: { email },
       include: {

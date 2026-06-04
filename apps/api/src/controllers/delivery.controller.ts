@@ -177,6 +177,12 @@ export const acceptAssignment = async (req: Request, res: Response, next: NextFu
     const userId = req.user!.id;
     const orderId = req.params.orderId as string;
 
+    // Validate UUID to prevent Prisma Validation Errors
+    const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+    if (!orderId || orderId === 'undefined' || !uuidRegex.test(orderId)) {
+      return res.status(400).json({ success: false, message: 'Invalid order ID format.' });
+    }
+
     const partner = await prisma.deliveryPartner.findUnique({ where: { userId } });
     if (!partner || !partner.isAvailable || partner.status !== 'approved') {
       return res.status(403).json({

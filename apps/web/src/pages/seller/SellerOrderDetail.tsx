@@ -23,6 +23,14 @@ import {
   Download,
 } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import api from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api.config';
 import { useToast } from '../../context/ToastContext';
@@ -33,6 +41,8 @@ export const SellerOrderDetail: React.FC = () => {
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
 
   useEffect(() => {
     fetchOrderDetails();
@@ -68,6 +78,30 @@ export const SellerOrderDetail: React.FC = () => {
       }
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Failed to update status');
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleCancelOrder = async () => {
+    if (!cancelReason) {
+      toast.error('Please provide a reason for cancellation.');
+      return;
+    }
+    
+    try {
+      setUpdating(true);
+      const res = await api.post(API_ENDPOINTS.orders.sellerCancel(id!), {
+        cancelReason,
+      });
+      
+      if (res.data.success) {
+        toast.success('Order cancelled successfully');
+        setCancelModalOpen(false);
+        fetchOrderDetails();
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to cancel order');
     } finally {
       setUpdating(false);
     }
@@ -215,6 +249,16 @@ export const SellerOrderDetail: React.FC = () => {
                 Invoice
               </Button>
             </a>
+          )}
+          {['placed', 'confirmed', 'packed'].includes(order.status) && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="ml-2 font-bold text-rose-700 border-rose-200 bg-rose-50 hover:bg-rose-100 hover:text-rose-800"
+              onClick={() => setCancelModalOpen(true)}
+            >
+              Cancel Order
+            </Button>
           )}
         </div>
       </div>
@@ -581,6 +625,60 @@ export const SellerOrderDetail: React.FC = () => {
           </Card>
         </div>
       </div>
+
+      {cancelModalOpen && (
+        <Dialog open={cancelModalOpen} onOpenChange={setCancelModalOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-rose-600 flex items-center gap-2">
+                Cancel Order
+              </DialogTitle>
+              <DialogDescription>
+                Are you sure you want to cancel this order? Once cancelled, this action cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
+                  Reason for Cancellation
+                </label>
+                <select
+                  value={cancelReason}
+                  onChange={(e) => setCancelReason(e.target.value)}
+                  className="w-full rounded-md border border-zinc-200 p-3 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500 bg-white"
+                >
+                  <option value="" disabled>Select a reason...</option>
+                  <option value="Out of stock">Out of stock</option>
+                  <option value="Damaged product">Damaged product</option>
+                  <option value="Inventory mismatch">Inventory mismatch</option>
+                  <option value="Pricing issue">Pricing issue</option>
+                  <option value="Unable to fulfill">Unable to fulfill</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setCancelModalOpen(false)}
+                disabled={updating}
+              >
+                Keep Order
+              </Button>
+              <Button
+                onClick={handleCancelOrder}
+                disabled={!cancelReason || updating}
+                className="bg-rose-600 hover:bg-rose-700 text-white"
+              >
+                {updating ? (
+                  <Spinner className="h-4 w-4 animate-spin mr-2" />
+                ) : null}
+                Cancel Order
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };

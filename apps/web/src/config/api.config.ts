@@ -50,6 +50,7 @@ export const API_ENDPOINTS = {
     policyAction: (id: string) => `${API_V1}/orders/${id}/policy-action`,
     sellerMe: `${API_V1}/orders/seller/me`,
     sellerDetail: (id: string) => `${API_V1}/orders/seller/me/${id}`,
+    sellerCancel: (id: string) => `${API_V1}/orders/seller/me/${id}/cancel`,
     cancel: (id: string) => `${API_V1}/orders/${id}/cancel`,
   },
   // Payments
