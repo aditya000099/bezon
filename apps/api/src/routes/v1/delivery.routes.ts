@@ -4,6 +4,8 @@ import {
   getProfile,
   updateProfile,
   updateLocation,
+  getAvailableAssignments,
+  acceptAssignment,
   getQueue,
   getHistory,
   updateAssignmentStatus,
@@ -17,7 +19,9 @@ router.use(authenticateUser, requireDeliveryPartner);
 router.get('/profile', getProfile);
 router.patch('/profile', updateProfile);
 router.patch('/location', updateLocation);
-router.get('/queue', getQueue);
+router.get('/orders/available', getAvailableAssignments);
+router.post('/orders/:orderId/accept', acceptAssignment);
+router.get('/orders/assigned', getQueue);
 router.get('/history', getHistory);
 router.patch('/assignments/:id/status', updateAssignmentStatus);
 

@@ -354,11 +354,7 @@ export const SellerOrderDetail: React.FC = () => {
                     placed: ['confirmed', 'cancelled'],
                     confirmed: ['packed', 'ready_for_pickup', 'cancelled'],
                     packed: ['ready_for_pickup', 'cancelled'],
-                    ready_for_pickup: [
-                      'shipped',
-                      'out_for_delivery',
-                      'cancelled',
-                    ],
+                    ready_for_pickup: ['cancelled'],
                     shipped: ['out_for_delivery', 'delivery_failed'],
                     out_for_delivery: ['delivered', 'delivery_failed'],
                     delivered: [],
@@ -513,7 +509,7 @@ export const SellerOrderDetail: React.FC = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4 space-y-4">
-              {order.delivery ? (
+              {order.delivery && order.delivery.partner ? (
                 <div>
                   <div className="flex justify-between items-center mb-3">
                     <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
@@ -532,45 +528,43 @@ export const SellerOrderDetail: React.FC = () => {
                     </span>
                   </div>
 
-                  {order.delivery.partner ? (
-                    <div className="space-y-2 text-sm">
-                      <div>
-                        <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-0.5">
-                          Assigned Courier
+                  <div className="space-y-2 text-sm">
+                    <div>
+                      <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-0.5">
+                        Assigned Courier
+                      </p>
+                      <p className="font-semibold text-zinc-800">
+                        {order.delivery.partner.user?.name}
+                      </p>
+                      {order.delivery.partner.user?.phone && (
+                        <p className="text-xs text-zinc-500 font-medium">
+                          Phone: {order.delivery.partner.user.phone}
                         </p>
-                        <p className="font-semibold text-zinc-800">
-                          {order.delivery.partner.user?.name}
-                        </p>
-                        {order.delivery.partner.user?.phone && (
-                          <p className="text-xs text-zinc-500 font-medium">
-                            Phone: {order.delivery.partner.user.phone}
-                          </p>
-                        )}
-                      </div>
+                      )}
+                    </div>
 
-                      <div className="border-t border-zinc-50 pt-2">
-                        <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-0.5">
-                          Vehicle Details
-                        </p>
-                        <p className="text-xs text-zinc-700 capitalize font-semibold">
-                          {order.delivery.partner.vehicleType}{' '}
-                          {order.delivery.partner.vehicleNumber
-                            ? `— ${order.delivery.partner.vehicleNumber}`
-                            : ''}
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="bg-zinc-50 border border-zinc-100 p-3 rounded-xl text-center">
-                      <p className="text-xs font-bold text-amber-600 uppercase tracking-wider">
-                        Searching for Courier...
+                    <div className="border-t border-zinc-50 pt-2">
+                      <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-0.5">
+                        Vehicle Details
                       </p>
-                      <p className="text-[10px] text-zinc-400 mt-1 font-medium leading-relaxed">
-                        Automatic cron scheduler will allocate the nearest
-                        active delivery partner within a minute.
+                      <p className="text-xs text-zinc-700 capitalize font-semibold">
+                        {order.delivery.partner.vehicleType}{' '}
+                        {order.delivery.partner.vehicleNumber
+                          ? `— ${order.delivery.partner.vehicleNumber}`
+                          : ''}
                       </p>
                     </div>
-                  )}
+                  </div>
+                </div>
+              ) : order.status === 'ready_for_pickup' ? (
+                <div className="bg-zinc-50 border border-zinc-100 p-3 rounded-xl text-center">
+                  <p className="text-xs font-bold text-amber-600 uppercase tracking-wider">
+                    Awaiting Courier Acceptance
+                  </p>
+                  <p className="text-[10px] text-zinc-400 mt-1 font-medium leading-relaxed">
+                    The order is now in the open pool. Available delivery
+                    partners in your city can accept it.
+                  </p>
                 </div>
               ) : (
                 <div className="bg-zinc-50 border border-zinc-100 p-3 rounded-xl text-center">
@@ -578,8 +572,8 @@ export const SellerOrderDetail: React.FC = () => {
                     Fulfillment Not Started
                   </p>
                   <p className="text-[10px] text-zinc-400 mt-1 font-medium leading-relaxed">
-                    A delivery assignment will trigger automatically once the
-                    order status becomes confirmed.
+                    The order will be published to the available delivery
+                    partner pool once marked as Ready For Pickup.
                   </p>
                 </div>
               )}

@@ -109,7 +109,9 @@ export const API_ENDPOINTS = {
   delivery: {
     profile: `${API_V1}/delivery/profile`,
     location: `${API_V1}/delivery/location`,
-    queue: `${API_V1}/delivery/queue`,
+    available: `${API_V1}/delivery/orders/available`,
+    acceptAssignment: (id: string) => `${API_V1}/delivery/orders/${id}/accept`,
+    queue: `${API_V1}/delivery/orders/assigned`,
     history: `${API_V1}/delivery/history`,
     updateStatus: (id: string) => `${API_V1}/delivery/assignments/${id}/status`,
   },

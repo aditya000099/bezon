@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import api from '../../lib/api';
-import { useToast } from '../../context/ToastContext';
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import api from "../../lib/api";
+import { useToast } from "../../context/ToastContext";
 import {
   Dialog,
   DialogContent,
@@ -17,28 +17,28 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 
 export const AdminSellers: React.FC = () => {
   const [applications, setApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedApp, setSelectedApp] = useState<any | null>(null);
-  const [rejectReason, setRejectReason] = useState('');
+  const [rejectReason, setRejectReason] = useState("");
   const [showRejectInput, setShowRejectInput] = useState(false);
   const [activeTab, setActiveTab] = useState<
-    'pending' | 'approved' | 'suspended' | 'rejected'
-  >('pending');
+    "pending" | "approved" | "suspended" | "rejected"
+  >("pending");
   const { toast } = useToast();
 
   const fetchApplications = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/api/v1/applications/admin/applications');
+      const response = await api.get("/api/v1/applications/admin/applications");
       if (response.data.success) {
         setApplications(response.data.data);
       }
     } catch (err: any) {
-      toast.error('Failed to load applications');
+      toast.error("Failed to load applications");
     } finally {
       setLoading(false);
     }
@@ -55,18 +55,18 @@ export const AdminSellers: React.FC = () => {
         `/api/v1/applications/admin/${selectedApp.id}/approve`,
       );
       if (response.data.success) {
-        toast.success('Seller approved successfully');
+        toast.success("Seller approved successfully");
         setSelectedApp(null);
         fetchApplications();
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to approve seller');
+      toast.error(err.response?.data?.message || "Failed to approve seller");
     }
   };
 
   const handleReject = async () => {
     if (!selectedApp || !rejectReason.trim()) {
-      toast.error('Rejection reason is required');
+      toast.error("Rejection reason is required");
       return;
     }
     try {
@@ -77,14 +77,14 @@ export const AdminSellers: React.FC = () => {
         },
       );
       if (response.data.success) {
-        toast.success('Seller application rejected');
+        toast.success("Seller application rejected");
         setSelectedApp(null);
         setShowRejectInput(false);
-        setRejectReason('');
+        setRejectReason("");
         fetchApplications();
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to reject seller');
+      toast.error(err.response?.data?.message || "Failed to reject seller");
     }
   };
 
@@ -95,12 +95,12 @@ export const AdminSellers: React.FC = () => {
         `/api/v1/applications/admin/${selectedApp.id}/suspend`,
       );
       if (response.data.success) {
-        toast.success('Seller suspended successfully');
+        toast.success("Seller suspended successfully");
         setSelectedApp(null);
         fetchApplications();
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to suspend seller');
+      toast.error(err.response?.data?.message || "Failed to suspend seller");
     }
   };
 
@@ -111,12 +111,12 @@ export const AdminSellers: React.FC = () => {
         `/api/v1/applications/admin/${selectedApp.id}/reactivate`,
       );
       if (response.data.success) {
-        toast.success('Seller reactivated successfully');
+        toast.success("Seller reactivated successfully");
         setSelectedApp(null);
         fetchApplications();
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to reactivate seller');
+      toast.error(err.response?.data?.message || "Failed to reactivate seller");
     }
   };
 
@@ -135,11 +135,11 @@ export const AdminSellers: React.FC = () => {
 
       <div className="space-y-4 mt-4">
         <div className="flex space-x-2 border-b pb-2 overflow-x-auto">
-          {['pending', 'approved', 'suspended', 'rejected'].map((tab) => (
+          {["pending", "approved", "suspended", "rejected"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab as any)}
-              className={`px-4 py-2 text-sm font-medium rounded-md whitespace-nowrap ${activeTab === tab ? 'bg-zinc-900 text-white' : 'text-zinc-600 hover:bg-zinc-100'}`}
+              className={`px-4 py-2 text-sm font-medium rounded-md whitespace-nowrap ${activeTab === tab ? "bg-zinc-900 text-white" : "text-zinc-600 hover:bg-zinc-100"}`}
             >
               {tab.charAt(0).toUpperCase() + tab.slice(1)} (
               {applications.filter((a) => a.status === tab).length})
@@ -179,13 +179,13 @@ export const AdminSellers: React.FC = () => {
                           User: {app.user?.name} ({app.user?.email})
                         </span>
                         <span>
-                          Applied:{' '}
+                          Applied:{" "}
                           {new Date(app.createdAt).toLocaleDateString()}
                         </span>
                       </div>
                       <div className="mt-2 inline-flex">
                         <span
-                          className={`px-2 py-1 text-xs font-semibold rounded-full ${app.status === 'pending' ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'}`}
+                          className={`px-2 py-1 text-xs font-semibold rounded-full ${app.status === "pending" ? "bg-amber-100 text-amber-800" : "bg-red-100 text-red-800"}`}
                         >
                           {app.status.toUpperCase()}
                         </span>
@@ -195,7 +195,7 @@ export const AdminSellers: React.FC = () => {
                       onClick={() => {
                         setSelectedApp(app);
                         setShowRejectInput(false);
-                        setRejectReason('');
+                        setRejectReason("");
                       }}
                     >
                       View Details
@@ -254,7 +254,7 @@ export const AdminSellers: React.FC = () => {
                   Description
                 </h5>
                 <p className="text-sm">
-                  {selectedApp.description || 'No description provided.'}
+                  {selectedApp.description || "No description provided."}
                 </p>
               </div>
 
@@ -264,12 +264,12 @@ export const AdminSellers: React.FC = () => {
                     Business Documents
                   </h5>
                   <p className="text-sm">
-                    <span className="font-medium">PAN:</span>{' '}
+                    <span className="font-medium">PAN:</span>{" "}
                     {selectedApp.panNumber}
                   </p>
                   <p className="text-sm">
-                    <span className="font-medium">GSTIN:</span>{' '}
-                    {selectedApp.gstin || 'N/A'}
+                    <span className="font-medium">GSTIN:</span>{" "}
+                    {selectedApp.gstin || "N/A"}
                   </p>
                 </div>
                 <div>
@@ -278,17 +278,17 @@ export const AdminSellers: React.FC = () => {
                   </h5>
                   <p className="text-sm">{selectedApp.addressLine}</p>
                   <p className="text-sm">
-                    {selectedApp.city}, {selectedApp.state}{' '}
+                    {selectedApp.city}, {selectedApp.state}{" "}
                     {selectedApp.pincode}
                   </p>
                 </div>
               </div>
 
-              {selectedApp.status === 'rejected' && (
+              {selectedApp.status === "rejected" && (
                 <div className="bg-red-50 text-red-800 p-3 rounded-md text-sm">
                   <span className="font-semibold">
                     Previous Rejection Reason:
-                  </span>{' '}
+                  </span>{" "}
                   {selectedApp.rejectionReason}
                 </div>
               )}
@@ -303,7 +303,7 @@ export const AdminSellers: React.FC = () => {
                     onChange={(e) => setRejectReason(e.target.value)}
                     placeholder="Explain why the application is being rejected so the user can fix the issues and re-apply..."
                     rows={3}
-                    className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex min-h-20 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   />
                   <div className="flex justify-end gap-2 mt-2">
                     <Button
@@ -333,7 +333,7 @@ export const AdminSellers: React.FC = () => {
                   Close
                 </Button>
                 <div className="flex gap-2">
-                  {selectedApp?.status === 'pending' && (
+                  {selectedApp?.status === "pending" && (
                     <>
                       <Button
                         variant="destructive"
@@ -349,12 +349,12 @@ export const AdminSellers: React.FC = () => {
                       </Button>
                     </>
                   )}
-                  {selectedApp?.status === 'approved' && (
+                  {selectedApp?.status === "approved" && (
                     <Button variant="destructive" onClick={handleSuspend}>
                       Suspend Seller
                     </Button>
                   )}
-                  {selectedApp?.status === 'suspended' && (
+                  {selectedApp?.status === "suspended" && (
                     <Button
                       className="bg-emerald-600 hover:bg-emerald-700 text-white"
                       onClick={handleReactivate}

@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import React, { useEffect, useState } from "react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   Plus,
   PencilSimple,
@@ -21,14 +21,14 @@ import {
   ArrowCounterClockwise,
   Money,
   ArrowsClockwise,
-} from '@phosphor-icons/react';
-import api from '../../lib/api';
-import { API_ENDPOINTS } from '../../config/api.config';
-import { useToast } from '../../context/ToastContext';
+} from "@phosphor-icons/react";
+import api from "../../lib/api";
+import { API_ENDPOINTS } from "../../config/api.config";
+import { useToast } from "../../context/ToastContext";
 
 interface Policy {
   id: string;
-  type: 'return' | 'refund' | 'replace';
+  type: "return" | "refund" | "replace";
   title: string;
   description: string;
   durationDays: number;
@@ -37,12 +37,12 @@ interface Policy {
   _count?: { products: number };
 }
 
-type PolicyType = 'return' | 'refund' | 'replace';
+type PolicyType = "return" | "refund" | "replace";
 
 const EMPTY_FORM = {
-  type: 'return' as PolicyType,
-  title: '',
-  description: '',
+  type: "return" as PolicyType,
+  title: "",
+  description: "",
   durationDays: 7,
 };
 
@@ -69,7 +69,7 @@ export const AdminPolicies: React.FC = () => {
         setPolicies(res.data.data);
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to fetch policies');
+      toast.error(err.response?.data?.message || "Failed to fetch policies");
     } finally {
       setLoading(false);
     }
@@ -86,7 +86,7 @@ export const AdminPolicies: React.FC = () => {
     setForm({
       type: policy.type,
       title: policy.title,
-      description: policy.description || '',
+      description: policy.description || "",
       durationDays: policy.durationDays,
     });
     setDialogOpen(true);
@@ -94,11 +94,11 @@ export const AdminPolicies: React.FC = () => {
 
   const handleSubmit = async () => {
     if (!form.title.trim()) {
-      toast.error('Title is required.');
+      toast.error("Title is required.");
       return;
     }
     if (form.durationDays < 1) {
-      toast.error('Duration must be at least 1 day.');
+      toast.error("Duration must be at least 1 day.");
       return;
     }
 
@@ -106,15 +106,15 @@ export const AdminPolicies: React.FC = () => {
     try {
       if (editingPolicy) {
         await api.put(API_ENDPOINTS.policies.update(editingPolicy.id), form);
-        toast.success('Policy updated successfully.');
+        toast.success("Policy updated successfully.");
       } else {
         await api.post(API_ENDPOINTS.policies.create, form);
-        toast.success('Policy created successfully.');
+        toast.success("Policy created successfully.");
       }
       setDialogOpen(false);
       fetchPolicies();
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to save policy.');
+      toast.error(err.response?.data?.message || "Failed to save policy.");
     } finally {
       setSubmitting(false);
     }
@@ -123,17 +123,17 @@ export const AdminPolicies: React.FC = () => {
   const handleDelete = async (id: string) => {
     if (
       !window.confirm(
-        'Are you sure you want to delete this policy? Products using it will be unlinked.',
+        "Are you sure you want to delete this policy? Products using it will be unlinked.",
       )
     )
       return;
     setDeletingId(id);
     try {
       await api.delete(API_ENDPOINTS.policies.delete(id));
-      toast.success('Policy deleted.');
+      toast.success("Policy deleted.");
       fetchPolicies();
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to delete policy.');
+      toast.error(err.response?.data?.message || "Failed to delete policy.");
     } finally {
       setDeletingId(null);
     }
@@ -143,10 +143,10 @@ export const AdminPolicies: React.FC = () => {
     setTogglingId(id);
     try {
       await api.patch(API_ENDPOINTS.policies.toggle(id));
-      toast.success('Policy status toggled.');
+      toast.success("Policy status toggled.");
       fetchPolicies();
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to toggle policy.');
+      toast.error(err.response?.data?.message || "Failed to toggle policy.");
     } finally {
       setTogglingId(null);
     }
@@ -154,9 +154,9 @@ export const AdminPolicies: React.FC = () => {
 
   const typeBadge = (type: string) => {
     const styles: Record<string, string> = {
-      return: 'bg-blue-50 text-blue-700 border-blue-200',
-      refund: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-      replace: 'bg-amber-50 text-amber-700 border-amber-200',
+      return: "bg-blue-50 text-blue-700 border-blue-200",
+      refund: "bg-emerald-50 text-emerald-700 border-emerald-200",
+      replace: "bg-amber-50 text-amber-700 border-amber-200",
     };
     const icons: Record<string, React.ReactNode> = {
       return: <ArrowCounterClockwise className="h-3 w-3" />,
@@ -165,7 +165,7 @@ export const AdminPolicies: React.FC = () => {
     };
     return (
       <span
-        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase border ${styles[type] || 'bg-zinc-100 text-zinc-600 border-zinc-200'}`}
+        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase border ${styles[type] || "bg-zinc-100 text-zinc-600 border-zinc-200"}`}
       >
         {icons[type]}
         {type}
@@ -196,7 +196,7 @@ export const AdminPolicies: React.FC = () => {
           <div className="flex items-center gap-2 text-sm text-zinc-500">
             <ShieldCheck className="h-4 w-4" />
             <span className="font-medium">
-              {policies.length} {policies.length === 1 ? 'Policy' : 'Policies'}
+              {policies.length} {policies.length === 1 ? "Policy" : "Policies"}
             </span>
           </div>
           <Button
@@ -271,21 +271,21 @@ export const AdminPolicies: React.FC = () => {
                     </td>
                     <td className="px-6 py-4">
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-zinc-100 text-zinc-600 rounded-full text-xs font-bold">
-                        {policy._count?.products ?? 0}{' '}
+                        {policy._count?.products ?? 0}{" "}
                         {(policy._count?.products ?? 0) === 1
-                          ? 'product'
-                          : 'products'}
+                          ? "product"
+                          : "products"}
                       </span>
                     </td>
                     <td className="px-6 py-4">
                       <span
                         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
                           policy.isActive
-                            ? 'bg-emerald-100 text-emerald-700'
-                            : 'bg-zinc-100 text-zinc-500'
+                            ? "bg-emerald-100 text-emerald-700"
+                            : "bg-zinc-100 text-zinc-500"
                         }`}
                       >
-                        {policy.isActive ? 'Active' : 'Inactive'}
+                        {policy.isActive ? "Active" : "Inactive"}
                       </span>
                     </td>
                     <td className="px-6 py-4">
@@ -296,7 +296,7 @@ export const AdminPolicies: React.FC = () => {
                           className="h-8 w-8"
                           onClick={() => handleToggle(policy.id)}
                           disabled={togglingId === policy.id}
-                          title={policy.isActive ? 'Deactivate' : 'Activate'}
+                          title={policy.isActive ? "Deactivate" : "Activate"}
                         >
                           {togglingId === policy.id ? (
                             <Spinner className="h-4 w-4 animate-spin" />
@@ -344,7 +344,7 @@ export const AdminPolicies: React.FC = () => {
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>
-              {editingPolicy ? 'Edit Policy' : 'Create Policy'}
+              {editingPolicy ? "Edit Policy" : "Create Policy"}
             </DialogTitle>
           </DialogHeader>
           <div className="flex flex-col gap-4 py-4">
@@ -379,7 +379,7 @@ export const AdminPolicies: React.FC = () => {
                 Description
               </label>
               <textarea
-                className="flex min-h-[80px] w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-2"
+                className="flex min-h-20 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-2"
                 placeholder="Describe the policy terms..."
                 value={form.description}
                 onChange={(e) =>
@@ -407,7 +407,7 @@ export const AdminPolicies: React.FC = () => {
             </Button>
             <Button onClick={handleSubmit} disabled={submitting}>
               {submitting && <Spinner className="h-4 w-4 animate-spin mr-2" />}
-              {editingPolicy ? 'Save Changes' : 'Create Policy'}
+              {editingPolicy ? "Save Changes" : "Create Policy"}
             </Button>
           </DialogFooter>
         </DialogContent>

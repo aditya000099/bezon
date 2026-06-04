@@ -38,6 +38,7 @@ enum OrderStatus {
   confirmed
   packed
   ready_for_pickup
+  assigned
   shipped
   out_for_delivery
   delivered

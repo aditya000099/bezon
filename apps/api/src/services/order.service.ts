@@ -1,5 +1,5 @@
 import prisma from '../db/client.js';
-import { DeliveryMatchingService } from './delivery_matching.service.js';
+
 
 export class OrderService {
   /**
@@ -224,7 +224,7 @@ export class OrderService {
       placed: ['confirmed', 'cancelled'],
       confirmed: ['packed', 'ready_for_pickup', 'cancelled'],
       packed: ['ready_for_pickup', 'cancelled'],
-      ready_for_pickup: ['shipped', 'out_for_delivery', 'cancelled'],
+      ready_for_pickup: ['cancelled'],
       shipped: ['out_for_delivery', 'delivery_failed'],
       out_for_delivery: ['delivered', 'delivery_failed'],
       delivered: ['return_requested', 'refund_requested', 'replacement_requested'],
@@ -273,21 +273,27 @@ export class OrderService {
         data: { status: status as any },
       });
 
+      // Build a human-readable timeline note
+      const statusLabel = status.replace(/_/g, ' ');
+      let timelineNote = `Order status updated to ${statusLabel}.`;
+      if (role === 'seller') {
+        timelineNote = `Seller updated order to ${statusLabel}.`;
+      } else if (role === 'admin') {
+        timelineNote = `Admin updated order to ${statusLabel}.`;
+      }
+
       await tx.orderTimeline.create({
         data: {
           orderId,
           status: status as any,
-          note: `Order status manually updated to ${status} by ${role}.`,
+          note: timelineNote,
+          actorId: userId,
+          actorRole: role as any,
         },
       });
 
       return updated;
     });
-
-    const isPolicyApproval = ['return_approved', 'refund_approved', 'replacement_approved'].includes(status);
-    if (isPolicyApproval) {
-      await DeliveryMatchingService.assignDeliveryPartner(orderId);
-    }
 
     return updatedOrder;
   }

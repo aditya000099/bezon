@@ -6,7 +6,7 @@ import { S3Service } from './s3.service.js';
 import { CartService } from './cart.service.js';
 import { RecommendationService } from './recommendation.service.js';
 import { addressSchema } from '@bezon/validation';
-import { DeliveryMatchingService } from './delivery_matching.service.js';
+
 
 // Dynamically import razorpay
 let Razorpay: any;
@@ -443,20 +443,10 @@ export class PaymentService {
       }
     });
 
-    // Post-transaction: Trigger automatic delivery partner assignment
-    setTimeout(async () => {
-      try {
-        const matchedOrders = await prisma.order.findMany({
-          where: { razorpayOrderId },
-          select: { id: true },
-        });
-        for (const o of matchedOrders) {
-          await DeliveryMatchingService.assignDeliveryPartner(o.id);
-        }
-      } catch (err) {
-        console.error('[DeliveryMatching] Async courier matching error:', err);
-      }
-    }, 0);
+    // NOTE: Delivery partner assignment has been moved to the order status
+    // update flow. A Delivery record is only created when the seller marks
+    // the order as READY_FOR_PICKUP — not at payment confirmation.
+    // See: order.service.ts → updateOrderStatus → ready_for_pickup handler.
 
     // Post-transaction: Generate PDF invoices and upload to S3 async
     setTimeout(async () => {

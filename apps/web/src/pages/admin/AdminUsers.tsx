@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
   CardDescription,
-} from '@/components/ui/card';
+} from "@/components/ui/card";
 import {
   Spinner,
   Users,
@@ -15,12 +15,12 @@ import {
   Shield,
   Pulse,
   Tag,
-} from '@phosphor-icons/react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import api from '../../lib/api';
-import { API_ENDPOINTS } from '../../config/api.config';
-import { useToast } from '../../context/ToastContext';
+} from "@phosphor-icons/react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import api from "../../lib/api";
+import { API_ENDPOINTS } from "../../config/api.config";
+import { useToast } from "../../context/ToastContext";
 
 interface AdminUser {
   id: string;
@@ -39,7 +39,7 @@ export const AdminUsers: React.FC = () => {
   const { toast } = useToast();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     fetchUsers();
@@ -53,7 +53,7 @@ export const AdminUsers: React.FC = () => {
         setUsers(res.data.data);
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to fetch users');
+      toast.error(err.response?.data?.message || "Failed to fetch users");
     } finally {
       setLoading(false);
     }
@@ -155,21 +155,21 @@ export const AdminUsers: React.FC = () => {
                       <div className="flex flex-col gap-1.5">
                         <div className="flex items-center gap-1.5">
                           <Shield
-                            className={`h-3.5 w-3.5 ${user.role === 'admin' ? 'text-rose-500' : user.role === 'seller' ? 'text-amber-500' : 'text-zinc-400'}`}
+                            className={`h-3.5 w-3.5 ${user.role === "admin" ? "text-rose-500" : user.role === "seller" ? "text-amber-500" : "text-zinc-400"}`}
                           />
                           <span className="font-semibold text-zinc-700 capitalize text-xs">
                             {user.role}
                           </span>
                         </div>
                         <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold w-fit ${user.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-zinc-100 text-zinc-500'}`}
+                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold w-fit ${user.isActive ? "bg-emerald-100 text-emerald-700" : "bg-zinc-100 text-zinc-500"}`}
                         >
-                          {user.isActive ? 'Active' : 'Inactive'}
+                          {user.isActive ? "Active" : "Inactive"}
                         </span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex flex-col gap-2 max-w-[300px]">
+                      <div className="flex flex-col gap-2 max-w-75">
                         {user.recommendationProfile.categories.length > 0 ||
                         user.recommendationProfile.searches.length > 0 ? (
                           <>
@@ -222,10 +222,10 @@ export const AdminUsers: React.FC = () => {
                     <td className="px-6 py-4 text-right text-xs text-zinc-500 whitespace-nowrap">
                       <div className="flex items-center justify-end gap-1">
                         <Calendar className="h-3 w-3" />
-                        {new Date(user.createdAt).toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: 'numeric',
-                          year: 'numeric',
+                        {new Date(user.createdAt).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
                         })}
                       </div>
                     </td>
