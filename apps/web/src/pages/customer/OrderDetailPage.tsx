@@ -634,6 +634,22 @@ export const OrderDetailPage: React.FC = () => {
                   {order.paymentStatus.toUpperCase()}
                 </span>
               </div>
+              {(order.paymentStatus === 'refund_initiated' || order.paymentStatus === 'refunded') && (
+                <div className="border-t border-zinc-100 pt-3">
+                  <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block">
+                    Refund Status
+                  </span>
+                  <span
+                    className={`inline-block px-2.5 py-0.5 rounded-full font-bold mt-1 ${
+                      order.paymentStatus === 'refunded'
+                        ? 'bg-emerald-50 text-emerald-700'
+                        : 'bg-amber-50 text-amber-700'
+                    }`}
+                  >
+                    {order.paymentStatus === 'refunded' ? 'COMPLETED' : 'PENDING'}
+                  </span>
+                </div>
+              )}
               <div className="border-t border-zinc-100 pt-3">
                 <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block">
                   Total Charges

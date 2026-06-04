@@ -10,6 +10,7 @@ import {
   Truck,
   SignOut,
   ShieldCheck,
+  CurrencyDollar,
 } from "@phosphor-icons/react";
 
 export const AdminLayout: React.FC = () => {
@@ -25,6 +26,7 @@ export const AdminLayout: React.FC = () => {
     { to: "/admin/partners", label: "Delivery Ops", icon: Truck },
     { to: "/admin/products", label: "Products Audit", icon: ShoppingBag },
     { to: "/admin/policies", label: "Policies", icon: ShieldCheck },
+    { to: "/admin/refunds", label: "Refund Management", icon: CurrencyDollar },
   ];
 
   return (

@@ -98,15 +98,28 @@ export const AdminDashboard: React.FC = () => {
           (u: any) => u.role === 'customer',
         ).length;
 
-        // Compute GMV (Gross Merchandise Value) from all orders
-        const gmvValue = orders.reduce(
-          (sum: number, o: any) => sum + parseFloat(o.total || 0),
-          0,
-        );
-        const formattedGMV = new Intl.NumberFormat('en-IN', {
+        // Compute GMV (Gross Merchandise Value) from all paid orders
+        let grossGmvValue = 0;
+        let refundedGmvValue = 0;
+
+        orders.forEach((o: any) => {
+          const isPaid = ['paid', 'refund_initiated', 'refunded'].includes(o.paymentStatus);
+          const isRefunded = o.paymentStatus === 'refunded';
+          
+          if (isPaid) {
+            grossGmvValue += parseFloat(o.total || 0);
+          }
+          if (isRefunded) {
+            refundedGmvValue += parseFloat(o.total || 0);
+          }
+        });
+
+        const netGmvValue = grossGmvValue - refundedGmvValue;
+
+        const formatCurrency = (val: number) => new Intl.NumberFormat('en-IN', {
           style: 'currency',
           currency: 'INR',
-        }).format(gmvValue);
+        }).format(val);
 
         // Pending returns / refunds / replacements count
         const pendingReturnsCount = orders.filter((o: any) =>
@@ -121,7 +134,10 @@ export const AdminDashboard: React.FC = () => {
           totalSellers: totalSellersCount,
           totalPartners: totalDeliveryCount,
           totalCustomers: totalCustomersCount,
-          gmv: gmvValue > 0 ? formattedGMV : null,
+          grossGmv: formatCurrency(grossGmvValue),
+          refundedGmv: formatCurrency(refundedGmvValue),
+          netGmv: formatCurrency(netGmvValue),
+          hasGmv: grossGmvValue > 0 || refundedGmvValue > 0,
           totalOrders: orders.length > 0 ? orders.length : null,
         });
 
@@ -250,14 +266,26 @@ export const AdminDashboard: React.FC = () => {
           </div>
           {loadingApps ? (
             renderCardLoader()
-          ) : metrics && metrics.gmv !== null ? (
-            <div>
-              <h3 className="text-2xl font-extrabold text-slate-900">
-                {metrics.gmv}
-              </h3>
-              <span className="text-xs text-slate-500 mt-1 block">
-                Total gross merchandise value
-              </span>
+          ) : metrics && metrics.hasGmv ? (
+            <div className="flex flex-col gap-2">
+              <div>
+                <h3 className="text-2xl font-extrabold text-slate-900 leading-none">
+                  {metrics.netGmv}
+                </h3>
+                <span className="text-[10px] text-slate-500 font-medium uppercase tracking-wider block mt-1">
+                  Net GMV
+                </span>
+              </div>
+              <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100">
+                <div>
+                  <span className="text-[10px] text-slate-500 font-medium block">Gross</span>
+                  <span className="text-xs font-bold text-slate-700">{metrics.grossGmv}</span>
+                </div>
+                <div className="text-right">
+                  <span className="text-[10px] text-slate-500 font-medium block">Refunded</span>
+                  <span className="text-xs font-bold text-rose-600">{metrics.refundedGmv}</span>
+                </div>
+              </div>
             </div>
           ) : (
             <p className="text-sm text-slate-400 italic">No data available</p>

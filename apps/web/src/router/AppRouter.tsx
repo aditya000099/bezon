@@ -60,6 +60,7 @@ import { AdminOrders } from '../pages/admin/AdminOrders';
 import { AdminDeliveries } from '../pages/admin/AdminDeliveries';
 import { AdminUsers } from '../pages/admin/AdminUsers';
 import { AdminPolicies } from '../pages/admin/AdminPolicies';
+import { AdminRefunds } from '../pages/admin/AdminRefunds';
 import { SellerAddProduct } from '@/pages/seller/SellerAddProduct';
 import { SellerOrderDetail } from '@/pages/seller/SellerOrderDetail';
 
@@ -168,6 +169,7 @@ export const AppRouter: React.FC = () => {
           <Route path="deliveries" element={<AdminDeliveries />} />
           <Route path="users" element={<AdminUsers />} />
           <Route path="policies" element={<AdminPolicies />} />
+          <Route path="refunds" element={<AdminRefunds />} />
         </Route>
 
         {/* Catch-all Redirect */}

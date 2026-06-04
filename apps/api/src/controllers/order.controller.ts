@@ -10,10 +10,11 @@ export const getOrders = async (req: Request, res: Response, next: NextFunction)
       return res.status(401).json({ success: false, message: 'Unauthorized session.' });
     }
 
+    const filters = req.query;
     const orders = await OrderService.getOrders({
       id: req.user.id,
       role: req.user.role,
-    });
+    }, filters);
 
     res.json({
       success: true,
@@ -212,3 +213,33 @@ export const cancelSellerOrder = async (req: Request, res: Response, next: NextF
     next(err);
   }
 };
+
+/**
+ * Mark a refund as completed (Admin only)
+ */
+export const markRefundCompleted = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const id = req.params.id as string;
+
+    // Validate UUID to prevent Prisma Validation Errors
+    const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+    if (!id || id === 'undefined' || !uuidRegex.test(id)) {
+      return res.status(400).json({ success: false, message: 'Invalid order ID format.' });
+    }
+
+    if (!req.user || req.user.role !== 'admin') {
+      return res.status(401).json({ success: false, message: 'Unauthorized session.' });
+    }
+
+    const order = await OrderService.markRefundCompleted(id, req.user.id);
+
+    res.json({
+      success: true,
+      message: 'Refund marked as completed.',
+      data: order,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+

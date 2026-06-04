@@ -5,7 +5,7 @@ export class OrderService {
   /**
    * Retrieves orders based on caller's role (customer, seller, admin)
    */
-  static async getOrders(user: { id: string; role: string }) {
+  static async getOrders(user: { id: string; role: string }, filters: any = {}) {
     const { id: userId, role } = user;
 
     if (role === 'customer') {
@@ -52,7 +52,13 @@ export class OrderService {
     }
 
     if (role === 'admin') {
+      const where: any = {};
+      if (filters.paymentStatus) {
+        where.paymentStatus = filters.paymentStatus;
+      }
+
       return await prisma.order.findMany({
+        where,
         include: {
           items: true,
           customer: {
@@ -671,6 +677,70 @@ export class OrderService {
           note: `Seller cancelled the order. ${cancelReason ? `Reason: ${cancelReason}` : ''}`,
           actorId: seller.userId,
           actorRole: 'seller'
+        }
+      });
+
+      return updatedOrder;
+    });
+  }
+
+  /**
+   * Mark a pending refund as completed
+   */
+  static async markRefundCompleted(orderId: string, adminId: string) {
+    // Pre-flight check
+    const order = await prisma.order.findUnique({
+      where: { id: orderId }
+    });
+
+    if (!order) {
+      const err = new Error('Order not found.');
+      (err as any).status = 404;
+      throw err;
+    }
+
+    if (order.status !== 'cancelled') {
+      const err = new Error('Refunds can only be processed for cancelled orders.');
+      (err as any).status = 400;
+      throw err;
+    }
+
+    if (order.paymentStatus === 'refunded') {
+      const err = new Error('Refund has already been completed.');
+      (err as any).status = 400; // Return 400 for idempotency handling in UI
+      throw err;
+    }
+
+    if (order.paymentStatus !== 'refund_initiated') {
+      const err = new Error('Order is not pending a refund.');
+      (err as any).status = 400;
+      throw err;
+    }
+
+    return await prisma.$transaction(async (tx) => {
+      // Re-fetch inside transaction lock
+      const currentOrder = await tx.order.findUnique({
+        where: { id: orderId }
+      });
+
+      if (!currentOrder || currentOrder.status !== 'cancelled' || currentOrder.paymentStatus !== 'refund_initiated') {
+        throw Object.assign(new Error('Order state changed. Refund aborted.'), { status: 409 });
+      }
+
+      const updatedOrder = await tx.order.update({
+        where: { id: orderId },
+        data: {
+          paymentStatus: 'refunded'
+        }
+      });
+
+      await tx.orderTimeline.create({
+        data: {
+          orderId: order.id,
+          status: 'cancelled',
+          note: `Admin marked refund as completed. Status changed from refund_initiated to refunded.`,
+          actorId: adminId,
+          actorRole: 'admin'
         }
       });
 
