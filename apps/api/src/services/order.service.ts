@@ -59,11 +59,31 @@ export class OrderService {
             select: {
               name: true,
               email: true,
+              phone: true,
             },
           },
           seller: {
             select: {
               shopName: true,
+              user: {
+                select: {
+                  email: true,
+                },
+              },
+            },
+          },
+          delivery: {
+            include: {
+              partner: {
+                include: {
+                  user: {
+                    select: {
+                      name: true,
+                      phone: true,
+                    },
+                  },
+                },
+              },
             },
           },
         },

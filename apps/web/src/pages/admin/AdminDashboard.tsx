@@ -1,3 +1,4 @@
+import { formatStatusText } from "../../utils/statusFormatter";
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -187,10 +188,10 @@ export const AdminDashboard: React.FC = () => {
         });
 
         orders.forEach((o: any) => {
-          const statusText = o.status.replace(/_/g, ' ');
+          const statusText = formatStatusText(o.status);
           activityList.push({
-            title: `Order ${statusText.charAt(0).toUpperCase() + statusText.slice(1)}: ${o.orderNumber || o.id.slice(0, 8)}`,
-            time: new Date(o.updatedAt || o.createdAt).toLocaleDateString(),
+            title: `Order ${statusText}: ${o.orderNumber || o.id.slice(0, 8)}`,
+            time: new Date(o.createdAt).toLocaleTimeString(),
             timestamp: new Date(o.updatedAt || o.createdAt).getTime(),
           });
         });
