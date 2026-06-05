@@ -11,6 +11,12 @@ if [ ! -f apps/api/.env ]; then
   exit 1
 fi
 
+# Symlink to root so that processes launched from the root directory can find the .env file
+if [ ! -f .env ]; then
+  echo "🔗  Linking apps/api/.env to root .env..."
+  ln -sf apps/api/.env .env
+fi
+
 echo "📦  Installing dependencies..."
 npm install
 
