@@ -134,7 +134,7 @@ export const ShopPage: React.FC = () => {
         />
       </button>
       <Link to={`/shop/products/${p.slug}`}>
-        <div className="aspect-square bg-secondary flex items-center justify-center text-zinc-300 font-semibold text-xs select-none cursor-pointer overflow-hidden rounded-t-2xl">
+        <div className="aspect-square bg-secondary flex items-center justify-center text-zinc-300 font-semibold text-xs select-none cursor-pointer overflow-hidden rounded-2xl">
           {(() => {
             const primaryImg =
               p.images?.find((img: any) => img.isPrimary) || p.images?.[0];
@@ -150,7 +150,7 @@ export const ShopPage: React.FC = () => {
           })()}
         </div>
       </Link>
-      <CardHeader className="p-4 pb-0">
+      <CardHeader className="p-2 pb-0">
         <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
           {p.brand || 'Unbranded'}
         </span>
@@ -208,7 +208,7 @@ export const ShopPage: React.FC = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9"
-              placeholder="MagnifyingGlass items, brands, sellers..."
+              placeholder="Search items, brands, sellers..."
             />
           </div>
           <div className="flex gap-3 w-full sm:w-auto">
@@ -257,7 +257,7 @@ export const ShopPage: React.FC = () => {
       {/* Recommended Section */}
       {!loading &&
         recommendedProducts.length > 0 &&
-        !searchQuery &&
+        !debouncedSearch &&
         !selectedCategory && (
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-2 px-1">
@@ -286,7 +286,7 @@ export const ShopPage: React.FC = () => {
             Try widening your search terms or changing category filters.
           </p>
         </div>
-      ) : !selectedCategory && !searchQuery ? (
+      ) : !selectedCategory && !debouncedSearch ? (
         <div className="flex flex-col gap-10">
           {categories.map((cat) => {
             const catProducts = products.filter((p) => p.categoryId === cat.id);
@@ -339,7 +339,7 @@ export const ShopPage: React.FC = () => {
             <h2 className="text-2xl font-black text-zinc-800 tracking-tight">
               {selectedCategory
                 ? `${categories.find((c) => c.slug === selectedCategory)?.name || 'Category'} Products`
-                : 'MagnifyingGlass Results'}
+                : 'Search Results'}
             </h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

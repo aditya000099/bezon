@@ -57,7 +57,7 @@ export const SellerEditProduct: React.FC = () => {
             Seller Products
           </p>
           <h1 className="text-xl font-extrabold text-zinc-800 mt-1 flex items-center gap-2">
-            <PencilSimple className="h-5 w-5 text-teal-500" /> PencilSimple
+            <PencilSimple className="h-5 w-5 text-teal-500" />
             Product
           </h1>
           <p className="text-sm text-zinc-500 mt-1">

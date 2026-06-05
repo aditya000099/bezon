@@ -113,9 +113,9 @@ export const SellerLayout: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-zinc-50 flex">
+    <div className="h-screen bg-zinc-50 flex overflow-hidden">
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-zinc-200 flex flex-col shrink-0">
+      <aside className="w-64 bg-white border-r border-zinc-200 flex flex-col shrink-0 h-full">
         <div className="h-16 flex items-center px-6 border-b border-zinc-200 gap-2 overflow-hidden">
           <Storefront className="h-6 w-6 text-primary shrink-0" />
           <span
@@ -160,7 +160,7 @@ export const SellerLayout: React.FC = () => {
       </aside>
 
       {/* Main Panel */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
         {/* Top Header */}
         <header className="h-16 bg-white border-b border-zinc-200 flex items-center justify-between px-8">
           <h2 className="text-xl font-bold text-zinc-800">Seller Dashboard</h2>

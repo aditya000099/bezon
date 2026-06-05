@@ -32,9 +32,9 @@ export const AdminLayout: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-zinc-100 flex">
+    <div className="h-screen bg-zinc-100 flex overflow-hidden">
       {/* Dark Sidebar */}
-      <aside className="w-64 bg-zinc-900 text-zinc-300 flex flex-col shrink-0">
+      <aside className="w-64 bg-zinc-900 text-zinc-300 flex flex-col shrink-0 h-full">
         <div className="h-16 flex items-center px-6 border-b border-zinc-800 gap-2 bg-zinc-950">
           <ShieldWarning className="h-6 w-6 text-primary" />
           <span className="font-bold text-lg text-white">Bezon Admin</span>
@@ -71,7 +71,7 @@ export const AdminLayout: React.FC = () => {
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
         {/* Header */}
         <header className="h-16 bg-white border-b border-zinc-200 flex items-center justify-between px-8 shadow-sm">
           <h2 className="text-xl font-bold text-zinc-800">
