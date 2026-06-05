@@ -28,4 +28,4 @@ npm run build --workspace=@bezon/web
 
 echo ""
 echo "✅  Done. Starting API on port 5002..."
-node apps/api/dist/index.js
+npx tsx apps/api/src/index.ts
