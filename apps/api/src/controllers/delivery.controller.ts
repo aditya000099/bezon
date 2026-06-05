@@ -565,9 +565,13 @@ export const updateAssignmentStatus = async (req: Request, res: Response, next: 
       }
 
       if (orderStatus) {
+        const orderData: any = { status: orderStatus as any };
+        if (orderStatus === 'delivered') {
+          orderData.deliveredAt = new Date();
+        }
         await tx.order.update({
           where: { id: delivery.orderId },
-          data: { status: orderStatus as any },
+          data: orderData,
         });
 
         await tx.orderTimeline.create({

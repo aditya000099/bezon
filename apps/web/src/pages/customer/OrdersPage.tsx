@@ -128,11 +128,24 @@ export const OrdersPage: React.FC = () => {
                     </div>
                   </div>
 
-                  <span
-                    className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${getStatusStyle(order.status)}`}
-                  >
-                    {order.status.toUpperCase().replace(/_/g, ' ')}
-                  </span>
+                  <div className="flex gap-2 items-center">
+                    <span
+                      className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${getStatusStyle(order.status)}`}
+                    >
+                      {order.status.toUpperCase().replace(/_/g, ' ')}
+                    </span>
+                    {order.returnStatus && order.returnStatus !== 'NONE' && (
+                      <span
+                        className={`inline-block px-3 py-1 rounded-full text-xs font-bold border ${
+                          order.returnStatus === 'REQUESTED' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                          order.returnStatus === 'APPROVED' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                          'bg-rose-50 text-rose-700 border-rose-200'
+                        }`}
+                      >
+                        RETURN {order.returnStatus.toUpperCase()}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 <CardContent className="p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">

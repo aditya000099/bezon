@@ -120,7 +120,10 @@ export const getSellerOrders = async (req: Request, res: Response, next: NextFun
       return res.status(401).json({ success: false, message: 'Unauthorized session.' });
     }
 
-    const orders = await OrderService.getSellerOrders(req.user.id);
+    const { returnStatus } = req.query;
+    const orders = await OrderService.getSellerOrders(req.user.id, {
+      returnStatus: returnStatus as string,
+    });
 
     res.json({
       success: true,
@@ -243,3 +246,96 @@ export const markRefundCompleted = async (req: Request, res: Response, next: Nex
   }
 };
 
+/**
+ * Phase 5 - Request a return
+ */
+export const requestReturn = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const id = req.params.id as string;
+    const { reason, notes } = req.body;
+
+    const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+    if (!id || id === 'undefined' || !uuidRegex.test(id)) {
+      return res.status(400).json({ success: false, message: 'Invalid order ID format.' });
+    }
+
+    if (!req.user || req.user.role !== 'customer') {
+      return res.status(401).json({ success: false, message: 'Unauthorized session.' });
+    }
+
+    if (!reason) {
+      return res.status(400).json({ success: false, message: 'Return reason is required.' });
+    }
+
+    const order = await OrderService.requestReturn(id, req.user.id, reason, notes);
+
+    res.json({
+      success: true,
+      message: 'Return requested successfully.',
+      data: order,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Phase 5 - Approve a return
+ */
+export const approveReturn = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const id = req.params.id as string;
+
+    const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+    if (!id || id === 'undefined' || !uuidRegex.test(id)) {
+      return res.status(400).json({ success: false, message: 'Invalid order ID format.' });
+    }
+
+    if (!req.user || req.user.role !== 'seller') {
+      return res.status(401).json({ success: false, message: 'Unauthorized session.' });
+    }
+
+    const order = await OrderService.approveReturn(id, req.user.id);
+
+    res.json({
+      success: true,
+      message: 'Return approved successfully.',
+      data: order,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Phase 5 - Reject a return
+ */
+export const rejectReturn = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const id = req.params.id as string;
+    const { rejectionReason } = req.body;
+
+    const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+    if (!id || id === 'undefined' || !uuidRegex.test(id)) {
+      return res.status(400).json({ success: false, message: 'Invalid order ID format.' });
+    }
+
+    if (!req.user || req.user.role !== 'seller') {
+      return res.status(401).json({ success: false, message: 'Unauthorized session.' });
+    }
+
+    if (!rejectionReason) {
+      return res.status(400).json({ success: false, message: 'Rejection reason is required.' });
+    }
+
+    const order = await OrderService.rejectReturn(id, req.user.id, rejectionReason);
+
+    res.json({
+      success: true,
+      message: 'Return rejected successfully.',
+      data: order,
+    });
+  } catch (err) {
+    next(err);
+  }
+};

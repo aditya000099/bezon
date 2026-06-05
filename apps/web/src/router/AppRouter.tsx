@@ -45,7 +45,9 @@ import { SellerCoupons } from '../pages/seller/SellerCoupons';
 import { SellerQA } from '@/pages/seller/SellerQA';
 import { SellerEditProduct } from '../pages/seller/SellerEditProduct';
 import { SellerStats } from '../pages/seller/SellerStats';
-
+import { SellerReturns } from '../pages/seller/SellerReturns';
+import { SellerOrderDetail } from '../pages/seller/SellerOrderDetail';
+import { SellerAddProduct } from '../pages/seller/SellerAddProduct';
 // Delivery Pages
 import { DeliveryQueue } from '../pages/delivery/DeliveryQueue';
 import { DeliveryHistory } from '../pages/delivery/DeliveryHistory';
@@ -61,8 +63,7 @@ import { AdminDeliveries } from '../pages/admin/AdminDeliveries';
 import { AdminUsers } from '../pages/admin/AdminUsers';
 import { AdminPolicies } from '../pages/admin/AdminPolicies';
 import { AdminRefunds } from '../pages/admin/AdminRefunds';
-import { SellerAddProduct } from '@/pages/seller/SellerAddProduct';
-import { SellerOrderDetail } from '@/pages/seller/SellerOrderDetail';
+import { AdminReturns } from '../pages/admin/AdminReturns';
 
 export const AppRouter: React.FC = () => {
   return (
@@ -132,6 +133,7 @@ export const AppRouter: React.FC = () => {
           <Route path="add-product" element={<SellerAddProduct />} />
           <Route path="orders" element={<SellerOrders />} />
           <Route path="orders/:id" element={<SellerOrderDetail />} />
+          <Route path="returns" element={<SellerReturns />} />
           <Route path="inventory" element={<SellerInventory />} />
           <Route path="settings" element={<SellerSettings />} />
           <Route path="coupons" element={<SellerCoupons />} />
@@ -170,6 +172,7 @@ export const AppRouter: React.FC = () => {
           <Route path="users" element={<AdminUsers />} />
           <Route path="policies" element={<AdminPolicies />} />
           <Route path="refunds" element={<AdminRefunds />} />
+          <Route path="returns" element={<AdminReturns />} />
         </Route>
 
         {/* Catch-all Redirect */}

@@ -1,5 +1,5 @@
 import prisma from '../db/client.js';
-
+import { RETURN_WINDOW_DAYS } from '../utils/constants.js';
 
 export class OrderService {
   /**
@@ -35,8 +35,13 @@ export class OrderService {
         throw err;
       }
 
+      const where: any = { sellerId: seller.id };
+      if (filters.returnStatus) {
+        where.returnStatus = filters.returnStatus;
+      }
+
       return await prisma.order.findMany({
-        where: { sellerId: seller.id },
+        where,
         include: {
           items: true,
           customer: {
@@ -55,6 +60,9 @@ export class OrderService {
       const where: any = {};
       if (filters.paymentStatus) {
         where.paymentStatus = filters.paymentStatus;
+      }
+      if (filters.returnStatus) {
+        where.returnStatus = filters.returnStatus;
       }
 
       return await prisma.order.findMany({
@@ -274,9 +282,14 @@ export class OrderService {
         });
       }
 
+      const updateData: any = { status: status as any };
+      if (status === 'delivered') {
+        updateData.deliveredAt = new Date();
+      }
+
       const updated = await tx.order.update({
         where: { id: orderId },
-        data: { status: status as any },
+        data: updateData,
       });
 
       // Build a human-readable timeline note
@@ -432,7 +445,7 @@ export class OrderService {
   /**
    * Retrieves orders for a specific seller by their user ID
    */
-  static async getSellerOrders(userId: string) {
+  static async getSellerOrders(userId: string, filters: { returnStatus?: string } = {}) {
     const seller = await prisma.seller.findUnique({
       where: { userId },
     });
@@ -443,8 +456,14 @@ export class OrderService {
       throw err;
     }
 
+    const whereClause: any = { sellerId: seller.id };
+    
+    if (filters.returnStatus) {
+      whereClause.returnStatus = filters.returnStatus;
+    }
+
     return await prisma.order.findMany({
-      where: { sellerId: seller.id },
+      where: whereClause,
       include: {
         items: true,
         customer: {
@@ -743,6 +762,238 @@ export class OrderService {
           actorRole: 'admin'
         }
       });
+
+      return updatedOrder;
+    });
+  }
+
+  /**
+   * Phase 5 - Request a return (Customer)
+   */
+  static async requestReturn(orderId: string, customerId: string, reason: string, notes?: string) {
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+      include: {
+        delivery: true,
+        timeline: {
+          where: { status: 'delivered' },
+          orderBy: { createdAt: 'desc' },
+          take: 1
+        }
+      }
+    });
+
+    if (!order) {
+      const err = new Error('Order not found.');
+      (err as any).status = 404;
+      throw err;
+    }
+
+    if (order.customerId !== customerId) {
+      const err = new Error('Access denied.');
+      (err as any).status = 403;
+      throw err;
+    }
+
+    if (order.status !== 'delivered') {
+      const err = new Error('Only delivered orders can be returned.');
+      (err as any).status = 400;
+      throw err;
+    }
+
+    if (order.returnStatus && order.returnStatus !== 'NONE') {
+      const err = new Error('A return request has already been initiated for this order.');
+      (err as any).status = 400;
+      throw err;
+    }
+
+    const deliveredAt = order.deliveredAt || order.delivery?.deliveredAt || order.timeline?.[0]?.createdAt;
+    
+    if (!deliveredAt) {
+      const err = new Error('Delivery timestamp is missing, cannot calculate return window.');
+      (err as any).status = 400;
+      throw err;
+    }
+
+    const deliveryTime = new Date(deliveredAt).getTime();
+    const expirationTime = deliveryTime + RETURN_WINDOW_DAYS * 24 * 60 * 60 * 1000;
+    
+    if (Date.now() > expirationTime) {
+      const err = new Error(`The ${RETURN_WINDOW_DAYS}-day return window has expired.`);
+      (err as any).status = 400;
+      throw err;
+    }
+
+    return await prisma.$transaction(async (tx) => {
+      const updatedOrder = await tx.order.update({
+        where: { id: orderId },
+        data: {
+          returnStatus: 'REQUESTED',
+          returnReason: reason as any,
+          returnNotes: notes || null,
+          returnRequestedAt: new Date()
+        }
+      });
+
+      await tx.orderTimeline.create({
+        data: {
+          orderId: order.id,
+          status: 'delivered', // Keeping main status as delivered
+          note: `Return Requested by Customer. Reason: ${reason}.`,
+          actorId: customerId,
+          actorRole: 'customer'
+        }
+      });
+
+      // Notification hook placeholder
+      // NotificationService.createNotification(...)
+
+      return updatedOrder;
+    });
+  }
+
+  /**
+   * Phase 5 - Approve a return (Seller)
+   */
+  static async approveReturn(orderId: string, sellerUserId: string) {
+    const seller = await prisma.seller.findUnique({
+      where: { userId: sellerUserId }
+    });
+
+    if (!seller) {
+      const err = new Error('Seller profile not found.');
+      (err as any).status = 404;
+      throw err;
+    }
+
+    const order = await prisma.order.findUnique({
+      where: { id: orderId }
+    });
+
+    if (!order) {
+      const err = new Error('Order not found.');
+      (err as any).status = 404;
+      throw err;
+    }
+
+    if (order.sellerId !== seller.id) {
+      const err = new Error('Access denied. You do not own this order.');
+      (err as any).status = 403;
+      throw err;
+    }
+
+    if (order.returnStatus !== 'REQUESTED') {
+      const err = new Error('Only pending return requests can be approved.');
+      (err as any).status = 400;
+      throw err;
+    }
+
+    return await prisma.$transaction(async (tx) => {
+      const currentOrder = await tx.order.findUnique({
+        where: { id: orderId }
+      });
+
+      if (!currentOrder || currentOrder.returnStatus !== 'REQUESTED') {
+        throw Object.assign(new Error('Order state changed. Approval aborted.'), { status: 409 });
+      }
+
+      const updatedOrder = await tx.order.update({
+        where: { id: orderId },
+        data: {
+          returnStatus: 'APPROVED',
+          returnApprovedAt: new Date()
+        }
+      });
+
+      await tx.orderTimeline.create({
+        data: {
+          orderId: order.id,
+          status: 'delivered', // Keep main status as delivered
+          note: `Return Approved by Seller.`,
+          actorId: seller.userId,
+          actorRole: 'seller'
+        }
+      });
+
+      // Notification hook placeholder
+      // NotificationService.createNotification(...)
+
+      return updatedOrder;
+    });
+  }
+
+  /**
+   * Phase 5 - Reject a return (Seller)
+   */
+  static async rejectReturn(orderId: string, sellerUserId: string, rejectionReason: string) {
+    const seller = await prisma.seller.findUnique({
+      where: { userId: sellerUserId }
+    });
+
+    if (!seller) {
+      const err = new Error('Seller profile not found.');
+      (err as any).status = 404;
+      throw err;
+    }
+
+    const order = await prisma.order.findUnique({
+      where: { id: orderId }
+    });
+
+    if (!order) {
+      const err = new Error('Order not found.');
+      (err as any).status = 404;
+      throw err;
+    }
+
+    if (order.sellerId !== seller.id) {
+      const err = new Error('Access denied. You do not own this order.');
+      (err as any).status = 403;
+      throw err;
+    }
+
+    if (order.returnStatus !== 'REQUESTED') {
+      const err = new Error('Only pending return requests can be rejected.');
+      (err as any).status = 400;
+      throw err;
+    }
+
+    if (!rejectionReason || rejectionReason.trim() === '') {
+      const err = new Error('Rejection reason is required.');
+      (err as any).status = 400;
+      throw err;
+    }
+
+    return await prisma.$transaction(async (tx) => {
+      const currentOrder = await tx.order.findUnique({
+        where: { id: orderId }
+      });
+
+      if (!currentOrder || currentOrder.returnStatus !== 'REQUESTED') {
+        throw Object.assign(new Error('Order state changed. Rejection aborted.'), { status: 409 });
+      }
+
+      const updatedOrder = await tx.order.update({
+        where: { id: orderId },
+        data: {
+          returnStatus: 'REJECTED',
+          returnRejectedAt: new Date(),
+          returnRejectedReason: rejectionReason.trim()
+        }
+      });
+
+      await tx.orderTimeline.create({
+        data: {
+          orderId: order.id,
+          status: 'delivered', // Keep main status as delivered
+          note: `Return Rejected by Seller. Reason: ${rejectionReason.trim()}.`,
+          actorId: seller.userId,
+          actorRole: 'seller'
+        }
+      });
+
+      // Notification hook placeholder
+      // NotificationService.createNotification(...)
 
       return updatedOrder;
     });

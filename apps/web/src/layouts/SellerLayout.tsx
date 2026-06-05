@@ -107,6 +107,7 @@ export const SellerLayout: React.FC = () => {
     { to: '/seller/coupons', label: 'Coupons', icon: Tag },
     { to: '/seller/qa', label: 'Q&A', icon: ChatTeardropText },
     { to: '/seller/orders', label: 'Order Queue', icon: ClipboardText },
+    { to: '/seller/returns', label: 'Returns', icon: ArrowSquareOut },
     { to: '/seller/inventory', label: 'Inventory', icon: Package },
     { to: '/seller/settings', label: 'Shop Gear', icon: Gear },
   ];

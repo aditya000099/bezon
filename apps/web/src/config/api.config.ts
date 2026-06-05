@@ -51,8 +51,11 @@ export const API_ENDPOINTS = {
     sellerMe: `${API_V1}/orders/seller/me`,
     sellerDetail: (id: string) => `${API_V1}/orders/seller/me/${id}`,
     sellerCancel: (id: string) => `${API_V1}/orders/seller/me/${id}/cancel`,
+    sellerApproveReturn: (id: string) => `${API_V1}/orders/seller/me/${id}/returns/approve`,
+    sellerRejectReturn: (id: string) => `${API_V1}/orders/seller/me/${id}/returns/reject`,
     cancel: (id: string) => `${API_V1}/orders/${id}/cancel`,
     markRefundCompleted: (id: string) => `${API_V1}/orders/${id}/refund/complete`,
+    requestReturn: (id: string) => `${API_V1}/orders/${id}/returns/request`,
   },
   // Payments
   payments: {

@@ -26,6 +26,7 @@ import {
 } from '@phosphor-icons/react';
 import api from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api.config';
+import { RETURN_WINDOW_DAYS } from '../../utils/constants';
 import { useToast } from '../../context/ToastContext';
 import { WriteReviewModal } from '../../components/reviews/WriteReviewModal';
 import { OrderTrackingStepper } from '../../components/ui/OrderTrackingStepper';
@@ -43,9 +44,15 @@ interface OrderDetail {
   orderNumber: string;
   status: string;
   paymentStatus: string;
+  returnStatus: 'NONE' | 'REQUESTED' | 'APPROVED' | 'REJECTED';
+  returnRequestedAt?: string;
+  returnApprovedAt?: string;
+  returnRejectedAt?: string;
+  returnRejectedReason?: string;
   subtotal: number;
   total: number;
   createdAt: string;
+  deliveredAt?: string;
   billUrl?: string;
   addressSnapshot: {
     fullName: string;
@@ -111,46 +118,37 @@ export const OrderDetailPage: React.FC = () => {
   } | null>(null);
   const [existingReview, setExistingReview] = useState<any>(null);
 
-  // Policy Action State
-  const [policyModalOpen, setPolicyModalOpen] = useState(false);
-  const [selectedPolicyItem, setSelectedPolicyItem] = useState<{
-    id: string;
-    productId: string;
-    title: string;
-    actionType: 'return' | 'refund' | 'replace';
-    durationDays: number;
-  } | null>(null);
-  const [policyReason, setPolicyReason] = useState('');
-  const [submittingPolicy, setSubmittingPolicy] = useState(false);
+  // Return Request State
+  const [returnModalOpen, setReturnModalOpen] = useState(false);
+  const [returnReason, setReturnReason] = useState('damaged');
+  const [returnNotes, setReturnNotes] = useState('');
+  const [submittingReturn, setSubmittingReturn] = useState(false);
 
-  const handlePolicyActionSubmit = async () => {
-    if (!selectedPolicyItem || !order) return;
-    if (!policyReason.trim()) {
-      toast.warning('Please provide a reason for your request.');
+  const handleReturnSubmit = async () => {
+    if (!order) return;
+    if (!returnReason) {
+      toast.warning('Please select a return reason.');
       return;
     }
 
-    setSubmittingPolicy(true);
+    setSubmittingReturn(true);
     try {
-      const res = await api.post(API_ENDPOINTS.orders.policyAction(order.id), {
-        actionType: selectedPolicyItem.actionType,
-        itemId: selectedPolicyItem.id,
-        reason: policyReason.trim(),
+      const res = await api.post(API_ENDPOINTS.orders.requestReturn(order.id), {
+        reason: returnReason,
+        notes: returnNotes.trim(),
       });
 
       if (res.data.success) {
-        toast.success(
-          `Successfully submitted ${selectedPolicyItem.actionType} request for ${selectedPolicyItem.title}`,
-        );
-        setPolicyModalOpen(false);
-        setPolicyReason('');
-        setSelectedPolicyItem(null);
+        toast.success('Return requested successfully.');
+        setReturnModalOpen(false);
+        setReturnReason('damaged');
+        setReturnNotes('');
         await fetchOrderDetail();
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to submit request.');
+      toast.error(err.response?.data?.message || 'Failed to request return.');
     } finally {
-      setSubmittingPolicy(false);
+      setSubmittingReturn(false);
     }
   };
 
@@ -251,6 +249,22 @@ export const OrderDetailPage: React.FC = () => {
                 Cancel Order
               </Button>
             )}
+            {order.status === 'delivered' && (!order.returnStatus || order.returnStatus === 'NONE') && (() => {
+              const deliveredAt = order.deliveredAt || order.delivery?.deliveredAt || order.timeline?.find(t => t.status === 'delivered')?.createdAt;
+              if (!deliveredAt) return false;
+              const deliveryTime = new Date(deliveredAt).getTime();
+              const expirationTime = deliveryTime + RETURN_WINDOW_DAYS * 24 * 60 * 60 * 1000;
+              return Date.now() <= expirationTime;
+            })() && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2 font-bold text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200"
+                onClick={() => setReturnModalOpen(true)}
+              >
+                Request Return
+              </Button>
+            )}
             {order.billUrl && (
               <a href={order.billUrl} target="_blank" rel="noopener noreferrer">
                 <Button
@@ -264,12 +278,25 @@ export const OrderDetailPage: React.FC = () => {
             )}
           </div>
         </div>
-        <h1 className="text-xl font-extrabold text-zinc-900 tracking-tight sm:text-2xl">
-          Order Tracker{' '}
-          <span className="font-mono text-zinc-400 font-normal">
-            #{order.orderNumber}
-          </span>
-        </h1>
+        <div className="flex items-center gap-3 flex-wrap">
+          <h1 className="text-xl font-extrabold text-zinc-900 tracking-tight sm:text-2xl">
+            Order Tracker{' '}
+            <span className="font-mono text-zinc-400 font-normal">
+              #{order.orderNumber}
+            </span>
+          </h1>
+          {order.returnStatus && order.returnStatus !== 'NONE' && (
+            <span
+              className={`inline-block px-3 py-1 rounded-full text-xs font-bold border ${
+                order.returnStatus === 'REQUESTED' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                order.returnStatus === 'APPROVED' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                'bg-rose-50 text-rose-700 border-rose-200'
+              }`}
+            >
+              RETURN {order.returnStatus.toUpperCase()}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Progress tracking stepper */}
@@ -286,25 +313,6 @@ export const OrderDetailPage: React.FC = () => {
             </CardHeader>
             <CardContent className="p-6 divide-y divide-zinc-100">
               {order.items.map((item) => {
-                // Find active policies
-                const policies = item.product?.policies || [];
-                const activePolicies = policies
-                  .map((pp: any) => pp.policy)
-                  .filter((p: any) => p && p.isActive);
-
-                // Helper to check window validity
-                const getPolicyExpiryStatus = (p: any) => {
-                  if (!order.delivery?.deliveredAt)
-                    return { valid: false, text: '' };
-                  const deliveryTime = new Date(
-                    order.delivery.deliveredAt,
-                  ).getTime();
-                  const expirationTime =
-                    deliveryTime + p.durationDays * 24 * 60 * 60 * 1000;
-                  const valid = Date.now() <= expirationTime;
-                  return { valid, expiryDate: new Date(expirationTime) };
-                };
-
                 return (
                   <div
                     key={item.id}
@@ -348,78 +356,6 @@ export const OrderDetailPage: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Policy Action Buttons */}
-                    {order.status === 'delivered' &&
-                      activePolicies.length > 0 && (
-                        <div className="flex flex-wrap gap-2 pt-2 border-t border-dashed border-zinc-100">
-                          {activePolicies.map((p: any) => {
-                            const { valid } = getPolicyExpiryStatus(p);
-                            if (!valid) return null;
-
-                            const btnConfigs: Record<
-                              string,
-                              {
-                                label: string;
-                                icon: any;
-                                borderClass: string;
-                                textClass: string;
-                                bgClass: string;
-                              }
-                            > = {
-                              return: {
-                                label: 'Request Return',
-                                icon: ArrowCounterClockwise,
-                                borderClass:
-                                  'border-blue-200 hover:border-blue-300',
-                                textClass: 'text-blue-700',
-                                bgClass: 'bg-blue-50/50 hover:bg-blue-50',
-                              },
-                              refund: {
-                                label: 'Request Refund',
-                                icon: Money,
-                                borderClass:
-                                  'border-emerald-200 hover:border-emerald-300',
-                                textClass: 'text-emerald-700',
-                                bgClass: 'bg-emerald-50/50 hover:bg-emerald-50',
-                              },
-                              replace: {
-                                label: 'Request Replacement',
-                                icon: ArrowsClockwise,
-                                borderClass:
-                                  'border-amber-200 hover:border-amber-300',
-                                textClass: 'text-amber-700',
-                                bgClass: 'bg-amber-50/50 hover:bg-amber-50',
-                              },
-                            };
-
-                            const config =
-                              btnConfigs[p.type] || btnConfigs.return;
-                            const Icon = config.icon;
-
-                            return (
-                              <Button
-                                key={p.id}
-                                variant="outline"
-                                size="sm"
-                                className={`text-[10px] font-bold h-7 gap-1.5 px-3 rounded-md transition-all ${config.borderClass} ${config.textClass} ${config.bgClass}`}
-                                onClick={() => {
-                                  setSelectedPolicyItem({
-                                    id: item.id,
-                                    productId: item.productId,
-                                    title: item.productTitle,
-                                    actionType: p.type,
-                                    durationDays: p.durationDays,
-                                  });
-                                  setPolicyModalOpen(true);
-                                }}
-                              >
-                                <Icon className="h-3.5 w-3.5" />
-                                {config.label} ({p.durationDays}d)
-                              </Button>
-                            );
-                          })}
-                        </div>
-                      )}
                   </div>
                 );
               })}
@@ -661,6 +597,72 @@ export const OrderDetailPage: React.FC = () => {
             </CardContent>
           </Card>
 
+          {order.returnStatus !== 'NONE' && (
+            <Card className="bg-zinc-50/80 border-0">
+              <CardHeader className="py-4 flex flex-row items-center gap-2 bg-zinc-100/30 rounded-t-2xl">
+                <ArrowCounterClockwise className="h-4 w-4 text-blue-500" />
+                <CardTitle className="text-base font-bold text-zinc-800">
+                  Return Status
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-5 space-y-4 text-xs text-zinc-600">
+                <div>
+                  <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block">
+                    Current Status
+                  </span>
+                  <span
+                    className={`inline-block px-2.5 py-0.5 rounded-full font-bold mt-1 ${
+                      order.returnStatus === 'APPROVED'
+                        ? 'bg-emerald-50 text-emerald-700'
+                        : order.returnStatus === 'REJECTED'
+                        ? 'bg-rose-50 text-rose-700'
+                        : 'bg-blue-50 text-blue-700'
+                    }`}
+                  >
+                    {order.returnStatus}
+                  </span>
+                </div>
+                {order.returnRequestedAt && (
+                  <div className="border-t border-zinc-100 pt-3 flex justify-between items-center">
+                    <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block">
+                      Requested On
+                    </span>
+                    <span className="font-semibold text-zinc-700">
+                      {new Date(order.returnRequestedAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                )}
+                {order.returnApprovedAt && (
+                  <div className="border-t border-zinc-100 pt-3 flex justify-between items-center">
+                    <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block">
+                      Approved On
+                    </span>
+                    <span className="font-semibold text-zinc-700">
+                      {new Date(order.returnApprovedAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                )}
+                {order.returnRejectedAt && (
+                  <div className="border-t border-zinc-100 pt-3">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block">
+                        Rejected On
+                      </span>
+                      <span className="font-semibold text-zinc-700">
+                        {new Date(order.returnRejectedAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                    {order.returnRejectedReason && (
+                      <p className="text-xs text-rose-600 mt-2 bg-rose-50 p-2 rounded border border-rose-100">
+                        <strong>Reason:</strong> {order.returnRejectedReason}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
           {/* Vertical Timeline logs */}
           <Card className="bg-zinc-50/80 border-0 flex-1">
             <CardHeader className="py-4 flex flex-row items-center gap-2 bg-zinc-100/30 rounded-t-2xl">
@@ -731,28 +733,46 @@ export const OrderDetailPage: React.FC = () => {
         />
       )}
 
-      {selectedPolicyItem && (
-        <Dialog open={policyModalOpen} onOpenChange={setPolicyModalOpen}>
-          <DialogContent className="sm:max-w-106.25">
+      {returnModalOpen && (
+        <Dialog open={returnModalOpen} onOpenChange={setReturnModalOpen}>
+          <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle className="capitalize flex items-center gap-2">
-                Request {selectedPolicyItem.actionType}
+              <DialogTitle className="flex items-center gap-2">
+                Request Return
               </DialogTitle>
               <DialogDescription>
-                Submit a request for "{selectedPolicyItem.title}". This action
-                is subject to the {selectedPolicyItem.durationDays}-day policy
+                Submit a return request for this order. This action
+                is subject to the {RETURN_WINDOW_DAYS}-day return
                 window.
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="flex flex-col gap-2">
                 <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
-                  Reason for Request
+                  Reason for Return
+                </label>
+                <select
+                  value={returnReason}
+                  onChange={(e) => setReturnReason(e.target.value)}
+                  className="w-full rounded-md border border-zinc-200 p-3 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500 bg-white"
+                >
+                  <option value="damaged">Damaged Product</option>
+                  <option value="wrong_product">Wrong Product Received</option>
+                  <option value="missing_items">Missing Items</option>
+                  <option value="not_as_described">Product Not As Described</option>
+                  <option value="defective">Defective Product</option>
+                  <option value="quality">Quality Issues</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
+                  Additional Notes (Optional)
                 </label>
                 <textarea
-                  placeholder={`Explain why you are requesting a ${selectedPolicyItem.actionType}...`}
-                  value={policyReason}
-                  onChange={(e) => setPolicyReason(e.target.value)}
+                  placeholder={`Explain the issue in more detail...`}
+                  value={returnNotes}
+                  onChange={(e) => setReturnNotes(e.target.value)}
                   className="w-full min-h-24 resize-none rounded-md border border-zinc-200 p-3 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
                 />
               </div>
@@ -761,20 +781,20 @@ export const OrderDetailPage: React.FC = () => {
               <Button
                 variant="outline"
                 onClick={() => {
-                  setPolicyModalOpen(false);
-                  setPolicyReason('');
-                  setSelectedPolicyItem(null);
+                  setReturnModalOpen(false);
+                  setReturnReason('damaged');
+                  setReturnNotes('');
                 }}
-                disabled={submittingPolicy}
+                disabled={submittingReturn}
               >
                 Cancel
               </Button>
               <Button
-                onClick={handlePolicyActionSubmit}
-                disabled={submittingPolicy || !policyReason.trim()}
-                className="font-bold bg-teal-600 hover:bg-teal-700 text-white"
+                onClick={handleReturnSubmit}
+                disabled={submittingReturn || !returnReason}
+                className="font-bold bg-blue-600 hover:bg-blue-700 text-white"
               >
-                {submittingPolicy ? (
+                {submittingReturn ? (
                   <Spinner className="h-4 w-4 animate-spin mr-2" />
                 ) : null}
                 Submit Request

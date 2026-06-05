@@ -95,6 +95,23 @@ enum CouponScope {
   variantGroup
 }
 
+enum ReturnStatus {
+  NONE
+  REQUESTED
+  APPROVED
+  REJECTED
+}
+
+enum ReturnReason {
+  damaged
+  wrong_product
+  missing_items
+  not_as_described
+  defective
+  quality
+  other
+}
+
 enum NotificationType {
   order_placed
   order_confirmed
@@ -104,6 +121,7 @@ enum NotificationType {
   order_failed
   return_requested
   return_approved
+  return_rejected
   new_task_assigned
   low_stock
   question_asked
@@ -387,11 +405,19 @@ model Order {
   total             Decimal         @db.Decimal(12, 2)
   cancelReason      String?         @map("cancel_reason")
   cancelledAt       DateTime?       @map("cancelled_at") @db.Timestamptz
-  cancelledBy       String?         @map("cancelled_by") @db.Uuid
-  billUrl           String?         @map("bill_url")
-  idempotencyKey    String          @unique @default(dbgenerated("gen_random_uuid()")) @map("idempotency_key") @db.Uuid
-  createdAt         DateTime        @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt         DateTime        @default(now()) @map("updated_at") @db.Timestamptz
+  cancelledBy          String?         @map("cancelled_by") @db.Uuid
+  deliveredAt          DateTime?       @map("delivered_at") @db.Timestamptz
+  returnStatus         ReturnStatus    @default(NONE) @map("return_status")
+  returnReason         ReturnReason?   @map("return_reason")
+  returnNotes          String?         @map("return_notes")
+  returnRequestedAt    DateTime?       @map("return_requested_at") @db.Timestamptz
+  returnApprovedAt     DateTime?       @map("return_approved_at") @db.Timestamptz
+  returnRejectedAt     DateTime?       @map("return_rejected_at") @db.Timestamptz
+  returnRejectedReason String?         @map("return_rejected_reason")
+  billUrl              String?         @map("bill_url")
+  idempotencyKey       String          @unique @default(dbgenerated("gen_random_uuid()")) @map("idempotency_key") @db.Uuid
+  createdAt            DateTime        @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt            DateTime        @default(now()) @map("updated_at") @db.Timestamptz
   customer          User            @relation(fields: [customerId], references: [id], map: "orders_customer_fk")
   seller            Seller          @relation(fields: [sellerId], references: [id], map: "orders_seller_fk")
   coupon            Coupon?         @relation(fields: [couponId], references: [id], map: "orders_coupon_fk")
