@@ -181,6 +181,7 @@ export const updateProduct = async (
         weightGrams,
         sku,
         linkedProductIds,
+        images,
         policyIds,
       },
     );

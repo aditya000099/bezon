@@ -157,29 +157,42 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     setUploadingImage(true);
     try {
       const currentImages = [...images];
+      let failedCount = 0;
       for (let i = 0; i < files.length; i++) {
-        const formData = new FormData();
-        formData.append('image', files[i]);
+        try {
+          const formData = new FormData();
+          formData.append('image', files[i]);
 
-        const uploadRes = await api.post(API_ENDPOINTS.media.upload, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
-
-        if (uploadRes.data.success) {
-          const { url, s3Key } = uploadRes.data.data;
-          currentImages.push({
-            url,
-            s3Key,
-            isPrimary: currentImages.length === 0,
+          const uploadRes = await api.post(API_ENDPOINTS.media.upload, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
           });
+
+          if (uploadRes.data.success) {
+            const { url, s3Key } = uploadRes.data.data;
+            currentImages.push({
+              url,
+              s3Key,
+              isPrimary: currentImages.length === 0,
+            });
+          }
+        } catch (imgErr: any) {
+          failedCount++;
+          console.error(`Failed to upload image ${files[i].name}:`, imgErr);
         }
       }
       setImages(currentImages);
-      toast.success('Images uploaded successfully.');
+      if (failedCount > 0) {
+        toast.error(`${failedCount} image(s) failed to upload.`);
+      }
+      if (currentImages.length > images.length) {
+        toast.success('Images uploaded successfully.');
+      }
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Image upload failed.');
     } finally {
       setUploadingImage(false);
+      // Reset the input so the same file(s) can be re-selected
+      e.target.value = '';
     }
   };
 
@@ -438,7 +451,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               <Input
                 type="file"
                 multiple
-                accept="image/*"
+                accept="image/jpeg,image/png,image/webp,image/gif"
                 onChange={handleImageUpload}
                 className="absolute inset-0 opacity-0 cursor-pointer"
                 disabled={uploadingImage}
