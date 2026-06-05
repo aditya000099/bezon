@@ -12,28 +12,43 @@ export const AdminReturns: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'REQUESTED' | 'APPROVED' | 'REJECTED'>('REQUESTED');
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({ pending: 0, approved: 0, rejected: 0, total: 0 });
+  const [stats, setStats] = useState({ 
+    pending: 0, 
+    approved: 0, 
+    rejected: 0, 
+    assigned: 0,
+    inTransit: 0,
+    completed: 0,
+    total: 0 
+  });
 
   const fetchReturns = async () => {
     setLoading(true);
     try {
-      // For MVP, we'll fetch the active tab data.
-      // To get real stats, we should fetch all return statuses, but this is fine for now.
-      const [reqRes, appRes, rejRes] = await Promise.all([
+      const [reqRes, appRes, rejRes, assRes, pickRes, compRes] = await Promise.all([
         api.get(API_ENDPOINTS.orders.base, { params: { returnStatus: 'REQUESTED' } }),
         api.get(API_ENDPOINTS.orders.base, { params: { returnStatus: 'APPROVED' } }),
-        api.get(API_ENDPOINTS.orders.base, { params: { returnStatus: 'REJECTED' } })
+        api.get(API_ENDPOINTS.orders.base, { params: { returnStatus: 'REJECTED' } }),
+        api.get(API_ENDPOINTS.orders.base, { params: { returnStatus: 'ASSIGNED' } }),
+        api.get(API_ENDPOINTS.orders.base, { params: { returnStatus: 'PICKED_UP' } }),
+        api.get(API_ENDPOINTS.orders.base, { params: { returnStatus: 'COMPLETED' } })
       ]);
 
       const requested = reqRes.data.data || [];
       const approved = appRes.data.data || [];
       const rejected = rejRes.data.data || [];
+      const assigned = assRes.data.data || [];
+      const inTransit = pickRes.data.data || [];
+      const completed = compRes.data.data || [];
 
       setStats({
         pending: requested.length,
         approved: approved.length,
         rejected: rejected.length,
-        total: requested.length + approved.length + rejected.length
+        assigned: assigned.length,
+        inTransit: inTransit.length,
+        completed: completed.length,
+        total: requested.length + approved.length + rejected.length + assigned.length + inTransit.length + completed.length
       });
 
       if (activeTab === 'REQUESTED') setOrders(requested);
@@ -62,7 +77,7 @@ export const AdminReturns: React.FC = () => {
         <Card className="bg-blue-50/50 border-blue-100">
           <CardHeader className="py-4">
             <CardTitle className="text-sm font-medium text-blue-700 flex items-center gap-2">
-              <Clock className="h-4 w-4" /> Pending Returns
+              <Clock className="h-4 w-4" /> Pending Approval
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -73,7 +88,7 @@ export const AdminReturns: React.FC = () => {
         <Card className="bg-emerald-50/50 border-emerald-100">
           <CardHeader className="py-4">
             <CardTitle className="text-sm font-medium text-emerald-700 flex items-center gap-2">
-              <CheckCircle className="h-4 w-4" /> Approved
+              <CheckCircle className="h-4 w-4" /> Approved (Pending Pickup)
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -100,6 +115,41 @@ export const AdminReturns: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-zinc-900">{stats.total}</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="bg-purple-50/50 border-purple-100">
+          <CardHeader className="py-4">
+            <CardTitle className="text-sm font-medium text-purple-700 flex items-center gap-2">
+              <CheckCircle className="h-4 w-4" /> Assigned
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-purple-900">{stats.assigned}</div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-amber-50/50 border-amber-100">
+          <CardHeader className="py-4">
+            <CardTitle className="text-sm font-medium text-amber-700 flex items-center gap-2">
+              <Clock className="h-4 w-4" /> In Transit
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-amber-900">{stats.inTransit}</div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-emerald-50/50 border-emerald-100">
+          <CardHeader className="py-4">
+            <CardTitle className="text-sm font-medium text-emerald-700 flex items-center gap-2">
+              <CheckCircle className="h-4 w-4" /> Completed Returns
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-emerald-900">{stats.completed}</div>
           </CardContent>
         </Card>
       </div>

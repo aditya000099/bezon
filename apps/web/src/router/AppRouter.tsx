@@ -46,6 +46,7 @@ import { SellerQA } from '@/pages/seller/SellerQA';
 import { SellerEditProduct } from '../pages/seller/SellerEditProduct';
 import { SellerStats } from '../pages/seller/SellerStats';
 import { SellerReturns } from '../pages/seller/SellerReturns';
+import { SellerReturnDetail } from '../pages/seller/SellerReturnDetail';
 import { SellerOrderDetail } from '../pages/seller/SellerOrderDetail';
 import { SellerAddProduct } from '../pages/seller/SellerAddProduct';
 // Delivery Pages
@@ -134,6 +135,7 @@ export const AppRouter: React.FC = () => {
           <Route path="orders" element={<SellerOrders />} />
           <Route path="orders/:id" element={<SellerOrderDetail />} />
           <Route path="returns" element={<SellerReturns />} />
+          <Route path="returns/:id" element={<SellerReturnDetail />} />
           <Route path="inventory" element={<SellerInventory />} />
           <Route path="settings" element={<SellerSettings />} />
           <Route path="coupons" element={<SellerCoupons />} />

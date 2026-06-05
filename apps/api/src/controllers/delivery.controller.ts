@@ -610,3 +610,174 @@ export const updateAssignmentStatus = async (req: Request, res: Response, next: 
     next(err);
   }
 };
+
+/**
+ * Get available return pickups for the logged-in partner.
+ */
+export const getAvailableReturnPickups = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.user!.id;
+    const partner = await prisma.deliveryPartner.findUnique({ where: { userId } });
+
+    if (!partner) {
+      return res.status(404).json({
+        success: false,
+        message: 'Delivery Partner profile not found.',
+      });
+    }
+
+    const { ReturnDeliveryService } = await import('../services/return_delivery.service.js');
+    const available = await ReturnDeliveryService.getAvailableReturnPickups(partner.id);
+
+    res.json({
+      success: true,
+      data: available,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Accept an available return pickup assignment.
+ */
+export const acceptReturnPickup = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.user!.id;
+    const orderId = req.params.orderId as string;
+
+    const partner = await prisma.deliveryPartner.findUnique({ where: { userId } });
+    if (!partner) {
+      return res.status(404).json({ success: false, message: 'Delivery Partner profile not found.' });
+    }
+
+    const { ReturnDeliveryService } = await import('../services/return_delivery.service.js');
+    const order = await ReturnDeliveryService.acceptReturnPickup(orderId, partner.id, userId);
+
+    res.json({
+      success: true,
+      message: 'Return pickup accepted successfully.',
+      data: order,
+    });
+  } catch (err: any) {
+    if (err.status) {
+      return res.status(err.status).json({ success: false, message: err.message });
+    }
+    next(err);
+  }
+};
+
+/**
+ * Get active assigned return pickups
+ */
+export const getReturnQueue = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.user!.id;
+    const partner = await prisma.deliveryPartner.findUnique({ where: { userId } });
+
+    if (!partner) {
+      return res.status(404).json({ success: false, message: 'Delivery Partner profile not found.' });
+    }
+
+    const { ReturnDeliveryService } = await import('../services/return_delivery.service.js');
+    const queue = await ReturnDeliveryService.getQueue(partner.id);
+
+    res.json({
+      success: true,
+      data: queue,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Get history of completed return pickups
+ */
+export const getReturnHistory = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.user!.id;
+    const partner = await prisma.deliveryPartner.findUnique({ where: { userId } });
+
+    if (!partner) {
+      return res.status(404).json({ success: false, message: 'Delivery Partner profile not found.' });
+    }
+
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    const { ReturnDeliveryService } = await import('../services/return_delivery.service.js');
+    const { history, total } = await ReturnDeliveryService.getHistory(partner.id, page, limit);
+
+    res.json({
+      success: true,
+      data: history,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Mark a return as picked up
+ */
+export const markReturnPickedUp = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.user!.id;
+    const orderId = req.params.orderId as string;
+
+    const partner = await prisma.deliveryPartner.findUnique({ where: { userId } });
+    if (!partner) {
+      return res.status(404).json({ success: false, message: 'Delivery Partner profile not found.' });
+    }
+
+    const { ReturnDeliveryService } = await import('../services/return_delivery.service.js');
+    const order = await ReturnDeliveryService.markReturnPickedUp(orderId, partner.id, userId);
+
+    res.json({
+      success: true,
+      message: 'Return marked as picked up successfully.',
+      data: order,
+    });
+  } catch (err: any) {
+    if (err.status) {
+      return res.status(err.status).json({ success: false, message: err.message });
+    }
+    next(err);
+  }
+};
+
+/**
+ * Mark a return as completed (delivered to seller)
+ */
+export const markReturnCompleted = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.user!.id;
+    const orderId = req.params.orderId as string;
+
+    const partner = await prisma.deliveryPartner.findUnique({ where: { userId } });
+    if (!partner) {
+      return res.status(404).json({ success: false, message: 'Delivery Partner profile not found.' });
+    }
+
+    const { ReturnDeliveryService } = await import('../services/return_delivery.service.js');
+    const order = await ReturnDeliveryService.markReturnCompleted(orderId, partner.id, userId);
+
+    res.json({
+      success: true,
+      message: 'Return marked as completed successfully.',
+      data: order,
+    });
+  } catch (err: any) {
+    if (err.status) {
+      return res.status(err.status).json({ success: false, message: err.message });
+    }
+    next(err);
+  }
+};

@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import React, { useState, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   Spinner,
   ArrowLeft,
@@ -23,14 +23,14 @@ import {
   ArrowCounterClockwise,
   Money,
   ArrowsClockwise,
-} from '@phosphor-icons/react';
-import api from '../../lib/api';
-import { API_ENDPOINTS } from '../../config/api.config';
-import { RETURN_WINDOW_DAYS } from '../../utils/constants';
-import { useToast } from '../../context/ToastContext';
-import { WriteReviewModal } from '../../components/reviews/WriteReviewModal';
-import { OrderTrackingStepper } from '../../components/ui/OrderTrackingStepper';
-import { SupportChatWidget } from '../../components/SupportChatWidget';
+} from "@phosphor-icons/react";
+import api from "../../lib/api";
+import { API_ENDPOINTS } from "../../config/api.config";
+import { RETURN_WINDOW_DAYS } from "../../utils/constants";
+import { useToast } from "../../context/ToastContext";
+import { WriteReviewModal } from "../../components/reviews/WriteReviewModal";
+import { OrderTrackingStepper } from "../../components/ui/OrderTrackingStepper";
+import { SupportChatWidget } from "../../components/SupportChatWidget";
 
 interface TimelineEvent {
   id: string;
@@ -44,7 +44,14 @@ interface OrderDetail {
   orderNumber: string;
   status: string;
   paymentStatus: string;
-  returnStatus: 'NONE' | 'REQUESTED' | 'APPROVED' | 'REJECTED';
+  returnStatus:
+    | "NONE"
+    | "REQUESTED"
+    | "APPROVED"
+    | "ASSIGNED"
+    | "PICKED_UP"
+    | "COMPLETED"
+    | "REJECTED";
   returnRequestedAt?: string;
   returnApprovedAt?: string;
   returnRejectedAt?: string;
@@ -80,7 +87,7 @@ interface OrderDetail {
       policies?: {
         policy?: {
           id: string;
-          type: 'return' | 'refund' | 'replace';
+          type: "return" | "refund" | "replace";
           title: string;
           description?: string;
           durationDays: number;
@@ -120,14 +127,14 @@ export const OrderDetailPage: React.FC = () => {
 
   // Return Request State
   const [returnModalOpen, setReturnModalOpen] = useState(false);
-  const [returnReason, setReturnReason] = useState('damaged');
-  const [returnNotes, setReturnNotes] = useState('');
+  const [returnReason, setReturnReason] = useState("damaged");
+  const [returnNotes, setReturnNotes] = useState("");
   const [submittingReturn, setSubmittingReturn] = useState(false);
 
   const handleReturnSubmit = async () => {
     if (!order) return;
     if (!returnReason) {
-      toast.warning('Please select a return reason.');
+      toast.warning("Please select a return reason.");
       return;
     }
 
@@ -139,14 +146,14 @@ export const OrderDetailPage: React.FC = () => {
       });
 
       if (res.data.success) {
-        toast.success('Return requested successfully.');
+        toast.success("Return requested successfully.");
         setReturnModalOpen(false);
-        setReturnReason('damaged');
-        setReturnNotes('');
+        setReturnReason("damaged");
+        setReturnNotes("");
         await fetchOrderDetail();
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to request return.');
+      toast.error(err.response?.data?.message || "Failed to request return.");
     } finally {
       setSubmittingReturn(false);
     }
@@ -154,30 +161,30 @@ export const OrderDetailPage: React.FC = () => {
 
   // Cancellation State
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
-  const [cancelReason, setCancelReason] = useState('');
+  const [cancelReason, setCancelReason] = useState("");
   const [cancelling, setCancelling] = useState(false);
 
   const handleCancelOrder = async () => {
     if (!order) return;
     if (!cancelReason) {
-      toast.warning('Please select a cancellation reason.');
+      toast.warning("Please select a cancellation reason.");
       return;
     }
 
     setCancelling(true);
     try {
       const res = await api.post(API_ENDPOINTS.orders.cancel(order.id), {
-        cancelReason
+        cancelReason,
       });
 
       if (res.data.success) {
-        toast.success('Order cancelled successfully.');
+        toast.success("Order cancelled successfully.");
         setCancelModalOpen(false);
-        setCancelReason('');
+        setCancelReason("");
         await fetchOrderDetail();
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to cancel order.');
+      toast.error(err.response?.data?.message || "Failed to cancel order.");
     } finally {
       setCancelling(false);
     }
@@ -193,7 +200,7 @@ export const OrderDetailPage: React.FC = () => {
     } catch (err: any) {
       toast.error(
         err.response?.data?.message ||
-          'Failed to fetch order tracking details.',
+          "Failed to fetch order tracking details.",
       );
     } finally {
       setLoading(false);
@@ -239,7 +246,7 @@ export const OrderDetailPage: React.FC = () => {
             </Button>
           </Link>
           <div className="flex gap-2">
-            {(order.status === 'placed' || order.status === 'confirmed') && (
+            {(order.status === "placed" || order.status === "confirmed") && (
               <Button
                 variant="outline"
                 size="sm"
@@ -249,22 +256,29 @@ export const OrderDetailPage: React.FC = () => {
                 Cancel Order
               </Button>
             )}
-            {order.status === 'delivered' && (!order.returnStatus || order.returnStatus === 'NONE') && (() => {
-              const deliveredAt = order.deliveredAt || order.delivery?.deliveredAt || order.timeline?.find(t => t.status === 'delivered')?.createdAt;
-              if (!deliveredAt) return false;
-              const deliveryTime = new Date(deliveredAt).getTime();
-              const expirationTime = deliveryTime + RETURN_WINDOW_DAYS * 24 * 60 * 60 * 1000;
-              return Date.now() <= expirationTime;
-            })() && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-2 font-bold text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200"
-                onClick={() => setReturnModalOpen(true)}
-              >
-                Request Return
-              </Button>
-            )}
+            {order.status === "delivered" &&
+              (!order.returnStatus || order.returnStatus === "NONE") &&
+              (() => {
+                const deliveredAt =
+                  order.deliveredAt ||
+                  order.delivery?.deliveredAt ||
+                  order.timeline?.find((t) => t.status === "delivered")
+                    ?.createdAt;
+                if (!deliveredAt) return false;
+                const deliveryTime = new Date(deliveredAt).getTime();
+                const expirationTime =
+                  deliveryTime + RETURN_WINDOW_DAYS * 24 * 60 * 60 * 1000;
+                return Date.now() <= expirationTime;
+              })() && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2 font-bold text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200"
+                  onClick={() => setReturnModalOpen(true)}
+                >
+                  Request Return
+                </Button>
+              )}
             {order.billUrl && (
               <a href={order.billUrl} target="_blank" rel="noopener noreferrer">
                 <Button
@@ -280,17 +294,19 @@ export const OrderDetailPage: React.FC = () => {
         </div>
         <div className="flex items-center gap-3 flex-wrap">
           <h1 className="text-xl font-extrabold text-zinc-900 tracking-tight sm:text-2xl">
-            Order Tracker{' '}
+            Order Tracker{" "}
             <span className="font-mono text-zinc-400 font-normal">
               #{order.orderNumber}
             </span>
           </h1>
-          {order.returnStatus && order.returnStatus !== 'NONE' && (
+          {order.returnStatus && order.returnStatus !== "NONE" && (
             <span
               className={`inline-block px-3 py-1 rounded-full text-xs font-bold border ${
-                order.returnStatus === 'REQUESTED' ? 'bg-blue-50 text-blue-700 border-blue-200' :
-                order.returnStatus === 'APPROVED' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
-                'bg-rose-50 text-rose-700 border-rose-200'
+                order.returnStatus === "REQUESTED"
+                  ? "bg-blue-50 text-blue-700 border-blue-200"
+                  : order.returnStatus === "APPROVED"
+                    ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                    : "bg-rose-50 text-rose-700 border-rose-200"
               }`}
             >
               RETURN {order.returnStatus.toUpperCase()}
@@ -349,13 +365,12 @@ export const OrderDetailPage: React.FC = () => {
                             ).toLocaleString()}
                           </p>
                           <p className="text-[10px] text-zinc-400 mt-0.5">
-                            ₹{Number(item.unitPrice).toLocaleString()} &times;{' '}
+                            ₹{Number(item.unitPrice).toLocaleString()} &times;{" "}
                             {item.qty}
                           </p>
                         </div>
                       </div>
                     </div>
-
                   </div>
                 );
               })}
@@ -406,17 +421,17 @@ export const OrderDetailPage: React.FC = () => {
                           {[...Array(5)].map((_, i) => (
                             <Star
                               key={i}
-                              className={`h-3.5 w-3.5 ${i < item.review!.rating ? 'text-amber-400 fill-amber-400' : 'text-zinc-300 fill-zinc-300'}`}
+                              className={`h-3.5 w-3.5 ${i < item.review!.rating ? "text-amber-400 fill-amber-400" : "text-zinc-300 fill-zinc-300"}`}
                             />
                           ))}
                           <span className="text-[10px] text-zinc-400 ml-2">
-                            Reviewed on:{' '}
+                            Reviewed on:{" "}
                             {new Date(
                               item.review!.createdAt,
-                            ).toLocaleDateString('en-IN', {
-                              day: 'numeric',
-                              month: 'short',
-                              year: 'numeric',
+                            ).toLocaleDateString("en-IN", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
                             })}
                           </span>
                         </div>
@@ -482,7 +497,7 @@ export const OrderDetailPage: React.FC = () => {
                           make better choices.
                         </p>
                       </div>
-                      {order.status === 'delivered' ? (
+                      {order.status === "delivered" ? (
                         <Button
                           variant="outline"
                           size="sm"
@@ -528,11 +543,11 @@ export const OrderDetailPage: React.FC = () => {
                 <p>{order.addressSnapshot.line2}</p>
               )}
               <p>
-                {order.addressSnapshot.city}, {order.addressSnapshot.state} –{' '}
+                {order.addressSnapshot.city}, {order.addressSnapshot.state} –{" "}
                 {order.addressSnapshot.pincode}
               </p>
               <p className="text-xs text-zinc-400 mt-2 flex items-center gap-1.5">
-                <Truck className="h-3.5 w-3.5" /> Call:{' '}
+                <Truck className="h-3.5 w-3.5" /> Call:{" "}
                 {order.addressSnapshot.phone}
               </p>
             </CardContent>
@@ -562,27 +577,30 @@ export const OrderDetailPage: React.FC = () => {
                 </span>
                 <span
                   className={`inline-block px-2.5 py-0.5 rounded-full font-bold mt-1 ${
-                    order.paymentStatus === 'paid'
-                      ? 'bg-emerald-50 text-emerald-700'
-                      : 'bg-amber-50 text-amber-700'
+                    order.paymentStatus === "paid"
+                      ? "bg-emerald-50 text-emerald-700"
+                      : "bg-amber-50 text-amber-700"
                   }`}
                 >
                   {order.paymentStatus.toUpperCase()}
                 </span>
               </div>
-              {(order.paymentStatus === 'refund_initiated' || order.paymentStatus === 'refunded') && (
+              {(order.paymentStatus === "refund_initiated" ||
+                order.paymentStatus === "refunded") && (
                 <div className="border-t border-zinc-100 pt-3">
                   <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block">
                     Refund Status
                   </span>
                   <span
                     className={`inline-block px-2.5 py-0.5 rounded-full font-bold mt-1 ${
-                      order.paymentStatus === 'refunded'
-                        ? 'bg-emerald-50 text-emerald-700'
-                        : 'bg-amber-50 text-amber-700'
+                      order.paymentStatus === "refunded"
+                        ? "bg-emerald-50 text-emerald-700"
+                        : "bg-amber-50 text-amber-700"
                     }`}
                   >
-                    {order.paymentStatus === 'refunded' ? 'COMPLETED' : 'PENDING'}
+                    {order.paymentStatus === "refunded"
+                      ? "COMPLETED"
+                      : "PENDING"}
                   </span>
                 </div>
               )}
@@ -597,7 +615,7 @@ export const OrderDetailPage: React.FC = () => {
             </CardContent>
           </Card>
 
-          {order.returnStatus !== 'NONE' && (
+          {order.returnStatus !== "NONE" && (
             <Card className="bg-zinc-50/80 border-0">
               <CardHeader className="py-4 flex flex-row items-center gap-2 bg-zinc-100/30 rounded-t-2xl">
                 <ArrowCounterClockwise className="h-4 w-4 text-blue-500" />
@@ -612,15 +630,39 @@ export const OrderDetailPage: React.FC = () => {
                   </span>
                   <span
                     className={`inline-block px-2.5 py-0.5 rounded-full font-bold mt-1 ${
-                      order.returnStatus === 'APPROVED'
-                        ? 'bg-emerald-50 text-emerald-700'
-                        : order.returnStatus === 'REJECTED'
-                        ? 'bg-rose-50 text-rose-700'
-                        : 'bg-blue-50 text-blue-700'
+                      order.returnStatus === "APPROVED" ||
+                      order.returnStatus === "ASSIGNED" ||
+                      order.returnStatus === "PICKED_UP" ||
+                      order.returnStatus === "COMPLETED"
+                        ? "bg-emerald-50 text-emerald-700"
+                        : order.returnStatus === "REJECTED"
+                          ? "bg-rose-50 text-rose-700"
+                          : "bg-blue-50 text-blue-700"
                     }`}
                   >
                     {order.returnStatus}
                   </span>
+                  {/* Detailed Description */}
+                  {order.returnStatus === "APPROVED" && (
+                    <p className="text-[10px] mt-1 text-emerald-600 font-medium">
+                      Waiting for pickup partner assignment
+                    </p>
+                  )}
+                  {order.returnStatus === "ASSIGNED" && (
+                    <p className="text-[10px] mt-1 text-emerald-600 font-medium">
+                      Pickup partner assigned
+                    </p>
+                  )}
+                  {order.returnStatus === "PICKED_UP" && (
+                    <p className="text-[10px] mt-1 text-emerald-600 font-medium">
+                      Product is being returned to seller
+                    </p>
+                  )}
+                  {order.returnStatus === "COMPLETED" && (
+                    <p className="text-[10px] mt-1 text-emerald-600 font-medium">
+                      Product received by seller
+                    </p>
+                  )}
                 </div>
                 {order.returnRequestedAt && (
                   <div className="border-t border-zinc-100 pt-3 flex justify-between items-center">
@@ -685,17 +727,17 @@ export const OrderDetailPage: React.FC = () => {
                     >
                       <span className="absolute left-1 top-1 h-2.5 w-2.5 rounded-full bg-teal-500 ring-4 ring-teal-50" />
                       <p className="font-bold text-zinc-800 uppercase tracking-wider text-[10px]">
-                        {evt.status.replace(/_/g, ' ')}
+                        {evt.status.replace(/_/g, " ")}
                       </p>
                       <p className="text-zinc-500 leading-normal">
-                        {evt.note || 'No description note.'}
+                        {evt.note || "No description note."}
                       </p>
                       <p className="text-[10px] text-zinc-400">
-                        {new Date(evt.createdAt).toLocaleString('en-IN', {
-                          day: 'numeric',
-                          month: 'short',
-                          hour: '2-digit',
-                          minute: '2-digit',
+                        {new Date(evt.createdAt).toLocaleString("en-IN", {
+                          day: "numeric",
+                          month: "short",
+                          hour: "2-digit",
+                          minute: "2-digit",
                         })}
                       </p>
                     </div>
@@ -711,7 +753,7 @@ export const OrderDetailPage: React.FC = () => {
       <div className="w-full mt-4">
         <SupportChatWidget
           context={{
-            type: 'order',
+            type: "order",
             orderId: order.id,
             orderNumber: order.orderNumber,
           }}
@@ -741,9 +783,8 @@ export const OrderDetailPage: React.FC = () => {
                 Request Return
               </DialogTitle>
               <DialogDescription>
-                Submit a return request for this order. This action
-                is subject to the {RETURN_WINDOW_DAYS}-day return
-                window.
+                Submit a return request for this order. This action is subject
+                to the {RETURN_WINDOW_DAYS}-day return window.
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
@@ -759,7 +800,9 @@ export const OrderDetailPage: React.FC = () => {
                   <option value="damaged">Damaged Product</option>
                   <option value="wrong_product">Wrong Product Received</option>
                   <option value="missing_items">Missing Items</option>
-                  <option value="not_as_described">Product Not As Described</option>
+                  <option value="not_as_described">
+                    Product Not As Described
+                  </option>
                   <option value="defective">Defective Product</option>
                   <option value="quality">Quality Issues</option>
                   <option value="other">Other</option>
@@ -782,8 +825,8 @@ export const OrderDetailPage: React.FC = () => {
                 variant="outline"
                 onClick={() => {
                   setReturnModalOpen(false);
-                  setReturnReason('damaged');
-                  setReturnNotes('');
+                  setReturnReason("damaged");
+                  setReturnNotes("");
                 }}
                 disabled={submittingReturn}
               >
@@ -812,7 +855,8 @@ export const OrderDetailPage: React.FC = () => {
                 Cancel Order
               </DialogTitle>
               <DialogDescription>
-                Are you sure you want to cancel this order? Once cancelled, this action cannot be undone.
+                Are you sure you want to cancel this order? Once cancelled, this
+                action cannot be undone.
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
@@ -825,10 +869,16 @@ export const OrderDetailPage: React.FC = () => {
                   onChange={(e) => setCancelReason(e.target.value)}
                   className="w-full rounded-md border border-zinc-200 p-3 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500 bg-white"
                 >
-                  <option value="" disabled>Select a reason...</option>
+                  <option value="" disabled>
+                    Select a reason...
+                  </option>
                   <option value="Ordered by mistake">Ordered by mistake</option>
-                  <option value="Found a better price">Found a better price</option>
-                  <option value="Delivery taking too long">Delivery taking too long</option>
+                  <option value="Found a better price">
+                    Found a better price
+                  </option>
+                  <option value="Delivery taking too long">
+                    Delivery taking too long
+                  </option>
                   <option value="Changed my mind">Changed my mind</option>
                   <option value="Other">Other</option>
                 </select>
@@ -839,7 +889,7 @@ export const OrderDetailPage: React.FC = () => {
                 variant="outline"
                 onClick={() => {
                   setCancelModalOpen(false);
-                  setCancelReason('');
+                  setCancelReason("");
                 }}
                 disabled={cancelling}
               >

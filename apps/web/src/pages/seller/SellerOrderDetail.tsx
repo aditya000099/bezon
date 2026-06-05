@@ -623,6 +623,61 @@ export const SellerOrderDetail: React.FC = () => {
               )}
             </CardContent>
           </Card>
+
+          {order.returnPartner && order.returnStatus && order.returnStatus !== 'NONE' && (
+            <Card className="bg-white border-zinc-200 shadow-sm animate-in fade-in slide-in-from-top-4 duration-250">
+              <CardHeader className="border-b border-zinc-100 pb-4">
+                <CardTitle className="text-base font-bold text-zinc-800 flex items-center gap-2">
+                  <Truck className="h-5 w-5 text-rose-500" />
+                  Return Fulfillment Courier
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 space-y-4">
+                <div>
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
+                      Return Status
+                    </span>
+                    <span
+                      className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border uppercase tracking-wider ${
+                        order.returnStatus === 'COMPLETED'
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                          : 'bg-rose-50 text-rose-700 border-rose-200 animate-pulse'
+                      }`}
+                    >
+                      {order.returnStatus.replace(/_/g, ' ')}
+                    </span>
+                  </div>
+
+                  <div className="space-y-2 text-sm">
+                    <div>
+                      <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-0.5">
+                        Assigned Courier
+                      </p>
+                      <p className="font-semibold text-zinc-800">
+                        {order.returnPartner.user?.name}
+                      </p>
+                      {order.returnPartner.user?.phone && (
+                        <p className="text-xs text-zinc-500 font-medium">
+                          Phone: {order.returnPartner.user.phone}
+                        </p>
+                      )}
+                    </div>
+                    {order.returnAssignedAt && (
+                      <div className="border-t border-zinc-50 pt-2 flex justify-between items-center">
+                        <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
+                          Assigned Date
+                        </span>
+                        <span className="text-xs text-zinc-700 font-semibold">
+                          {new Date(order.returnAssignedAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
 

@@ -53,6 +53,7 @@ export const API_ENDPOINTS = {
     sellerCancel: (id: string) => `${API_V1}/orders/seller/me/${id}/cancel`,
     sellerApproveReturn: (id: string) => `${API_V1}/orders/seller/me/${id}/returns/approve`,
     sellerRejectReturn: (id: string) => `${API_V1}/orders/seller/me/${id}/returns/reject`,
+    sellerInspectReturn: (id: string) => `${API_V1}/orders/seller/me/${id}/returns/inspect`,
     cancel: (id: string) => `${API_V1}/orders/${id}/cancel`,
     markRefundCompleted: (id: string) => `${API_V1}/orders/${id}/refund/complete`,
     requestReturn: (id: string) => `${API_V1}/orders/${id}/returns/request`,
@@ -120,6 +121,13 @@ export const API_ENDPOINTS = {
     queue: `${API_V1}/delivery/orders/assigned`,
     history: `${API_V1}/delivery/history`,
     updateStatus: (id: string) => `${API_V1}/delivery/assignments/${id}/status`,
+    // Return Pickups
+    availableReturns: `${API_V1}/delivery/returns/available`,
+    acceptReturnPickup: (orderId: string) => `${API_V1}/delivery/returns/${orderId}/accept`,
+    returnQueue: `${API_V1}/delivery/returns/assigned`,
+    returnHistory: `${API_V1}/delivery/returns/history`,
+    markReturnPickedUp: (orderId: string) => `${API_V1}/delivery/returns/${orderId}/pickup`,
+    markReturnCompleted: (orderId: string) => `${API_V1}/delivery/returns/${orderId}/complete`,
   },
   // Policies
   policies: {

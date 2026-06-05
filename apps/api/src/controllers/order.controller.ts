@@ -120,9 +120,10 @@ export const getSellerOrders = async (req: Request, res: Response, next: NextFun
       return res.status(401).json({ success: false, message: 'Unauthorized session.' });
     }
 
-    const { returnStatus } = req.query;
+    const { returnStatus, returnInspectionStatus } = req.query;
     const orders = await OrderService.getSellerOrders(req.user.id, {
       returnStatus: returnStatus as string,
+      returnInspectionStatus: returnInspectionStatus as string,
     });
 
     res.json({
@@ -333,6 +334,39 @@ export const rejectReturn = async (req: Request, res: Response, next: NextFuncti
     res.json({
       success: true,
       message: 'Return rejected successfully.',
+      data: order,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Inspect a completed return
+ */
+export const inspectReturn = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const id = req.params.id as string;
+    const { status, notes } = req.body;
+
+    const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+    if (!id || id === 'undefined' || !uuidRegex.test(id)) {
+      return res.status(400).json({ success: false, message: 'Invalid order ID format.' });
+    }
+
+    if (!req.user || req.user.role !== 'seller') {
+      return res.status(401).json({ success: false, message: 'Unauthorized session.' });
+    }
+
+    if (!status || !['RESTOCKED', 'DAMAGED', 'DISPOSED'].includes(status)) {
+      return res.status(400).json({ success: false, message: 'Invalid inspection status.' });
+    }
+
+    const order = await OrderService.inspectReturnedProduct(id, req.user.id, status, notes);
+
+    res.json({
+      success: true,
+      message: 'Return inspected successfully.',
       data: order,
     });
   } catch (err) {

@@ -50,6 +50,15 @@ export const DeliveryQueue: React.FC = () => {
   const [historyPage, setHistoryPage] = useState(1);
   const [historyTotalPages, setHistoryTotalPages] = useState(1);
 
+  // Return Logistics sections
+  const [availableReturns, setAvailableReturns] = useState<any[]>([]);
+  const [activeReturns, setActiveReturns] = useState<any[]>([]);
+  const [completedReturns, setCompletedReturns] = useState<any[]>([]);
+
+  // Pagination for completed returns
+  const [returnHistoryPage, setReturnHistoryPage] = useState(1);
+  const [returnHistoryTotalPages, setReturnHistoryTotalPages] = useState(1);
+
   // Proof of delivery modal state
   const [proofDelivery, setProofDelivery] = useState<any>(null);
   const [showProofModal, setShowProofModal] = useState(false);
@@ -70,11 +79,17 @@ export const DeliveryQueue: React.FC = () => {
       setLoading(true);
 
       // Fetch profile, available, queue, and history in parallel
-      const [profileRes, availableRes, queueRes, historyRes] = await Promise.all([
+      const [
+        profileRes, availableRes, queueRes, historyRes,
+        availableRetRes, queueRetRes, historyRetRes
+      ] = await Promise.all([
         api.get(API_ENDPOINTS.delivery.profile),
         api.get(API_ENDPOINTS.delivery.available),
         api.get(API_ENDPOINTS.delivery.queue),
         api.get(`${API_ENDPOINTS.delivery.history}?page=1&limit=5`),
+        api.get(API_ENDPOINTS.delivery.availableReturns),
+        api.get(API_ENDPOINTS.delivery.returnQueue),
+        api.get(`${API_ENDPOINTS.delivery.returnHistory}?page=1&limit=5`),
       ]);
 
       if (profileRes.data.success) {
@@ -94,6 +109,20 @@ export const DeliveryQueue: React.FC = () => {
         if (historyRes.data.pagination) {
           setHistoryTotalPages(historyRes.data.pagination.totalPages);
           setHistoryPage(historyRes.data.pagination.page);
+        }
+      }
+
+      if (availableRetRes.data.success) {
+        setAvailableReturns(availableRetRes.data.data);
+      }
+      if (queueRetRes.data.success) {
+        setActiveReturns(queueRetRes.data.data);
+      }
+      if (historyRetRes.data.success) {
+        setCompletedReturns(historyRetRes.data.data);
+        if (historyRetRes.data.pagination) {
+          setReturnHistoryTotalPages(historyRetRes.data.pagination.totalPages);
+          setReturnHistoryPage(historyRetRes.data.pagination.page);
         }
       }
     } catch (err: any) {
@@ -116,6 +145,24 @@ export const DeliveryQueue: React.FC = () => {
       // silent
     }
   };
+
+  const fetchReturnHistory = async () => {
+    try {
+      const res = await api.get(`${API_ENDPOINTS.delivery.returnHistory}?page=${returnHistoryPage}&limit=5`);
+      if (res.data.success) {
+        setCompletedReturns(res.data.data);
+        if (res.data.pagination) {
+          setReturnHistoryTotalPages(res.data.pagination.totalPages);
+        }
+      }
+    } catch (err: any) {
+      // silent
+    }
+  };
+
+  useEffect(() => {
+    fetchReturnHistory();
+  }, [returnHistoryPage]);
 
   const handleToggleAvailability = async () => {
     try {
@@ -141,6 +188,42 @@ export const DeliveryQueue: React.FC = () => {
       }
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Failed to accept assignment.');
+    }
+  };
+
+  const handleAcceptReturnPickup = async (order: any) => {
+    try {
+      const res = await api.post(API_ENDPOINTS.delivery.acceptReturnPickup(order.id));
+      if (res.data.success) {
+        toast.success('Return Pickup accepted! Proceed to customer location.');
+        fetchAll();
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to accept return pickup.');
+    }
+  };
+
+  const handleMarkReturnPickedUp = async (order: any) => {
+    try {
+      const res = await api.patch(API_ENDPOINTS.delivery.markReturnPickedUp(order.id));
+      if (res.data.success) {
+        toast.success('Return marked as picked up.');
+        fetchAll();
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to update return status.');
+    }
+  };
+
+  const handleMarkReturnCompleted = async (order: any) => {
+    try {
+      const res = await api.patch(API_ENDPOINTS.delivery.markReturnCompleted(order.id));
+      if (res.data.success) {
+        toast.success('Return completed successfully.');
+        fetchAll();
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to complete return.');
     }
   };
 
@@ -556,6 +639,244 @@ export const DeliveryQueue: React.FC = () => {
                   className="rounded-xl font-bold text-xs"
                   disabled={historyPage >= historyTotalPages}
                   onClick={() => setHistoryPage((p) => Math.min(historyTotalPages, p + 1))}
+                >
+                  <CaretRight className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* ======================= */}
+      {/* SECTION 4: Available Return Pickups */}
+      {/* ======================= */}
+      <div className="flex flex-col gap-3">
+        <h3 className="font-extrabold text-zinc-800 text-sm tracking-wider uppercase flex items-center gap-2 pl-1">
+          <Package className="h-4 w-4 text-rose-600" />
+          Available Return Pickups
+          {availableReturns.length > 0 && (
+            <span className="bg-rose-100 text-rose-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
+              {availableReturns.length}
+            </span>
+          )}
+        </h3>
+        {availableReturns.length === 0 ? (
+          <div className="bg-white border border-zinc-200 rounded-2xl p-6 text-center shadow-sm">
+            <WarningCircle className="h-8 w-8 text-zinc-300 mx-auto" />
+            <p className="text-zinc-400 text-xs mt-2 font-medium">
+              No return pickups available.
+            </p>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-4">
+            {availableReturns.map((t) => (
+              <Card key={t.id} className="bg-white border-zinc-200 shadow-sm rounded-2xl overflow-hidden">
+                <CardHeader className="p-5 pb-3">
+                  <div className="flex justify-between items-start">
+                    <span className="font-extrabold text-zinc-900 text-base">
+                      {t.orderNumber}
+                    </span>
+                    <span className="bg-rose-50 text-rose-700 border border-rose-100 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider whitespace-nowrap">
+                      Return Requested
+                    </span>
+                  </div>
+                  <CardDescription className="text-xs font-semibold text-zinc-500 mt-1 flex items-center gap-1">
+                    <Package className="h-3.5 w-3.5 text-zinc-400" />
+                    {formatItemsString(t)}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="p-5 pt-0 pb-4 space-y-2.5">
+                  <div className="text-xs text-zinc-600 leading-relaxed">
+                    <strong className="text-zinc-800 font-bold block mb-0.5">Pickup from Customer:</strong>
+                    {t.customer?.name} — {t.addressSnapshot?.line1}, {t.addressSnapshot?.city}
+                  </div>
+                  <div className="text-xs text-zinc-600 leading-relaxed border-t border-zinc-50 pt-2">
+                    <strong className="text-zinc-800 font-bold block mb-0.5">Drop to Seller:</strong>
+                    {t.seller?.shopName} — {t.seller?.addressLine}, {t.seller?.city}
+                  </div>
+                </CardContent>
+                <CardFooter className="border-t border-zinc-100 p-4">
+                  <Button
+                    className="w-full rounded-xl font-bold text-xs"
+                    disabled={!isAvailable}
+                    onClick={() => handleAcceptReturnPickup(t)}
+                  >
+                    Accept Return Pickup
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* ======================= */}
+      {/* SECTION 5: Assigned Return Pickups */}
+      {/* ======================= */}
+      <div className="flex flex-col gap-3">
+        <h3 className="font-extrabold text-zinc-800 text-sm tracking-wider uppercase flex items-center gap-2 pl-1">
+          <Truck className="h-4 w-4 text-purple-600" />
+          Assigned Return Pickups
+          {activeReturns.length > 0 && (
+            <span className="bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
+              {activeReturns.length}
+            </span>
+          )}
+        </h3>
+        {activeReturns.length === 0 ? (
+          <div className="bg-white border border-zinc-200 rounded-2xl p-6 text-center shadow-sm">
+            <WarningCircle className="h-8 w-8 text-zinc-300 mx-auto" />
+            <p className="text-zinc-400 text-xs mt-2 font-medium">
+              No active return pickups.
+            </p>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-4">
+            {activeReturns.map((trip) => (
+              <Card key={trip.id} className="border-purple-100 bg-purple-50/5 shadow-md rounded-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
+                <CardHeader className="border-b border-purple-50/50 pb-4 p-5">
+                  <div className="flex justify-between items-center">
+                    <CardTitle className="text-base font-extrabold text-zinc-900">
+                      {trip.orderNumber}
+                    </CardTitle>
+                    <span className="bg-purple-50 text-purple-700 border border-purple-100 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider whitespace-nowrap">
+                      {formatStatusText(trip.returnStatus)}
+                    </span>
+                  </div>
+                  <CardDescription className="text-xs font-semibold text-zinc-500 mt-1.5 flex items-center gap-1">
+                    <Package className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
+                    {formatItemsString(trip)}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="p-5 space-y-4">
+                  <div className="flex items-start gap-3">
+                    <div className="bg-amber-100 text-amber-700 rounded-lg p-1.5 mt-0.5 shrink-0">
+                      <MapPin className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
+                        Customer Pickup
+                      </p>
+                      <p className="text-sm font-extrabold text-zinc-700 mt-0.5 leading-snug">
+                        {trip.customer?.name}
+                      </p>
+                      <p className="text-xs text-zinc-500 mt-0.5 leading-relaxed">
+                        {trip.addressSnapshot?.line1}, {trip.addressSnapshot?.city}, {trip.addressSnapshot?.state}
+                      </p>
+                      {trip.customer?.phone && (
+                        <a href={`tel:${trip.customer.phone}`} className="inline-flex items-center gap-1.5 text-purple-600 hover:text-purple-700 text-xs font-bold mt-2 bg-purple-50 px-2.5 py-1 rounded-lg border border-purple-100">
+                          <Phone className="h-3.5 w-3.5" /> Call Customer
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3 border-t border-zinc-100 pt-3.5">
+                    <div className="bg-emerald-100 text-emerald-700 rounded-lg p-1.5 mt-0.5 shrink-0">
+                      <NavigationArrow className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
+                        Seller Dropoff
+                      </p>
+                      <p className="text-sm font-extrabold text-zinc-700 mt-0.5 leading-snug">
+                        {trip.seller?.shopName}
+                      </p>
+                      <p className="text-xs text-zinc-500 mt-0.5 leading-relaxed">
+                        {trip.seller?.addressLine}, {trip.seller?.city}, {trip.seller?.state}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+                <CardFooter className="flex gap-3 border-t border-zinc-100 p-4 bg-white/50">
+                  {trip.returnStatus === 'ASSIGNED' && (
+                    <Button
+                      className="w-full rounded-xl font-bold bg-amber-600 hover:bg-amber-700 text-white"
+                      onClick={() => handleMarkReturnPickedUp(trip)}
+                    >
+                      Mark Picked Up from Customer
+                    </Button>
+                  )}
+                  {trip.returnStatus === 'PICKED_UP' && (
+                    <Button
+                      className="w-full rounded-xl font-bold bg-emerald-600 hover:bg-emerald-700 text-white"
+                      onClick={() => handleMarkReturnCompleted(trip)}
+                    >
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Mark Returned to Seller
+                    </Button>
+                  )}
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* ======================= */}
+      {/* SECTION 6: Return Pickup History */}
+      {/* ======================= */}
+      <div className="flex flex-col gap-3">
+        <h3 className="font-extrabold text-zinc-800 text-sm tracking-wider uppercase flex items-center gap-2 pl-1">
+          <ClockCounterClockwise className="h-4 w-4 text-zinc-500" />
+          Return Pickup History
+        </h3>
+        {completedReturns.length === 0 ? (
+          <div className="bg-white border border-zinc-200 rounded-2xl p-6 text-center shadow-sm">
+            <WarningCircle className="h-8 w-8 text-zinc-300 mx-auto" />
+            <p className="text-zinc-400 text-xs mt-2 font-medium">
+              No completed return pickups.
+            </p>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-3">
+            {completedReturns.map((d) => (
+              <Card key={d.id} className="bg-white border-zinc-200 shadow-sm rounded-2xl overflow-hidden">
+                <CardContent className="p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg shrink-0 bg-emerald-100 text-emerald-700">
+                      <CheckCircle className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-extrabold text-zinc-800">
+                        {d.orderNumber}
+                      </p>
+                      <p className="text-[10px] text-zinc-400 font-medium">
+                        {d.customer?.name} → {d.seller?.shopName}
+                      </p>
+                      <p className="text-[10px] text-zinc-400">
+                        {d.returnCompletedAt && new Date(d.returnCompletedAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                      </p>
+                    </div>
+                  </div>
+                  <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider whitespace-nowrap border bg-emerald-50 text-emerald-700 border-emerald-200">
+                    {formatStatusText(d.returnStatus)}
+                  </span>
+                </CardContent>
+              </Card>
+            ))}
+            
+            {/* Pagination for Returns */}
+            {returnHistoryTotalPages > 1 && (
+              <div className="flex justify-center items-center gap-3 pt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="rounded-xl font-bold text-xs"
+                  disabled={returnHistoryPage <= 1}
+                  onClick={() => setReturnHistoryPage((p) => Math.max(1, p - 1))}
+                >
+                  <CaretLeft className="h-4 w-4" />
+                </Button>
+                <span className="text-xs font-bold text-zinc-500">
+                  Page {returnHistoryPage} of {returnHistoryTotalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="rounded-xl font-bold text-xs"
+                  disabled={returnHistoryPage >= returnHistoryTotalPages}
+                  onClick={() => setReturnHistoryPage((p) => Math.min(returnHistoryTotalPages, p + 1))}
                 >
                   <CaretRight className="h-4 w-4" />
                 </Button>

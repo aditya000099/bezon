@@ -445,7 +445,7 @@ export class OrderService {
   /**
    * Retrieves orders for a specific seller by their user ID
    */
-  static async getSellerOrders(userId: string, filters: { returnStatus?: string } = {}) {
+  static async getSellerOrders(userId: string, filters: { returnStatus?: string, returnInspectionStatus?: string } = {}) {
     const seller = await prisma.seller.findUnique({
       where: { userId },
     });
@@ -459,13 +459,25 @@ export class OrderService {
     const whereClause: any = { sellerId: seller.id };
     
     if (filters.returnStatus) {
-      whereClause.returnStatus = filters.returnStatus;
+      if (filters.returnStatus.includes(',')) {
+        whereClause.returnStatus = { in: filters.returnStatus.split(',') };
+      } else {
+        whereClause.returnStatus = filters.returnStatus;
+      }
+    }
+
+    if (filters.returnInspectionStatus) {
+      if (filters.returnInspectionStatus === 'INSPECTED_ALL') {
+        whereClause.returnInspectionStatus = { not: 'PENDING_INSPECTION' };
+      } else {
+        whereClause.returnInspectionStatus = filters.returnInspectionStatus;
+      }
     }
 
     return await prisma.order.findMany({
       where: whereClause,
       include: {
-        items: true,
+        items: { include: { product: true } },
         customer: {
           select: {
             name: true,
@@ -473,6 +485,10 @@ export class OrderService {
             phone: true,
           },
         },
+        returnPartner: {
+          include: { user: true }
+        },
+        timeline: true
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -546,6 +562,16 @@ export class OrderService {
                     phone: true,
                   },
                 },
+              },
+            },
+          },
+        },
+        returnPartner: {
+          include: {
+            user: {
+              select: {
+                name: true,
+                phone: true,
               },
             },
           },
@@ -996,6 +1022,123 @@ export class OrderService {
       // NotificationService.createNotification(...)
 
       return updatedOrder;
+    });
+  }
+
+  /**
+   * Inspects a returned product and updates its inspection status.
+   */
+  static async inspectReturnedProduct(orderId: string, sellerUserId: string, status: 'RESTOCKED' | 'DAMAGED' | 'DISPOSED', notes: string | null) {
+    const seller = await prisma.seller.findUnique({
+      where: { userId: sellerUserId }
+    });
+
+    if (!seller) {
+      throw Object.assign(new Error('Seller profile not found.'), { status: 403 });
+    }
+
+    if ((status === 'DAMAGED' || status === 'DISPOSED') && (!notes || notes.trim() === '')) {
+      throw Object.assign(new Error('Inspection notes are required when marking a product as DAMAGED or DISPOSED.'), { status: 400 });
+    }
+
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+      include: { items: true }
+    });
+
+    if (!order) {
+      throw Object.assign(new Error('Order not found.'), { status: 404 });
+    }
+
+    if (order.sellerId !== seller.id) {
+      throw Object.assign(new Error('Access denied. You do not own this order.'), { status: 403 });
+    }
+
+    if (order.returnStatus !== 'COMPLETED') {
+      throw Object.assign(new Error('Only completed returns can be inspected.'), { status: 400 });
+    }
+
+    if (order.returnInspectionStatus !== 'PENDING_INSPECTION') {
+      throw Object.assign(new Error('This return has already been inspected.'), { status: 400 });
+    }
+
+    return await prisma.$transaction(async (tx) => {
+      const updatedOrder = await tx.order.update({
+        where: { id: orderId },
+        data: {
+          returnInspectionStatus: status,
+          returnInspectionNotes: notes,
+          returnInspectedAt: new Date(),
+          returnInspectedById: seller.id
+        }
+      });
+
+      let statusWord = '';
+      if (status === 'RESTOCKED') statusWord = 'Restocked';
+      if (status === 'DAMAGED') statusWord = 'Damaged';
+      if (status === 'DISPOSED') statusWord = 'Disposed';
+
+      await tx.orderTimeline.create({
+        data: {
+          orderId: order.id,
+          status: 'delivered', // Keep main status as delivered
+          note: `Product Marked ${statusWord} By Seller.`,
+          actorId: seller.userId,
+          actorRole: 'seller'
+        }
+      });
+
+      if (status === 'RESTOCKED') {
+        for (const item of order.items) {
+          const product = await tx.product.findUnique({
+            where: { id: item.productId }
+          });
+          
+          if (product && product.sellerId === seller.id) {
+            const previousStock = product.totalStock;
+            const returnedQty = item.qty;
+            const newStock = previousStock + returnedQty;
+            
+            await tx.product.update({
+              where: { id: product.id },
+              data: { totalStock: newStock }
+            });
+            
+            await tx.orderTimeline.create({
+              data: {
+                orderId: order.id,
+                status: 'delivered',
+                note: `Inventory Increased +${returnedQty} (Stock Updated: ${previousStock} → ${newStock})`,
+                actorId: seller.userId,
+                actorRole: 'seller'
+              }
+            });
+          }
+        }
+      }
+
+      return updatedOrder;
+    });
+  }
+
+  /**
+   * Helper query for Phase 7 Refunds: 
+   * Retrieve returns that are physically completed and have been inspected by the seller.
+   */
+  static async getRefundEligibleReturns() {
+    return await prisma.order.findMany({
+      where: {
+        returnStatus: 'COMPLETED',
+        returnInspectionStatus: {
+          not: 'PENDING_INSPECTION'
+        }
+      },
+      include: {
+        customer: {
+          select: { id: true, name: true, email: true }
+        },
+        items: true
+      }
     });
   }
 }

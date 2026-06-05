@@ -99,6 +99,9 @@ enum ReturnStatus {
   NONE
   REQUESTED
   APPROVED
+  ASSIGNED
+  PICKED_UP
+  COMPLETED
   REJECTED
 }
 
@@ -110,6 +113,13 @@ enum ReturnReason {
   defective
   quality
   other
+}
+
+enum ReturnInspectionStatus {
+  PENDING_INSPECTION
+  RESTOCKED
+  DAMAGED
+  DISPOSED
 }
 
 enum NotificationType {
@@ -194,6 +204,7 @@ model Seller {
   user            User         @relation(fields: [userId], references: [id], onDelete: Cascade, map: "sellers_user_fk")
   products        Product[]
   orders          Order[]
+  returnInspections Order[] @relation("ReturnInspectedBy")
   coupons         Coupon[]
 
   @@index([status])
@@ -235,6 +246,7 @@ model DeliveryPartner {
   updatedAt      DateTime   @default(now()) @map("updated_at") @db.Timestamptz
   user           User       @relation(fields: [userId], references: [id], onDelete: Cascade, map: "dp_user_fk")
   deliveries     Delivery[]
+  returnOrders   Order[]    @relation("ReturnPartner")
 
   @@index([status])
   @@index([isAvailable])
@@ -414,6 +426,14 @@ model Order {
   returnApprovedAt     DateTime?       @map("return_approved_at") @db.Timestamptz
   returnRejectedAt     DateTime?       @map("return_rejected_at") @db.Timestamptz
   returnRejectedReason String?         @map("return_rejected_reason")
+  returnPartnerId      String?         @map("return_partner_id") @db.Uuid
+  returnAssignedAt     DateTime?       @map("return_assigned_at") @db.Timestamptz
+  returnPickedUpAt     DateTime?       @map("return_picked_up_at") @db.Timestamptz
+  returnCompletedAt    DateTime?       @map("return_completed_at") @db.Timestamptz
+  returnInspectionStatus ReturnInspectionStatus @default(PENDING_INSPECTION) @map("return_inspection_status")
+  returnInspectionNotes  String?                @map("return_inspection_notes")
+  returnInspectedAt      DateTime?              @map("return_inspected_at") @db.Timestamptz
+  returnInspectedById    String?                @map("return_inspected_by_id") @db.Uuid
   billUrl              String?         @map("bill_url")
   idempotencyKey       String          @unique @default(dbgenerated("gen_random_uuid()")) @map("idempotency_key") @db.Uuid
   createdAt            DateTime        @default(now()) @map("created_at") @db.Timestamptz
@@ -426,6 +446,8 @@ model Order {
   delivery          Delivery?
   payments          Payment[]
   couponUsages      CouponUsage[]
+  returnPartner     DeliveryPartner? @relation("ReturnPartner", fields: [returnPartnerId], references: [id], map: "orders_return_partner_fk")
+  returnInspectedBy Seller?          @relation("ReturnInspectedBy", fields: [returnInspectedById], references: [id], map: "orders_return_inspected_by_fk")
 
   @@index([customerId])
   @@index([sellerId])

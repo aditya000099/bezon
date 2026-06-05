@@ -9,6 +9,12 @@ import {
   getQueue,
   getHistory,
   updateAssignmentStatus,
+  getAvailableReturnPickups,
+  acceptReturnPickup,
+  getReturnQueue,
+  getReturnHistory,
+  markReturnPickedUp,
+  markReturnCompleted,
 } from '../../controllers/delivery.controller.js';
 
 const router = Router();
@@ -24,5 +30,13 @@ router.post('/orders/:orderId/accept', acceptAssignment);
 router.get('/orders/assigned', getQueue);
 router.get('/history', getHistory);
 router.patch('/assignments/:id/status', updateAssignmentStatus);
+
+// Return Pickups
+router.get('/returns/available', getAvailableReturnPickups);
+router.post('/returns/:orderId/accept', acceptReturnPickup);
+router.get('/returns/assigned', getReturnQueue);
+router.get('/returns/history', getReturnHistory);
+router.patch('/returns/:orderId/pickup', markReturnPickedUp);
+router.patch('/returns/:orderId/complete', markReturnCompleted);
 
 export default router;
