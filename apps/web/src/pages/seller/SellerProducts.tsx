@@ -1,28 +1,20 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card } from '@/components/ui/card';
 import {
   Plus,
-  Edit2,
-  Trash2,
+  PencilSimple,
+  Trash,
   Image as ImageIcon,
-  Loader2,
-  Sparkles,
-} from "lucide-react";
-import api from "../../lib/api";
-import { API_ENDPOINTS } from "../../config/api.config";
-import { useToast } from "../../context/ToastContext";
-import type { Product } from "@bezon/types";
-import { ProductForm } from "./components/ProductForm";
+  Spinner,
+  Sparkle,
+} from '@phosphor-icons/react';
+import api from '../../lib/api';
+import { API_ENDPOINTS } from '../../config/api.config';
+import { useToast } from '../../context/ToastContext';
+import type { Product } from '@bezon/types';
 
 export const SellerProducts: React.FC = () => {
   const { toast } = useToast();
@@ -30,11 +22,7 @@ export const SellerProducts: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-
-  // Dialog State
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Fetch data
   const fetchData = async () => {
@@ -46,7 +34,7 @@ export const SellerProducts: React.FC = () => {
       }
     } catch (err: any) {
       toast.error(
-        err.response?.data?.message || "Could not fetch shop listings.",
+        err.response?.data?.message || 'Could not fetch shop listings.',
       );
     } finally {
       setLoading(false);
@@ -59,29 +47,17 @@ export const SellerProducts: React.FC = () => {
 
   // Handle edit query parameter from other views (like Inventory)
   useEffect(() => {
-    const editId = searchParams.get("edit");
-    if (editId && products.length > 0) {
-      const productToEdit = products.find((p) => p.id === editId);
-      if (productToEdit) {
-        handleOpenEdit(productToEdit);
-        // Clear param so modal doesn't keep opening on page updates
-        const newParams = new URLSearchParams(searchParams);
-        newParams.delete("edit");
-        setSearchParams(newParams);
-      }
+    const editId = searchParams.get('edit');
+    if (editId) {
+      navigate(`/seller/products/${editId}/edit`);
     }
-  }, [searchParams, products]);
-
-  const handleOpenEdit = (product: Product) => {
-    setSelectedProduct(product);
-    setIsDialogOpen(true);
-  };
+  }, [searchParams]);
 
   // Archive Product
   const handleArchive = async (id: string) => {
     if (
       !confirm(
-        "Are you sure you want to archive this product list? This will remove it from the customer catalogue.",
+        'Are you sure you want to archive this product list? This will remove it from the customer catalogue.',
       )
     )
       return;
@@ -89,11 +65,11 @@ export const SellerProducts: React.FC = () => {
     try {
       const res = await api.delete(API_ENDPOINTS.products.delete(id));
       if (res.data.success) {
-        toast.success("Product successfully archived.");
+        toast.success('Product successfully archived.');
         fetchData();
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Could not archive product.");
+      toast.error(err.response?.data?.message || 'Could not archive product.');
     }
   };
 
@@ -106,7 +82,7 @@ export const SellerProducts: React.FC = () => {
   return (
     <div className="flex flex-col gap-6">
       {/* Top Banner Control */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-between items-center bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+      <div className="flex flex-col sm:flex-row gap-4 justify-between items-center bg-white border border-zinc-200 rounded-xl p-4 shadow-sm">
         <div className="w-full sm:w-80">
           <Input
             type="text"
@@ -116,8 +92,8 @@ export const SellerProducts: React.FC = () => {
           />
         </div>
         <Button
-          onClick={() => navigate("/seller/add-product")}
-          className="w-full sm:w-auto font-bold flex items-center gap-2"
+          onClick={() => navigate('/seller/add-product')}
+          className="w-full sm:w-auto font-bold flex items-center gap-2  hover:cursor-pointer"
         >
           <Plus className="h-4 w-4" /> Add Product
         </Button>
@@ -125,42 +101,43 @@ export const SellerProducts: React.FC = () => {
 
       {/* Main Listing View */}
       {loading ? (
-        <div className="flex flex-col items-center justify-center min-h-75 text-slate-400 gap-2">
-          <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
+        <div className="flex flex-col items-center justify-center min-h-75 text-zinc-400 gap-2">
+          <Spinner className="h-8 w-8 animate-spin text-teal-500" />
           <p className="text-sm font-semibold">Loading product listings...</p>
         </div>
       ) : filteredProducts.length === 0 ? (
-        <Card className="flex flex-col items-center justify-center min-h-75 text-slate-400 p-8 border-dashed border-2 bg-white/50">
-          <Sparkles className="h-12 w-12 text-slate-300 mb-2" />
-          <p className="font-bold text-slate-700">No products registered yet</p>
-          <p className="text-xs text-slate-400 mt-1">
+        <Card className="flex flex-col items-center justify-center min-h-75 text-zinc-400 p-8 border-dashed border-2 bg-white/50">
+          <Sparkle className="h-12 w-12 text-zinc-300 mb-2" />
+          <p className="font-bold text-zinc-700">No products registered yet</p>
+          <p className="text-xs text-zinc-400 mt-1">
             Get started by creating your first product listing.
           </p>
         </Card>
       ) : (
-        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+        <div className="bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-sm">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider">
+              <tr className="bg-zinc-50 border-b border-zinc-200 text-xs font-bold text-zinc-500 uppercase tracking-wider">
                 <th className="px-6 py-3.5">Product</th>
                 <th className="px-6 py-3.5">Category</th>
                 <th className="px-6 py-3.5">Price</th>
                 <th className="px-6 py-3.5">Stock</th>
                 <th className="px-6 py-3.5">Status</th>
+                <th className="px-6 py-3.5">Stats</th>
                 <th className="px-6 py-3.5 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 text-sm text-slate-700">
+            <tbody className="divide-y divide-zinc-100 text-sm text-zinc-700">
               {filteredProducts.map((p) => {
                 const primaryImage =
                   p.images?.find((img: any) => img.isPrimary) || p.images?.[0];
                 return (
                   <tr
                     key={p.id}
-                    className="hover:bg-slate-50/50 transition-colors"
+                    className="hover:bg-zinc-50/50 transition-colors"
                   >
                     <td className="px-6 py-4 flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden shrink-0">
+                      <div className="h-10 w-10 rounded-lg bg-zinc-100 border border-zinc-200 flex items-center justify-center overflow-hidden shrink-0">
                         {primaryImage ? (
                           <img
                             src={primaryImage.url}
@@ -168,29 +145,29 @@ export const SellerProducts: React.FC = () => {
                             className="h-full w-full object-cover"
                           />
                         ) : (
-                          <ImageIcon className="h-5 w-5 text-slate-400" />
+                          <ImageIcon className="h-5 w-5 text-zinc-400" />
                         )}
                       </div>
                       <div>
-                        <p className="font-bold text-slate-800 line-clamp-1">
+                        <p className="font-bold text-zinc-800 line-clamp-1">
                           {p.title}
                         </p>
-                        <p className="text-[10px] text-indigo-600 font-bold uppercase tracking-wider">
-                          {p.brand || "Unbranded"}
+                        <p className="text-[10px] text-teal-600 font-bold uppercase tracking-wider">
+                          {p.brand || 'Unbranded'}
                         </p>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="bg-slate-100 text-slate-600 font-semibold px-2.5 py-1 rounded-full text-xs">
-                        {p.category?.name || "General"}
+                      <span className="bg-zinc-100 text-zinc-600 font-semibold px-2.5 py-1 rounded-full text-xs">
+                        {p.category?.name || 'General'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 font-bold text-slate-900">
+                    <td className="px-6 py-4 font-bold text-zinc-900">
                       ₹{Number(p.basePrice).toLocaleString()}
                     </td>
                     <td className="px-6 py-4">
                       <span
-                        className={`font-semibold ${p.totalStock === 0 ? "text-rose-600 font-bold" : "text-slate-600"}`}
+                        className={`font-semibold ${p.totalStock === 0 ? 'text-rose-600 font-bold' : 'text-zinc-600'}`}
                       >
                         {p.totalStock} units
                       </span>
@@ -198,31 +175,45 @@ export const SellerProducts: React.FC = () => {
                     <td className="px-6 py-4">
                       <span
                         className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                          p.status === "published"
-                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                            : "bg-amber-50 text-amber-700 border border-amber-200"
+                          p.status === 'published'
+                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                            : 'bg-amber-50 text-amber-700 border border-amber-200'
                         }`}
                       >
                         {p.status}
                       </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <Button
+                        variant="link"
+                        size="sm"
+                        className="text-xs font-bold text-teal-600 hover:text-teal-800 p-0 h-auto hover:cursor-pointer"
+                        onClick={() =>
+                          navigate(`/seller/products/${p.id}/stats`)
+                        }
+                      >
+                        View Stats
+                      </Button>
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2">
                         <Button
                           size="icon"
                           variant="ghost"
-                          className="h-8 w-8 text-slate-500 hover:text-slate-800"
-                          onClick={() => handleOpenEdit(p)}
+                          className="h-8 w-8 text-zinc-500 hover:text-zinc-800 hover:cursor-pointer"
+                          onClick={() =>
+                            navigate(`/seller/products/${p.id}/edit`)
+                          }
                         >
-                          <Edit2 className="h-4 w-4" />
+                          <PencilSimple className="h-4 w-4" />
                         </Button>
                         <Button
                           size="icon"
                           variant="ghost"
-                          className="h-8 w-8 text-rose-500 hover:text-rose-700 hover:bg-rose-50"
+                          className="h-8 w-8 text-rose-500 hover:text-rose-700 hover:bg-rose-50 hover:cursor-pointer"
                           onClick={() => handleArchive(p.id)}
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash className="h-4 w-4" />
                         </Button>
                       </div>
                     </td>
@@ -233,29 +224,6 @@ export const SellerProducts: React.FC = () => {
           </table>
         </div>
       )}
-
-      {/* Edit/Create Form Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto bg-white p-6 rounded-xl border">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-slate-800">
-              Modify Product Listing
-            </DialogTitle>
-            <DialogDescription className="text-slate-500 text-sm">
-              Publish item attributes, pricing details, manage variants, and
-              upload gallery imagery.
-            </DialogDescription>
-          </DialogHeader>
-          <ProductForm
-            product={selectedProduct}
-            onCancel={() => setIsDialogOpen(false)}
-            onSuccess={() => {
-              setIsDialogOpen(false);
-              fetchData();
-            }}
-          />
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

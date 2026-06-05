@@ -3,7 +3,15 @@ import { useParams, Link } from "react-router-dom";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
-  Loader2,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Spinner,
   ArrowLeft,
   Clock,
   MapPin,
@@ -12,62 +20,18 @@ import {
   ShoppingBag,
   Star,
   Download,
-} from "lucide-react";
+  ArrowCounterClockwise,
+  Money,
+  ArrowsClockwise,
+} from "@phosphor-icons/react";
 import api from "../../lib/api";
 import { API_ENDPOINTS } from "../../config/api.config";
+import { RETURN_WINDOW_DAYS } from "../../utils/constants";
 import { useToast } from "../../context/ToastContext";
 import { WriteReviewModal } from "../../components/reviews/WriteReviewModal";
 import { OrderTrackingStepper } from "../../components/ui/OrderTrackingStepper";
-
-interface TimelineEvent {
-  id: string;
-  status: string;
-  note: string | null;
-  createdAt: string;
-}
-
-interface OrderDetail {
-  id: string;
-  orderNumber: string;
-  status: string;
-  paymentStatus: string;
-  subtotal: number;
-  total: number;
-  createdAt: string;
-  billUrl?: string;
-  addressSnapshot: {
-    fullName: string;
-    phone: string;
-    line1: string;
-    line2?: string;
-    city: string;
-    state: string;
-    pincode: string;
-  };
-  seller: {
-    shopName: string;
-    shopSlug: string;
-  };
-  items: {
-    id: string;
-    productId: string;
-    productTitle: string;
-    sku: string;
-    qty: number;
-    unitPrice: number;
-    totalPrice: number;
-    imageUrl?: string;
-    review?: {
-      id: string;
-      rating: number;
-      reviewText: string | null;
-      editCount: number;
-      createdAt: string;
-      images: { url: string; s3Key?: string; sortOrder: number }[];
-    };
-  }[];
-  timeline: TimelineEvent[];
-}
+import { SupportChatWidget } from "../../components/SupportChatWidget";
+import type { OrderDetail } from "@bezon/types";
 
 export const OrderDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -83,6 +47,71 @@ export const OrderDetailPage: React.FC = () => {
     title: string;
   } | null>(null);
   const [existingReview, setExistingReview] = useState<any>(null);
+
+  // Return Request State
+  const [returnModalOpen, setReturnModalOpen] = useState(false);
+  const [returnReason, setReturnReason] = useState("damaged");
+  const [returnNotes, setReturnNotes] = useState("");
+  const [submittingReturn, setSubmittingReturn] = useState(false);
+
+  const handleReturnSubmit = async () => {
+    if (!order) return;
+    if (!returnReason) {
+      toast.warning("Please select a return reason.");
+      return;
+    }
+
+    setSubmittingReturn(true);
+    try {
+      const res = await api.post(API_ENDPOINTS.orders.requestReturn(order.id), {
+        reason: returnReason,
+        notes: returnNotes.trim(),
+      });
+
+      if (res.data.success) {
+        toast.success("Return requested successfully.");
+        setReturnModalOpen(false);
+        setReturnReason("damaged");
+        setReturnNotes("");
+        await fetchOrderDetail();
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to request return.");
+    } finally {
+      setSubmittingReturn(false);
+    }
+  };
+
+  // Cancellation State
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
+  const [cancelling, setCancelling] = useState(false);
+
+  const handleCancelOrder = async () => {
+    if (!order) return;
+    if (!cancelReason) {
+      toast.warning("Please select a cancellation reason.");
+      return;
+    }
+
+    setCancelling(true);
+    try {
+      const res = await api.post(API_ENDPOINTS.orders.cancel(order.id), {
+        cancelReason,
+      });
+
+      if (res.data.success) {
+        toast.success("Order cancelled successfully.");
+        setCancelModalOpen(false);
+        setCancelReason("");
+        await fetchOrderDetail();
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to cancel order.");
+    } finally {
+      setCancelling(false);
+    }
+  };
 
   const fetchOrderDetail = async () => {
     setLoading(true);
@@ -107,8 +136,8 @@ export const OrderDetailPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-slate-400 gap-2">
-        <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
+      <div className="flex flex-col items-center justify-center min-h-100 text-zinc-400 gap-2">
+        <Spinner className="h-8 w-8 animate-spin text-teal-500" />
         <p className="text-sm font-semibold">Loading order tracking...</p>
       </div>
     );
@@ -116,9 +145,9 @@ export const OrderDetailPage: React.FC = () => {
 
   if (!order) {
     return (
-      <Card className="flex flex-col items-center justify-center min-h-[300px] text-slate-400 p-8 border-dashed border-2 bg-white/50 max-w-lg mx-auto mt-12">
+      <Card className="flex flex-col items-center justify-center min-h-75 text-zinc-400 p-8 border-dashed border-2 bg-white/50 max-w-lg mx-auto mt-12">
         <Package className="h-12 w-12 text-rose-300 mb-2" />
-        <p className="font-bold text-slate-700">Order not found</p>
+        <p className="font-bold text-zinc-700">Order not found</p>
         <Link to="/shop/orders" className="mt-4">
           <Button size="sm">Back to History</Button>
         </Link>
@@ -128,38 +157,85 @@ export const OrderDetailPage: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-6 max-w-4xl mx-auto">
-      <div className="flex items-center gap-4">
-        <Link to="/shop/orders">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="gap-2 text-slate-500 hover:text-slate-900"
-          >
-            <ArrowLeft className="h-4 w-4" /> Back to History
-          </Button>
-        </Link>
-        <h1 className="text-xl font-extrabold text-slate-900 tracking-tight sm:text-2xl">
-          Order Tracker{" "}
-          <span className="font-mono text-slate-400 font-normal">
-            #{order.orderNumber}
-          </span>
-        </h1>
-        {order.billUrl && (
-          <a
-            href={order.billUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="ml-auto"
-          >
+      <div className="flex flex-col gap-4">
+        <div className="flex justify-between items-center w-full">
+          <Link to="/shop/orders">
             <Button
-              variant="outline"
+              variant="ghost"
               size="sm"
-              className="gap-2 font-bold border-slate-200 text-slate-700"
+              className="gap-2 text-zinc-500 hover:text-zinc-900 -ml-2"
             >
-              <Download className="h-4 w-4" /> Download Bill
+              <ArrowLeft className="h-4 w-4" /> Back to History
             </Button>
-          </a>
-        )}
+          </Link>
+          <div className="flex gap-2">
+            {(order.status === "placed" || order.status === "confirmed") && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2 font-bold text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-rose-200"
+                onClick={() => setCancelModalOpen(true)}
+              >
+                Cancel Order
+              </Button>
+            )}
+            {order.status === "delivered" &&
+              (!order.returnStatus || order.returnStatus === "NONE") &&
+              (() => {
+                const deliveredAt =
+                  order.deliveredAt ||
+                  order.delivery?.deliveredAt ||
+                  order.timeline?.find((t) => t.status === "delivered")
+                    ?.createdAt;
+                if (!deliveredAt) return false;
+                const deliveryTime = new Date(deliveredAt).getTime();
+                const expirationTime =
+                  deliveryTime + RETURN_WINDOW_DAYS * 24 * 60 * 60 * 1000;
+                return Date.now() <= expirationTime;
+              })() && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2 font-bold text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200"
+                  onClick={() => setReturnModalOpen(true)}
+                >
+                  Request Return
+                </Button>
+              )}
+            {order.billUrl && (
+              <a href={order.billUrl} target="_blank" rel="noopener noreferrer">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2 font-bold bg-zinc-50 text-zinc-700 border-0"
+                >
+                  <Download className="h-4 w-4" /> Download Bill
+                </Button>
+              </a>
+            )}
+          </div>
+        </div>
+        <div className="flex items-center gap-3 flex-wrap">
+          <h1 className="text-xl font-extrabold text-zinc-900 tracking-tight sm:text-2xl">
+            Order Tracker{" "}
+            <span className="font-mono text-zinc-400 font-normal">
+              #{order.orderNumber}
+            </span>
+          </h1>
+          {order.returnStatus && order.returnStatus !== "NONE" && (
+            <span
+              className={`inline-block px-3 py-1 rounded-full text-xs font-bold border ${
+                order.returnStatus === "REQUESTED"
+                  ? "bg-blue-50 text-blue-700 border-blue-200"
+                  : order.returnStatus === "APPROVED"
+                    ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                    : "bg-rose-50 text-rose-700 border-rose-200"
+              }`}
+            >
+              RETURN {order.returnStatus.toUpperCase()}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Progress tracking stepper */}
@@ -168,71 +244,78 @@ export const OrderDetailPage: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Shipment item list & delivery destinations */}
         <div className="md:col-span-2 flex flex-col gap-6">
-          <Card className="bg-white border-slate-200 shadow-sm">
-            <CardHeader className="border-b border-slate-100">
-              <CardTitle className="text-base font-bold text-slate-800">
+          <Card className="bg-zinc-50/80 border-0">
+            <CardHeader className="bg-zinc-100/30 rounded-t-2xl">
+              <CardTitle className="text-base font-bold text-zinc-800">
                 Shipment Items
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-6 divide-y divide-slate-100">
-              {order.items.map((item) => (
-                <div
-                  key={item.id}
-                  className="py-4 first:pt-0 last:pb-0 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4"
-                >
-                  <div className="flex gap-3 items-center">
-                    <div className="h-12 w-12 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-center overflow-hidden shrink-0">
-                      {item.imageUrl ? (
-                        <img
-                          src={item.imageUrl}
-                          alt={item.productTitle}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <ShoppingBag className="h-6 w-6 text-slate-300" />
-                      )}
-                    </div>
-                    <div>
-                      <p className="font-bold text-slate-800 text-sm line-clamp-1">
-                        {item.productTitle}
-                      </p>
-                      <p className="text-xs text-slate-400 font-mono mt-0.5">
-                        {item.sku}
-                      </p>
+            <CardContent className="p-6 divide-y divide-zinc-100">
+              {order.items.map((item) => {
+                return (
+                  <div
+                    key={item.id}
+                    className="py-4 first:pt-0 last:pb-0 flex flex-col gap-3 border-b border-zinc-100 last:border-b-0"
+                  >
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                      <div className="flex gap-3 items-center">
+                        <div className="h-12 w-12 bg-secondary/50 rounded-2xl flex items-center justify-center overflow-hidden shrink-0">
+                          {item.imageUrl ? (
+                            <img
+                              src={item.imageUrl}
+                              alt={item.productTitle}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <ShoppingBag className="h-6 w-6 text-zinc-300" />
+                          )}
+                        </div>
+                        <div>
+                          <p className="font-bold text-zinc-800 text-sm line-clamp-1">
+                            {item.productTitle}
+                          </p>
+                          <p className="text-xs text-zinc-400 font-mono mt-0.5">
+                            {item.sku}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex justify-between sm:justify-end items-center gap-4 sm:min-w-30">
+                        <div className="text-right shrink-0">
+                          <p className="font-bold text-zinc-900 text-sm">
+                            ₹
+                            {(
+                              Number(item.unitPrice) * item.qty
+                            ).toLocaleString()}
+                          </p>
+                          <p className="text-[10px] text-zinc-400 mt-0.5">
+                            ₹{Number(item.unitPrice).toLocaleString()} &times;{" "}
+                            {item.qty}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex justify-between sm:justify-end items-center gap-4 sm:min-w-30">
-                    <div className="text-right shrink-0">
-                      <p className="font-bold text-slate-900 text-sm">
-                        ₹{(Number(item.unitPrice) * item.qty).toLocaleString()}
-                      </p>
-                      <p className="text-[10px] text-slate-400 mt-0.5">
-                        ₹{Number(item.unitPrice).toLocaleString()} &times;{" "}
-                        {item.qty}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </CardContent>
           </Card>
 
           {/* Dedicated Product Reviews card below shipment items */}
-          <Card className="bg-white border-slate-200 shadow-sm">
-            <CardHeader className="border-b border-slate-100 py-4">
-              <CardTitle className="text-base font-bold text-slate-800">
+          <Card className="bg-zinc-50/80 border-0 mt-6">
+            <CardHeader className="bg-zinc-100/30 rounded-t-2xl py-4">
+              <CardTitle className="text-base font-bold text-zinc-800">
                 Product Reviews
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-6 divide-y divide-slate-100">
+            <CardContent className="p-6 divide-y divide-zinc-100">
               {order.items.map((item) => (
                 <div
                   key={`review-${item.id}`}
                   className="py-5 first:pt-0 last:pb-0 flex flex-col gap-4"
                 >
                   {/* Product context for review */}
-                  <div className="flex items-center gap-3 bg-slate-50/50 p-2.5 rounded-lg border border-slate-100">
-                    <div className="h-10 w-10 bg-slate-50 border border-slate-200 rounded-md flex items-center justify-center overflow-hidden shrink-0">
+                  <div className="flex items-center gap-3 bg-secondary/30 p-2.5 rounded-2xl">
+                    <div className="h-10 w-10 bg-secondary/50 rounded-xl flex items-center justify-center overflow-hidden shrink-0">
                       {item.imageUrl ? (
                         <img
                           src={item.imageUrl}
@@ -240,14 +323,14 @@ export const OrderDetailPage: React.FC = () => {
                           className="h-full w-full object-cover"
                         />
                       ) : (
-                        <ShoppingBag className="h-5 w-5 text-slate-300" />
+                        <ShoppingBag className="h-5 w-5 text-zinc-300" />
                       )}
                     </div>
                     <div className="min-w-0">
-                      <p className="font-bold text-slate-800 text-xs truncate">
+                      <p className="font-bold text-zinc-800 text-xs truncate">
                         {item.productTitle}
                       </p>
-                      <p className="text-[10px] text-slate-400 font-mono mt-0.5">
+                      <p className="text-[10px] text-zinc-400 font-mono mt-0.5">
                         {item.sku}
                       </p>
                     </div>
@@ -255,16 +338,16 @@ export const OrderDetailPage: React.FC = () => {
 
                   {item.review ? (
                     /* Review Exists State */
-                    <div className="w-full bg-slate-50/60 border border-slate-200/80 rounded-lg p-4 text-xs text-slate-700">
+                    <div className="w-full bg-secondary/40 rounded-2xl p-4 text-xs text-zinc-700">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-1">
                           {[...Array(5)].map((_, i) => (
                             <Star
                               key={i}
-                              className={`h-3.5 w-3.5 ${i < item.review!.rating ? "text-amber-400 fill-amber-400" : "text-slate-300 fill-slate-300"}`}
+                              className={`h-3.5 w-3.5 ${i < item.review!.rating ? "text-amber-400 fill-amber-400" : "text-zinc-300 fill-zinc-300"}`}
                             />
                           ))}
-                          <span className="text-[10px] text-slate-400 ml-2">
+                          <span className="text-[10px] text-zinc-400 ml-2">
                             Reviewed on:{" "}
                             {new Date(
                               item.review!.createdAt,
@@ -279,7 +362,7 @@ export const OrderDetailPage: React.FC = () => {
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-7 text-[10px] text-indigo-600 font-bold px-2.5 py-0 hover:bg-indigo-50 border border-indigo-100 hover:border-indigo-200 rounded-md transition-colors"
+                            className="h-7 text-[10px] text-teal-600 font-bold px-2.5 py-0 hover:bg-teal-50 border border-teal-100 hover:border-teal-200 rounded-md transition-colors"
                             onClick={() => {
                               setSelectedOrderItem({
                                 id: item.id,
@@ -297,14 +380,14 @@ export const OrderDetailPage: React.FC = () => {
                             <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">
                               Review Updated
                             </span>
-                            <span className="text-[8px] text-slate-400 font-semibold uppercase tracking-wider">
+                            <span className="text-[8px] text-zinc-400 font-semibold uppercase tracking-wider">
                               Edit limit reached
                             </span>
                           </div>
                         )}
                       </div>
                       {item.review.reviewText && (
-                        <p className="mb-3 text-slate-600 leading-relaxed italic border-l-2 border-slate-300 pl-3">
+                        <p className="mb-3 text-zinc-600 leading-relaxed italic border-l-2 border-zinc-300 pl-3">
                           "{item.review.reviewText}"
                         </p>
                       )}
@@ -313,7 +396,7 @@ export const OrderDetailPage: React.FC = () => {
                           {item.review.images.map((img: any, idx: number) => (
                             <div
                               key={idx}
-                              className="h-14 w-14 rounded-md border border-slate-200 overflow-hidden bg-white hover:border-slate-300 transition-colors shadow-sm"
+                              className="h-14 w-14 rounded-xl overflow-hidden bg-white shadow-sm"
                             >
                               <img
                                 src={img.url}
@@ -327,12 +410,12 @@ export const OrderDetailPage: React.FC = () => {
                     </div>
                   ) : (
                     /* No Review Yet State */
-                    <div className="w-full bg-slate-50/40 border border-slate-100 border-dashed rounded-lg p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div className="w-full bg-secondary/20 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                       <div>
-                        <p className="font-semibold text-slate-600 text-xs">
+                        <p className="font-semibold text-zinc-600 text-xs">
                           You haven't reviewed this product yet.
                         </p>
-                        <p className="text-[10px] text-slate-400 mt-1">
+                        <p className="text-[10px] text-zinc-400 mt-1">
                           Share your thoughts with other customers to help them
                           make better choices.
                         </p>
@@ -341,7 +424,7 @@ export const OrderDetailPage: React.FC = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="text-xs font-bold border-indigo-200 text-indigo-700 hover:bg-indigo-50 shrink-0 self-start sm:self-auto"
+                          className="text-xs font-bold border-teal-200 text-teal-700 hover:bg-teal-50 shrink-0 self-start sm:self-auto"
                           onClick={() => {
                             setSelectedOrderItem({
                               id: item.id,
@@ -355,7 +438,7 @@ export const OrderDetailPage: React.FC = () => {
                           Write Review
                         </Button>
                       ) : (
-                        <span className="text-[10px] text-slate-400 italic bg-slate-100/80 px-2.5 py-1 rounded shrink-0 self-start sm:self-auto">
+                        <span className="text-[10px] text-zinc-400 italic bg-zinc-100/80 px-2.5 py-1 rounded shrink-0 self-start sm:self-auto">
                           Available once delivered
                         </span>
                       )}
@@ -367,15 +450,15 @@ export const OrderDetailPage: React.FC = () => {
           </Card>
 
           {/* Delivery destination card */}
-          <Card className="bg-white border-slate-200 shadow-sm">
-            <CardHeader className="border-b border-slate-100 flex flex-row items-center gap-2 py-4">
-              <MapPin className="h-4 w-4 text-slate-500" />
-              <CardTitle className="text-base font-bold text-slate-800">
+          <Card className="bg-zinc-50/80 border-0">
+            <CardHeader className="flex flex-row items-center gap-2 py-4 bg-zinc-100/30 rounded-t-2xl">
+              <MapPin className="h-4 w-4 text-zinc-500" />
+              <CardTitle className="text-base font-bold text-zinc-800">
                 Delivery Address
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-6 text-sm text-slate-600 space-y-1 leading-relaxed">
-              <p className="font-bold text-slate-800">
+            <CardContent className="p-6 text-sm text-zinc-600 space-y-1 leading-relaxed">
+              <p className="font-bold text-zinc-800">
                 {order.addressSnapshot.fullName}
               </p>
               <p>{order.addressSnapshot.line1}</p>
@@ -386,7 +469,7 @@ export const OrderDetailPage: React.FC = () => {
                 {order.addressSnapshot.city}, {order.addressSnapshot.state} –{" "}
                 {order.addressSnapshot.pincode}
               </p>
-              <p className="text-xs text-slate-400 mt-2 flex items-center gap-1.5">
+              <p className="text-xs text-zinc-400 mt-2 flex items-center gap-1.5">
                 <Truck className="h-3.5 w-3.5" /> Call:{" "}
                 {order.addressSnapshot.phone}
               </p>
@@ -396,74 +479,183 @@ export const OrderDetailPage: React.FC = () => {
 
         {/* Status timeline logging details */}
         <div className="flex flex-col gap-6">
-          <Card className="bg-white border-slate-200 shadow-sm">
-            <CardHeader className="border-b border-slate-100 py-4">
-              <CardTitle className="text-base font-bold text-slate-800">
+          <Card className="bg-zinc-50/80 border-0">
+            <CardHeader className="py-4 bg-zinc-100/30 rounded-t-2xl">
+              <CardTitle className="text-base font-bold text-zinc-800">
                 Payment & Seller
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-5 space-y-4 text-xs text-slate-600">
+            <CardContent className="p-5 space-y-4 text-xs text-zinc-600">
               <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">
+                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block">
                   Shop Vendor
                 </span>
-                <span className="font-bold text-slate-800 text-sm mt-0.5 block">
+                <span className="font-bold text-zinc-800 text-sm mt-0.5 block">
                   {order.seller.shopName}
                 </span>
               </div>
-              <div className="border-t border-slate-100 pt-3">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">
+              <div className="border-t border-zinc-100 pt-3">
+                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block">
                   Payment Status
                 </span>
                 <span
                   className={`inline-block px-2.5 py-0.5 rounded-full font-bold mt-1 ${
                     order.paymentStatus === "paid"
-                      ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
-                      : "bg-amber-50 text-amber-700 border border-amber-100"
+                      ? "bg-emerald-50 text-emerald-700"
+                      : "bg-amber-50 text-amber-700"
                   }`}
                 >
                   {order.paymentStatus.toUpperCase()}
                 </span>
               </div>
-              <div className="border-t border-slate-100 pt-3">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">
+              {(order.paymentStatus === "refund_initiated" ||
+                order.paymentStatus === "refunded") && (
+                <div className="border-t border-zinc-100 pt-3">
+                  <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block">
+                    Refund Status
+                  </span>
+                  <span
+                    className={`inline-block px-2.5 py-0.5 rounded-full font-bold mt-1 ${
+                      order.paymentStatus === "refunded"
+                        ? "bg-emerald-50 text-emerald-700"
+                        : "bg-amber-50 text-amber-700"
+                    }`}
+                  >
+                    {order.paymentStatus === "refunded"
+                      ? "COMPLETED"
+                      : "PENDING"}
+                  </span>
+                </div>
+              )}
+              <div className="border-t border-zinc-100 pt-3">
+                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block">
                   Total Charges
                 </span>
-                <span className="font-extrabold text-slate-900 text-base mt-0.5 block">
+                <span className="font-extrabold text-zinc-900 text-base mt-0.5 block">
                   ₹{Number(order.total).toLocaleString()}
                 </span>
               </div>
             </CardContent>
           </Card>
 
+          {order.returnStatus !== "NONE" && (
+            <Card className="bg-zinc-50/80 border-0">
+              <CardHeader className="py-4 flex flex-row items-center gap-2 bg-zinc-100/30 rounded-t-2xl">
+                <ArrowCounterClockwise className="h-4 w-4 text-blue-500" />
+                <CardTitle className="text-base font-bold text-zinc-800">
+                  Return Status
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-5 space-y-4 text-xs text-zinc-600">
+                <div>
+                  <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block">
+                    Current Status
+                  </span>
+                  <span
+                    className={`inline-block px-2.5 py-0.5 rounded-full font-bold mt-1 ${
+                      order.returnStatus === "APPROVED" ||
+                      order.returnStatus === "ASSIGNED" ||
+                      order.returnStatus === "PICKED_UP" ||
+                      order.returnStatus === "COMPLETED"
+                        ? "bg-emerald-50 text-emerald-700"
+                        : order.returnStatus === "REJECTED"
+                          ? "bg-rose-50 text-rose-700"
+                          : "bg-blue-50 text-blue-700"
+                    }`}
+                  >
+                    {order.returnStatus}
+                  </span>
+                  {/* Detailed Description */}
+                  {order.returnStatus === "APPROVED" && (
+                    <p className="text-[10px] mt-1 text-emerald-600 font-medium">
+                      Waiting for pickup partner assignment
+                    </p>
+                  )}
+                  {order.returnStatus === "ASSIGNED" && (
+                    <p className="text-[10px] mt-1 text-emerald-600 font-medium">
+                      Pickup partner assigned
+                    </p>
+                  )}
+                  {order.returnStatus === "PICKED_UP" && (
+                    <p className="text-[10px] mt-1 text-emerald-600 font-medium">
+                      Product is being returned to seller
+                    </p>
+                  )}
+                  {order.returnStatus === "COMPLETED" && (
+                    <p className="text-[10px] mt-1 text-emerald-600 font-medium">
+                      Product received by seller
+                    </p>
+                  )}
+                </div>
+                {order.returnRequestedAt && (
+                  <div className="border-t border-zinc-100 pt-3 flex justify-between items-center">
+                    <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block">
+                      Requested On
+                    </span>
+                    <span className="font-semibold text-zinc-700">
+                      {new Date(order.returnRequestedAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                )}
+                {order.returnApprovedAt && (
+                  <div className="border-t border-zinc-100 pt-3 flex justify-between items-center">
+                    <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block">
+                      Approved On
+                    </span>
+                    <span className="font-semibold text-zinc-700">
+                      {new Date(order.returnApprovedAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                )}
+                {order.returnRejectedAt && (
+                  <div className="border-t border-zinc-100 pt-3">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block">
+                        Rejected On
+                      </span>
+                      <span className="font-semibold text-zinc-700">
+                        {new Date(order.returnRejectedAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                    {order.returnRejectedReason && (
+                      <p className="text-xs text-rose-600 mt-2 bg-rose-50 p-2 rounded border border-rose-100">
+                        <strong>Reason:</strong> {order.returnRejectedReason}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
           {/* Vertical Timeline logs */}
-          <Card className="bg-white border-slate-200 shadow-sm flex-1">
-            <CardHeader className="border-b border-slate-100 py-4 flex flex-row items-center gap-2">
-              <Clock className="h-4 w-4 text-slate-500" />
-              <CardTitle className="text-base font-bold text-slate-800">
+          <Card className="bg-zinc-50/80 border-0 flex-1">
+            <CardHeader className="py-4 flex flex-row items-center gap-2 bg-zinc-100/30 rounded-t-2xl">
+              <Clock className="h-4 w-4 text-zinc-500" />
+              <CardTitle className="text-base font-bold text-zinc-800">
                 Status Logs
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
               {order.timeline.length === 0 ? (
-                <p className="text-slate-400 text-xs">
+                <p className="text-zinc-400 text-xs">
                   No status logs recorded.
                 </p>
               ) : (
-                <div className="space-y-6 relative before:absolute before:inset-y-0 before:left-2 before:w-0.5 before:bg-slate-100">
+                <div className="space-y-6 relative before:absolute before:inset-y-0 before:left-2 before:w-0.5 before:bg-zinc-100">
                   {order.timeline.map((evt) => (
                     <div
                       key={evt.id}
-                      className="relative pl-6 text-xs text-slate-600 flex flex-col gap-1"
+                      className="relative pl-6 text-xs text-zinc-600 flex flex-col gap-1"
                     >
-                      <span className="absolute left-1 top-1 h-2.5 w-2.5 rounded-full bg-indigo-500 ring-4 ring-indigo-50" />
-                      <p className="font-bold text-slate-800 uppercase tracking-wider text-[10px]">
+                      <span className="absolute left-1 top-1 h-2.5 w-2.5 rounded-full bg-teal-500 ring-4 ring-teal-50" />
+                      <p className="font-bold text-zinc-800 uppercase tracking-wider text-[10px]">
                         {evt.status.replace(/_/g, " ")}
                       </p>
-                      <p className="text-slate-500 leading-normal">
+                      <p className="text-zinc-500 leading-normal">
                         {evt.note || "No description note."}
                       </p>
-                      <p className="text-[10px] text-slate-400">
+                      <p className="text-[10px] text-zinc-400">
                         {new Date(evt.createdAt).toLocaleString("en-IN", {
                           day: "numeric",
                           month: "short",
@@ -480,6 +672,17 @@ export const OrderDetailPage: React.FC = () => {
         </div>
       </div>
 
+      {/* AI Support Chat Container - Horizontal layout */}
+      <div className="w-full mt-4">
+        <SupportChatWidget
+          context={{
+            type: "order",
+            orderId: order.id,
+            orderNumber: order.orderNumber,
+          }}
+        />
+      </div>
+
       {selectedOrderItem && (
         <WriteReviewModal
           isOpen={reviewModalOpen}
@@ -493,6 +696,141 @@ export const OrderDetailPage: React.FC = () => {
           existingReview={existingReview}
           onSuccess={fetchOrderDetail}
         />
+      )}
+
+      {returnModalOpen && (
+        <Dialog open={returnModalOpen} onOpenChange={setReturnModalOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                Request Return
+              </DialogTitle>
+              <DialogDescription>
+                Submit a return request for this order. This action is subject
+                to the {RETURN_WINDOW_DAYS}-day return window.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
+                  Reason for Return
+                </label>
+                <select
+                  value={returnReason}
+                  onChange={(e) => setReturnReason(e.target.value)}
+                  className="w-full rounded-md border border-zinc-200 p-3 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500 bg-white"
+                >
+                  <option value="damaged">Damaged Product</option>
+                  <option value="wrong_product">Wrong Product Received</option>
+                  <option value="missing_items">Missing Items</option>
+                  <option value="not_as_described">
+                    Product Not As Described
+                  </option>
+                  <option value="defective">Defective Product</option>
+                  <option value="quality">Quality Issues</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
+                  Additional Notes (Optional)
+                </label>
+                <textarea
+                  placeholder={`Explain the issue in more detail...`}
+                  value={returnNotes}
+                  onChange={(e) => setReturnNotes(e.target.value)}
+                  className="w-full min-h-24 resize-none rounded-md border border-zinc-200 p-3 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setReturnModalOpen(false);
+                  setReturnReason("damaged");
+                  setReturnNotes("");
+                }}
+                disabled={submittingReturn}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleReturnSubmit}
+                disabled={submittingReturn || !returnReason}
+                className="font-bold bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                {submittingReturn ? (
+                  <Spinner className="h-4 w-4 animate-spin mr-2" />
+                ) : null}
+                Submit Request
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {cancelModalOpen && (
+        <Dialog open={cancelModalOpen} onOpenChange={setCancelModalOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-rose-600 flex items-center gap-2">
+                Cancel Order
+              </DialogTitle>
+              <DialogDescription>
+                Are you sure you want to cancel this order? Once cancelled, this
+                action cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
+                  Reason for Cancellation
+                </label>
+                <select
+                  value={cancelReason}
+                  onChange={(e) => setCancelReason(e.target.value)}
+                  className="w-full rounded-md border border-zinc-200 p-3 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500 bg-white"
+                >
+                  <option value="" disabled>
+                    Select a reason...
+                  </option>
+                  <option value="Ordered by mistake">Ordered by mistake</option>
+                  <option value="Found a better price">
+                    Found a better price
+                  </option>
+                  <option value="Delivery taking too long">
+                    Delivery taking too long
+                  </option>
+                  <option value="Changed my mind">Changed my mind</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setCancelModalOpen(false);
+                  setCancelReason("");
+                }}
+                disabled={cancelling}
+              >
+                Keep Order
+              </Button>
+              <Button
+                onClick={handleCancelOrder}
+                disabled={cancelling || !cancelReason}
+                className="font-bold bg-rose-600 hover:bg-rose-700 text-white"
+              >
+                {cancelling ? (
+                  <Spinner className="h-4 w-4 animate-spin mr-2" />
+                ) : null}
+                Confirm Cancellation
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );

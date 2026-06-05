@@ -39,12 +39,25 @@ export const API_ENDPOINTS = {
     create: `${API_V1}/products`,
     update: (id: string) => `${API_V1}/products/${id}`,
     delete: (id: string) => `${API_V1}/products/${id}`,
+    getById: (id: string) => `${API_V1}/products/id/${id}`,
+    stats: (id: string) => `${API_V1}/products/${id}/stats`,
+    deliveryEstimate: (id: string) => `${API_V1}/products/${id}/delivery-estimate`,
   },
   // Orders
   orders: {
     base: `${API_V1}/orders`,
     detail: (id: string) => `${API_V1}/orders/${id}`,
     updateStatus: (id: string) => `${API_V1}/orders/${id}/status`,
+    policyAction: (id: string) => `${API_V1}/orders/${id}/policy-action`,
+    sellerMe: `${API_V1}/orders/seller/me`,
+    sellerDetail: (id: string) => `${API_V1}/orders/seller/me/${id}`,
+    sellerCancel: (id: string) => `${API_V1}/orders/seller/me/${id}/cancel`,
+    sellerApproveReturn: (id: string) => `${API_V1}/orders/seller/me/${id}/returns/approve`,
+    sellerRejectReturn: (id: string) => `${API_V1}/orders/seller/me/${id}/returns/reject`,
+    sellerInspectReturn: (id: string) => `${API_V1}/orders/seller/me/${id}/returns/inspect`,
+    cancel: (id: string) => `${API_V1}/orders/${id}/cancel`,
+    markRefundCompleted: (id: string) => `${API_V1}/orders/${id}/refund/complete`,
+    requestReturn: (id: string) => `${API_V1}/orders/${id}/returns/request`,
   },
   // Payments
   payments: {
@@ -72,7 +85,8 @@ export const API_ENDPOINTS = {
   // Reviews
   reviews: {
     list: (productId: string) => `${API_V1}/reviews/product/${productId}`,
-    summary: (productId: string) => `${API_V1}/reviews/product/${productId}/summary`,
+    summary: (productId: string) =>
+      `${API_V1}/reviews/product/${productId}/summary`,
   },
   // Questions & Answers
   qa: {
@@ -92,6 +106,8 @@ export const API_ENDPOINTS = {
   // Sellers
   sellers: {
     settings: `${API_V1}/sellers/settings`,
+    stats: `${API_V1}/sellers/stats`,
+    shop: (shopSlug: string) => `${API_V1}/sellers/shop/${shopSlug}`,
   },
   // Config
   config: {
@@ -101,9 +117,30 @@ export const API_ENDPOINTS = {
   delivery: {
     profile: `${API_V1}/delivery/profile`,
     location: `${API_V1}/delivery/location`,
-    queue: `${API_V1}/delivery/queue`,
+    available: `${API_V1}/delivery/orders/available`,
+    acceptAssignment: (id: string) => `${API_V1}/delivery/orders/${id}/accept`,
+    queue: `${API_V1}/delivery/orders/assigned`,
     history: `${API_V1}/delivery/history`,
     updateStatus: (id: string) => `${API_V1}/delivery/assignments/${id}/status`,
+    // Return Pickups
+    availableReturns: `${API_V1}/delivery/returns/available`,
+    acceptReturnPickup: (orderId: string) => `${API_V1}/delivery/returns/${orderId}/accept`,
+    returnQueue: `${API_V1}/delivery/returns/assigned`,
+    returnHistory: `${API_V1}/delivery/returns/history`,
+    markReturnPickedUp: (orderId: string) => `${API_V1}/delivery/returns/${orderId}/pickup`,
+    markReturnCompleted: (orderId: string) => `${API_V1}/delivery/returns/${orderId}/complete`,
+  },
+  // Policies
+  policies: {
+    list: `${API_V1}/policies`,
+    create: `${API_V1}/policies`,
+    update: (id: string) => `${API_V1}/policies/${id}`,
+    toggle: (id: string) => `${API_V1}/policies/${id}/toggle`,
+    delete: (id: string) => `${API_V1}/policies/${id}`,
+  },
+  // Support Chat
+  support: {
+    chat: `${API_V1}/support/chat`,
   },
 } as const;
 

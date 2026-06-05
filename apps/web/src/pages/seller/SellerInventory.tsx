@@ -1,20 +1,20 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
-  Loader2,
+  Spinner,
   Package,
-  Search,
-  AlertTriangle,
-  RefreshCw,
+  MagnifyingGlass,
+  Warning,
+  ArrowsClockwise,
   Check,
-} from "lucide-react";
-import api from "../../lib/api";
-import { API_ENDPOINTS } from "../../config/api.config";
-import { useToast } from "../../context/ToastContext";
-import type { Product } from "@bezon/types";
+} from '@phosphor-icons/react';
+import api from '../../lib/api';
+import { API_ENDPOINTS } from '../../config/api.config';
+import { useToast } from '../../context/ToastContext';
+import type { Product } from '@bezon/types';
 
 interface FlatInventoryItem {
   productId: string;
@@ -38,7 +38,7 @@ export const SellerInventory: React.FC = () => {
   const { toast } = useToast();
   const [items, setItems] = useState<FlatInventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
   const [filterLowStock, setFilterLowStock] = useState(false);
 
   const fetchInventory = async () => {
@@ -69,7 +69,7 @@ export const SellerInventory: React.FC = () => {
       }
     } catch (err: any) {
       toast.error(
-        err.response?.data?.message || "Could not fetch shop inventory.",
+        err.response?.data?.message || 'Could not fetch shop inventory.',
       );
     } finally {
       setLoading(false);
@@ -86,7 +86,7 @@ export const SellerInventory: React.FC = () => {
     const newAlert = Number(item.tempAlert);
 
     if (isNaN(newStock) || newStock < 0 || isNaN(newAlert) || newAlert < 0) {
-      toast.error("Stock and Low Stock threshold must be positive integers.");
+      toast.error('Stock and Low Stock threshold must be positive integers.');
       return;
     }
 
@@ -118,7 +118,7 @@ export const SellerInventory: React.FC = () => {
       }
     } catch (err: any) {
       toast.error(
-        err.response?.data?.message || "Failed to update variant stock.",
+        err.response?.data?.message || 'Failed to update variant stock.',
       );
       const resetLoading = [...items];
       resetLoading[index].updating = false;
@@ -153,32 +153,32 @@ export const SellerInventory: React.FC = () => {
     <div className="flex flex-col gap-6">
       {/* Top metric panels */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="bg-white border border-slate-200 shadow-sm flex items-center gap-4 p-5">
+        <Card className="bg-white border border-zinc-200 shadow-sm flex items-center gap-4 p-5">
           <div className="h-10 w-10 bg-primary/10 rounded-lg flex items-center justify-center text-primary shrink-0">
             <Package className="h-5 w-5" />
           </div>
           <div>
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">
+            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block">
               Total Tracked SKUs
             </span>
-            <span className="text-xl font-extrabold text-slate-800">
+            <span className="text-xl font-extrabold text-zinc-800">
               {items.length} Variants
             </span>
           </div>
         </Card>
 
-        <Card className="bg-white border border-slate-200 shadow-sm flex items-center gap-4 p-5">
+        <Card className="bg-white border border-zinc-200 shadow-sm flex items-center gap-4 p-5">
           <div
-            className={`h-10 w-10 rounded-lg flex items-center justify-center shrink-0 ${lowStockCount > 0 ? "bg-amber-50 text-amber-600" : "bg-emerald-50 text-emerald-600"}`}
+            className={`h-10 w-10 rounded-lg flex items-center justify-center shrink-0 ${lowStockCount > 0 ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600'}`}
           >
-            <AlertTriangle className="h-5 w-5" />
+            <Warning className="h-5 w-5" />
           </div>
           <div>
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">
+            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block">
               Low Stock Alerts
             </span>
             <span
-              className={`text-xl font-extrabold ${lowStockCount > 0 ? "text-amber-600" : "text-emerald-600"}`}
+              className={`text-xl font-extrabold ${lowStockCount > 0 ? 'text-amber-600' : 'text-emerald-600'}`}
             >
               {lowStockCount} items low
             </span>
@@ -187,9 +187,9 @@ export const SellerInventory: React.FC = () => {
       </div>
 
       {/* Top Filter Controls */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-between items-center bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+      <div className="flex flex-col sm:flex-row gap-4 justify-between items-center bg-white border border-zinc-200 rounded-xl p-4 shadow-sm">
         <div className="relative w-full sm:w-80">
-          <Search className="absolute inset-y-0 left-3 flex items-center text-slate-400 h-4 w-4 mt-3" />
+          <MagnifyingGlass className="absolute inset-y-0 left-3 flex items-center text-zinc-400 h-4 w-4 mt-3" />
           <Input
             type="text"
             className="pl-9"
@@ -200,12 +200,12 @@ export const SellerInventory: React.FC = () => {
         </div>
         <div className="flex gap-3 w-full sm:w-auto justify-end">
           <Button
-            variant={filterLowStock ? "destructive" : "outline"}
+            variant={filterLowStock ? 'destructive' : 'outline'}
             className="text-xs font-bold flex items-center gap-1.5"
             onClick={() => setFilterLowStock(!filterLowStock)}
           >
-            <AlertTriangle className="h-3.5 w-3.5" />
-            {filterLowStock ? "Show All Items" : "Show Low Stock"}
+            <Warning className="h-3.5 w-3.5" />
+            {filterLowStock ? 'Show All Items' : 'Show Low Stock'}
           </Button>
           <Button
             size="icon"
@@ -213,30 +213,30 @@ export const SellerInventory: React.FC = () => {
             className="h-10 w-10"
             onClick={fetchInventory}
           >
-            <RefreshCw className="h-4 w-4" />
+            <ArrowsClockwise className="h-4 w-4" />
           </Button>
         </div>
       </div>
 
       {/* Inventory Listings Table */}
       {loading ? (
-        <div className="flex flex-col items-center justify-center min-h-75 text-slate-400 gap-2">
-          <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
+        <div className="flex flex-col items-center justify-center min-h-75 text-zinc-400 gap-2">
+          <Spinner className="h-8 w-8 animate-spin text-teal-500" />
           <p className="text-sm font-semibold">Loading stock levels...</p>
         </div>
       ) : filteredItems.length === 0 ? (
-        <Card className="flex flex-col items-center justify-center min-h-75 text-slate-400 p-8 border-dashed border-2 bg-white/50">
-          <Package className="h-12 w-12 text-slate-300 mb-2" />
-          <p className="font-bold text-slate-700">No matching items found</p>
-          <p className="text-xs text-slate-400 mt-1">
+        <Card className="flex flex-col items-center justify-center min-h-75 text-zinc-400 p-8 border-dashed border-2 bg-white/50">
+          <Package className="h-12 w-12 text-zinc-300 mb-2" />
+          <p className="font-bold text-zinc-700">No matching items found</p>
+          <p className="text-xs text-zinc-400 mt-1">
             Inventory list matches all standard criteria.
           </p>
         </Card>
       ) : (
-        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+        <div className="bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-sm">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider">
+              <tr className="bg-zinc-50 border-b border-zinc-200 text-xs font-bold text-zinc-500 uppercase tracking-wider">
                 <th className="px-6 py-3.5">SKU / Item</th>
                 <th className="px-6 py-3.5">Price</th>
                 <th className="px-6 py-3.5">Stock Level</th>
@@ -244,7 +244,7 @@ export const SellerInventory: React.FC = () => {
                 <th className="px-6 py-3.5 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 text-sm text-slate-700">
+            <tbody className="divide-y divide-zinc-100 text-sm text-zinc-700">
               {filteredItems.map((item, idx) => {
                 const globalIndex = items.findIndex(
                   (i) => i.variantId === item.variantId,
@@ -252,27 +252,27 @@ export const SellerInventory: React.FC = () => {
                 const isLow = item.stock <= item.lowStockAlert;
                 const attributesText = Object.entries(item.attributes)
                   .map(([k, v]) => `${k}: ${v}`)
-                  .join(", ");
+                  .join(', ');
 
                 return (
                   <tr
                     key={item.variantId}
-                    className={`hover:bg-slate-50/50 transition-colors ${isLow ? "bg-amber-50/20" : ""}`}
+                    className={`hover:bg-zinc-50/50 transition-colors ${isLow ? 'bg-amber-50/20' : ''}`}
                   >
                     <td className="px-6 py-4">
-                      <p className="font-mono text-xs font-bold text-slate-900">
+                      <p className="font-mono text-xs font-bold text-zinc-900">
                         {item.sku}
                       </p>
-                      <p className="font-bold text-slate-800 mt-0.5 line-clamp-1">
+                      <p className="font-bold text-zinc-800 mt-0.5 line-clamp-1">
                         {item.productTitle}
                       </p>
                       {attributesText && (
-                        <p className="text-[10px] text-slate-400 mt-0.5">
+                        <p className="text-[10px] text-zinc-400 mt-0.5">
                           {attributesText}
                         </p>
                       )}
                     </td>
-                    <td className="px-6 py-4 font-bold text-slate-800">
+                    <td className="px-6 py-4 font-bold text-zinc-800">
                       ₹{item.price.toLocaleString()}
                     </td>
                     <td className="px-6 py-4">
@@ -280,7 +280,7 @@ export const SellerInventory: React.FC = () => {
                         <Button
                           variant="outline"
                           size="icon"
-                          className="h-7 w-7 rounded border-slate-200 text-slate-500"
+                          className="h-7 w-7 rounded border-zinc-200 text-zinc-500"
                           onClick={() => adjustStockTemp(globalIndex, -1)}
                           disabled={item.updating}
                         >
@@ -302,7 +302,7 @@ export const SellerInventory: React.FC = () => {
                         <Button
                           variant="outline"
                           size="icon"
-                          className="h-7 w-7 rounded border-slate-200 text-slate-500"
+                          className="h-7 w-7 rounded border-zinc-200 text-zinc-500"
                           onClick={() => adjustStockTemp(globalIndex, 1)}
                           disabled={item.updating}
                         >
@@ -310,7 +310,7 @@ export const SellerInventory: React.FC = () => {
                         </Button>
                         {isLow && (
                           <span className="bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-0.5 shrink-0">
-                            <AlertTriangle className="h-3 w-3" /> Low
+                            <Warning className="h-3 w-3" /> Low
                           </span>
                         )}
                       </div>
@@ -335,7 +335,7 @@ export const SellerInventory: React.FC = () => {
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="text-xs font-semibold px-2 py-1 flex items-center gap-1 h-8 text-slate-500 hover:text-slate-800"
+                          className="text-xs font-semibold px-2 py-1 flex items-center gap-1 h-8 text-zinc-500 hover:text-zinc-800"
                           onClick={() =>
                             navigate(`/seller/products?edit=${item.productId}`)
                           }
@@ -350,7 +350,7 @@ export const SellerInventory: React.FC = () => {
                             disabled={item.updating}
                           >
                             {item.updating ? (
-                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                              <Spinner className="h-3.5 w-3.5 animate-spin" />
                             ) : (
                               <>
                                 <Check className="h-3.5 w-3.5" /> Save

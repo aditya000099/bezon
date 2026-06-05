@@ -4,6 +4,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 // Guards
 import { RoleGuard } from './RoleGuard';
 import { GuestGuard } from './GuestGuard';
+import { SellerGuard } from './SellerGuard';
+import { DeliveryGuard } from './DeliveryGuard';
 
 // Layouts
 import { CustomerLayout } from '../layouts/CustomerLayout';
@@ -29,7 +31,9 @@ import { EditProfilePage } from '../pages/customer/EditProfilePage';
 import { AddressesPage } from '../pages/customer/AddressesPage';
 import { TermsConditionsPage } from '../pages/customer/TermsConditionsPage';
 import { PrivacyPolicyPage } from '../pages/customer/PrivacyPolicyPage';
-
+import { BecomeSellerPage } from '../pages/customer/BecomeSellerPage';
+import { SellerShopPage } from '../pages/customer/SellerShopPage';
+import { BecomeDeliveryPartnerPage } from '../pages/customer/BecomeDeliveryPartnerPage';
 
 // Seller Pages
 import { SellerDashboard } from '../pages/seller/SellerDashboard';
@@ -39,7 +43,12 @@ import { SellerInventory } from '../pages/seller/SellerInventory';
 import { SellerSettings } from '../pages/seller/SellerSettings';
 import { SellerCoupons } from '../pages/seller/SellerCoupons';
 import { SellerQA } from '@/pages/seller/SellerQA';
-
+import { SellerEditProduct } from '../pages/seller/SellerEditProduct';
+import { SellerStats } from '../pages/seller/SellerStats';
+import { SellerReturns } from '../pages/seller/SellerReturns';
+import { SellerReturnDetail } from '../pages/seller/SellerReturnDetail';
+import { SellerOrderDetail } from '../pages/seller/SellerOrderDetail';
+import { SellerAddProduct } from '../pages/seller/SellerAddProduct';
 // Delivery Pages
 import { DeliveryQueue } from '../pages/delivery/DeliveryQueue';
 import { DeliveryHistory } from '../pages/delivery/DeliveryHistory';
@@ -53,8 +62,9 @@ import { AdminPartners } from '../pages/admin/AdminPartners';
 import { AdminOrders } from '../pages/admin/AdminOrders';
 import { AdminDeliveries } from '../pages/admin/AdminDeliveries';
 import { AdminUsers } from '../pages/admin/AdminUsers';
-import { SellerAddProduct } from '@/pages/seller/SellerAddProduct';
-import { SellerOrderDetail } from '@/pages/seller/SellerOrderDetail';
+import { AdminPolicies } from '../pages/admin/AdminPolicies';
+import { AdminRefunds } from '../pages/admin/AdminRefunds';
+import { AdminReturns } from '../pages/admin/AdminReturns';
 
 export const AppRouter: React.FC = () => {
   return (
@@ -97,25 +107,35 @@ export const AppRouter: React.FC = () => {
           <Route path="wishlist" element={<WishlistPage />} />
           <Route path="profile" element={<ProfilePage />} />
           <Route path="profile/edit" element={<EditProfilePage />} />
+          <Route path="become-seller" element={<BecomeSellerPage />} />
+          <Route path="become-delivery-partner" element={<BecomeDeliveryPartnerPage />} />
           <Route path="addresses" element={<AddressesPage />} />
-          <Route path="terms-and-conditions" element={<TermsConditionsPage />} />
+          <Route
+            path="terms-and-conditions"
+            element={<TermsConditionsPage />}
+          />
           <Route path="privacy-policy" element={<PrivacyPolicyPage />} />
+          <Route path="sellers/:shopSlug" element={<SellerShopPage />} />
         </Route>
 
         {/* Seller Route Group */}
         <Route
           path="/seller"
           element={
-            <RoleGuard allowedRoles={['seller']}>
+            <SellerGuard>
               <SellerLayout />
-            </RoleGuard>
+            </SellerGuard>
           }
         >
           <Route index element={<SellerDashboard />} />
           <Route path="products" element={<SellerProducts />} />
+          <Route path="products/:id/edit" element={<SellerEditProduct />} />
+          <Route path="products/:id/stats" element={<SellerStats />} />
           <Route path="add-product" element={<SellerAddProduct />} />
           <Route path="orders" element={<SellerOrders />} />
           <Route path="orders/:id" element={<SellerOrderDetail />} />
+          <Route path="returns" element={<SellerReturns />} />
+          <Route path="returns/:id" element={<SellerReturnDetail />} />
           <Route path="inventory" element={<SellerInventory />} />
           <Route path="settings" element={<SellerSettings />} />
           <Route path="coupons" element={<SellerCoupons />} />
@@ -126,9 +146,9 @@ export const AppRouter: React.FC = () => {
         <Route
           path="/delivery"
           element={
-            <RoleGuard allowedRoles={['delivery']}>
+            <DeliveryGuard>
               <DeliveryLayout />
-            </RoleGuard>
+            </DeliveryGuard>
           }
         >
           <Route index element={<DeliveryQueue />} />
@@ -152,6 +172,9 @@ export const AppRouter: React.FC = () => {
           <Route path="orders" element={<AdminOrders />} />
           <Route path="deliveries" element={<AdminDeliveries />} />
           <Route path="users" element={<AdminUsers />} />
+          <Route path="policies" element={<AdminPolicies />} />
+          <Route path="refunds" element={<AdminRefunds />} />
+          <Route path="returns" element={<AdminReturns />} />
         </Route>
 
         {/* Catch-all Redirect */}

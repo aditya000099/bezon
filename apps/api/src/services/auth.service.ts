@@ -60,14 +60,6 @@ export class AuthService {
             status: 'pending',
           },
         });
-      } else if (userRole === 'delivery') {
-        await tx.deliveryPartner.create({
-          data: {
-            userId: user.id,
-            vehicleType: 'bike',
-            isAvailable: true,
-          },
-        });
       }
 
       return user;
@@ -85,8 +77,18 @@ export class AuthService {
    * Log user in, verifying credentials and active status
    */
   static async loginUser(email: string, passwordPlain: string) {
+    if (!email) {
+      const err = new Error('Email is required for sign in.');
+      (err as any).status = 400;
+      throw err;
+    }
+
     const user = await prisma.user.findUnique({
       where: { email },
+      include: {
+        seller: true,
+        deliveryPartner: true,
+      },
     });
 
     if (!user) {
@@ -124,6 +126,8 @@ export class AuthService {
         role: user.role,
         avatarUrl: user.avatarUrl,
         isActive: user.isActive,
+        seller: user.seller,
+        deliveryPartner: user.deliveryPartner,
       },
       token,
     };
@@ -142,6 +146,22 @@ export class AuthService {
         role: true,
         avatarUrl: true,
         isActive: true,
+        seller: {
+          select: {
+            id: true,
+            shopName: true,
+            shopSlug: true,
+            status: true,
+            rejectionReason: true,
+            description: true,
+            gstin: true,
+            panNumber: true,
+            addressLine: true,
+            city: true,
+            state: true,
+            pincode: true,
+          },
+        },
       },
     });
 
@@ -151,7 +171,34 @@ export class AuthService {
       throw err;
     }
 
-    return user;
+    let deliveryPartner = null;
+    try {
+      deliveryPartner = await prisma.deliveryPartner.findUnique({
+        where: { userId },
+        select: {
+          id: true,
+          status: true,
+          vehicleType: true,
+          vehicleNumber: true,
+          isAvailable: true,
+          aadhaarNumber: true,
+          panNumber: true,
+          drivingLicense: true,
+          emergencyContactName: true,
+          emergencyContactPhone: true,
+          rejectionReason: true,
+          addressLine: true,
+          city: true,
+          state: true,
+          pincode: true,
+        },
+      });
+    } catch (e: any) {
+      // Gracefully handle unmigrated database columns so other user features don't crash
+      console.warn(`DeliveryPartner query failed (likely pending DB migration): ${e.message}`);
+    }
+
+    return { ...user, deliveryPartner };
   }
 
   /**

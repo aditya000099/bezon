@@ -1,7 +1,14 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Loader2, Star, UploadCloud, X } from 'lucide-react';
+import { Spinner, Star, CloudArrowUp, X } from '@phosphor-icons/react';
 import { useToast } from '../../context/ToastContext';
 import api from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api.config';
@@ -29,7 +36,9 @@ export const WriteReviewModal: React.FC<WriteReviewModalProps> = ({
   const [rating, setRating] = useState<number>(0);
   const [hoverRating, setHoverRating] = useState<number>(0);
   const [reviewText, setReviewText] = useState('');
-  const [images, setImages] = useState<{ url: string; s3Key?: string; sortOrder: number }[]>([]);
+  const [images, setImages] = useState<
+    { url: string; s3Key?: string; sortOrder: number }[]
+  >([]);
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -70,7 +79,9 @@ export const WriteReviewModal: React.FC<WriteReviewModalProps> = ({
     // Validate each file before uploading
     for (const file of selectedFiles) {
       if (!ALLOWED_TYPES.includes(file.type)) {
-        toast.error(`"${file.name}" is not a supported format. Use JPG, PNG, or WEBP.`);
+        toast.error(
+          `"${file.name}" is not a supported format. Use JPG, PNG, or WEBP.`,
+        );
         if (e.target) e.target.value = '';
         return;
       }
@@ -146,10 +157,12 @@ export const WriteReviewModal: React.FC<WriteReviewModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-md bg-white border border-slate-200 shadow-2xl p-6 rounded-2xl">
+      <DialogContent className="max-w-md bg-white border border-zinc-200 shadow-2xl p-6 rounded-2xl">
         <DialogHeader>
-          <DialogTitle className="text-xl font-extrabold text-slate-800">Write a Review</DialogTitle>
-          <DialogDescription className="text-sm text-slate-500 line-clamp-1">
+          <DialogTitle className="text-xl font-extrabold text-zinc-800">
+            Write a Review
+          </DialogTitle>
+          <DialogDescription className="text-sm text-zinc-500 line-clamp-1">
             {productTitle}
           </DialogDescription>
         </DialogHeader>
@@ -157,7 +170,9 @@ export const WriteReviewModal: React.FC<WriteReviewModalProps> = ({
         <div className="py-4 space-y-6">
           {/* Star Rating */}
           <div className="flex flex-col items-center gap-2">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Tap to Rate</span>
+            <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
+              Tap to Rate
+            </span>
             <div className="flex gap-2">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
@@ -172,7 +187,7 @@ export const WriteReviewModal: React.FC<WriteReviewModalProps> = ({
                     className={`h-8 w-8 ${
                       star <= (hoverRating || rating)
                         ? 'fill-amber-400 text-amber-400'
-                        : 'fill-slate-100 text-slate-200'
+                        : 'fill-zinc-100 text-zinc-200'
                     } transition-colors`}
                   />
                 </button>
@@ -182,25 +197,38 @@ export const WriteReviewModal: React.FC<WriteReviewModalProps> = ({
 
           {/* Review Text */}
           <div className="flex flex-col gap-2">
-            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Your Feedback</label>
+            <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
+              Your Feedback
+            </label>
             <textarea
-              className="w-full h-24 p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-sm text-slate-700"
+              className="w-full h-24 p-3 rounded-xl border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none text-sm text-zinc-700"
               placeholder="What did you like or dislike?"
               value={reviewText}
               onChange={(e) => setReviewText(e.target.value)}
               maxLength={1000}
             />
-            <span className="text-[10px] text-slate-400 text-right">{reviewText.length}/1000</span>
+            <span className="text-[10px] text-zinc-400 text-right">
+              {reviewText.length}/1000
+            </span>
           </div>
 
           {/* Image Upload */}
           <div className="flex flex-col gap-2">
-            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Add Photos (Optional)</label>
-            
+            <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
+              Add Photos (Optional)
+            </label>
+
             <div className="flex flex-wrap gap-3">
               {images.map((img, idx) => (
-                <div key={idx} className="relative h-16 w-16 rounded-xl border border-slate-200 overflow-hidden group">
-                  <img src={img.url} alt="review" className="h-full w-full object-cover" />
+                <div
+                  key={idx}
+                  className="relative h-16 w-16 rounded-xl border border-zinc-200 overflow-hidden group"
+                >
+                  <img
+                    src={img.url}
+                    alt="review"
+                    className="h-full w-full object-cover"
+                  />
                   <button
                     onClick={() => removeImage(idx)}
                     className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
@@ -209,15 +237,17 @@ export const WriteReviewModal: React.FC<WriteReviewModalProps> = ({
                   </button>
                 </div>
               ))}
-              
+
               {images.length < 5 && (
-                <label className="h-16 w-16 flex flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-slate-300 bg-slate-50 hover:bg-slate-100 cursor-pointer transition-colors">
+                <label className="h-16 w-16 flex flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-zinc-300 bg-zinc-50 hover:bg-zinc-100 cursor-pointer transition-colors">
                   {isUploading ? (
-                    <Loader2 className="h-4 w-4 animate-spin text-indigo-500" />
+                    <Spinner className="h-4 w-4 animate-spin text-teal-500" />
                   ) : (
                     <>
-                      <UploadCloud className="h-4 w-4 text-slate-400" />
-                      <span className="text-[10px] font-bold text-slate-500">Add</span>
+                      <CloudArrowUp className="h-4 w-4 text-zinc-400" />
+                      <span className="text-[10px] font-bold text-zinc-500">
+                        Add
+                      </span>
                     </>
                   )}
                   <input
@@ -234,13 +264,17 @@ export const WriteReviewModal: React.FC<WriteReviewModalProps> = ({
           </div>
         </div>
 
-        <DialogFooter className="border-t border-slate-100 pt-4">
+        <DialogFooter className="border-t border-zinc-100 pt-4">
           <Button
-            className="w-full font-bold h-11 bg-indigo-600 hover:bg-indigo-700 text-white"
+            className="w-full font-bold h-11 bg-teal-600 hover:bg-teal-700 text-white"
             onClick={handleSubmit}
             disabled={isSubmitting || rating === 0 || isUploading}
           >
-            {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Submit Review'}
+            {isSubmitting ? (
+              <Spinner className="h-4 w-4 animate-spin" />
+            ) : (
+              'Submit Review'
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -41,3 +41,10 @@ coverage/
 # Misc
 *.local
 .cache/
+
+# Mastra databases
+mastra.db
+mastra.db-shm
+mastra.db-wal
+*.duckdb
+*.duckdb.wal

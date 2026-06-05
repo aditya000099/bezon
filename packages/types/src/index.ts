@@ -1,57 +1,74 @@
 // ── Shared TypeScript Typings for Bezon ──────────────────────────────────────
 
-export type UserRole = 'customer' | 'seller' | 'delivery' | 'admin';
-export type SellerStatus = 'pending' | 'approved' | 'suspended';
-export type ProductStatus = 'draft' | 'published' | 'archived';
+export type UserRole = "customer" | "seller" | "delivery" | "admin";
+export type SellerStatus = "pending" | "approved" | "rejected" | "suspended";
+export type ProductStatus = "draft" | "published" | "archived";
+export type returnStatus =
+  | "NONE"
+  | "REQUESTED"
+  | "APPROVED"
+  | "ASSIGNED"
+  | "PICKED_UP"
+  | "COMPLETED"
+  | "REJECTED";
 
 export type OrderStatus =
-  | 'placed'
-  | 'confirmed'
-  | 'packed'
-  | 'ready_for_pickup'
-  | 'shipped'
-  | 'out_for_delivery'
-  | 'delivered'
-  | 'cancelled'
-  | 'delivery_failed'
-  | 'return_requested'
-  | 'return_approved'
-  | 'returned_to_origin'
-  | 'refunding'
-  | 'refunded';
+  | "placed"
+  | "confirmed"
+  | "packed"
+  | "ready_for_pickup"
+  | "shipped"
+  | "out_for_delivery"
+  | "delivered"
+  | "cancelled"
+  | "delivery_failed"
+  | "return_requested"
+  | "return_approved"
+  | "returned_to_origin"
+  | "return_rejected"
+  | "refund_requested"
+  | "refund_approved"
+  | "refunding"
+  | "refunded"
+  | "refund_rejected"
+  | "replacement_requested"
+  | "replacement_approved"
+  | "replacement_shipped"
+  | "replaced"
+  | "replacement_rejected";
 
 export type PaymentStatus =
-  | 'pending'
-  | 'paid'
-  | 'failed'
-  | 'refund_initiated'
-  | 'refunded';
+  | "pending"
+  | "paid"
+  | "failed"
+  | "refund_initiated"
+  | "refunded";
 
 export type DeliveryStatus =
-  | 'assigned'
-  | 'accepted'
-  | 'picked_up'
-  | 'in_transit'
-  | 'out_for_delivery'
-  | 'delivered'
-  | 'delivery_failed'
-  | 'reattempt_needed'
-  | 'returned_to_origin';
+  | "assigned"
+  | "accepted"
+  | "picked_up"
+  | "in_transit"
+  | "out_for_delivery"
+  | "delivered"
+  | "delivery_failed"
+  | "reattempt_needed"
+  | "returned_to_origin";
 
 export type NotificationType =
-  | 'order_placed'
-  | 'order_confirmed'
-  | 'order_shipped'
-  | 'order_delivered'
-  | 'order_cancelled'
-  | 'order_failed'
-  | 'return_requested'
-  | 'return_approved'
-  | 'new_task_assigned'
-  | 'low_stock'
-  | 'question_asked'
-  | 'new_review'
-  | 'general';
+  | "order_placed"
+  | "order_confirmed"
+  | "order_shipped"
+  | "order_delivered"
+  | "order_cancelled"
+  | "order_failed"
+  | "return_requested"
+  | "return_approved"
+  | "new_task_assigned"
+  | "low_stock"
+  | "question_asked"
+  | "new_review"
+  | "general";
 
 export interface User {
   id: string;
@@ -74,6 +91,7 @@ export interface Seller {
   description?: string;
   logoUrl?: string;
   status: SellerStatus;
+  rejectionReason?: string;
   avgDispatchDays: number;
   bankAccountEnc?: string;
   ifscEnc?: string;
@@ -162,7 +180,7 @@ export interface Product {
   weightGrams?: number;
   variantGroup?: VariantGroup;
   images?: ProductImage[];
-
+  policies?: ProductPolicy[];
 }
 
 export interface CartItem {
@@ -219,6 +237,7 @@ export interface Order {
   addressSnapshot: any;
   status: OrderStatus;
   paymentStatus: PaymentStatus;
+  returnStatus: returnStatus;
   razorpayOrderId?: string;
   razorpayPaymentId?: string;
   razorpaySignature?: string;
@@ -234,6 +253,84 @@ export interface Order {
   seller?: Seller;
   items?: OrderItem[];
   timeline?: OrderTimeline[];
+}
+
+export interface TimelineEvent {
+  id: string;
+  status: string;
+  note: string | null;
+  createdAt: string;
+}
+
+export interface OrderDetail {
+  id: string;
+  orderNumber: string;
+  status: string;
+  paymentStatus: string;
+  returnStatus:
+    | "NONE"
+    | "REQUESTED"
+    | "APPROVED"
+    | "ASSIGNED"
+    | "PICKED_UP"
+    | "COMPLETED"
+    | "REJECTED";
+  returnRequestedAt?: string;
+  returnApprovedAt?: string;
+  returnRejectedAt?: string;
+  returnRejectedReason?: string;
+  subtotal: number;
+  total: number;
+  createdAt: string;
+  deliveredAt?: string;
+  billUrl?: string;
+  addressSnapshot: {
+    fullName: string;
+    phone: string;
+    line1: string;
+    line2?: string;
+    city: string;
+    state: string;
+    pincode: string;
+  };
+  seller: {
+    shopName: string;
+    shopSlug: string;
+  };
+  items: {
+    id: string;
+    productId: string;
+    productTitle: string;
+    sku: string;
+    qty: number;
+    unitPrice: number;
+    totalPrice: number;
+    imageUrl?: string;
+    product?: {
+      policies?: {
+        policy?: {
+          id: string;
+          type: "return" | "refund" | "replace";
+          title: string;
+          description?: string;
+          durationDays: number;
+          isActive: boolean;
+        };
+      }[];
+    };
+    review?: {
+      id: string;
+      rating: number;
+      reviewText: string | null;
+      editCount: number;
+      createdAt: string;
+      images: { url: string; s3Key?: string; sortOrder: number }[];
+    };
+  }[];
+  timeline: TimelineEvent[];
+  delivery?: {
+    deliveredAt: string | null;
+  } | null;
 }
 
 export interface ApiResponse<T = any> {
@@ -262,7 +359,7 @@ export interface ProductAnswer {
   createdAt: string;
   updatedAt: string;
   user?: { id: string; name: string; avatarUrl: string | null };
-  badge?: 'seller' | 'verified_buyer' | null;
+  badge?: "seller" | "verified_buyer" | null;
 }
 
 export interface Notification {
@@ -309,4 +406,26 @@ export interface Wishlist {
   addedAt: Date | string;
   user?: User;
   product?: Product;
+}
+
+export type PolicyType = "return" | "refund" | "replace";
+
+export interface Policy {
+  id: string;
+  type: PolicyType;
+  title: string;
+  description?: string;
+  durationDays: number;
+  isActive: boolean;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+
+export interface ProductPolicy {
+  id: string;
+  productId: string;
+  policyId: string;
+  createdAt: Date | string;
+  product?: Product;
+  policy?: Policy;
 }

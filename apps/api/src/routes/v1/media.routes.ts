@@ -14,7 +14,7 @@ const upload = multer({
   },
   fileFilter: (req, file, cb) => {
     // Check MIME type whitelist
-    const isAllowed = ['image/jpeg', 'image/png', 'image/webp'].includes(file.mimetype);
+    const isAllowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/bmp'].includes(file.mimetype);
     if (isAllowed) {
       cb(null, true);
     } else {

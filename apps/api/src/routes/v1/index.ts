@@ -16,6 +16,9 @@ import sellerRouter from './seller.routes.js';
 import wishlistRouter from './wishlist.routes.js';
 import configRouter from './config.routes.js';
 import deliveryRouter from './delivery.routes.js';
+import policyRouter from './policy.routes.js';
+import applicationRouter from './application.routes.js';
+import supportChatRouter from './support-chat.routes.js';
 
 const router = Router();
 
@@ -37,5 +40,8 @@ router.use('/sellers', sellerRouter);
 router.use('/wishlist', wishlistRouter);
 router.use('/config', configRouter);
 router.use('/delivery', deliveryRouter);
+router.use('/policies', policyRouter);
+router.use('/applications', applicationRouter);
+router.use('/support', supportChatRouter);
 
 export default router;

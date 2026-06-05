@@ -10,12 +10,43 @@ export interface User {
   role: 'customer' | 'seller' | 'delivery' | 'admin';
   avatarUrl?: string;
   isActive: boolean;
+  seller?: {
+    id: string;
+    shopName: string;
+    shopSlug: string;
+    status: 'pending' | 'approved' | 'rejected' | 'suspended';
+    rejectionReason: string | null;
+    description?: string | null;
+    gstin?: string | null;
+    panNumber?: string | null;
+    addressLine?: string | null;
+    city?: string | null;
+    state?: string | null;
+    pincode?: string | null;
+  } | null;
+  deliveryPartner?: {
+    id: string;
+    status: 'pending' | 'approved' | 'rejected' | 'suspended';
+    vehicleType: string;
+    vehicleNumber?: string | null;
+    isAvailable: boolean;
+    aadhaarNumber?: string | null;
+    panNumber?: string | null;
+    drivingLicense?: string | null;
+    emergencyContactName?: string | null;
+    emergencyContactPhone?: string | null;
+    rejectionReason: string | null;
+    addressLine?: string | null;
+    city?: string | null;
+    state?: string | null;
+    pincode?: string | null;
+  } | null;
 }
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
 }
@@ -45,7 +76,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const response = await api.post(API_ENDPOINTS.auth.login, { email, password });
     if (response.data.success) {
       setUser(response.data.data);
+      return response.data.data;
     }
+    throw new Error('Login failed');
   };
 
   const logout = async () => {

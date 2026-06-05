@@ -14,6 +14,14 @@ declare global {
         role: UserRole;
         avatarUrl: string | null;
         isActive: boolean;
+        seller?: {
+          status: string;
+          rejectionReason: string | null;
+        } | null;
+        deliveryPartner?: {
+          status: string;
+          rejectionReason: string | null;
+        } | null;
       };
     }
   }
@@ -55,6 +63,9 @@ export const authenticateUser = async (req: Request, res: Response, next: NextFu
         role: true,
         avatarUrl: true,
         isActive: true,
+        seller: {
+          select: { status: true, rejectionReason: true },
+        },
       },
     });
 
@@ -72,8 +83,19 @@ export const authenticateUser = async (req: Request, res: Response, next: NextFu
       });
     }
 
+    let deliveryPartner = null;
+    try {
+      deliveryPartner = await prisma.deliveryPartner.findUnique({
+        where: { userId: decoded.userId },
+        select: { status: true, rejectionReason: true },
+      });
+    } catch (e: any) {
+      // Gracefully handle unmigrated database columns
+      console.warn(`authenticateUser DeliveryPartner query failed (likely pending DB migration): ${e.message}`);
+    }
+
     // Attach to request
-    req.user = user as any;
+    req.user = { ...user, deliveryPartner } as any;
     next();
   } catch (err: any) {
     if (err.name === 'JsonWebTokenError') {
@@ -131,3 +153,94 @@ export const requireRole = (allowedRoles: UserRole[]) => {
     next();
   };
 };
+
+/**
+ * Middleware to require an approved seller profile
+ */
+export const requireSeller = async (req: Request, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    return res.status(401).json({
+      success: false,
+      message: 'Unauthorized. Authenticated session required.',
+    });
+  }
+
+  // Check if they are a seller with an approved status
+  if (req.user.role !== 'seller' || req.user.seller?.status !== 'approved') {
+    return res.status(403).json({
+      success: false,
+      message: 'Access denied. Active seller role required.',
+    });
+  }
+
+  next();
+};
+
+/**
+ * Middleware to require an approved seller profile or admin role
+ */
+export const requireSellerOrAdmin = async (req: Request, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    return res.status(401).json({
+      success: false,
+      message: 'Unauthorized. Authenticated session required.',
+    });
+  }
+
+  if (req.user.role === 'admin') {
+    return next();
+  }
+
+  if (req.user.role === 'seller' && req.user.seller?.status === 'approved') {
+    return next();
+  }
+
+  return res.status(403).json({
+    success: false,
+    message: 'Access denied. Active seller profile or admin role required.',
+  });
+};
+
+/**
+ * Middleware to require an approved delivery partner profile
+ */
+export const requireDeliveryPartner = async (req: Request, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    return res.status(401).json({
+      success: false,
+      message: 'Unauthorized. Authenticated session required.',
+    });
+  }
+
+  // Verify delivery partner profile exists, is approved, and role is correctly set
+  if (req.user.role !== 'delivery' || req.user.deliveryPartner?.status !== 'approved') {
+    return res.status(403).json({
+      success: false,
+      message: 'Access denied. Active delivery partner role required.',
+    });
+  }
+
+  next();
+};
+
+/**
+ * Middleware to require a customer role
+ */
+export const requireCustomer = async (req: Request, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    return res.status(401).json({
+      success: false,
+      message: 'Unauthorized. Authenticated session required.',
+    });
+  }
+
+  if (req.user.role !== 'customer') {
+    return res.status(403).json({
+      success: false,
+      message: 'Access denied. Customer role required.',
+    });
+  }
+
+  next();
+};
+

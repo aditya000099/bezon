@@ -12,16 +12,16 @@ import {
 } from '@/components/ui/dialog';
 import {
   Plus,
-  Edit2,
-  Trash2,
+  PencilSimple,
+  Trash,
   Tag,
   Calendar,
   Percent,
   Hash,
-  Loader2,
+  Spinner,
   ToggleLeft,
   ToggleRight,
-} from 'lucide-react';
+} from '@phosphor-icons/react';
 import api from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api.config';
 import { useToast } from '../../context/ToastContext';
@@ -249,8 +249,8 @@ export const SellerCoupons: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col sm:flex-row gap-4 justify-between items-center bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
-        <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">
+      <div className="flex flex-col sm:flex-row gap-4 justify-between items-center bg-white border border-zinc-200 rounded-xl p-4 shadow-sm">
+        <h1 className="text-xl font-extrabold text-zinc-900 tracking-tight">
           My Coupons
         </h1>
         <Button
@@ -262,15 +262,15 @@ export const SellerCoupons: React.FC = () => {
       </div>
 
       {loading ? (
-        <div className="flex flex-col items-center justify-center min-h-75 text-slate-400 gap-2">
-          <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
+        <div className="flex flex-col items-center justify-center min-h-75 text-zinc-400 gap-2">
+          <Spinner className="h-8 w-8 animate-spin text-teal-500" />
           <p className="text-sm font-semibold">Loading coupons...</p>
         </div>
       ) : coupons.length === 0 ? (
-        <Card className="flex flex-col items-center justify-center min-h-75 text-slate-400 p-8 border-dashed border-2 bg-white/50">
-          <Tag className="h-12 w-12 text-slate-300 mb-2" />
-          <p className="font-bold text-slate-700">No coupons created yet</p>
-          <p className="text-xs text-slate-400 mt-1">
+        <Card className="flex flex-col items-center justify-center min-h-75 text-zinc-400 p-8 border-dashed border-2 bg-white/50">
+          <Tag className="h-12 w-12 text-zinc-300 mb-2" />
+          <p className="font-bold text-zinc-700">No coupons created yet</p>
+          <p className="text-xs text-zinc-400 mt-1">
             Create your first coupon to offer discounts to customers.
           </p>
         </Card>
@@ -279,13 +279,13 @@ export const SellerCoupons: React.FC = () => {
           {coupons.map((coupon) => (
             <Card
               key={coupon.id}
-              className="bg-white border-slate-200 shadow-sm"
+              className="bg-white border-zinc-200 shadow-sm"
             >
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Tag className="h-4 w-4 text-indigo-500" />
-                    <CardTitle className="text-base font-extrabold text-slate-800 font-mono tracking-wider">
+                    <Tag className="h-4 w-4 text-teal-500" />
+                    <CardTitle className="text-base font-extrabold text-zinc-800 font-mono tracking-wider">
                       {coupon.code}
                     </CardTitle>
                   </div>
@@ -293,10 +293,10 @@ export const SellerCoupons: React.FC = () => {
                     {coupon.isActive ? (
                       <ToggleRight className="h-5 w-5 text-emerald-500" />
                     ) : (
-                      <ToggleLeft className="h-5 w-5 text-slate-400" />
+                      <ToggleLeft className="h-5 w-5 text-zinc-400" />
                     )}
                     <span
-                      className={`text-[10px] font-bold uppercase tracking-wider ${coupon.isActive ? 'text-emerald-600' : 'text-slate-400'}`}
+                      className={`text-[10px] font-bold uppercase tracking-wider ${coupon.isActive ? 'text-emerald-600' : 'text-zinc-400'}`}
                     >
                       {coupon.isActive ? 'Active' : 'Inactive'}
                     </span>
@@ -305,17 +305,17 @@ export const SellerCoupons: React.FC = () => {
               </CardHeader>
               <CardContent className="space-y-3">
                 {coupon.description && (
-                  <p className="text-xs text-slate-500 leading-relaxed">
+                  <p className="text-xs text-zinc-500 leading-relaxed">
                     {coupon.description}
                   </p>
                 )}
 
                 <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div className="bg-slate-50 rounded-lg p-2.5">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                  <div className="bg-zinc-50 rounded-lg p-2.5">
+                    <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">
                       Discount
                     </span>
-                    <span className="font-extrabold text-slate-800 flex items-center gap-1">
+                    <span className="font-extrabold text-zinc-800 flex items-center gap-1">
                       {coupon.discountType === 'percentage' ? (
                         <>
                           <Percent className="h-3 w-3" />
@@ -326,11 +326,11 @@ export const SellerCoupons: React.FC = () => {
                       )}
                     </span>
                   </div>
-                  <div className="bg-slate-50 rounded-lg p-2.5">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                  <div className="bg-zinc-50 rounded-lg p-2.5">
+                    <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">
                       Usage
                     </span>
-                    <span className="font-extrabold text-slate-800 flex items-center gap-1">
+                    <span className="font-extrabold text-zinc-800 flex items-center gap-1">
                       <Hash className="h-3 w-3" />
                       {coupon.usedCount} / {coupon.maxUses}
                     </span>
@@ -338,20 +338,20 @@ export const SellerCoupons: React.FC = () => {
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div className="bg-slate-50 rounded-lg p-2.5">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                  <div className="bg-zinc-50 rounded-lg p-2.5">
+                    <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">
                       Valid From
                     </span>
-                    <span className="font-semibold text-slate-700 flex items-center gap-1">
+                    <span className="font-semibold text-zinc-700 flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
                       {formatDate(coupon.validFrom)}
                     </span>
                   </div>
-                  <div className="bg-slate-50 rounded-lg p-2.5">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                  <div className="bg-zinc-50 rounded-lg p-2.5">
+                    <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">
                       Valid Until
                     </span>
-                    <span className="font-semibold text-slate-700 flex items-center gap-1">
+                    <span className="font-semibold text-zinc-700 flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
                       {formatDate(coupon.validUntil)}
                     </span>
@@ -362,7 +362,7 @@ export const SellerCoupons: React.FC = () => {
                   <span
                     className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                       coupon.scopeType === 'global'
-                        ? 'bg-indigo-50 text-indigo-700 border border-indigo-200'
+                        ? 'bg-teal-50 text-teal-700 border border-teal-200'
                         : coupon.scopeType === 'category'
                           ? 'bg-amber-50 text-amber-700 border border-amber-200'
                           : 'bg-cyan-50 text-cyan-700 border border-cyan-200'
@@ -373,25 +373,25 @@ export const SellerCoupons: React.FC = () => {
                       : coupon.scopeType}
                   </span>
                   {coupon.scopeCategory && (
-                    <span className="text-[10px] text-slate-500">
+                    <span className="text-[10px] text-zinc-500">
                       {coupon.scopeCategory.name}
                     </span>
                   )}
                   {coupon.scopeProduct && (
-                    <span className="text-[10px] text-slate-500 truncate">
+                    <span className="text-[10px] text-zinc-500 truncate">
                       {coupon.scopeProduct.title}
                     </span>
                   )}
                 </div>
 
-                <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                <div className="flex justify-end gap-2 pt-2 border-t border-zinc-100">
                   <Button
                     size="icon"
                     variant="ghost"
-                    className="h-8 w-8 text-slate-500 hover:text-slate-800"
+                    className="h-8 w-8 text-zinc-500 hover:text-zinc-800"
                     onClick={() => handleOpenEdit(coupon)}
                   >
-                    <Edit2 className="h-4 w-4" />
+                    <PencilSimple className="h-4 w-4" />
                   </Button>
                   <Button
                     size="icon"
@@ -399,7 +399,7 @@ export const SellerCoupons: React.FC = () => {
                     className="h-8 w-8 text-rose-500 hover:text-rose-700 hover:bg-rose-50"
                     onClick={() => handleDelete(coupon.id)}
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash className="h-4 w-4" />
                   </Button>
                 </div>
               </CardContent>
@@ -411,10 +411,10 @@ export const SellerCoupons: React.FC = () => {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto bg-white p-6 rounded-xl border">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-slate-800">
+            <DialogTitle className="text-xl font-bold text-zinc-800">
               {dialogMode === 'create' ? 'Create New Coupon' : 'Edit Coupon'}
             </DialogTitle>
-            <DialogDescription className="text-slate-500 text-sm">
+            <DialogDescription className="text-zinc-500 text-sm">
               Configure coupon details, discount rules, and validity period.
             </DialogDescription>
           </DialogHeader>
@@ -422,7 +422,7 @@ export const SellerCoupons: React.FC = () => {
           <form onSubmit={handleSubmit} className="space-y-6 mt-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
                   Coupon Code *
                 </label>
                 <Input
@@ -436,7 +436,7 @@ export const SellerCoupons: React.FC = () => {
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
                   Description
                 </label>
                 <Input
@@ -449,20 +449,20 @@ export const SellerCoupons: React.FC = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
                   Discount Type *
                 </label>
                 <select
                   value={form.discountType}
                   onChange={(e) => updateForm('discountType', e.target.value)}
-                  className="w-full bg-white border border-slate-200 rounded-lg text-sm px-3 py-2 outline-none font-semibold text-slate-600 cursor-pointer h-10"
+                  className="w-full bg-white border border-zinc-200 rounded-lg text-sm px-3 py-2 outline-none font-semibold text-zinc-600 cursor-pointer h-10"
                 >
                   <option value="percentage">Percentage</option>
                   <option value="fixed">Fixed Amount</option>
                 </select>
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
                   Discount Value *
                 </label>
                 <Input
@@ -477,7 +477,7 @@ export const SellerCoupons: React.FC = () => {
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
                   Max Discount (₹)
                 </label>
                 <Input
@@ -492,7 +492,7 @@ export const SellerCoupons: React.FC = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
                   Min Order Value (₹)
                 </label>
                 <Input
@@ -504,7 +504,7 @@ export const SellerCoupons: React.FC = () => {
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
                   Max Uses
                 </label>
                 <Input
@@ -516,7 +516,7 @@ export const SellerCoupons: React.FC = () => {
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
                   Max Uses / User
                 </label>
                 <Input
@@ -531,7 +531,7 @@ export const SellerCoupons: React.FC = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
                   Valid From
                 </label>
                 <Input
@@ -541,7 +541,7 @@ export const SellerCoupons: React.FC = () => {
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
                   Valid Until
                 </label>
                 <Input
@@ -554,13 +554,13 @@ export const SellerCoupons: React.FC = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
                   Scope Type
                 </label>
                 <select
                   value={form.scopeType}
                   onChange={(e) => updateForm('scopeType', e.target.value)}
-                  className="w-full bg-white border border-slate-200 rounded-lg text-sm px-3 py-2 outline-none font-semibold text-slate-600 cursor-pointer h-10"
+                  className="w-full bg-white border border-zinc-200 rounded-lg text-sm px-3 py-2 outline-none font-semibold text-zinc-600 cursor-pointer h-10"
                 >
                   <option value="global">Global</option>
                   <option value="category">Category</option>
@@ -570,7 +570,7 @@ export const SellerCoupons: React.FC = () => {
 
               {form.scopeType === 'category' && (
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
                     Category
                   </label>
                   <select
@@ -578,7 +578,7 @@ export const SellerCoupons: React.FC = () => {
                     onChange={(e) =>
                       updateForm('scopeCategoryId', e.target.value)
                     }
-                    className="w-full bg-white border border-slate-200 rounded-lg text-sm px-3 py-2 outline-none font-semibold text-slate-600 cursor-pointer h-10"
+                    className="w-full bg-white border border-zinc-200 rounded-lg text-sm px-3 py-2 outline-none font-semibold text-zinc-600 cursor-pointer h-10"
                   >
                     <option value="">Select Category</option>
                     {categories.map((cat) => (
@@ -592,7 +592,7 @@ export const SellerCoupons: React.FC = () => {
 
               {form.scopeType === 'product' && (
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
                     Product
                   </label>
                   <select
@@ -600,7 +600,7 @@ export const SellerCoupons: React.FC = () => {
                     onChange={(e) =>
                       updateForm('scopeProductId', e.target.value)
                     }
-                    className="w-full bg-white border border-slate-200 rounded-lg text-sm px-3 py-2 outline-none font-semibold text-slate-600 cursor-pointer h-10"
+                    className="w-full bg-white border border-zinc-200 rounded-lg text-sm px-3 py-2 outline-none font-semibold text-zinc-600 cursor-pointer h-10"
                   >
                     <option value="">Select Product</option>
                     {products.map((p) => (
@@ -621,11 +621,11 @@ export const SellerCoupons: React.FC = () => {
                           onChange={(e) =>
                             updateForm('applyToAllVariants', e.target.checked)
                           }
-                          className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-600"
+                          className="rounded border-zinc-300 text-teal-600 focus:ring-teal-600"
                         />
                         <label
                           htmlFor="applyAll"
-                          className="text-xs text-slate-600"
+                          className="text-xs text-zinc-600"
                         >
                           Apply to all variants in this product's family
                         </label>

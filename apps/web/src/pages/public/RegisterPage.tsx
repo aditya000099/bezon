@@ -6,8 +6,22 @@ import { useToast } from '../../context/ToastContext';
 import { registerSchema } from '@bezon/validation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
-import { Store, UserPlus, KeyRound, Mail, Phone, User as UserIcon } from 'lucide-react';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from '@/components/ui/card';
+import {
+  Storefront,
+  UserPlus,
+  Key,
+  Envelope,
+  Phone,
+  User as UserIcon,
+} from '@phosphor-icons/react';
 
 export const RegisterPage: React.FC = () => {
   const { toast } = useToast();
@@ -21,7 +35,12 @@ export const RegisterPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const validationResult = registerSchema.safeParse({ name, email, phone, password });
+    const validationResult = registerSchema.safeParse({
+      name,
+      email,
+      phone,
+      password,
+    });
     if (!validationResult.success) {
       toast.warning(validationResult.error.issues[0].message);
       return;
@@ -47,22 +66,28 @@ export const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
-      <Card className="w-full max-w-md border border-slate-200 shadow-lg bg-white">
+    <div className="min-h-screen bg-zinc-50 flex items-center justify-center p-6">
+      <Card className="w-full max-w-md border border-zinc-200 shadow-lg bg-white">
         <CardHeader className="space-y-1 flex flex-col items-center text-center">
           <div className="flex items-center gap-2 font-bold text-2xl text-primary mb-2">
-            <Store className="h-7 w-7 text-primary" />
+            <Storefront className="h-7 w-7 text-primary" />
             <span>Bezon</span>
           </div>
-          <CardTitle className="text-2xl font-bold tracking-tight">Create an account</CardTitle>
-          <CardDescription>Join the Bezon multi-actor marketplace</CardDescription>
+          <CardTitle className="text-2xl font-bold tracking-tight">
+            Create an account
+          </CardTitle>
+          <CardDescription>
+            Join the Bezon multi-actor marketplace
+          </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid gap-2">
-              <label className="text-sm font-semibold text-slate-700">Full Name</label>
+              <label className="text-sm font-semibold text-zinc-700">
+                Full Name
+              </label>
               <div className="relative">
-                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-zinc-400">
                   <UserIcon className="h-4 w-4" />
                 </span>
                 <Input
@@ -76,10 +101,12 @@ export const RegisterPage: React.FC = () => {
               </div>
             </div>
             <div className="grid gap-2">
-              <label className="text-sm font-semibold text-slate-700">Email Address</label>
+              <label className="text-sm font-semibold text-zinc-700">
+                Email Address
+              </label>
               <div className="relative">
-                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
-                  <Mail className="h-4 w-4" />
+                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-zinc-400">
+                  <Envelope className="h-4 w-4" />
                 </span>
                 <Input
                   type="email"
@@ -92,9 +119,11 @@ export const RegisterPage: React.FC = () => {
               </div>
             </div>
             <div className="grid gap-2">
-              <label className="text-sm font-semibold text-slate-700">Phone Number (Optional)</label>
+              <label className="text-sm font-semibold text-zinc-700">
+                Phone Number (Optional)
+              </label>
               <div className="relative">
-                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-zinc-400">
                   <Phone className="h-4 w-4" />
                 </span>
                 <Input
@@ -107,10 +136,12 @@ export const RegisterPage: React.FC = () => {
               </div>
             </div>
             <div className="grid gap-2">
-              <label className="text-sm font-semibold text-slate-700">Password</label>
+              <label className="text-sm font-semibold text-zinc-700">
+                Password
+              </label>
               <div className="relative">
-                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
-                  <KeyRound className="h-4 w-4" />
+                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-zinc-400">
+                  <Key className="h-4 w-4" />
                 </span>
                 <Input
                   type="password"
@@ -122,15 +153,22 @@ export const RegisterPage: React.FC = () => {
                 />
               </div>
             </div>
-            <Button type="submit" className="w-full font-bold mt-2" disabled={loading}>
+            <Button
+              type="submit"
+              className="w-full font-bold mt-2"
+              disabled={loading}
+            >
               {loading ? 'Registering...' : 'Register'}
             </Button>
           </form>
         </CardContent>
-        <CardFooter className="flex flex-col gap-2 border-t border-slate-100 pt-4 text-center">
-          <p className="text-xs text-slate-500">
+        <CardFooter className="flex flex-col gap-2 border-t border-zinc-100 pt-4 text-center">
+          <p className="text-xs text-zinc-500">
             Already have an account?{' '}
-            <Link to="/login" className="text-primary font-semibold hover:underline">
+            <Link
+              to="/login"
+              className="text-primary font-semibold hover:underline"
+            >
               Sign in
             </Link>
           </p>
