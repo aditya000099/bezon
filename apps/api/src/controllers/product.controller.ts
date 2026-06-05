@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { ProductService } from '../services/product.service.js';
 import { RecommendationService } from '../services/recommendation.service.js';
+import prisma from '../db/client.js';
+import { GeoService } from '../services/geo.service.js';
 
 /**
  * Get all published products with search and filtering
@@ -345,3 +347,128 @@ export const getProductStats = async (
     next(err);
   }
 };
+
+/**
+ * Calculate estimated delivery distance and days for a product and destination
+ */
+export const getDeliveryEstimate = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const productId = req.params.id as string;
+    const { addressId, pincode } = req.query;
+
+    if (!addressId && !pincode) {
+      return res.status(400).json({
+        success: false,
+        message: 'Address ID or Pincode is required.',
+      });
+    }
+
+    // Fetch product and its seller
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+      include: {
+        seller: true,
+      },
+    });
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found.',
+      });
+    }
+
+    const seller = product.seller;
+    if (!seller) {
+      return res.status(400).json({
+        success: false,
+        message: 'Seller information missing for this product.',
+      });
+    }
+
+    // Determine seller coordinates
+    let sellerLat = seller.lat ? Number(seller.lat) : null;
+    let sellerLng = seller.lng ? Number(seller.lng) : null;
+    const sellerPincode = seller.pincode || '560001';
+
+    if (sellerLat === null || sellerLng === null) {
+      const coords = GeoService.getCoordinatesFromPincode(sellerPincode);
+      sellerLat = coords.lat;
+      sellerLng = coords.lng;
+    }
+
+    // Determine destination coordinates
+    let destLat: number | null = null;
+    let destLng: number | null = null;
+    let destinationPincode = '';
+
+    if (addressId) {
+      const address = await prisma.address.findUnique({
+        where: { id: addressId as string },
+      });
+
+      if (!address) {
+        return res.status(404).json({
+          success: false,
+          message: 'Address not found.',
+        });
+      }
+
+      // Verify ownership if logged in
+      if (req.user && address.userId !== req.user.id) {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied to this address.',
+        });
+      }
+
+      destLat = address.lat ? Number(address.lat) : null;
+      destLng = address.lng ? Number(address.lng) : null;
+      destinationPincode = address.pincode;
+
+      if (destLat === null || destLng === null) {
+        const coords = GeoService.getCoordinatesFromPincode(destinationPincode);
+        destLat = coords.lat;
+        destLng = coords.lng;
+      }
+    } else if (pincode) {
+      destinationPincode = pincode as string;
+      const coords = GeoService.getCoordinatesFromPincode(destinationPincode);
+      destLat = coords.lat;
+      destLng = coords.lng;
+    }
+
+    if (destLat === null || destLng === null) {
+      return res.status(400).json({
+        success: false,
+        message: 'Failed to resolve destination coordinates.',
+      });
+    }
+
+    // Calculate distance and delivery days
+    const distanceKm = GeoService.calculateHaversineDistance(
+      sellerLat,
+      sellerLng,
+      destLat,
+      destLng,
+    );
+    const deliveryDays = GeoService.calculateDeliveryDays(distanceKm);
+
+    res.json({
+      success: true,
+      data: {
+        distanceKm,
+        deliveryDays,
+        sellerPincode,
+        destinationPincode,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+

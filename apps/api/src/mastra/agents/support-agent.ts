@@ -79,7 +79,7 @@ export const supportAgent = new Agent({
   id: 'supportAgent',
   name: 'Bezon Support Agent',
   instructions: SUPPORT_INSTRUCTIONS,
-  model: 'google/gemini-3-flash-preview',
+  model: 'google/gemini-3.5-flash',
   tools: {
     orderLookupTool,
     deliveryInfoTool,

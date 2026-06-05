@@ -291,15 +291,24 @@ export const ShopPage: React.FC = () => {
           {categories.map((cat) => {
             const catProducts = products.filter((p) => p.categoryId === cat.id);
             if (catProducts.length === 0) return null;
+            const hasMore = catProducts.length > 4;
             return (
               <div key={cat.id} className="flex flex-col gap-4">
-                <div className="flex items-center gap-2 px-1">
+                <div className="flex items-center justify-between gap-4 px-1">
                   <h2 className="text-2xl font-black text-zinc-800 tracking-tight">
                     {cat.name}
                   </h2>
+                  {hasMore && (
+                    <button
+                      onClick={() => setSelectedCategory(cat.slug)}
+                      className="text-xs font-bold text-indigo-600 hover:text-indigo-800 hover:underline transition-colors shrink-0 bg-indigo-50/50 hover:bg-indigo-50 px-3 py-1.5 rounded-full"
+                    >
+                      See More &rarr;
+                    </button>
+                  )}
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {catProducts.map((p) => renderProductCard(p))}
+                  {catProducts.slice(0, 4).map((p) => renderProductCard(p))}
                 </div>
               </div>
             );
@@ -310,7 +319,7 @@ export const ShopPage: React.FC = () => {
             (p) => !categories.find((c) => c.id === p.categoryId),
           ).length > 0 && (
             <div className="flex flex-col gap-4">
-              <div className="flex items-center gap-2 px-1">
+              <div className="flex items-center justify-between gap-4 px-1">
                 <h2 className="text-2xl font-black text-zinc-800 tracking-tight">
                   Other Products
                 </h2>
@@ -318,6 +327,7 @@ export const ShopPage: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {products
                   .filter((p) => !categories.find((c) => c.id === p.categoryId))
+                  .slice(0, 4)
                   .map((p) => renderProductCard(p))}
               </div>
             </div>

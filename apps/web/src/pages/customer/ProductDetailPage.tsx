@@ -16,9 +16,14 @@ import {
   SparkleIcon,
   StorefrontIcon,
   ShieldCheckIcon,
+  MapPin,
+  Truck,
+  House,
+  Calendar,
 } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import {
   Dialog,
   DialogContent,
@@ -26,6 +31,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
+
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -53,6 +59,7 @@ export const ProductDetailPage: React.FC = () => {
   const { toast } = useToast();
   const { toggleWishlist, isInWishlist } = useWishlist();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [product, setProduct] = useState<
     | (Product & {
@@ -63,18 +70,136 @@ export const ProductDetailPage: React.FC = () => {
   >(null);
   const [loading, setLoading] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const currentProduct = selectedProduct || product;
+
   const [isAdding, setIsAdding] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [coupons, setCoupons] = useState<ProductCoupon[]>([]);
 
+  // Shipping and delivery estimate states
+  const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
+  const [selectedAddress, setSelectedAddress] = useState<any | null>(null);
+  const [loadingAddresses, setLoadingAddresses] = useState(false);
+  const [addressModalOpen, setAddressModalOpen] = useState(false);
+  const [customPincode, setCustomPincode] = useState('110001'); // Default fallback pincode
+  const [pincodeInput, setPincodeInput] = useState(''); // For typing in the modal/section
+  const [deliveryEstimate, setDeliveryEstimate] = useState<{
+    distanceKm: number;
+    deliveryDays: number;
+    sellerPincode: string;
+    destinationPincode: string;
+  } | null>(null);
+  const [loadingEstimate, setLoadingEstimate] = useState(false);
+  const [estimateError, setEstimateError] = useState('');
+
+  // Fetch saved addresses if logged in
+  useEffect(() => {
+    const fetchAddresses = async () => {
+      if (!user) {
+        setSavedAddresses([]);
+        setSelectedAddress(null);
+        return;
+      }
+      setLoadingAddresses(true);
+      try {
+        const res = await api.get(API_ENDPOINTS.addresses.base);
+        if (res.data.success) {
+          const addresses = res.data.data;
+          setSavedAddresses(addresses);
+          if (addresses.length > 0) {
+            const defaultAddr =
+              addresses.find((a: any) => a.isDefault) || addresses[0];
+            setSelectedAddress(defaultAddr);
+            setCustomPincode(defaultAddr.pincode);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load saved addresses', err);
+      } finally {
+        setLoadingAddresses(false);
+      }
+    };
+    fetchAddresses();
+  }, [user]);
+
+  // Fetch delivery estimate
+  useEffect(() => {
+    const fetchEstimate = async () => {
+      if (!currentProduct?.id) return;
+
+      const hasAddress = !!selectedAddress;
+      const hasValidPincode =
+        customPincode && customPincode.trim().length === 6;
+
+      if (!hasAddress && !hasValidPincode) {
+        setDeliveryEstimate(null);
+        return;
+      }
+
+      setLoadingEstimate(true);
+      setEstimateError('');
+      try {
+        const params: any = {};
+        if (hasAddress) {
+          params.addressId = selectedAddress.id;
+        } else {
+          params.pincode = customPincode.trim();
+        }
+
+        const res = await api.get(
+          API_ENDPOINTS.products.deliveryEstimate(currentProduct.id),
+          { params },
+        );
+        if (res.data.success) {
+          setDeliveryEstimate(res.data.data);
+        }
+      } catch (err: any) {
+        console.error('Failed to fetch delivery estimate', err);
+        setEstimateError(
+          err.response?.data?.message ||
+            'Failed to calculate delivery estimate.',
+        );
+        setDeliveryEstimate(null);
+      } finally {
+        setLoadingEstimate(false);
+      }
+    };
+
+    fetchEstimate();
+  }, [currentProduct?.id, selectedAddress?.id, customPincode]);
+
+  const handleApplyCustomPincode = (pincodeStr: string) => {
+    const trimmed = pincodeStr.trim();
+    if (trimmed.length !== 6 || isNaN(Number(trimmed))) {
+      toast.error('Please enter a valid 6-digit pincode.');
+      return;
+    }
+    setSelectedAddress(null);
+    setCustomPincode(trimmed);
+    setPincodeInput('');
+    setAddressModalOpen(false);
+    toast.success(`Checking delivery estimate for pincode ${trimmed}`);
+  };
+
+  const getDeliveryDateString = (days: number) => {
+    const date = new Date();
+    date.setDate(date.getDate() + days);
+    return date.toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+    });
+  };
+
   // Reviews state
+
   const [reviews, setReviews] = useState<any[]>([]);
   const [reviewSummary, setReviewSummary] = useState<any>(null);
   const [loadingReviews, setLoadingReviews] = useState(false);
 
   // Q&A state
-  const { user } = useAuth();
   const [questions, setQuestions] = useState<any[]>([]);
+
   const [loadingQuestions, setLoadingQuestions] = useState(false);
   const [questionsTotalCount, setQuestionsTotalCount] = useState(0);
   const [questionsPage, setQuestionsPage] = useState(1);
@@ -113,8 +238,6 @@ export const ProductDetailPage: React.FC = () => {
     };
     fetchProductDetails();
   }, [slug]);
-
-  const currentProduct = selectedProduct || product;
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -501,6 +624,87 @@ export const ProductDetailPage: React.FC = () => {
               </div>
             </div>
           )}
+
+          {/* Deliver At Section */}
+          <div className="bg-white/60 backdrop-blur-md rounded-[2rem] p-5 border border-slate-100/50 flex flex-col gap-4">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-start gap-3 min-w-0">
+                <div className="p-2.5 bg-indigo-50 text-indigo-600 rounded-2xl shrink-0 mt-0.5">
+                  <MapPin className="h-5 w-5" />
+                </div>
+                <div className="min-w-0">
+                  <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">
+                    Deliver At
+                  </span>
+                  {selectedAddress ? (
+                    <div className="mt-0.5">
+                      <p className="text-sm font-extrabold text-slate-800 truncate">
+                        {selectedAddress.fullName} · {selectedAddress.label}
+                      </p>
+                      <p className="text-xs text-zinc-500 truncate mt-0.5">
+                        {selectedAddress.line1}, {selectedAddress.city} -{' '}
+                        {selectedAddress.pincode}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="mt-0.5">
+                      <p className="text-sm font-extrabold text-slate-800">
+                        Pincode: {customPincode}
+                      </p>
+                      <p className="text-xs text-zinc-500 mt-0.5">
+                        Custom location estimate
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setPincodeInput('');
+                  setAddressModalOpen(true);
+                }}
+                className="rounded-xl border-slate-200 text-xs font-bold hover:bg-slate-100/80 shrink-0 self-center"
+              >
+                Change
+              </Button>
+            </div>
+
+            <div className="border-t border-slate-100/80 pt-4 flex items-center justify-between gap-4">
+              {loadingEstimate ? (
+                <div className="flex items-center gap-2 text-xs text-zinc-400">
+                  <SpinnerIcon className="h-4 w-4 animate-spin text-indigo-600" />
+                  <span>Calculating shipping estimate...</span>
+                </div>
+              ) : estimateError ? (
+                <p className="text-xs text-rose-500 font-semibold">
+                  {estimateError}
+                </p>
+              ) : deliveryEstimate ? (
+                <div className="flex items-start gap-3">
+                  <div className="p-2 bg-emerald-50 text-emerald-600 rounded-xl shrink-0">
+                    <Truck className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-extrabold text-emerald-800">
+                      Delivered by{' '}
+                      {getDeliveryDateString(deliveryEstimate.deliveryDays)}
+                    </p>
+                    <p className="text-[10px] text-zinc-400 mt-0.5">
+                      Est. time: {deliveryEstimate.deliveryDays} days ·{' '}
+                      {deliveryEstimate.distanceKm.toLocaleString()} kms from
+                      seller
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-xs text-zinc-400">
+                  Enter a valid address or pincode to check delivery times.
+                </p>
+              )}
+            </div>
+          </div>
 
           {allEditions.length > 1 && (
             <div className="flex flex-col gap-4">
@@ -1038,6 +1242,148 @@ export const ProductDetailPage: React.FC = () => {
               ) : (
                 'Post Question'
               )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Address Selection Modal */}
+      <Dialog open={addressModalOpen} onOpenChange={setAddressModalOpen}>
+        <DialogContent className="max-w-md bg-white/95 backdrop-blur-2xl border border-slate-100/50 shadow-2xl p-6 rounded-[2.5rem]">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-extrabold text-slate-800 flex items-center gap-2">
+              <MapPin className="h-5 w-5 text-indigo-600" />
+              Select Delivery Address
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4 my-4">
+            {/* Pincode Quick Search/Input */}
+            <div className="flex gap-2">
+              <Input
+                placeholder="Enter 6-digit Pincode"
+                maxLength={6}
+                value={pincodeInput}
+                onChange={(e) =>
+                  setPincodeInput(e.target.value.replace(/\D/g, ''))
+                }
+                className="rounded-2xl border-slate-200"
+                onKeyDown={(e) =>
+                  e.key === 'Enter' && handleApplyCustomPincode(pincodeInput)
+                }
+              />
+              <Button
+                onClick={() => handleApplyCustomPincode(pincodeInput)}
+                disabled={pincodeInput.length !== 6}
+                className="rounded-2xl bg-indigo-600 hover:bg-indigo-700 font-bold px-5"
+              >
+                Check
+              </Button>
+            </div>
+
+            {/* Saved Addresses */}
+            {user ? (
+              <div className="space-y-2.5 max-h-[250px] overflow-y-auto pr-1">
+                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">
+                  Saved Addresses
+                </span>
+                {loadingAddresses ? (
+                  <div className="p-4 flex justify-center">
+                    <SpinnerIcon className="h-5 w-5 animate-spin text-indigo-600" />
+                  </div>
+                ) : savedAddresses.length > 0 ? (
+                  savedAddresses.map((addr) => {
+                    const isSelected = selectedAddress?.id === addr.id;
+                    return (
+                      <button
+                        key={addr.id}
+                        onClick={() => {
+                          setSelectedAddress(addr);
+                          setCustomPincode(addr.pincode);
+                          setAddressModalOpen(false);
+                          toast.success(
+                            `Delivery address changed to ${addr.label}`,
+                          );
+                        }}
+                        className={`w-full text-left p-4 rounded-3xl border transition-all flex items-start gap-3 ${
+                          isSelected
+                            ? 'border-indigo-500 bg-indigo-50/40 shadow-sm'
+                            : 'border-slate-100 hover:border-slate-200 bg-slate-50/40 hover:bg-slate-50'
+                        }`}
+                      >
+                        <div
+                          className={`mt-1 h-4 w-4 rounded-full border flex items-center justify-center shrink-0 ${
+                            isSelected
+                              ? 'border-indigo-600 bg-indigo-600'
+                              : 'border-slate-300'
+                          }`}
+                        >
+                          {isSelected && (
+                            <div className="h-1.5 w-1.5 rounded-full bg-white" />
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-extrabold text-slate-800">
+                            {addr.fullName}{' '}
+                            <span className="text-xs font-normal text-zinc-400">
+                              ({addr.label})
+                            </span>
+                          </p>
+                          <p className="text-xs text-zinc-500 truncate mt-0.5">
+                            {addr.line1}
+                          </p>
+                          <p className="text-xs text-zinc-400 mt-0.5">
+                            {addr.city}, {addr.state} - {addr.pincode}
+                          </p>
+                        </div>
+                      </button>
+                    );
+                  })
+                ) : (
+                  <div className="text-center p-6 border border-dashed border-slate-200 rounded-3xl">
+                    <House className="h-8 w-8 text-zinc-300 mx-auto mb-2" />
+                    <p className="text-xs text-zinc-500 font-medium">
+                      No saved addresses found.
+                    </p>
+                    <Link
+                      to="/addresses"
+                      className="text-xs text-indigo-600 font-bold hover:underline mt-1 inline-block"
+                    >
+                      Manage Addresses
+                    </Link>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-center p-6 bg-slate-50/50 rounded-3xl border border-slate-100">
+                <p className="text-xs text-zinc-500">
+                  Sign in to choose from your saved addresses.
+                </p>
+                <Link
+                  to="/auth/login"
+                  className="mt-3 inline-block text-xs bg-indigo-600 text-white font-bold px-4 py-2 rounded-xl hover:bg-indigo-700 transition-colors"
+                >
+                  Sign In
+                </Link>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter className="mt-4 flex justify-between items-center sm:justify-between">
+            {user && (
+              <Link
+                to="/addresses"
+                className="text-xs text-indigo-600 font-bold hover:underline"
+              >
+                Manage Addresses
+              </Link>
+            )}
+            <Button
+              variant="ghost"
+              onClick={() => setAddressModalOpen(false)}
+              className="rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-100"
+            >
+              Close
             </Button>
           </DialogFooter>
         </DialogContent>

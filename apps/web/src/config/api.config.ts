@@ -41,6 +41,7 @@ export const API_ENDPOINTS = {
     delete: (id: string) => `${API_V1}/products/${id}`,
     getById: (id: string) => `${API_V1}/products/id/${id}`,
     stats: (id: string) => `${API_V1}/products/${id}/stats`,
+    deliveryEstimate: (id: string) => `${API_V1}/products/${id}/delivery-estimate`,
   },
   // Orders
   orders: {
