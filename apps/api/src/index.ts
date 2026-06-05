@@ -15,7 +15,7 @@ import { initNsfw } from './utils/nsfw.js';
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5002;
 
 // Security and utility middlewares
 app.use(helmet());
@@ -27,7 +27,7 @@ app.use(
     credentials: true,
   }),
 );
-app.use(morgan('dev'));
+app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 app.use(express.json());
 app.use(cookieParser(process.env.COOKIE_SECRET || 'bezon-cookie-secret'));
 
