@@ -27,5 +27,17 @@ echo "🔨  Building web..."
 npm run build --workspace=@bezon/web
 
 echo ""
-echo "✅  Done. Starting API on port 5002..."
-npx tsx apps/api/src/index.ts
+echo "🔥  Starting API server on port 5002 in background..."
+# Run API in the background
+npx tsx apps/api/src/index.ts &
+API_PID=$!
+
+# Ensure the background API process is killed if this script is stopped (Ctrl+C)
+trap "kill $API_PID 2>/dev/null || true" EXIT
+
+echo "▶️   Starting Web preview server on port 3000..."
+echo "    Access the app at: http://<your-ec2-ip>:3000/"
+echo "    (Press Ctrl+C to stop both servers)"
+echo ""
+
+cd apps/web && npx vite preview --port 3000 --host 0.0.0.0
