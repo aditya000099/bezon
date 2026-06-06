@@ -178,11 +178,12 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         } catch (imgErr: any) {
           failedCount++;
           console.error(`Failed to upload image ${files[i].name}:`, imgErr);
+          toast.error(imgErr.response?.data?.message || `Failed to upload ${files[i].name}`);
         }
       }
       setImages(currentImages);
       if (failedCount > 0) {
-        toast.error(`${failedCount} image(s) failed to upload.`);
+        // Specific errors are shown above per image
       }
       if (currentImages.length > images.length) {
         toast.success('Images uploaded successfully.');

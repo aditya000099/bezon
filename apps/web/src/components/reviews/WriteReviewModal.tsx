@@ -109,8 +109,8 @@ export const WriteReviewModal: React.FC<WriteReviewModalProps> = ({
 
       const uploadedImages = await Promise.all(uploadPromises);
       setImages((prev) => [...prev, ...uploadedImages]);
-    } catch (err) {
-      toast.error('Failed to upload image(s).');
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to upload image(s).');
     } finally {
       setIsUploading(false);
       if (e.target) e.target.value = '';
