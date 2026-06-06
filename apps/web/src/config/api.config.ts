@@ -42,6 +42,7 @@ export const API_ENDPOINTS = {
     getById: (id: string) => `${API_V1}/products/id/${id}`,
     stats: (id: string) => `${API_V1}/products/${id}/stats`,
     deliveryEstimate: (id: string) => `${API_V1}/products/${id}/delivery-estimate`,
+    generateDescription: `${API_V1}/products/ai/generate-description`,
   },
   // Orders
   orders: {

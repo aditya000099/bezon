@@ -27,7 +27,7 @@ export const uploadImage = async (
       const scores = await detector.calculateBlurScore(file.buffer);
       console.log(`[BlurDetector] Image composite score: ${scores.composite}`);
 
-      const isBlurry = detector.isBlurry(scores, 80); // Increased threshold to 60 for stricter blur detection
+      const isBlurry = detector.isBlurry(scores, 75);
 
       if (isBlurry) {
         return res.status(400).json({

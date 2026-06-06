@@ -12,10 +12,11 @@ import {
 import { weatherWorkflow } from './workflows/weather-workflow.js';
 import { weatherAgent } from './agents/weather-agent.js';
 import { supportAgent } from './agents/support-agent.js';
+import { productAgent } from './agents/product-agent.js';
 
 export const mastra = new Mastra({
   workflows: { weatherWorkflow },
-  agents: { weatherAgent, supportAgent },
+  agents: { weatherAgent, supportAgent, productAgent },
   storage: new MastraCompositeStore({
     id: 'composite-storage',
     default: new LibSQLStore({

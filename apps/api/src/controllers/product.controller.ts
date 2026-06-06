@@ -3,6 +3,7 @@ import { ProductService } from '../services/product.service.js';
 import { RecommendationService } from '../services/recommendation.service.js';
 import prisma from '../db/client.js';
 import { GeoService } from '../services/geo.service.js';
+import { mastra } from '../mastra/index.js';
 
 import { AdsService } from '../services/ads.service.js';
 
@@ -499,6 +500,30 @@ export const getDeliveryEstimate = async (
         destinationPincode,
       },
     });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Generate AI product description based on short input
+ */
+export const generateDescription = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { shortDescription } = req.body;
+    if (!shortDescription) {
+      return res.status(400).json({ success: false, message: 'Short description is required.' });
+    }
+
+    const agent = mastra.getAgent('productAgent');
+    if (!agent) {
+      return res.status(500).json({ success: false, message: 'Product AI Agent not configured.' });
+    }
+
+    const prompt = `Write a product description for this short description: "${shortDescription}"`;
+    const response = await agent.generate(prompt);
+
+    res.json({ success: true, data: response.text });
   } catch (err) {
     next(err);
   }

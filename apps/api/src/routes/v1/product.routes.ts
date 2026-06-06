@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getProducts, getProductBySlug, getSellerProducts, createProduct, updateProduct, archiveProduct, getProductCoupons, getRecommendations, getProductById, getProductStats, getDeliveryEstimate } from '../../controllers/product.controller.js';
+import { getProducts, getProductBySlug, getSellerProducts, createProduct, updateProduct, archiveProduct, getProductCoupons, getRecommendations, getProductById, getProductStats, getDeliveryEstimate, generateDescription } from '../../controllers/product.controller.js';
 import { authenticateUser, requireRole, requireSeller, requireSellerOrAdmin, optionalAuth } from '../../middleware/auth.middleware.js';
 
 const router = Router();
@@ -17,6 +17,8 @@ router.get('/:id/delivery-estimate', optionalAuth, getDeliveryEstimate);
 router.get('/:slug', getProductBySlug);
 
 router.get('/:slug/coupons', optionalAuth, getProductCoupons);
+
+router.post('/ai/generate-description', authenticateUser, requireSeller, generateDescription);
 
 router.post('/', authenticateUser, requireSeller, createProduct);
 router.put('/:id', authenticateUser, requireSeller, updateProduct);
