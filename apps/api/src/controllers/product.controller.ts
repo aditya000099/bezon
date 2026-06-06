@@ -40,8 +40,8 @@ export const getProducts = async (
     const numAds = Math.max(1, Math.floor(organicProducts.length / 4));
     const sponsored = await AdsService.getSponsoredProducts({
       categoryId: category?.toString(),
-      excludeProductIds: organicProductIds,
-      limit: numAds
+      limit: numAds,
+      searchQuery: search?.toString(),
     });
 
     // Mix them in (every 5th slot)

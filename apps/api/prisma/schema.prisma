@@ -815,6 +815,7 @@ model AdCampaign {
   totalBudget      Decimal   @map("total_budget") @db.Decimal(10, 2)
   costPerClick     Decimal   @map("cost_per_click") @db.Decimal(6, 2)
   status           String    @default("active") @db.VarChar(20) // active, paused, exhausted, expired
+  tags             String[]  @default([])
   startDate        DateTime  @default(now()) @map("start_date") @db.Timestamptz
   endDate          DateTime? @map("end_date") @db.Timestamptz
   totalSpent       Decimal   @default(0) @map("total_spent") @db.Decimal(14, 2)

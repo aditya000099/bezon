@@ -13,6 +13,7 @@ export class AdsService {
       costPerClick: number;
       startDate?: string;
       endDate?: string;
+      tags?: string[];
     },
   ) {
     // Validate product ownership
@@ -46,6 +47,7 @@ export class AdsService {
         costPerClick: data.costPerClick,
         startDate: data.startDate ? new Date(data.startDate) : new Date(),
         endDate: data.endDate ? new Date(data.endDate) : null,
+        tags: data.tags || [],
       },
       include: {
         product: {
@@ -89,6 +91,7 @@ export class AdsService {
       allowedFields.endDate = updates.endDate
         ? new Date(updates.endDate)
         : null;
+    if (updates.tags !== undefined) allowedFields.tags = updates.tags;
 
     return prisma.adCampaign.update({
       where: { id: campaignId },
@@ -128,6 +131,7 @@ export class AdsService {
     categoryId?: string;
     limit?: number;
     excludeProductIds?: string[];
+    searchQuery?: string;
   }) {
     const limit = options.limit || 3;
     const now = new Date();
@@ -138,9 +142,29 @@ export class AdsService {
       startDate: { lte: now },
       product: { status: 'published', totalStock: { gt: 0 } },
     };
-    // Filter by category if provided
+    // Filter by category if provided (could be UUID or slug)
     if (options.categoryId) {
-      where.product.categoryId = options.categoryId;
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(options.categoryId);
+      if (isUUID) {
+        where.product.categoryId = options.categoryId;
+      } else {
+        where.product.category = { slug: options.categoryId };
+      }
+    }
+    // Filter by search tags or product details if provided
+    if (options.searchQuery) {
+      const words = options.searchQuery.toLowerCase().split(/\s+/).filter(Boolean);
+      if (words.length > 0) {
+        where.AND = [
+          {
+            OR: [
+              { tags: { hasSome: words } },
+              { product: { title: { contains: options.searchQuery, mode: 'insensitive' } } },
+              { product: { brand: { contains: options.searchQuery, mode: 'insensitive' } } }
+            ]
+          }
+        ];
+      }
     }
     // Exclude already-shown product IDs
     if (options.excludeProductIds && options.excludeProductIds.length > 0) {

@@ -47,6 +47,7 @@ export const SellerAds: React.FC = () => {
     totalBudget: '',
     costPerClick: '',
     endDate: '',
+    tags: '',
   });
 
   const fetchData = async () => {
@@ -94,6 +95,7 @@ export const SellerAds: React.FC = () => {
         totalBudget: Number(form.totalBudget),
         costPerClick: Number(form.costPerClick),
         endDate: form.endDate || undefined,
+        tags: form.tags ? form.tags.split(',').map(t => t.trim().toLowerCase()).filter(Boolean) : [],
       });
 
       if (res.data.success) {
@@ -106,6 +108,7 @@ export const SellerAds: React.FC = () => {
           totalBudget: '',
           costPerClick: '',
           endDate: '',
+          tags: '',
         });
         fetchData();
       }
@@ -424,6 +427,17 @@ export const SellerAds: React.FC = () => {
                   }
                   min={new Date().toISOString().split('T')[0]}
                 />
+              </div>
+              <div className="space-y-2 col-span-2">
+                <label className="text-sm font-medium">Search Tags (Comma separated)</label>
+                <Input
+                  placeholder="e.g. running, sports, shoes"
+                  value={form.tags}
+                  onChange={(e) => setForm({ ...form, tags: e.target.value })}
+                />
+                <p className="text-xs text-zinc-500">
+                  Customers searching for these exact tags will see your sponsored product.
+                </p>
               </div>
             </div>
           </div>
