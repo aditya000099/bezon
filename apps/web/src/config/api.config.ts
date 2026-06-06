@@ -138,6 +138,19 @@ export const API_ENDPOINTS = {
     toggle: (id: string) => `${API_V1}/policies/${id}/toggle`,
     delete: (id: string) => `${API_V1}/policies/${id}`,
   },
+  // Admin Deliveries Operations
+  adminDeliveries: {
+    dashboard: `${API_V1}/admin-deliveries/dashboard`,
+    deliveries: `${API_V1}/admin-deliveries/deliveries`,
+    deliveryDetail: (id: string) => `${API_V1}/admin-deliveries/deliveries/${id}`,
+    returns: `${API_V1}/admin-deliveries/returns`,
+    partners: `${API_V1}/admin-deliveries/partners`,
+    partnerDetail: (id: string) => `${API_V1}/admin-deliveries/partners/${id}`,
+    exceptions: `${API_V1}/admin-deliveries/exceptions`,
+    cityAnalytics: `${API_V1}/admin-deliveries/city-analytics`,
+    reassignDelivery: (id: string) => `${API_V1}/admin-deliveries/deliveries/${id}/reassign`,
+    reassignReturn: (orderId: string) => `${API_V1}/admin-deliveries/returns/${orderId}/reassign`,
+  },
   // Support Chat
   support: {
     chat: `${API_V1}/support/chat`,

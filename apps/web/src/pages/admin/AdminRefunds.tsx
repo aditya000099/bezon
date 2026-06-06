@@ -113,7 +113,9 @@ export const AdminRefunds: React.FC = () => {
   const handleSimulateProcessing = async () => {
     if (!selectedOrder) return;
     try {
-      await api.post(`${API_ENDPOINTS.orders.base}/${selectedOrder.id}/refunds/simulate-processing`);
+      await api.post(
+        `${API_ENDPOINTS.orders.base}/${selectedOrder.id}/refunds/simulate-processing`,
+      );
       toast.success("Refund processing started successfully");
       setProcessingModalOpen(false);
       fetchRefunds();
@@ -126,7 +128,9 @@ export const AdminRefunds: React.FC = () => {
 
   const handleSimulateCompleted = async (orderId: string) => {
     try {
-      await api.post(`${API_ENDPOINTS.orders.base}/${orderId}/refunds/simulate-completed`);
+      await api.post(
+        `${API_ENDPOINTS.orders.base}/${orderId}/refunds/simulate-completed`,
+      );
       toast.success("Refund marked as completed");
       fetchRefunds();
     } catch (err: any) {
@@ -136,9 +140,12 @@ export const AdminRefunds: React.FC = () => {
 
   const handleSimulateFailed = async (orderId: string) => {
     try {
-      await api.post(`${API_ENDPOINTS.orders.base}/${orderId}/refunds/simulate-failed`, {
-        reason: "Simulation failure requested",
-      });
+      await api.post(
+        `${API_ENDPOINTS.orders.base}/${orderId}/refunds/simulate-failed`,
+        {
+          reason: "Simulation failure requested",
+        },
+      );
       toast.error("Refund marked as failed");
       fetchRefunds();
     } catch (err: any) {
@@ -323,7 +330,7 @@ export const AdminRefunds: React.FC = () => {
                       </TableCell>
                       <TableCell>
                         <div
-                          className="text-sm text-zinc-900 max-w-[200px] truncate"
+                          className="text-sm text-zinc-900 max-w-50 truncate"
                           title={order.items?.[0]?.product?.title}
                         >
                           {order.items?.[0]?.product?.title || "Unknown"}

@@ -260,7 +260,7 @@ export const AdminRefundDetail: React.FC = () => {
                 <div className="relative border-l border-emerald-200 ml-3 space-y-6">
                   {refundTimelineEvents.map((t: any, idx: number) => (
                     <div key={idx} className="relative pl-6">
-                      <div className="absolute -left-[9px] top-1 h-4 w-4 rounded-full bg-emerald-500 ring-4 ring-emerald-50"></div>
+                      <div className="absolute -left-2.25 top-1 h-4 w-4 rounded-full bg-emerald-500 ring-4 ring-emerald-50"></div>
                       <p className="text-sm font-medium text-zinc-900">
                         {t.note || t.status}
                       </p>
@@ -289,7 +289,7 @@ export const AdminRefundDetail: React.FC = () => {
                 <div className="relative border-l border-zinc-200 ml-3 space-y-6">
                   {returnTimelineEvents.map((t: any, idx: number) => (
                     <div key={idx} className="relative pl-6">
-                      <div className="absolute -left-[9px] top-1 h-4 w-4 rounded-full bg-zinc-400 ring-4 ring-zinc-50"></div>
+                      <div className="absolute -left-2.25 top-1 h-4 w-4 rounded-full bg-zinc-400 ring-4 ring-zinc-50"></div>
                       <p className="text-sm font-medium text-zinc-900">
                         {t.note || t.status}
                       </p>
