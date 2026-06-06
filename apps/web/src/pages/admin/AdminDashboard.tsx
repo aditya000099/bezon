@@ -43,7 +43,7 @@ export const AdminDashboard: React.FC = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const [sellersRes, deliveryRes, usersRes, ordersRes, healthRes] =
+        const [sellersRes, deliveryRes, usersRes, ordersRes, settlementsRes, healthRes] =
           await Promise.all([
             api
               .get("/api/v1/applications/admin/applications")
@@ -55,6 +55,7 @@ export const AdminDashboard: React.FC = () => {
               .get("/api/v1/users/admin")
               .catch(() => ({ data: { data: [] } })),
             api.get("/api/v1/orders").catch(() => ({ data: { data: [] } })),
+            api.get("/api/v1/admin-settlements/metrics").catch(() => ({ data: { data: null } })),
             api
               .get("/api/v1/health")
               .catch(() => ({ data: { success: false } })),
@@ -64,6 +65,7 @@ export const AdminDashboard: React.FC = () => {
         const delivery = deliveryRes.data?.data || [];
         const users = usersRes.data?.data || [];
         const orders = ordersRes.data?.data || [];
+        const settlementMetrics = settlementsRes.data?.data || null;
         const health = healthRes.data || {};
 
         // 1. Process recent applications
@@ -142,6 +144,8 @@ export const AdminDashboard: React.FC = () => {
           netGmv: formatCurrency(netGmvValue),
           hasGmv: grossGmvValue > 0 || refundedGmvValue > 0,
           totalOrders: orders.length > 0 ? orders.length : null,
+          escrowBalance: settlementMetrics ? formatCurrency(settlementMetrics.escrowBalance) : null,
+          fundsOnHold: settlementMetrics ? formatCurrency(settlementMetrics.fundsOnHold) : null,
         });
 
         // 3. Compute and set pending actions
@@ -385,6 +389,42 @@ export const AdminDashboard: React.FC = () => {
             <p className="text-sm text-slate-400 italic mt-2">
               No data available
             </p>
+          )}
+        </Card>
+
+        {/* Escrow Metrics */}
+        <Card className="bg-white border-slate-200 shadow-sm p-6 lg:col-span-4 sm:col-span-2">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+              Settlement Escrow
+            </span>
+            <div className="h-8 w-8 bg-zinc-50 rounded-lg flex items-center justify-center text-zinc-600">
+              <Database className="h-4 w-4" />
+            </div>
+          </div>
+          {loadingApps ? (
+            renderCardLoader()
+          ) : metrics && metrics.escrowBalance !== null ? (
+            <div className="flex gap-12">
+              <div>
+                <h3 className="text-2xl font-extrabold text-slate-900">
+                  {metrics.escrowBalance}
+                </h3>
+                <span className="text-[10px] text-slate-500 font-medium uppercase tracking-wider block mt-1">
+                  Current Escrow Balance
+                </span>
+              </div>
+              <div>
+                <h3 className="text-2xl font-extrabold text-amber-600">
+                  {metrics.fundsOnHold}
+                </h3>
+                <span className="text-[10px] text-slate-500 font-medium uppercase tracking-wider block mt-1">
+                  Funds On Hold
+                </span>
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm text-slate-400 italic">No data available</p>
           )}
         </Card>
       </div>

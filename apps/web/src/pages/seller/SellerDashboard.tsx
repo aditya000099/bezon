@@ -18,6 +18,7 @@ export const SellerDashboard: React.FC = () => {
     totalOrders: 0,
     incomingOrders: 0,
     lowStockAlerts: 0,
+    pendingSettlements: 0,
   });
   const [loading, setLoading] = useState(true);
 
@@ -53,7 +54,7 @@ export const SellerDashboard: React.FC = () => {
   return (
     <div className="flex flex-col gap-6">
       {/* Metric cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="bg-white border border-zinc-200 shadow-sm flex items-center justify-between p-6">
           <div className="space-y-1">
             <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
@@ -82,6 +83,23 @@ export const SellerDashboard: React.FC = () => {
           </div>
           <div className="h-10 w-10 bg-emerald-50 rounded-lg flex items-center justify-center text-emerald-600">
             <ShoppingBag className="h-5 w-5" />
+          </div>
+        </Card>
+
+        <Card className="bg-white border border-zinc-200 shadow-sm flex items-center justify-between p-6">
+          <div className="space-y-1">
+            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
+              Pending Settlements
+            </span>
+            <CardTitle className="text-2xl font-extrabold text-zinc-800">
+              ₹{stats.pendingSettlements?.toLocaleString() || 0}
+            </CardTitle>
+            <span className="text-xs font-bold text-amber-600 block">
+              Funds in Escrow
+            </span>
+          </div>
+          <div className="h-10 w-10 bg-amber-50 rounded-lg flex items-center justify-center text-amber-600">
+            <Warning className="h-5 w-5" />
           </div>
         </Card>
 

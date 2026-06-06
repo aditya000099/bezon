@@ -145,7 +145,7 @@ export const getDashboardStats = async (
         .json({ success: false, message: 'Seller profile not found' });
     }
 
-    const [totalOrders, incomingOrders, lowStockProducts] = await Promise.all([
+    const [totalOrders, incomingOrders, lowStockProducts, holdingSettlements, completedSettlements] = await Promise.all([
       prisma.order.count({
         where: { sellerId: seller.id },
       }),
@@ -161,6 +161,14 @@ export const getDashboardStats = async (
           totalStock: { lte: 5 },
           status: 'published',
         },
+      }),
+      prisma.order.aggregate({
+        where: { sellerId: seller.id, settlementStatus: 'HOLDING' },
+        _sum: { settlementAmount: true },
+      }),
+      prisma.order.aggregate({
+        where: { sellerId: seller.id, settlementStatus: 'SETTLED' },
+        _sum: { settlementAmount: true },
       }),
     ]);
 
@@ -189,6 +197,8 @@ export const getDashboardStats = async (
         totalOrders,
         incomingOrders,
         lowStockAlerts: lowStockProducts,
+        pendingSettlements: Number(holdingSettlements?._sum?.settlementAmount || 0),
+        settledAmount: Number(completedSettlements?._sum?.settlementAmount || 0),
       },
     });
   } catch (err) {

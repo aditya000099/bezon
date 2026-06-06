@@ -22,6 +22,7 @@ import supportChatRouter from "./support-chat.routes.js";
 import adminDeliveryRouter from "./admin_delivery.routes.js";
 import walletRouter from "./wallet.routes.js";
 import adsRouter from "./ads.routes.js";
+import adminSettlementRouter from "./admin_settlement.routes.js";
 
 const router = Router();
 
@@ -47,6 +48,7 @@ router.use("/policies", policyRouter);
 router.use("/applications", applicationRouter);
 router.use("/support", supportChatRouter);
 router.use("/admin-deliveries", adminDeliveryRouter);
+router.use("/admin-settlements", adminSettlementRouter);
 router.use("/wallet", walletRouter);
 router.use("/ads", adsRouter);
 

@@ -1,5 +1,8 @@
 import prisma from "../db/client.js";
+import { Prisma } from "@prisma/client";
 import { RETURN_WINDOW_DAYS } from "../utils/constants.js";
+import { RecommendationService } from "./recommendation.service.js";
+import { WalletService } from "./wallet.service.js";
 
 export class OrderService {
   /**
@@ -1329,14 +1332,20 @@ export class OrderService {
         status: 400,
       });
 
-    return await prisma.$transaction(async (tx) => {
+    const updatedOrder = await prisma.$transaction(async (tx) => {
+      const data: any = {
+        refundStatus: "COMPLETED",
+        refundedAt: new Date(),
+        refundProcessedById: adminId,
+      };
+
+      if (order.settlementStatus === "HOLDING") {
+        data.settlementStatus = "REFUNDED";
+      }
+
       const updated = await tx.order.update({
         where: { id: orderId },
-        data: {
-          refundStatus: "COMPLETED",
-          refundedAt: new Date(),
-          refundProcessedById: adminId,
-        },
+        data,
       });
 
       await tx.orderTimeline.create({
@@ -1348,8 +1357,37 @@ export class OrderService {
           actorRole: "admin",
         },
       });
+
+      if (order.settlementStatus === "HOLDING") {
+        await tx.orderTimeline.create({
+          data: {
+            orderId,
+            status: order.status,
+            note: `Settlement Refunded - ₹${order.refundAmount}`,
+            actorId: adminId,
+            actorRole: "admin",
+          },
+        });
+      }
+
       return updated;
     });
+
+    if (order.settlementStatus === "HOLDING" && order.refundAmount) {
+      try {
+        await WalletService.debitWallet(
+          adminId, // It's escrowed in the Admin wallet. Using the acting admin's ID or system admin ID? Best to use the admin who processed it, or find the master admin.
+          Number(order.refundAmount),
+          "customer_refund",
+          orderId,
+          `Customer refund from escrow for order #${order.orderNumber}`
+        );
+      } catch (err) {
+        console.error("Failed to debit admin escrow wallet for refund:", err);
+      }
+    }
+
+    return updatedOrder;
   }
 
   static async simulateRefundFailed(

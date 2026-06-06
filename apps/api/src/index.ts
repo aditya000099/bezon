@@ -9,6 +9,7 @@ import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import prisma from './db/client.js';
 import apiRouter from './routes/index.js';
+import { SettlementService } from './services/settlement.service.js';
 
 import { initNsfw } from './utils/nsfw.js';
 
@@ -107,4 +108,11 @@ app.listen(PORT, async () => {
     console.error('[NSFW] Failed to initialize NSFW model:', error);
   }
 
+  // Automatic Settlement Processor setup
+  // Runs every 12 hours (43200000 ms) in background
+  setInterval(() => {
+    SettlementService.processSettlements().catch((err) => 
+      console.error('[SettlementService Error]', err)
+    );
+  }, 43200000);
 });
