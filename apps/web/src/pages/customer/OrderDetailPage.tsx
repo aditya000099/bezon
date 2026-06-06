@@ -148,7 +148,7 @@ export const OrderDetailPage: React.FC = () => {
       <Card className="flex flex-col items-center justify-center min-h-75 text-zinc-400 p-8 border-dashed border-2 bg-white/50 max-w-lg mx-auto mt-12">
         <Package className="h-12 w-12 text-rose-300 mb-2" />
         <p className="font-bold text-zinc-700">Order not found</p>
-        <Link to="/shop/orders" className="mt-4">
+        <Link to="/orders" className="mt-4">
           <Button size="sm">Back to History</Button>
         </Link>
       </Card>
@@ -159,7 +159,7 @@ export const OrderDetailPage: React.FC = () => {
     <div className="flex flex-col gap-6 max-w-4xl mx-auto">
       <div className="flex flex-col gap-4">
         <div className="flex justify-between items-center w-full">
-          <Link to="/shop/orders">
+          <Link to="/orders">
             <Button
               variant="ghost"
               size="sm"

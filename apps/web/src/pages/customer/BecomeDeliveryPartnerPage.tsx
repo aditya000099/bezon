@@ -80,7 +80,7 @@ export const BecomeDeliveryPartnerPage: React.FC = () => {
       if (response.data.success) {
         toast.success(response.data.message);
         await checkAuth(); // Refresh user data
-        navigate('/shop/profile');
+        navigate('/profile');
       }
     } catch (err: any) {
       toast.error(
@@ -116,7 +116,7 @@ export const BecomeDeliveryPartnerPage: React.FC = () => {
           </CardContent>
           <CardFooter>
             <Button
-              onClick={() => navigate('/shop/profile')}
+              onClick={() => navigate('/profile')}
               variant="outline"
               className="w-full"
             >
@@ -146,7 +146,7 @@ export const BecomeDeliveryPartnerPage: React.FC = () => {
             </p>
           </CardContent>
           <CardFooter>
-            <Button onClick={() => navigate('/shop/profile')} variant="outline">
+            <Button onClick={() => navigate('/profile')} variant="outline">
               Return to Profile
             </Button>
           </CardFooter>
@@ -317,7 +317,7 @@ export const BecomeDeliveryPartnerPage: React.FC = () => {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate('/shop/profile')}
+                onClick={() => navigate('/profile')}
               >
                 Cancel
               </Button>

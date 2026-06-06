@@ -22,7 +22,7 @@ export const TermsConditionsPage: React.FC = () => {
       {/* Header back navigation link */}
       <div className="flex items-center">
         <Link
-          to="/shop/profile"
+          to="/profile"
           className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-600 hover:text-teal-600 transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />

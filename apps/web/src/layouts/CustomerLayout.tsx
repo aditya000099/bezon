@@ -21,13 +21,13 @@ export const CustomerLayout: React.FC = () => {
           </p>
           <div className="flex gap-4 text-xs font-bold text-zinc-400">
             <a
-              href="/shop/privacy"
+              href="/privacy-policy"
               className="hover:text-zinc-600 transition-colors"
             >
               Privacy
             </a>
             <a
-              href="/shop/terms"
+              href="/terms-and-conditions"
               className="hover:text-zinc-600 transition-colors"
             >
               Terms

@@ -277,7 +277,7 @@ export const CheckoutPage: React.FC = () => {
         setIsRazorpayOpen(false);
         toast.success('Payment Verified Successfully via Razorpay Sandbox!');
         clearCart();
-        navigate('/shop/orders');
+        navigate('/orders');
       }
     } catch (err: any) {
       toast.error(
@@ -311,7 +311,7 @@ export const CheckoutPage: React.FC = () => {
   return (
     <div className="flex flex-col gap-6 max-w-5xl mx-auto">
       <div className="flex flex-col gap-2 items-start">
-        <Link to="/shop/cart">
+        <Link to="/cart">
           <Button
             variant="ghost"
             size="sm"

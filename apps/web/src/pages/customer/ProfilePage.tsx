@@ -57,7 +57,7 @@ export const ProfilePage: React.FC = () => {
           </div>
           <div className="divide-y divide-zinc-100">
             <Link
-              to="/shop/profile/edit"
+              to="/profile/edit"
               className="flex items-center justify-between p-4 hover:bg-white/60 transition-colors group"
             >
               <div className="flex items-center gap-3 text-zinc-700 font-medium">
@@ -69,7 +69,7 @@ export const ProfilePage: React.FC = () => {
               <CaretRight className="h-5 w-5 text-zinc-400 group-hover:text-teal-600 transition-colors" />
             </Link>
             <Link
-              to="/shop/addresses"
+              to="/addresses"
               className="flex items-center justify-between p-4 hover:bg-white/60 transition-colors group"
             >
               <div className="flex items-center gap-3 text-zinc-700 font-medium">
@@ -92,7 +92,7 @@ export const ProfilePage: React.FC = () => {
           </div>
           <div className="divide-y divide-zinc-100">
             <Link
-              to="/shop/orders"
+              to="/orders"
               className="flex items-center justify-between p-4 hover:bg-white/60 transition-colors group"
             >
               <div className="flex items-center gap-3 text-zinc-700 font-medium">
@@ -104,7 +104,7 @@ export const ProfilePage: React.FC = () => {
               <CaretRight className="h-5 w-5 text-zinc-400 group-hover:text-blue-600 transition-colors" />
             </Link>
             <Link
-              to="/shop/wishlist"
+              to="/wishlist"
               className="flex items-center justify-between p-4 hover:bg-white/60 transition-colors group"
             >
               <div className="flex items-center gap-3 text-zinc-700 font-medium">
@@ -127,7 +127,7 @@ export const ProfilePage: React.FC = () => {
           </div>
           <div className="divide-y divide-zinc-100">
             <Link
-              to="/shop/terms-and-conditions"
+              to="/terms-and-conditions"
               className="flex items-center justify-between p-4 hover:bg-white/60 transition-colors group"
             >
               <div className="flex items-center gap-3 text-zinc-700 font-medium">
@@ -139,7 +139,7 @@ export const ProfilePage: React.FC = () => {
               <CaretRight className="h-5 w-5 text-zinc-400 group-hover:text-zinc-600 transition-colors" />
             </Link>
             <Link
-              to="/shop/privacy-policy"
+              to="/privacy-policy"
               className="flex items-center justify-between p-4 hover:bg-white/60 transition-colors group"
             >
               <div className="flex items-center gap-3 text-zinc-700 font-medium">
@@ -166,7 +166,7 @@ export const ProfilePage: React.FC = () => {
                 <p className="text-zinc-600 mb-4 text-sm">
                   Have products to sell? Join our marketplace as a seller today.
                 </p>
-                <Link to="/shop/become-seller">
+                <Link to="/become-seller">
                   <Button className="w-full">Become a Seller</Button>
                 </Link>
               </div>
@@ -192,7 +192,7 @@ export const ProfilePage: React.FC = () => {
                   <p className="font-semibold mb-1">Application Rejected</p>
                   <p>{user.seller.rejectionReason}</p>
                 </div>
-                <Link to="/shop/become-seller">
+                <Link to="/become-seller">
                   <Button variant="outline" className="w-full">
                     Re-apply
                   </Button>
@@ -215,7 +215,7 @@ export const ProfilePage: React.FC = () => {
                 <p className="text-zinc-600 mb-4 text-sm">
                   Want to deliver orders? Join our team as a delivery partner.
                 </p>
-                <Link to="/shop/become-delivery-partner">
+                <Link to="/become-delivery-partner">
                   <Button className="w-full">Become a Delivery Partner</Button>
                 </Link>
               </div>
@@ -241,7 +241,7 @@ export const ProfilePage: React.FC = () => {
                   <p className="font-semibold mb-1">Application Rejected</p>
                   <p>{user.deliveryPartner.rejectionReason}</p>
                 </div>
-                <Link to="/shop/become-delivery-partner">
+                <Link to="/become-delivery-partner">
                   <Button variant="outline" className="w-full">
                     Re-apply
                   </Button>

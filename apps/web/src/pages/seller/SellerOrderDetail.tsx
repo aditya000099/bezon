@@ -296,7 +296,7 @@ export const SellerOrderDetail: React.FC = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <Link
-                          to={`/shop/products/${item.product?.slug || ''}`}
+                          to={`/products/${item.product?.slug || ''}`}
                           className="hover:underline"
                         >
                           <p className="font-bold text-zinc-800 truncate">

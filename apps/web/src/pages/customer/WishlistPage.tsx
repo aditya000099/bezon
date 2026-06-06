@@ -81,7 +81,7 @@ export const WishlistPage: React.FC = () => {
             Explore our curated catalog and tap the heart icon on any product to
             save it here.
           </p>
-          <Link to="/shop" className="mt-6 w-full sm:w-auto">
+          <Link to="/" className="mt-6 w-full sm:w-auto">
             <Button
               size="sm"
               className="w-full sm:w-auto font-bold bg-teal-600 hover:bg-teal-700 text-white shadow-sm gap-2"
@@ -116,7 +116,7 @@ export const WishlistPage: React.FC = () => {
                 </button>
 
                 {/* Image Container */}
-                <Link to={`/shop/products/${p.slug}`}>
+                <Link to={`/products/${p.slug}`}>
                   <div className="aspect-square bg-white flex items-center justify-center overflow-hidden select-none cursor-pointer relative">
                     {primaryImg ? (
                       <img
@@ -150,7 +150,7 @@ export const WishlistPage: React.FC = () => {
                       {isOutOfStock ? 'Out of Stock' : 'In Stock'}
                     </span>
                   </div>
-                  <Link to={`/shop/products/${p.slug}`}>
+                  <Link to={`/products/${p.slug}`}>
                     <CardTitle className="text-sm font-bold text-zinc-800 line-clamp-1 mt-1 hover:text-teal-600 transition-colors">
                       {p.title}
                     </CardTitle>
@@ -173,7 +173,7 @@ export const WishlistPage: React.FC = () => {
                 </CardContent>
 
                 <CardFooter className="p-4 pt-0 flex gap-2 mt-auto">
-                  <Link to={`/shop/products/${p.slug}`} className="flex-1">
+                  <Link to={`/products/${p.slug}`} className="flex-1">
                     <Button
                       variant="outline"
                       size="sm"
