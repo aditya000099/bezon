@@ -1,5 +1,7 @@
 # Bezon – Product Requirements Document
+
 ### Full E-commerce Ecosystem | Version 5.0 | May 2026
+
 #### Stack: Single Frontend (TS/Tailwind/shadcn) · TypeScript Express Backend · Prisma ORM · PostgreSQL · Razorpay · Docker Containerization (AWS EC2)
 
 ---
@@ -8,7 +10,7 @@
 
 1. [Product Overview](#1-product-overview)
 2. [Tech Stack](#2-tech-stack)
-3. [User Roles & Permissions](#3-user-roles--permissions)
+3. [User Roles &amp; Permissions](#3-user-roles--permissions)
 4. [Frontend Architecture — Single App, Role-Based Routing](#4-frontend-architecture)
 5. [Database Schema — Prisma Models](#5-database-schema--prisma-models)
 6. [Feature Specifications](#6-feature-specifications)
@@ -29,40 +31,40 @@
 
 **Bezon** is a multi-actor e-commerce platform. All four roles — customer, seller, delivery partner, admin — share **one React frontend** (`apps/web`). Role-based routing redirects each user to their section after login.
 
-| Component | Description |
-|---|---|
+| Component    | Description                                             |
+| ------------ | ------------------------------------------------------- |
 | `apps/web` | Single Vite + React + TypeScript frontend (all 4 roles) |
-| `apps/api` | Express.js + TypeScript backend — REST API |
+| `apps/api` | Express.js + TypeScript backend — REST API             |
 
 ---
 
 ## 2. Tech Stack
 
-| Layer | Choice | Notes |
-|---|---|---|
-| **Frontend** | Vite + React + TypeScript | Strict typing, robust interfaces |
-| **Styling** | Tailwind CSS + shadcn/ui | Modern, responsive utility classes and accessible UI library |
-| **Backend** | Node.js + Express.js + TypeScript | TS for controllers, middleware, and request validation |
-| **Database** | **PostgreSQL** | Mapped and queried via **Prisma ORM** |
-| **Auth** | JWT (httpOnly cookies) + bcryptjs | Access tokens only (simplified auth, no refresh tokens) |
-| **Payments** | **Razorpay (Sandbox)** | Pre-creation of orders in database before validation |
-| **File uploads** | AWS S3 | Multer → AWS SDK S3 Upload |
-| **Email** | Nodemailer (SMTP) | Order notifications |
-| **Monorepo** | npm workspaces | Workspaces config in root package.json |
-| **Orchestration** | **Docker & Docker Compose** | Multi-container application setup |
-| **Deployment** | **AWS EC2 (Dockerized)** | Serves API and Static Web assets through Docker containers |
-| **Database host** | **AWS RDS (PostgreSQL)** | Managed RDS instance |
+| Layer                   | Choice                            | Notes                                                        |
+| ----------------------- | --------------------------------- | ------------------------------------------------------------ |
+| **Frontend**      | Vite + React + TypeScript         | Strict typing, robust interfaces                             |
+| **Styling**       | Tailwind CSS + shadcn/ui          | Modern, responsive utility classes and accessible UI library |
+| **Backend**       | Node.js + Express.js + TypeScript | TS for controllers, middleware, and request validation       |
+| **Database**      | **PostgreSQL**              | Mapped and queried via**Prisma ORM**                   |
+| **Auth**          | JWT (httpOnly cookies) + bcryptjs | Access tokens only (simplified auth, no refresh tokens)      |
+| **Payments**      | **Razorpay (Sandbox)**      | Pre-creation of orders in database before validation         |
+| **File uploads**  | AWS S3                            | Multer → AWS SDK S3 Upload                                  |
+| **Email**         | Nodemailer (SMTP)                 | Order notifications                                          |
+| **Monorepo**      | npm workspaces                    | Workspaces config in root package.json                       |
+| **Orchestration** | **Docker & Docker Compose** | Multi-container application setup                            |
+| **Deployment**    | **AWS EC2 (Dockerized)**    | Serves API and Static Web assets through Docker containers   |
+| **Database host** | **AWS RDS (PostgreSQL)**    | Managed RDS instance                                         |
 
 ---
 
 ## 3. User Roles & Permissions
 
-| Role | Default route after login | Can access |
-|---|---|---|
-| `customer` | `/shop` | `/shop/**`, `/cart`, `/checkout`, `/orders`, `/wishlist`, `/profile/**` |
-| `seller` | `/seller` | `/seller/**` |
-| `delivery` | `/delivery` | `/delivery/**` |
-| `admin` | `/admin` | `/admin/**` |
+| Role         | Default route after login | Can access                                                                     |
+| ------------ | ------------------------- | ------------------------------------------------------------------------------ |
+| `customer` | `/`                     | `/**`, `/cart`, `/checkout`, `/orders`, `/wishlist`, `/profile/**` |
+| `seller`   | `/seller`               | `/seller/**`                                                                 |
+| `delivery` | `/delivery`             | `/delivery/**`                                                               |
+| `admin`    | `/admin`                | `/admin/**`                                                                  |
 
 `RoleGuard` (React Router) + `requireRole` middleware (Express) enforce boundaries at both layers.
 
@@ -567,9 +569,11 @@ model Payment {
 ## 6. Feature Specifications
 
 ### 6.1 Multi-Seller Cart Behavior
-Customers can construct a shopping cart containing products offered by different merchants (multi-seller cart). 
+
+Customers can construct a shopping cart containing products offered by different merchants (multi-seller cart).
 
 When checkout is initiated, the system handles order creation through a **split-checkout** flow:
+
 - Cart items are grouped by their respective `sellerId`.
 - For each group, a unique `Order` is generated representing that seller's subset of the cart.
 - A single `razorpay_order_id` can cover the cumulative cart amount, or separate payments are initiated per sub-order.
@@ -603,15 +607,15 @@ PLACED (payment: pending)
 
 All stock changes use atomic Prisma operations/transactions (`stock: { decrement: qty }`) with safety conditions or raw query fallbacks to prevent race conditions.
 
-| Event | Stock Action |
-|---|---|
-| Checkout initiated (Order created) | Stock is reserved: Decrement `stock` where `stock >= qty` |
-| Verification fails / Payment rejected | Restore: Increment `stock` |
-| Order cancelled (before PACKED) | Restore: Increment `stock` |
-| Seller rejects order | Restore |
-| Delivery failed → returned to origin | Restore |
-| Return approved + received | Restore |
-| OOS at checkout | API returns 422 with per-item error |
+| Event                                 | Stock Action                                                  |
+| ------------------------------------- | ------------------------------------------------------------- |
+| Checkout initiated (Order created)    | Stock is reserved: Decrement `stock` where `stock >= qty` |
+| Verification fails / Payment rejected | Restore: Increment `stock`                                  |
+| Order cancelled (before PACKED)       | Restore: Increment `stock`                                  |
+| Seller rejects order                  | Restore                                                       |
+| Delivery failed → returned to origin | Restore                                                       |
+| Return approved + received            | Restore                                                       |
+| OOS at checkout                       | API returns 422 with per-item error                           |
 
 ---
 
@@ -649,6 +653,7 @@ Customer clicks "Place Order"
 ```
 
 **Key env vars:**
+
 ```
 RAZORPAY_KEY_ID=rzp_test_...        (frontend VITE_RAZORPAY_KEY_ID)
 RAZORPAY_KEY_SECRET=...             (API only — never exposed to browser)
@@ -659,22 +664,23 @@ RAZORPAY_WEBHOOK_SECRET=...         (for webhook signature verification)
 
 ## 10. Edge Cases
 
-| Scenario | Handling |
-|---|---|
-| OOS at checkout | API validates stock before Order and Razorpay order creation; surface error |
-| Stale cart price | `priceSnapshot` in cartItems vs current variant price; warn at checkout |
-| Duplicate order | Unique `idempotencyKey` on orders table |
-| Payment captured but verification fails | Webhook syncs state, marks paid and confirmed; idempotency prevents double |
-| Seller rejects | CANCELLED → stock restored → customer notification |
-| Cancel after packing | Blocked by status check; only allowed before PACKED |
-| Delivery failure | Partner logs reason → DELIVERY_FAILED → returned/reattempted |
-| Session expired | Axios 401 interceptor → `/login` |
+| Scenario                                | Handling                                                                    |
+| --------------------------------------- | --------------------------------------------------------------------------- |
+| OOS at checkout                         | API validates stock before Order and Razorpay order creation; surface error |
+| Stale cart price                        | `priceSnapshot` in cartItems vs current variant price; warn at checkout   |
+| Duplicate order                         | Unique `idempotencyKey` on orders table                                   |
+| Payment captured but verification fails | Webhook syncs state, marks paid and confirmed; idempotency prevents double  |
+| Seller rejects                          | CANCELLED → stock restored → customer notification                        |
+| Cancel after packing                    | Blocked by status check; only allowed before PACKED                         |
+| Delivery failure                        | Partner logs reason → DELIVERY_FAILED → returned/reattempted              |
+| Session expired                         | Axios 401 interceptor →`/login`                                          |
 
 ---
 
 ## 11. Non-Functional Requirements
 
 ### Security
+
 - Passwords: bcryptjs, 12 rounds
 - JWT: httpOnly + Secure + SameSite=Strict cookies (access tokens only)
 - Razorpay webhook: HMAC-SHA256 signature verification on every request
@@ -682,10 +688,12 @@ RAZORPAY_WEBHOOK_SECRET=...         (for webhook signature verification)
 - AWS S3: MIME type whitelist (jpg, png, webp)
 
 ### Performance
+
 - Product listing: cursor-based pagination, 20/page
 - DB pool: managed by Prisma connection limits, 30s idle timeout
 
 ### Reliability
+
 - All API responses: `{ success, message, data }` shape
 - Global error handler — no stack traces in production
 - Prisma interactive transactions (`prisma.$transaction`) for multi-step atomic operations
@@ -696,20 +704,21 @@ RAZORPAY_WEBHOOK_SECRET=...         (for webhook signature verification)
 
 > Excluded from 7-day timeline.
 
-| Feature | Notes |
-|---|---|
+| Feature                    | Notes                                     |
+| -------------------------- | ----------------------------------------- |
 | Razorpay refund automation | Auto-trigger refund on order cancellation |
-| Coupon / promo engine | Fixed or percentage discount at checkout |
-| Customer reviews | Star rating + text on PDP |
-| Push notifications | Web Push API |
-| Dynamic pricing | Stock-level based price rules |
-| PWA offline mode | Delivery app cache |
+| Coupon / promo engine      | Fixed or percentage discount at checkout  |
+| Customer reviews           | Star rating + text on PDP                 |
+| Push notifications         | Web Push API                              |
+| Dynamic pricing            | Stock-level based price rules             |
+| PWA offline mode           | Delivery app cache                        |
 
 ---
 
 ## 13. 7-Day Development Plan
 
 ### Day 1 — Foundation & Auth
+
 - PostgreSQL setup + `prisma migrate dev` (schema.prisma)
 - Prisma clients and client singleton config
 - Auth routes: register, login (httpOnly cookie JWT), logout, me (TypeScript types defined)
@@ -718,12 +727,14 @@ RAZORPAY_WEBHOOK_SECRET=...         (for webhook signature verification)
 - Seed: admin, sellers, delivery partners, customers
 
 ### Day 2 — Products & Catalogue
+
 - Product and variant queries (search/filter/slug), creation/modification
 - Category endpoints
 - AWS S3 direct-stream upload route
 - Frontend: ShopPage, ProductDetailPage, SellerProductsPage, SellerProductFormPage, SellerInventoryPage
 
 ### Day 3 — Cart, Checkout & Orders
+
 - Cart items and Orders database logic (multi-seller cart splitting)
 - Razorpay endpoints: `POST /payments/create-order` (pre-creates orders) + `POST /payments/verify`
 - Razorpay webhook handler
@@ -732,6 +743,7 @@ RAZORPAY_WEBHOOK_SECRET=...         (for webhook signature verification)
 - Seller order queue + confirm/pack/ready actions
 
 ### Day 4 — Delivery System
+
 - Delivery assignment and updates
 - Auto-assign on `READY_FOR_PICKUP`
 - Frontend: DeliveryQueuePage, TaskDetailPage, TaskUpdatePage (proof upload), History
@@ -739,6 +751,7 @@ RAZORPAY_WEBHOOK_SECRET=...         (for webhook signature verification)
 - Order status polling in OrderDetailPage
 
 ### Day 5 — Admin + Notifications + Inventory Polish
+
 - Admin routes: stats, users, sellers approve/reject, partners create
 - Notification model + in-app bell
 - Nodemailer emails: order confirmation, shipped, failed, return
@@ -746,6 +759,7 @@ RAZORPAY_WEBHOOK_SECRET=...         (for webhook signature verification)
 - WishlistPage
 
 ### Day 6 — Polish & Edge Cases
+
 - Stale price warning at cart
 - Duplicate order idempotency guard
 - Broken image fallback
@@ -753,6 +767,7 @@ RAZORPAY_WEBHOOK_SECRET=...         (for webhook signature verification)
 - LandingPage — polished hero with role CTAs
 
 ### Day 7 — Docker Deployment & Demo Prep
+
 - Production seed run on RDS
 - Dockerfile setups for web and api
 - docker-compose orchestrations
@@ -791,19 +806,21 @@ Internet
 ## 15. Seed Data Requirements
 
 ### Demo Credentials
-| Role | Email | Password | Lands on |
-|---|---|---|---|
-| Admin | admin@bezon.app | Admin@1234 | `/admin` |
-| Seller 1 | seller1@bezon.app | Seller@1234 | `/seller` |
-| Seller 2 | seller2@bezon.app | Seller@1234 | `/seller` |
+
+| Role     | Email               | Password      | Lands on      |
+| -------- | ------------------- | ------------- | ------------- |
+| Admin    | admin@bezon.app     | Admin@1234    | `/admin`    |
+| Seller 1 | seller1@bezon.app   | Seller@1234   | `/seller`   |
+| Seller 2 | seller2@bezon.app   | Seller@1234   | `/seller`   |
 | Delivery | delivery1@bezon.app | Delivery@1234 | `/delivery` |
-| Customer | customer1@bezon.app | Customer@1234 | `/shop` |
+| Customer | customer1@bezon.app | Customer@1234 | `/shop`     |
 
 ---
 
 ## 16. Deliverables Checklist
 
 ### Code
+
 - [ ] `apps/web` — single React + TS frontend (all 4 roles) configured with Tailwind + shadcn/ui
 - [ ] `apps/api` — Express + TypeScript + Prisma ORM + PostgreSQL backend
 - [ ] `apps/api/prisma/schema.prisma` — full Prisma model definitions
@@ -811,8 +828,10 @@ Internet
 - [ ] `.env.example` for both `apps/web` and `apps/api`
 
 ### Deployed (Docker)
+
 - [ ] Docker Compose running backend Node API and frontend static Nginx proxy
 - [ ] Razorpay webhook registered and verified
 
 ---
+
 *Bezon Engineering | Version 5.0 | TS + Prisma + PostgreSQL + Razorpay + Docker | May 30, 2026*

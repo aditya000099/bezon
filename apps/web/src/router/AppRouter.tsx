@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 
 // Guards
 import { RoleGuard } from './RoleGuard';
@@ -14,7 +14,6 @@ import { AdminLayout } from '../layouts/AdminLayout';
 import { DeliveryLayout } from '../layouts/DeliveryLayout';
 
 // Public Pages
-import { LandingPage } from '../pages/public/LandingPage';
 import { LoginPage } from '../pages/public/LoginPage';
 import { RegisterPage } from '../pages/public/RegisterPage';
 
@@ -73,12 +72,17 @@ import { AdminReturns } from '../pages/admin/AdminReturns';
 import { AdminWallets } from '../pages/admin/AdminWallets';
 import { AdminReturnDetail } from '../pages/admin/AdminReturnDetail';
 
+const ProtectedCustomerRoute = () => (
+  <RoleGuard allowedRoles={['customer']}>
+    <Outlet />
+  </RoleGuard>
+);
+
 export const AppRouter: React.FC = () => {
   return (
     <BrowserRouter>
       <Routes>
         {/* Public Routes */}
-        <Route path="/" element={<LandingPage />} />
         <Route
           path="/login"
           element={
@@ -96,36 +100,28 @@ export const AppRouter: React.FC = () => {
           }
         />
 
-        {/* Customer Route Group */}
-        <Route
-          path="/shop"
-          element={
-            <RoleGuard allowedRoles={['customer']}>
-              <CustomerLayout />
-            </RoleGuard>
-          }
-        >
+        {/* Customer Route Group (Public & Protected) */}
+        <Route path="/" element={<CustomerLayout />}>
+          {/* Public Routes */}
           <Route index element={<ShopPage />} />
           <Route path="products/:slug" element={<ProductDetailPage />} />
-          <Route path="cart" element={<CartPage />} />
-          <Route path="checkout" element={<CheckoutPage />} />
-          <Route path="orders" element={<OrdersPage />} />
-          <Route path="orders/:id" element={<OrderDetailPage />} />
-          <Route path="wishlist" element={<WishlistPage />} />
-          <Route path="profile" element={<ProfilePage />} />
-          <Route path="profile/edit" element={<EditProfilePage />} />
-          <Route path="become-seller" element={<BecomeSellerPage />} />
-          <Route
-            path="become-delivery-partner"
-            element={<BecomeDeliveryPartnerPage />}
-          />
-          <Route path="addresses" element={<AddressesPage />} />
-          <Route
-            path="terms-and-conditions"
-            element={<TermsConditionsPage />}
-          />
-          <Route path="privacy-policy" element={<PrivacyPolicyPage />} />
           <Route path="sellers/:shopSlug" element={<SellerShopPage />} />
+          <Route path="terms-and-conditions" element={<TermsConditionsPage />} />
+          <Route path="privacy-policy" element={<PrivacyPolicyPage />} />
+
+          {/* Protected Routes */}
+          <Route element={<ProtectedCustomerRoute />}>
+            <Route path="cart" element={<CartPage />} />
+            <Route path="checkout" element={<CheckoutPage />} />
+            <Route path="orders" element={<OrdersPage />} />
+            <Route path="orders/:id" element={<OrderDetailPage />} />
+            <Route path="wishlist" element={<WishlistPage />} />
+            <Route path="profile" element={<ProfilePage />} />
+            <Route path="profile/edit" element={<EditProfilePage />} />
+            <Route path="become-seller" element={<BecomeSellerPage />} />
+            <Route path="become-delivery-partner" element={<BecomeDeliveryPartnerPage />} />
+            <Route path="addresses" element={<AddressesPage />} />
+          </Route>
         </Route>
 
         {/* Seller Route Group */}

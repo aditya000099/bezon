@@ -21,10 +21,12 @@ import type { Product, Category } from '@bezon/types';
 import api from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api.config';
 import { useToast } from '../../context/ToastContext';
+import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 
 export const ShopPage: React.FC = () => {
+  const { user } = useAuth();
   const { toast } = useToast();
   const { addItem } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
@@ -105,6 +107,11 @@ export const ShopPage: React.FC = () => {
   }, [debouncedSearch, selectedCategory, sortBy]);
 
   const handleAddToCart = async (product: Product) => {
+    if (!user) {
+      toast.error('Please login to add items to cart.');
+      navigate('/login');
+      return;
+    }
     setAddingToCart((prev) => ({ ...prev, [product.id]: true }));
     try {
       const price = Number(product.basePrice);
@@ -123,7 +130,7 @@ export const ShopPage: React.FC = () => {
       // Fire and forget click tracking
       api.post(API_ENDPOINTS.ads.click(p.campaignId)).catch(console.error);
     }
-    navigate(`/shop/products/${p.slug}`);
+    navigate(`/products/${p.slug}`);
   };
 
   const renderProductCard = (p: any) => (

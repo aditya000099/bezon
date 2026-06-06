@@ -24,7 +24,7 @@ export const SellerGuard: React.FC<SellerGuardProps> = ({ children }) => {
 
   if (user.role !== 'admin') {
     if (user.role !== 'seller') {
-      return <Navigate to="/shop" replace />;
+      return <Navigate to="/" replace />;
     }
     if (user.seller?.status !== 'approved') {
       return (

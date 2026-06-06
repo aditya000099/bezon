@@ -15,7 +15,7 @@ export const GuestGuard: React.FC<{ children: React.ReactNode }> = ({ children }
 
   if (user) {
     const defaults = {
-      customer: '/shop',
+      customer: '/',
       seller: '/seller',
       delivery: '/delivery',
       admin: '/admin',

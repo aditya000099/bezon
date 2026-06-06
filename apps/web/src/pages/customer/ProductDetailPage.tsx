@@ -290,7 +290,7 @@ export const ProductDetailPage: React.FC = () => {
 
   const handleSelectProduct = (p: Product) => {
     if (p.slug !== slug) {
-      navigate(`/shop/products/${p.slug}`, { replace: true });
+      navigate(`/products/${p.slug}`, { replace: true });
     }
   };
 
@@ -316,6 +316,11 @@ export const ProductDetailPage: React.FC = () => {
   };
 
   const handleAddToCart = async () => {
+    if (!user) {
+      toast.error("Please login to add items to cart.");
+      navigate("/login");
+      return;
+    }
     if (!currentProduct) return;
     setIsAdding(true);
     try {
@@ -331,11 +336,21 @@ export const ProductDetailPage: React.FC = () => {
   };
 
   const handleAddToWishlist = () => {
+    if (!user) {
+      toast.error("Please login to use your wishlist.");
+      navigate("/login");
+      return;
+    }
     if (!currentProduct) return;
     toggleWishlist(currentProduct.id, currentProduct.title);
   };
 
   const handleAskQuestion = async () => {
+    if (!user) {
+      toast.error("Please login to ask a question.");
+      navigate("/login");
+      return;
+    }
     if (!currentProduct || newQuestion.trim().length < 10) {
       toast.warning("Question must be at least 10 characters long.");
       return;
@@ -411,7 +426,7 @@ export const ProductDetailPage: React.FC = () => {
       <div className="flex flex-col items-center justify-center min-h-100 text-zinc-400 text-center gap-4">
         <ShoppingBagIcon className="h-16 w-16 text-zinc-200" />
         <h2 className="text-xl font-bold text-zinc-700">Product not found</h2>
-        <Link to="/shop">
+        <Link to="/">
           <Button variant="default">Return to Marketplace</Button>
         </Link>
       </div>
@@ -421,7 +436,7 @@ export const ProductDetailPage: React.FC = () => {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <Link to="/shop">
+        <Link to="/">
           <Button
             variant="ghost"
             size="sm"
@@ -500,7 +515,7 @@ export const ProductDetailPage: React.FC = () => {
               <div className="flex items-center gap-1.5 mt-2 text-sm text-zinc-500">
                 <span>Sold by:</span>
                 <Link
-                  to={`/shop/sellers/${product.seller.shopSlug}`}
+                  to={`/sellers/${product.seller.shopSlug}`}
                   className="font-bold text-teal-600 hover:text-teal-800 hover:underline flex items-center gap-1"
                 >
                   <StorefrontIcon className="h-4 w-4 shrink-0 text-teal-500" />

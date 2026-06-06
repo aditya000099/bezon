@@ -79,7 +79,7 @@ export const CartPage: React.FC = () => {
             <p className="text-zinc-400 text-xs mt-1 max-w-xs text-center">
               Add premium items from the marketplace to check out.
             </p>
-            <Link to="/shop">
+            <Link to="/">
               <Button className="mt-6 font-bold" size="sm">
                 Start Shopping
               </Button>
@@ -242,7 +242,7 @@ export const CartPage: React.FC = () => {
                 <span>Total Amount</span>
                 <span>₹{cartTotal.toLocaleString()}</span>
               </div>
-              <Link to="/shop/checkout" className="w-full">
+              <Link to="/checkout" className="w-full">
                 <Button className="w-full font-bold">
                   Proceed to Checkout <ArrowRight className="h-4 w-4 ml-1.5" />
                 </Button>
