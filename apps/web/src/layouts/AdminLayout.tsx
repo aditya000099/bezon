@@ -12,6 +12,7 @@ import {
   ShieldCheck,
   CurrencyDollar,
   ArrowCounterClockwise,
+  Wallet,
 } from "@phosphor-icons/react";
 
 export const AdminLayout: React.FC = () => {
@@ -22,13 +23,14 @@ export const AdminLayout: React.FC = () => {
     { to: "/admin", label: "Dashboard", icon: SquaresFour },
     { to: "/admin/users", label: "Platform Users", icon: Users },
     { to: "/admin/orders", label: "All Orders", icon: ClipboardText },
-    { to: "/admin/deliveries", label: "Delivery Partners", icon: Users },
+    { to: "/admin/deliveries", label: "Delivery Ops", icon: Truck },
     { to: "/admin/sellers", label: "Sellers Management", icon: ShieldWarning },
-    { to: "/admin/partners", label: "Delivery Ops", icon: Truck },
+    { to: "/admin/partners", label: "Delivery Partners", icon: Users },
     { to: "/admin/products", label: "Products Audit", icon: ShoppingBag },
     { to: "/admin/policies", label: "Policies", icon: ShieldCheck },
     { to: "/admin/refunds", label: "Refund Management", icon: CurrencyDollar },
     { to: "/admin/returns", label: "Returns", icon: ArrowCounterClockwise },
+    { to: "/admin/wallets", label: "Wallets", icon: Wallet },
   ];
 
   return (

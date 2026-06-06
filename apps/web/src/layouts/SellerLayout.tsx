@@ -16,6 +16,8 @@ import {
   ChatTeardropText,
   Checks,
   ArrowSquareOut,
+  Wallet,
+  Megaphone,
 } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/button';
 
@@ -105,6 +107,8 @@ export const SellerLayout: React.FC = () => {
     { to: '/seller', label: 'Dashboard', icon: SquaresFour },
     { to: '/seller/products', label: 'My Products', icon: ShoppingBag },
     { to: '/seller/coupons', label: 'Coupons', icon: Tag },
+    { to: '/seller/wallet', label: 'Wallet', icon: Wallet },
+    { to: '/seller/ads', label: 'Ads', icon: Megaphone },
     { to: '/seller/qa', label: 'Q&A', icon: ChatTeardropText },
     { to: '/seller/orders', label: 'Order Queue', icon: ClipboardText },
     { to: '/seller/returns', label: 'Returns', icon: ArrowSquareOut },

@@ -42,6 +42,7 @@ export const API_ENDPOINTS = {
     getById: (id: string) => `${API_V1}/products/id/${id}`,
     stats: (id: string) => `${API_V1}/products/${id}/stats`,
     deliveryEstimate: (id: string) => `${API_V1}/products/${id}/delivery-estimate`,
+    generateDescription: `${API_V1}/products/ai/generate-description`,
   },
   // Orders
   orders: {
@@ -138,9 +139,40 @@ export const API_ENDPOINTS = {
     toggle: (id: string) => `${API_V1}/policies/${id}/toggle`,
     delete: (id: string) => `${API_V1}/policies/${id}`,
   },
+  // Admin Deliveries Operations
+  adminDeliveries: {
+    dashboard: `${API_V1}/admin-deliveries/dashboard`,
+    deliveries: `${API_V1}/admin-deliveries/deliveries`,
+    deliveryDetail: (id: string) => `${API_V1}/admin-deliveries/deliveries/${id}`,
+    returns: `${API_V1}/admin-deliveries/returns`,
+    partners: `${API_V1}/admin-deliveries/partners`,
+    partnerDetail: (id: string) => `${API_V1}/admin-deliveries/partners/${id}`,
+    exceptions: `${API_V1}/admin-deliveries/exceptions`,
+    cityAnalytics: `${API_V1}/admin-deliveries/city-analytics`,
+    reassignDelivery: (id: string) => `${API_V1}/admin-deliveries/deliveries/${id}/reassign`,
+    reassignReturn: (orderId: string) => `${API_V1}/admin-deliveries/returns/${orderId}/reassign`,
+  },
   // Support Chat
   support: {
     chat: `${API_V1}/support/chat`,
+  },
+  // Wallet
+  wallet: {
+    me: `${API_V1}/wallet/me`,
+    transactions: `${API_V1}/wallet/transactions`,
+    all: `${API_V1}/wallet/all`,
+    manualCredit: `${API_V1}/wallet/manual-credit`,
+  },
+  // Ads
+  ads: {
+    campaigns: `${API_V1}/ads/campaigns`,
+    myCampaigns: `${API_V1}/ads/campaigns/me`,
+    updateCampaign: (id: string) => `${API_V1}/ads/campaigns/${id}`,
+    deleteCampaign: (id: string) => `${API_V1}/ads/campaigns/${id}`,
+    campaignStats: (id: string) => `${API_V1}/ads/campaigns/${id}/stats`,
+    sponsored: `${API_V1}/ads/sponsored`,
+    click: (campaignId: string) => `${API_V1}/ads/click/${campaignId}`,
+    adminCampaigns: `${API_V1}/ads/admin/campaigns`,
   },
 } as const;
 

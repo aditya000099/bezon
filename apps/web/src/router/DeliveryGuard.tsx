@@ -24,7 +24,7 @@ export const DeliveryGuard: React.FC<DeliveryGuardProps> = ({ children }) => {
 
   if (user.role !== 'admin') {
     if (user.role !== 'delivery') {
-      return <Navigate to="/shop" replace />;
+      return <Navigate to="/" replace />;
     }
     if (user.deliveryPartner?.status !== 'approved') {
       return (

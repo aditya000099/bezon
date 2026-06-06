@@ -290,7 +290,7 @@ export const ProductDetailPage: React.FC = () => {
 
   const handleSelectProduct = (p: Product) => {
     if (p.slug !== slug) {
-      navigate(`/shop/products/${p.slug}`, { replace: true });
+      navigate(`/products/${p.slug}`, { replace: true });
     }
   };
 
@@ -316,6 +316,11 @@ export const ProductDetailPage: React.FC = () => {
   };
 
   const handleAddToCart = async () => {
+    if (!user) {
+      toast.error('Please login to add items to cart.');
+      navigate('/login');
+      return;
+    }
     if (!currentProduct) return;
     setIsAdding(true);
     try {
@@ -331,11 +336,21 @@ export const ProductDetailPage: React.FC = () => {
   };
 
   const handleAddToWishlist = () => {
+    if (!user) {
+      toast.error('Please login to use your wishlist.');
+      navigate('/login');
+      return;
+    }
     if (!currentProduct) return;
     toggleWishlist(currentProduct.id, currentProduct.title);
   };
 
   const handleAskQuestion = async () => {
+    if (!user) {
+      toast.error('Please login to ask a question.');
+      navigate('/login');
+      return;
+    }
     if (!currentProduct || newQuestion.trim().length < 10) {
       toast.warning('Question must be at least 10 characters long.');
       return;
@@ -411,7 +426,7 @@ export const ProductDetailPage: React.FC = () => {
       <div className="flex flex-col items-center justify-center min-h-100 text-zinc-400 text-center gap-4">
         <ShoppingBagIcon className="h-16 w-16 text-zinc-200" />
         <h2 className="text-xl font-bold text-zinc-700">Product not found</h2>
-        <Link to="/shop">
+        <Link to="/">
           <Button variant="default">Return to Marketplace</Button>
         </Link>
       </div>
@@ -421,7 +436,7 @@ export const ProductDetailPage: React.FC = () => {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <Link to="/shop">
+        <Link to="/">
           <Button
             variant="ghost"
             size="sm"
@@ -500,7 +515,7 @@ export const ProductDetailPage: React.FC = () => {
               <div className="flex items-center gap-1.5 mt-2 text-sm text-zinc-500">
                 <span>Sold by:</span>
                 <Link
-                  to={`/shop/sellers/${product.seller.shopSlug}`}
+                  to={`/sellers/${product.seller.shopSlug}`}
                   className="font-bold text-teal-600 hover:text-teal-800 hover:underline flex items-center gap-1"
                 >
                   <StorefrontIcon className="h-4 w-4 shrink-0 text-teal-500" />
@@ -539,11 +554,11 @@ export const ProductDetailPage: React.FC = () => {
           <div className="bg-zinc-50/50 border border-zinc-100 rounded-xl p-5 flex flex-col gap-2">
             <div className="flex items-baseline gap-3">
               <span className="text-4xl font-extrabold text-zinc-900">
-                ₹{currentPrice.toLocaleString()}
+                ₹{(currentComparePrice ?? currentPrice ?? 0).toLocaleString()}
               </span>
-              {currentComparePrice && (
+              {currentPrice && (
                 <span className="text-zinc-400 line-through text-sm">
-                  ₹{currentComparePrice.toLocaleString()}
+                  ₹{currentPrice.toLocaleString()}
                 </span>
               )}
               {currentComparePrice && currentComparePrice > currentPrice && (
@@ -626,7 +641,7 @@ export const ProductDetailPage: React.FC = () => {
           )}
 
           {/* Deliver At Section */}
-          <div className="bg-white/60 backdrop-blur-md rounded-[2rem] p-5 border border-slate-100/50 flex flex-col gap-4">
+          <div className="bg-white/60 backdrop-blur-md rounded-4xl p-5 border border-slate-100/50 flex flex-col gap-4">
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-start gap-3 min-w-0">
                 <div className="p-2.5 bg-indigo-50 text-indigo-600 rounded-2xl shrink-0 mt-0.5">
@@ -841,16 +856,8 @@ export const ProductDetailPage: React.FC = () => {
       </div>
 
       {/* AI Support Chat Section */}
-      <div className="mt-12 rounded-[2rem] p-4 sm:p-2 bg-white/50 relative overflow-hidden w-full">
-        {/* <div className="flex flex-col lg:flex-row gap-10 items-stretch justify-between w-full"> */}
-        {/* <div className="lg:w-1/3 flex flex-col justify-center">
-            <p className="text-zinc-400 text-sm leading-relaxed">
-              Have a question about this product? Ask our AI assistant to
-              instantly check specifications, summarize reviews, or explain
-              return policies.
-            </p>
-          </div> */}
-        <div className=" bg-white/5 backdrop-blur-xl rounded-[2rem] border border-white/10 p-2">
+      <div className="mt-12 rounded-4xl p-4 sm:p-2 bg-white/50 relative overflow-hidden w-full">
+        <div className=" bg-white/5 backdrop-blur-xl rounded-4xl border border-white/10 p-2">
           <SupportChatWidget
             context={{
               type: 'product',
@@ -1060,7 +1067,7 @@ export const ProductDetailPage: React.FC = () => {
             <SpinnerIcon className="h-8 w-8 animate-spin text-teal-500" />
           </div>
         ) : questions.length === 0 ? (
-          <div className="bg-zinc-50/80 rounded-[2rem] p-12 flex flex-col items-center justify-center text-center">
+          <div className="bg-zinc-50/80 rounded-4xl p-12 flex flex-col items-center justify-center text-center">
             <ChatTeardropTextIcon className="h-12 w-12 text-zinc-300 mb-3" />
             <h3 className="text-lg font-bold text-zinc-700">
               No questions yet
@@ -1074,7 +1081,7 @@ export const ProductDetailPage: React.FC = () => {
             {questions.map((q) => (
               <div
                 key={q.id}
-                className="bg-zinc-50/80 border-0 rounded-[2rem] p-8"
+                className="bg-zinc-50/80 border-0 rounded-4xl p-8"
               >
                 {/* Question */}
                 <div className="flex items-start gap-3 mb-4">
@@ -1208,7 +1215,7 @@ export const ProductDetailPage: React.FC = () => {
         open={askModalOpen}
         onOpenChange={(open) => !open && setAskModalOpen(false)}
       >
-        <DialogContent className="max-w-md bg-white border-0 shadow-2xl p-8 rounded-[2rem]">
+        <DialogContent className="max-w-md bg-white border-0 shadow-2xl p-8 rounded-4xl">
           <DialogHeader>
             <DialogTitle className="text-xl font-extrabold text-zinc-800">
               Ask a Question
@@ -1283,7 +1290,7 @@ export const ProductDetailPage: React.FC = () => {
 
             {/* Saved Addresses */}
             {user ? (
-              <div className="space-y-2.5 max-h-[250px] overflow-y-auto pr-1">
+              <div className="space-y-2.5 max-h-62.5 overflow-y-auto pr-1">
                 <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">
                   Saved Addresses
                 </span>

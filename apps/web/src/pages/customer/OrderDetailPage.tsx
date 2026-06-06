@@ -148,7 +148,7 @@ export const OrderDetailPage: React.FC = () => {
       <Card className="flex flex-col items-center justify-center min-h-75 text-zinc-400 p-8 border-dashed border-2 bg-white/50 max-w-lg mx-auto mt-12">
         <Package className="h-12 w-12 text-rose-300 mb-2" />
         <p className="font-bold text-zinc-700">Order not found</p>
-        <Link to="/shop/orders" className="mt-4">
+        <Link to="/orders" className="mt-4">
           <Button size="sm">Back to History</Button>
         </Link>
       </Card>
@@ -159,7 +159,7 @@ export const OrderDetailPage: React.FC = () => {
     <div className="flex flex-col gap-6 max-w-4xl mx-auto">
       <div className="flex flex-col gap-4">
         <div className="flex justify-between items-center w-full">
-          <Link to="/shop/orders">
+          <Link to="/orders">
             <Button
               variant="ghost"
               size="sm"
@@ -508,25 +508,6 @@ export const OrderDetailPage: React.FC = () => {
                   {order.paymentStatus.toUpperCase()}
                 </span>
               </div>
-              {(order.paymentStatus === "refund_initiated" ||
-                order.paymentStatus === "refunded") && (
-                <div className="border-t border-zinc-100 pt-3">
-                  <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block">
-                    Refund Status
-                  </span>
-                  <span
-                    className={`inline-block px-2.5 py-0.5 rounded-full font-bold mt-1 ${
-                      order.paymentStatus === "refunded"
-                        ? "bg-emerald-50 text-emerald-700"
-                        : "bg-amber-50 text-amber-700"
-                    }`}
-                  >
-                    {order.paymentStatus === "refunded"
-                      ? "COMPLETED"
-                      : "PENDING"}
-                  </span>
-                </div>
-              )}
               <div className="border-t border-zinc-100 pt-3">
                 <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block">
                   Total Charges
@@ -624,6 +605,65 @@ export const OrderDetailPage: React.FC = () => {
                     )}
                   </div>
                 )}
+              </CardContent>
+            </Card>
+          )}
+
+          {order.refundStatus && order.refundStatus !== "NONE" && (
+            <Card className="bg-zinc-50/80 border-0">
+              <CardHeader className="py-4 flex flex-row items-center gap-2 bg-zinc-100/30 rounded-t-2xl">
+                <Money className="h-4 w-4 text-emerald-500" />
+                <CardTitle className="text-base font-bold text-zinc-800">
+                  Refund Status
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-5 space-y-4 text-xs text-zinc-600">
+                <div>
+                  <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block">
+                    Current Status
+                  </span>
+                  <span
+                    className={`inline-block px-2.5 py-0.5 rounded-full font-bold mt-1 ${
+                      order.refundStatus === "COMPLETED"
+                        ? "bg-emerald-50 text-emerald-700"
+                        : order.refundStatus === "FAILED"
+                          ? "bg-rose-50 text-rose-700"
+                          : order.refundStatus === "READY"
+                            ? "bg-blue-50 text-blue-700"
+                            : "bg-amber-50 text-amber-700"
+                    }`}
+                  >
+                    {order.refundStatus}
+                  </span>
+                </div>
+                {order.refundAmount && (
+                  <div className="border-t border-zinc-100 pt-3 flex justify-between items-center">
+                    <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block">
+                      Refund Amount
+                    </span>
+                    <span className="font-bold text-zinc-900 text-sm">
+                      ₹{Number(order.refundAmount).toLocaleString()}
+                    </span>
+                  </div>
+                )}
+                {order.refundedAt && (
+                  <div className="border-t border-zinc-100 pt-3 flex justify-between items-center">
+                    <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block">
+                      Completed On
+                    </span>
+                    <span className="font-semibold text-zinc-700">
+                      {new Date(order.refundedAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                )}
+                {order.refundFailureReason &&
+                  order.refundStatus === "FAILED" && (
+                    <div className="border-t border-zinc-100 pt-3">
+                      <p className="text-xs text-rose-600 bg-rose-50 p-2 rounded border border-rose-100">
+                        <strong>Issue:</strong> {order.refundFailureReason}
+                      </p>
+                    </div>
+                  )}
               </CardContent>
             </Card>
           )}

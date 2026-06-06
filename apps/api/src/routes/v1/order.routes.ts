@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getOrders, getOrderById, updateOrderStatus, requestOrderPolicyAction, getSellerOrders, getSellerOrderById, cancelCustomerOrder, cancelSellerOrder, markRefundCompleted, requestReturn, approveReturn, rejectReturn, inspectReturn } from '../../controllers/order.controller.js';
+import { getOrders, getOrderById, updateOrderStatus, requestOrderPolicyAction, getSellerOrders, getSellerOrderById, cancelCustomerOrder, cancelSellerOrder, markRefundCompleted, requestReturn, approveReturn, rejectReturn, inspectReturn, simulateRefundProcessing, simulateRefundCompleted, simulateRefundFailed } from '../../controllers/order.controller.js';
 import { exportOrdersPdf, exportOrdersCsv } from '../../controllers/order_export.controller.js';
 import { authenticateUser, requireSeller, requireCustomer, requireSellerOrAdmin, requireRole } from '../../middleware/auth.middleware.js';
 
@@ -24,5 +24,10 @@ router.post('/:id/policy-action', requireCustomer, requestOrderPolicyAction);
 router.post('/:id/cancel', requireCustomer, cancelCustomerOrder);
 router.post('/:id/refund/complete', requireRole(['admin']), markRefundCompleted);
 router.post('/:id/returns/request', requireCustomer, requestReturn);
+
+// Phase 7 Refund Simulation
+router.post('/:id/refunds/simulate-processing', requireRole(['admin']), simulateRefundProcessing);
+router.post('/:id/refunds/simulate-completed', requireRole(['admin']), simulateRefundCompleted);
+router.post('/:id/refunds/simulate-failed', requireRole(['admin']), simulateRefundFailed);
 
 export default router;

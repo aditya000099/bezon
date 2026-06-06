@@ -5,6 +5,7 @@ import { PdfUtil } from '../utils/pdf.util.js';
 import { S3Service } from './s3.service.js';
 import { CartService } from './cart.service.js';
 import { RecommendationService } from './recommendation.service.js';
+import { WalletService } from './wallet.service.js';
 import { addressSchema } from '@bezon/validation';
 
 
@@ -176,6 +177,9 @@ export class PaymentService {
 
         // Apply discount only to the seller who owns the coupon
         const orderDiscount = (couponResult && sellerId === couponResult.sellerId) ? couponResult.discount : 0;
+        const finalTotal = Math.max(0, subtotal - orderDiscount);
+        const PLATFORM_COMMISSION = 0.05;
+        const settlementAmount = Math.round(finalTotal * (1 - PLATFORM_COMMISSION) * 100) / 100;
 
         const order = await tx.order.create({
           data: {
@@ -190,7 +194,10 @@ export class PaymentService {
             discount: orderDiscount,
             couponId: orderDiscount > 0 ? couponResult!.couponId : null,
             couponCode: orderDiscount > 0 ? couponCode!.toUpperCase().trim() : null,
-            total: Math.max(0, subtotal - orderDiscount),
+            total: finalTotal,
+            settlementStatus: 'HOLDING',
+            settlementAmount: settlementAmount,
+            settlementHeldAt: new Date(),
           },
         });
 
@@ -220,6 +227,14 @@ export class PaymentService {
             note: orderDiscount > 0
               ? `Order placed with coupon ${couponCode!.toUpperCase()} (₹${orderDiscount} off).`
               : 'Order placed via unified customer checkout.',
+          },
+        });
+
+        await tx.orderTimeline.create({
+          data: {
+            orderId: order.id,
+            status: 'placed',
+            note: `Funds Placed In Escrow - ₹${finalTotal}`,
           },
         });
       }
@@ -447,6 +462,43 @@ export class PaymentService {
     // update flow. A Delivery record is only created when the seller marks
     // the order as READY_FOR_PICKUP — not at payment confirmation.
     // See: order.service.ts → updateOrderStatus → ready_for_pickup handler.
+
+    // Post-transaction: Admin Escrow Wallet Credit & Seller Counters
+    setTimeout(async () => {
+      try {
+        const adminUser = await prisma.user.findFirst({ where: { role: 'admin' } });
+        if (!adminUser) throw new Error('Admin user not found');
+
+        const paidOrders = await prisma.order.findMany({
+          where: { razorpayOrderId },
+          include: { seller: { select: { userId: true, id: true } } },
+        });
+        
+        for (const order of paidOrders) {
+          // Escrow Admin wallet credit (full total amount)
+          if (Number(order.total) > 0) {
+            await WalletService.creditWallet(
+              adminUser.id,
+              Number(order.total),
+              'order_payment',
+              order.id,
+              `Escrow funding for order #${order.orderNumber} (₹${Number(order.total)})`
+            );
+          }
+          
+          // Update seller sales counters
+          await prisma.seller.update({
+            where: { id: order.seller.id },
+            data: {
+              totalSales: { increment: Number(order.total) },
+              totalOrders: { increment: 1 },
+            },
+          });
+        }
+      } catch (err) {
+        console.error('Failed to credit admin escrow wallet or update seller counters:', err);
+      }
+    }, 0);
 
     // Post-transaction: Generate PDF invoices and upload to S3 async
     setTimeout(async () => {

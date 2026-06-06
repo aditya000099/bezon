@@ -66,88 +66,126 @@ export const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50 flex items-center justify-center p-6">
-      <Card className="w-full max-w-md border border-zinc-200 shadow-lg bg-white">
-        <CardHeader className="space-y-1 flex flex-col items-center text-center">
-          <div className="flex items-center gap-2 font-bold text-2xl text-primary mb-2">
-            <Storefront className="h-7 w-7 text-primary" />
+    <div className="min-h-screen grid lg:grid-cols-5 bg-white">
+      {/* Left side - Visual/Brand */}
+      <div className="hidden lg:flex lg:col-span-3 p-4">
+        <div className="w-full h-full flex flex-col justify-between bg-teal-950 p-12 text-white relative overflow-hidden rounded-[2.5rem]">
+          {/* Decorative background elements */}
+          <div className="absolute top-0 right-0 w-96 h-96 bg-teal-500/20 rounded-full blur-3xl -mr-24 -mt-24 pointer-events-none"></div>
+          <div className="absolute bottom-0 left-0 w-80 h-80 bg-black/40 rounded-full blur-3xl -ml-20 -mb-20 pointer-events-none"></div>
+
+          <div className="relative z-10 flex items-center gap-2 font-bold text-3xl">
+            <Storefront className="h-10 w-10 text-teal-400" />
             <span>Bezon</span>
           </div>
-          <CardTitle className="text-2xl font-bold tracking-tight">
-            Create an account
-          </CardTitle>
-          <CardDescription>
-            Join the Bezon multi-actor marketplace
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-4">
-          <form onSubmit={handleSubmit} className="space-y-4">
+
+          <div className="relative z-10 max-w-md">
+            <h1 className="text-4xl font-extrabold tracking-tight mb-4 text-white">
+              Start Shopping Today.
+            </h1>
+            <p className="text-teal-100/70 text-lg leading-relaxed">
+              Create your account to unlock exclusive member offers, track your
+              orders, and enjoy faster checkout.
+            </p>
+          </div>
+
+          <div className="relative z-10 text-sm text-teal-500 font-medium">
+            &copy; {new Date().getFullYear()} Bezon Inc. All rights reserved.
+          </div>
+        </div>
+      </div>
+
+      {/* Right side - Auth Form */}
+      <div className="flex items-center justify-center lg:col-span-2 p-6 sm:p-12 relative overflow-y-auto max-h-screen">
+        <Link
+          to="/"
+          className="absolute top-8 right-8 text-sm font-semibold text-zinc-500 hover:text-zinc-900 transition-colors hidden sm:block"
+        >
+          Back to Shop
+        </Link>
+        <div className="w-full max-w-md flex flex-col justify-center py-8">
+          <div className="lg:hidden flex items-center gap-2 font-bold text-2xl text-teal-800 mb-8">
+            <Storefront className="h-8 w-8 text-teal-700" />
+            <span>Bezon</span>
+          </div>
+
+          <div className="mb-8">
+            <h2 className="text-3xl font-extrabold tracking-tight text-zinc-900">
+              Create an account
+            </h2>
+            <p className="text-zinc-500 mt-2">
+              Join the Bezon multi-actor marketplace
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid gap-2">
-              <label className="text-sm font-semibold text-zinc-700">
+              <label className="text-sm font-semibold text-zinc-900">
                 Full Name
               </label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-zinc-400">
-                  <UserIcon className="h-4 w-4" />
+                  <UserIcon className="h-5 w-5" />
                 </span>
                 <Input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="pl-9"
+                  className="pl-10 h-12 bg-zinc-50 border-zinc-200 focus:bg-white focus:border-teal-500 focus:ring-teal-500 rounded-xl text-base"
                   placeholder="John Doe"
                   required
                 />
               </div>
             </div>
             <div className="grid gap-2">
-              <label className="text-sm font-semibold text-zinc-700">
+              <label className="text-sm font-semibold text-zinc-900">
                 Email Address
               </label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-zinc-400">
-                  <Envelope className="h-4 w-4" />
+                  <Envelope className="h-5 w-5" />
                 </span>
                 <Input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="pl-9"
+                  className="pl-10 h-12 bg-zinc-50 border-zinc-200 focus:bg-white focus:border-teal-500 focus:ring-teal-500 rounded-xl text-base"
                   placeholder="john@example.com"
                   required
                 />
               </div>
             </div>
             <div className="grid gap-2">
-              <label className="text-sm font-semibold text-zinc-700">
-                Phone Number (Optional)
+              <label className="text-sm font-semibold text-zinc-900">
+                Phone Number{' '}
+                <span className="text-zinc-400 font-normal">(Optional)</span>
               </label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-zinc-400">
-                  <Phone className="h-4 w-4" />
+                  <Phone className="h-5 w-5" />
                 </span>
                 <Input
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="pl-9"
+                  className="pl-10 h-12 bg-zinc-50 border-zinc-200 focus:bg-white focus:border-teal-500 focus:ring-teal-500 rounded-xl text-base"
                   placeholder="+919876543210"
                 />
               </div>
             </div>
             <div className="grid gap-2">
-              <label className="text-sm font-semibold text-zinc-700">
+              <label className="text-sm font-semibold text-zinc-900">
                 Password
               </label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-zinc-400">
-                  <Key className="h-4 w-4" />
+                  <Key className="h-5 w-5" />
                 </span>
                 <Input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="pl-9"
+                  className="pl-10 h-12 bg-zinc-50 border-zinc-200 focus:bg-white focus:border-teal-500 focus:ring-teal-500 rounded-xl text-base"
                   placeholder="••••••••"
                   required
                 />
@@ -155,25 +193,24 @@ export const RegisterPage: React.FC = () => {
             </div>
             <Button
               type="submit"
-              className="w-full font-bold mt-2"
+              className="w-full h-12 font-bold text-base mt-4 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl shadow-lg shadow-zinc-900/10 transition-all active:scale-[0.98]"
               disabled={loading}
             >
               {loading ? 'Registering...' : 'Register'}
             </Button>
           </form>
-        </CardContent>
-        <CardFooter className="flex flex-col gap-2 border-t border-zinc-100 pt-4 text-center">
-          <p className="text-xs text-zinc-500">
+
+          <p className="text-sm text-zinc-500 text-center mt-8">
             Already have an account?{' '}
             <Link
               to="/login"
-              className="text-primary font-semibold hover:underline"
+              className="text-teal-700 font-extrabold hover:text-teal-800 transition-colors hover:underline underline-offset-4"
             >
               Sign in
             </Link>
           </p>
-        </CardFooter>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };

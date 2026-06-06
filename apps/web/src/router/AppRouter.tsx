@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 
 // Guards
 import { RoleGuard } from './RoleGuard';
@@ -14,7 +14,6 @@ import { AdminLayout } from '../layouts/AdminLayout';
 import { DeliveryLayout } from '../layouts/DeliveryLayout';
 
 // Public Pages
-import { LandingPage } from '../pages/public/LandingPage';
 import { LoginPage } from '../pages/public/LoginPage';
 import { RegisterPage } from '../pages/public/RegisterPage';
 
@@ -49,6 +48,8 @@ import { SellerReturns } from '../pages/seller/SellerReturns';
 import { SellerReturnDetail } from '../pages/seller/SellerReturnDetail';
 import { SellerOrderDetail } from '../pages/seller/SellerOrderDetail';
 import { SellerAddProduct } from '../pages/seller/SellerAddProduct';
+import { SellerWallet } from '../pages/seller/SellerWallet';
+import { SellerAds } from '../pages/seller/SellerAds';
 // Delivery Pages
 import { DeliveryQueue } from '../pages/delivery/DeliveryQueue';
 import { DeliveryHistory } from '../pages/delivery/DeliveryHistory';
@@ -61,17 +62,27 @@ import { AdminSellers } from '../pages/admin/AdminSellers';
 import { AdminPartners } from '../pages/admin/AdminPartners';
 import { AdminOrders } from '../pages/admin/AdminOrders';
 import { AdminDeliveries } from '../pages/admin/AdminDeliveries';
+import { AdminDeliveryDetail } from '../pages/admin/AdminDeliveryDetail';
+import { AdminDeliveryPartnerDetail } from '../pages/admin/AdminDeliveryPartnerDetail';
 import { AdminUsers } from '../pages/admin/AdminUsers';
 import { AdminPolicies } from '../pages/admin/AdminPolicies';
 import { AdminRefunds } from '../pages/admin/AdminRefunds';
+import { AdminRefundDetail } from '../pages/admin/AdminRefundDetail';
 import { AdminReturns } from '../pages/admin/AdminReturns';
+import { AdminWallets } from '../pages/admin/AdminWallets';
+import { AdminReturnDetail } from '../pages/admin/AdminReturnDetail';
+
+const ProtectedCustomerRoute = () => (
+  <RoleGuard allowedRoles={['customer']}>
+    <Outlet />
+  </RoleGuard>
+);
 
 export const AppRouter: React.FC = () => {
   return (
     <BrowserRouter>
       <Routes>
         {/* Public Routes */}
-        <Route path="/" element={<LandingPage />} />
         <Route
           path="/login"
           element={
@@ -89,33 +100,28 @@ export const AppRouter: React.FC = () => {
           }
         />
 
-        {/* Customer Route Group */}
-        <Route
-          path="/shop"
-          element={
-            <RoleGuard allowedRoles={['customer']}>
-              <CustomerLayout />
-            </RoleGuard>
-          }
-        >
+        {/* Customer Route Group (Public & Protected) */}
+        <Route path="/" element={<CustomerLayout />}>
+          {/* Public Routes */}
           <Route index element={<ShopPage />} />
           <Route path="products/:slug" element={<ProductDetailPage />} />
-          <Route path="cart" element={<CartPage />} />
-          <Route path="checkout" element={<CheckoutPage />} />
-          <Route path="orders" element={<OrdersPage />} />
-          <Route path="orders/:id" element={<OrderDetailPage />} />
-          <Route path="wishlist" element={<WishlistPage />} />
-          <Route path="profile" element={<ProfilePage />} />
-          <Route path="profile/edit" element={<EditProfilePage />} />
-          <Route path="become-seller" element={<BecomeSellerPage />} />
-          <Route path="become-delivery-partner" element={<BecomeDeliveryPartnerPage />} />
-          <Route path="addresses" element={<AddressesPage />} />
-          <Route
-            path="terms-and-conditions"
-            element={<TermsConditionsPage />}
-          />
-          <Route path="privacy-policy" element={<PrivacyPolicyPage />} />
           <Route path="sellers/:shopSlug" element={<SellerShopPage />} />
+          <Route path="terms-and-conditions" element={<TermsConditionsPage />} />
+          <Route path="privacy-policy" element={<PrivacyPolicyPage />} />
+
+          {/* Protected Routes */}
+          <Route element={<ProtectedCustomerRoute />}>
+            <Route path="cart" element={<CartPage />} />
+            <Route path="checkout" element={<CheckoutPage />} />
+            <Route path="orders" element={<OrdersPage />} />
+            <Route path="orders/:id" element={<OrderDetailPage />} />
+            <Route path="wishlist" element={<WishlistPage />} />
+            <Route path="profile" element={<ProfilePage />} />
+            <Route path="profile/edit" element={<EditProfilePage />} />
+            <Route path="become-seller" element={<BecomeSellerPage />} />
+            <Route path="become-delivery-partner" element={<BecomeDeliveryPartnerPage />} />
+            <Route path="addresses" element={<AddressesPage />} />
+          </Route>
         </Route>
 
         {/* Seller Route Group */}
@@ -139,6 +145,8 @@ export const AppRouter: React.FC = () => {
           <Route path="inventory" element={<SellerInventory />} />
           <Route path="settings" element={<SellerSettings />} />
           <Route path="coupons" element={<SellerCoupons />} />
+          <Route path="wallet" element={<SellerWallet />} />
+          <Route path="ads" element={<SellerAds />} />
           <Route path="qa" element={<SellerQA />} />
         </Route>
 
@@ -171,10 +179,15 @@ export const AppRouter: React.FC = () => {
           <Route path="partners" element={<AdminPartners />} />
           <Route path="orders" element={<AdminOrders />} />
           <Route path="deliveries" element={<AdminDeliveries />} />
+          <Route path="deliveries/:id" element={<AdminDeliveryDetail />} />
+          <Route path="delivery-partners/:id" element={<AdminDeliveryPartnerDetail />} />
           <Route path="users" element={<AdminUsers />} />
           <Route path="policies" element={<AdminPolicies />} />
           <Route path="refunds" element={<AdminRefunds />} />
+          <Route path="refunds/:id" element={<AdminRefundDetail />} />
           <Route path="returns" element={<AdminReturns />} />
+          <Route path="wallets" element={<AdminWallets />} />
+          <Route path="returns/:id" element={<AdminReturnDetail />} />
         </Route>
 
         {/* Catch-all Redirect */}

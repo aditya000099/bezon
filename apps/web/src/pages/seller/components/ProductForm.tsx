@@ -8,6 +8,7 @@ import {
   Link as LinkIcon,
   CheckCircle,
   ShieldCheck,
+  Sparkle,
 } from '@phosphor-icons/react';
 import api from '../../../lib/api';
 import { API_ENDPOINTS } from '../../../config/api.config';
@@ -40,6 +41,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const [title, setTitle] = useState('');
   const [brand, setBrand] = useState('');
   const [description, setDescription] = useState('');
+  const [shortDescription, setShortDescription] = useState('');
+  const [showAIInput, setShowAIInput] = useState(false);
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false);
   const [categoryId, setCategoryId] = useState('');
   const [status, setStatus] = useState<'draft' | 'published'>('published');
 
@@ -150,6 +154,27 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     }
   }, [product]);
 
+  const handleGenerateAI = async () => {
+    if (!shortDescription) {
+      toast.error('Please enter a short description first.');
+      return;
+    }
+    setIsGeneratingAI(true);
+    try {
+      const res = await api.post(API_ENDPOINTS.products.generateDescription, { shortDescription });
+      if (res.data.success) {
+        setDescription(res.data.data);
+        setShowAIInput(false);
+        setShortDescription('');
+        toast.success('AI description generated successfully.');
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to generate AI description.');
+    } finally {
+      setIsGeneratingAI(false);
+    }
+  };
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -178,11 +203,12 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         } catch (imgErr: any) {
           failedCount++;
           console.error(`Failed to upload image ${files[i].name}:`, imgErr);
+          toast.error(imgErr.response?.data?.message || `Failed to upload ${files[i].name}`);
         }
       }
       setImages(currentImages);
       if (failedCount > 0) {
-        toast.error(`${failedCount} image(s) failed to upload.`);
+        // Specific errors are shown above per image
       }
       if (currentImages.length > images.length) {
         toast.success('Images uploaded successfully.');
@@ -350,9 +376,43 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             </select>
           </div>
           <div className="flex flex-col gap-1.5 md:col-span-2">
-            <label className="text-xs font-bold text-zinc-500 uppercase">
-              Description
-            </label>
+            <div className="flex justify-between items-end">
+              <label className="text-xs font-bold text-zinc-500 uppercase">
+                Description
+              </label>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-6 text-xs text-teal-600 hover:text-teal-700 hover:bg-teal-50 px-2"
+                onClick={() => setShowAIInput(!showAIInput)}
+              >
+                <Sparkle className="h-3 w-3 mr-1" weight="fill" />
+                AI Write
+              </Button>
+            </div>
+            
+            {showAIInput && (
+              <div className="flex gap-2 p-3 bg-teal-50/50 border border-teal-100 rounded-md mb-1 animate-in fade-in slide-in-from-top-1">
+                <Input
+                  className="h-8 bg-white"
+                  placeholder="E.g. wireless noise cancelling headphones with 30hr battery..."
+                  value={shortDescription}
+                  onChange={(e) => setShortDescription(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleGenerateAI(); } }}
+                />
+                <Button 
+                  type="button" 
+                  size="sm" 
+                  className="h-8 bg-teal-600 hover:bg-teal-700"
+                  onClick={handleGenerateAI}
+                  disabled={isGeneratingAI || !shortDescription}
+                >
+                  {isGeneratingAI ? <Spinner className="h-3 w-3 animate-spin" /> : 'Generate'}
+                </Button>
+              </div>
+            )}
+            
             <textarea
               className="flex min-h-25 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               placeholder="Detailed description of the product..."

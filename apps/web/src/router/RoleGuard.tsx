@@ -25,7 +25,7 @@ export const RoleGuard: React.FC<RoleGuardProps> = ({ children, allowedRoles }) 
 
   if (!allowedRoles.includes(user.role)) {
     const defaults = {
-      customer: '/shop',
+      customer: '/',
       seller: '/seller',
       delivery: '/delivery',
       admin: '/admin',

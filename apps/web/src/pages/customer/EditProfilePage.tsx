@@ -82,7 +82,7 @@ export const EditProfilePage: React.FC = () => {
         // Refresh our Auth Context state so the entire header/app reflects our new profile details!
         await checkAuth();
         // Take us back to the profile dashboard page!
-        navigate('/shop/profile');
+        navigate('/profile');
       } else {
         toast.error(response.data.message || 'Failed to update profile.');
       }
@@ -102,7 +102,7 @@ export const EditProfilePage: React.FC = () => {
       {/* Back button link to return to the profile view */}
       <div className="flex items-center">
         <Link
-          to="/shop/profile"
+          to="/profile"
           className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-600 hover:text-teal-600 transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -253,7 +253,7 @@ export const EditProfilePage: React.FC = () => {
             <Button
               type="button"
               variant="outline"
-              onClick={() => navigate('/shop/profile')}
+              onClick={() => navigate('/profile')}
               className="w-full sm:w-auto rounded-xl border-0 bg-white text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 font-bold h-12 px-6 shadow-sm"
             >
               Cancel

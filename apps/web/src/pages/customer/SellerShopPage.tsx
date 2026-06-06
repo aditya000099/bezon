@@ -27,6 +27,7 @@ import { API_ENDPOINTS } from '../../config/api.config';
 import { useToast } from '../../context/ToastContext';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
+import { useAuth } from '../../context/AuthContext';
 
 interface SellerShopData {
   id: string;
@@ -44,6 +45,7 @@ export const SellerShopPage: React.FC = () => {
   const { toast } = useToast();
   const { addItem } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
+  const { user } = useAuth();
 
   const [seller, setSeller] = useState<SellerShopData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -70,6 +72,10 @@ export const SellerShopPage: React.FC = () => {
   }, [shopSlug]);
 
   const handleAddToCart = async (product: Product) => {
+    if (!user) {
+      toast.error('Please login to add items to cart.');
+      return;
+    }
     setAddingToCart((prev) => ({ ...prev, [product.id]: true }));
     try {
       const price = Number(product.basePrice);
@@ -98,7 +104,7 @@ export const SellerShopPage: React.FC = () => {
         <h2 className="text-xl font-bold text-zinc-700">
           Shop profile not found
         </h2>
-        <Link to="/shop">
+        <Link to="/">
           <Button variant="default">Return to Marketplace</Button>
         </Link>
       </div>
@@ -138,7 +144,7 @@ export const SellerShopPage: React.FC = () => {
     <div className="flex flex-col gap-8">
       {/* Back to general shop */}
       <div>
-        <Link to="/shop">
+        <Link to="/">
           <Button
             variant="ghost"
             size="sm"
@@ -310,6 +316,10 @@ export const SellerShopPage: React.FC = () => {
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
+                            if (!user) {
+                              toast.error('Please login to use your wishlist.');
+                              return;
+                            }
                             toggleWishlist(p.id, p.title);
                           }}
                           className="absolute top-3 right-3 z-10 h-7 w-7 bg-white/90 hover:bg-white text-zinc-400 hover:text-rose-500 border border-zinc-100 rounded-full flex items-center justify-center shadow-xs backdrop-blur-xs transition-colors"
@@ -319,7 +329,7 @@ export const SellerShopPage: React.FC = () => {
                           />
                         </button>
 
-                        <Link to={`/shop/products/${p.slug}`}>
+                        <Link to={`/products/${p.slug}`}>
                           <div className="aspect-square bg-zinc-50 border-b border-zinc-100 flex items-center justify-center text-zinc-300 font-semibold text-xs select-none cursor-pointer overflow-hidden">
                             {(() => {
                               const primaryImg =
@@ -342,7 +352,7 @@ export const SellerShopPage: React.FC = () => {
                           <span className="text-[9px] font-extrabold text-teal-600 uppercase tracking-widest">
                             {p.brand || 'Seller Direct'}
                           </span>
-                          <Link to={`/shop/products/${p.slug}`}>
+                          <Link to={`/products/${p.slug}`}>
                             <CardTitle className="text-sm font-bold text-zinc-800 line-clamp-1 mt-0.5 hover:text-teal-600 transition-colors">
                               {p.title}
                             </CardTitle>

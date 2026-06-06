@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Clock, User, Storefront, Truck, Phone, Envelope } from '@phosphor-icons/react';
+import { Clock, User, Storefront, Truck, Phone, Envelope, Database } from '@phosphor-icons/react';
 import { OrderTrackingStepper } from '../../../components/ui/OrderTrackingStepper';
 import { formatStatusText } from '../../../utils/statusFormatter';
 
@@ -139,6 +139,50 @@ export const AdminOrderDetailModal: React.FC<AdminOrderDetailModalProps> = ({
                   ) : (
                     <p className="text-sm text-zinc-400 italic">No delivery partner assigned to this order yet.</p>
                   )}
+                </Card>
+
+                {/* Settlement Information */}
+                <Card className="p-4 bg-white border-zinc-200">
+                  <h4 className="text-xs font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-1.5 mb-3">
+                    <Database className="h-4 w-4 text-zinc-500" />
+                    Settlement & Escrow
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div>
+                      <p className="text-xs text-zinc-400">Escrow Status</p>
+                      <span className={`inline-block px-2 py-0.5 text-[10px] font-bold rounded mt-1 whitespace-nowrap ${
+                        selectedOrderDetails.settlementStatus === 'SETTLED' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                        selectedOrderDetails.settlementStatus === 'HOLDING' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                        'bg-zinc-50 text-zinc-700 border-zinc-200'
+                      }`}>
+                        {selectedOrderDetails.settlementStatus || 'PENDING'}
+                      </span>
+                    </div>
+                    {selectedOrderDetails.settlementAmount && (
+                      <div>
+                        <p className="text-xs text-zinc-400">Amount</p>
+                        <p className="font-semibold text-zinc-800 mt-0.5">
+                          {formatCurrency(parseFloat(selectedOrderDetails.settlementAmount))}
+                        </p>
+                      </div>
+                    )}
+                    {selectedOrderDetails.settlementHeldAt && (
+                      <div>
+                        <p className="text-xs text-zinc-400">Held At</p>
+                        <p className="text-sm font-semibold text-zinc-800 mt-0.5">
+                          {new Date(selectedOrderDetails.settlementHeldAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                    )}
+                    {selectedOrderDetails.settlementReleasedAt && (
+                      <div>
+                        <p className="text-xs text-zinc-400">Released At</p>
+                        <p className="text-sm font-semibold text-zinc-800 mt-0.5">
+                          {new Date(selectedOrderDetails.settlementReleasedAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </Card>
 
                 {/* Order Items */}

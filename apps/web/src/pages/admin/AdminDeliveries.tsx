@@ -1,393 +1,493 @@
 import React, { useState, useEffect } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Link } from "react-router-dom";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import api from "../../lib/api";
+import { API_ENDPOINTS } from "../../config/api.config";
 import { useToast } from "../../context/ToastContext";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Spinner,
+  Package,
+  Truck,
+  ArrowUUpLeft,
+  Users,
+  WarningCircle,
+} from "@phosphor-icons/react";
 
 export const AdminDeliveries: React.FC = () => {
-  const [applications, setApplications] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedApp, setSelectedApp] = useState<any | null>(null);
-  const [rejectReason, setRejectReason] = useState("");
-  const [showRejectInput, setShowRejectInput] = useState(false);
   const [activeTab, setActiveTab] = useState<
-    "pending" | "approved" | "suspended" | "rejected"
-  >("pending");
+    "overview" | "deliveries" | "returns" | "partners" | "exceptions"
+  >("overview");
+  const [loading, setLoading] = useState(true);
+
+  // Data State
+  const [dashboard, setDashboard] = useState<any>(null);
+  const [deliveries, setDeliveries] = useState<any[]>([]);
+  const [returns, setReturns] = useState<any[]>([]);
+  const [partners, setPartners] = useState<any[]>([]);
+  const [exceptions, setExceptions] = useState<any>({
+    deliveryExceptions: [],
+    returnPickupsExceptions: [],
+  });
+  const [cityAnalytics, setCityAnalytics] = useState<any[]>([]);
+
   const { toast } = useToast();
 
-  const fetchApplications = async () => {
+  const fetchAllData = async () => {
     try {
       setLoading(true);
-      const response = await api.get(
-        "/api/v1/applications/admin/delivery/applications",
-      );
-      if (response.data.success) {
-        setApplications(response.data.data);
-      }
+      const [dashRes, delRes, retRes, partRes, excRes, cityRes] =
+        await Promise.all([
+          api.get(API_ENDPOINTS.adminDeliveries.dashboard),
+          api.get(API_ENDPOINTS.adminDeliveries.deliveries),
+          api.get(API_ENDPOINTS.adminDeliveries.returns),
+          api.get(API_ENDPOINTS.adminDeliveries.partners),
+          api.get(API_ENDPOINTS.adminDeliveries.exceptions),
+          api.get(API_ENDPOINTS.adminDeliveries.cityAnalytics),
+        ]);
+      setDashboard(dashRes.data.data);
+      setDeliveries(delRes.data.data);
+      setReturns(retRes.data.data);
+      setPartners(partRes.data.data);
+      setExceptions(excRes.data.data);
+      setCityAnalytics(cityRes.data.data);
     } catch (err: any) {
-      toast.error("Failed to load delivery applications");
+      toast.error("Failed to load delivery operations data");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchApplications();
+    fetchAllData();
   }, []);
 
-  const handleApprove = async () => {
-    if (!selectedApp) return;
-    try {
-      const response = await api.post(
-        `/api/v1/applications/admin/delivery/${selectedApp.id}/approve`,
-      );
-      if (response.data.success) {
-        toast.success("Delivery partner approved successfully");
-        setSelectedApp(null);
-        fetchApplications();
-      }
-    } catch (err: any) {
-      toast.error(
-        err.response?.data?.message || "Failed to approve delivery partner",
-      );
-    }
-  };
-
-  const handleReject = async () => {
-    if (!selectedApp || !rejectReason.trim()) {
-      toast.error("Rejection reason is required");
-      return;
-    }
-    try {
-      const response = await api.post(
-        `/api/v1/applications/admin/delivery/${selectedApp.id}/reject`,
-        {
-          reason: rejectReason,
-        },
-      );
-      if (response.data.success) {
-        toast.success("Delivery partner application rejected");
-        setSelectedApp(null);
-        setShowRejectInput(false);
-        setRejectReason("");
-        fetchApplications();
-      }
-    } catch (err: any) {
-      toast.error(
-        err.response?.data?.message || "Failed to reject delivery partner",
-      );
-    }
-  };
-
-  const handleSuspend = async () => {
-    if (!selectedApp) return;
-    try {
-      const response = await api.post(
-        `/api/v1/applications/admin/delivery/${selectedApp.id}/suspend`,
-      );
-      if (response.data.success) {
-        toast.success("Delivery partner suspended successfully");
-        setSelectedApp(null);
-        fetchApplications();
-      }
-    } catch (err: any) {
-      toast.error(
-        err.response?.data?.message || "Failed to suspend delivery partner",
-      );
-    }
-  };
-
-  const handleReactivate = async () => {
-    if (!selectedApp) return;
-    try {
-      const response = await api.post(
-        `/api/v1/applications/admin/delivery/${selectedApp.id}/reactivate`,
-      );
-      if (response.data.success) {
-        toast.success("Delivery partner reactivated successfully");
-        setSelectedApp(null);
-        fetchApplications();
-      }
-    } catch (err: any) {
-      toast.error(
-        err.response?.data?.message || "Failed to reactivate delivery partner",
-      );
-    }
-  };
-
-  const filteredApps = applications.filter((app) => app.status === activeTab);
-
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            Delivery Partners
-          </h1>
-          <p className="text-muted-foreground">
-            Manage delivery partner accounts and applications
-          </p>
-        </div>
+    <div className="space-y-6 pb-10">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">
+          Delivery Operations Center
+        </h1>
+        <p className="text-muted-foreground">
+          Monitor deliveries, returns, partners, and analytics.
+        </p>
       </div>
 
-      <div className="space-y-4 mt-4">
-        <div className="flex space-x-2 border-b pb-2 overflow-x-auto">
-          {["pending", "approved", "suspended", "rejected"].map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab as any)}
-              className={`px-4 py-2 text-sm font-medium rounded-md whitespace-nowrap ${activeTab === tab ? "bg-zinc-900 text-white" : "text-zinc-600 hover:bg-zinc-100"}`}
-            >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)} (
-              {applications.filter((a) => a.status === tab).length})
-            </button>
-          ))}
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Delivery
-              Partners
-            </CardTitle>
-            <CardDescription>
-              Manage {activeTab} delivery partner accounts.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <div className="py-8 text-center text-zinc-500">
-                Loading applications...
-              </div>
-            ) : filteredApps.length === 0 ? (
-              <div className="py-8 text-center text-zinc-500">
-                No {activeTab} delivery partners found.
-              </div>
-            ) : (
-              <div className="divide-y border rounded-md">
-                {filteredApps.map((app) => (
-                  <div
-                    key={app.id}
-                    className="p-4 flex items-center justify-between hover:bg-zinc-50"
-                  >
-                    <div>
-                      <h4 className="font-semibold text-lg">
-                        {app.user?.name}
-                      </h4>
-                      <div className="text-sm text-zinc-500 flex gap-4 mt-1">
-                        <span>Email: {app.user?.email}</span>
-                        <span>
-                          Applied:{" "}
-                          {new Date(app.createdAt).toLocaleDateString()}
-                        </span>
-                      </div>
-                      <div className="mt-2 inline-flex gap-2">
-                        <span
-                          className={`px-2 py-1 text-xs font-semibold rounded-full ${app.status === "pending" ? "bg-amber-100 text-amber-800" : "bg-red-100 text-red-800"}`}
-                        >
-                          {app.status.toUpperCase()}
-                        </span>
-                        <span className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 uppercase">
-                          {app.vehicleType}
-                        </span>
-                      </div>
-                    </div>
-                    <Button
-                      onClick={() => {
-                        setSelectedApp(app);
-                        setShowRejectInput(false);
-                        setRejectReason("");
-                      }}
-                    >
-                      View Details
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+      <div className="flex space-x-2 border-b pb-2 overflow-x-auto">
+        {[
+          { id: "overview", label: "Overview", icon: <Package /> },
+          { id: "deliveries", label: "Deliveries", icon: <Truck /> },
+          { id: "returns", label: "Return Pickups", icon: <ArrowUUpLeft /> },
+          { id: "partners", label: "Partners", icon: <Users /> },
+          { id: "exceptions", label: "Exceptions", icon: <WarningCircle /> },
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id as any)}
+            className={`px-4 py-2 text-sm font-medium rounded-md whitespace-nowrap flex items-center gap-2 ${activeTab === tab.id ? "bg-zinc-900 text-white" : "text-zinc-600 hover:bg-zinc-100"}`}
+          >
+            {tab.icon} {tab.label}
+          </button>
+        ))}
       </div>
 
-      <Dialog
-        open={!!selectedApp}
-        onOpenChange={(open) => !open && setSelectedApp(null)}
-      >
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Review Delivery Partner Application</DialogTitle>
-            <DialogDescription>
-              Review the details provided by the user before approving or
-              rejecting.
-            </DialogDescription>
-          </DialogHeader>
-
-          {selectedApp && (
-            <div className="space-y-6 py-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <h5 className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-1">
-                    User Information
-                  </h5>
-                  <p className="font-medium">{selectedApp.user?.name}</p>
-                  <p className="text-sm text-zinc-600">
-                    {selectedApp.user?.email}
-                  </p>
-                </div>
-                <div>
-                  <h5 className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-1">
-                    Emergency Contact
-                  </h5>
-                  <p className="font-medium">
-                    {selectedApp.emergencyContactName}
-                  </p>
-                  <p className="text-sm text-zinc-600">
-                    {selectedApp.emergencyContactPhone}
-                  </p>
-                </div>
+      {loading ? (
+        <div className="flex justify-center items-center py-20">
+          <Spinner className="animate-spin text-teal-600 h-8 w-8" />
+        </div>
+      ) : (
+        <>
+          {/* OVERVIEW TAB */}
+          {activeTab === "overview" && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <Card className="bg-amber-50 border-amber-200">
+                  <CardContent className="p-4 flex flex-col justify-center items-center">
+                    <p className="text-sm font-medium text-amber-800">
+                      Pending Pickup
+                    </p>
+                    <p className="text-3xl font-bold text-amber-900">
+                      {dashboard?.deliveriesPendingPickup || 0}
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card className="bg-rose-50 border-rose-200">
+                  <CardContent className="p-4 flex flex-col justify-center items-center">
+                    <p className="text-sm font-medium text-rose-800">
+                      Stuck {">"} 24h
+                    </p>
+                    <p className="text-3xl font-bold text-rose-900">
+                      {dashboard?.deliveriesStuck || 0}
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card className="bg-blue-50 border-blue-200">
+                  <CardContent className="p-4 flex flex-col justify-center items-center">
+                    <p className="text-sm font-medium text-blue-800">
+                      Return Pending Assignment
+                    </p>
+                    <p className="text-3xl font-bold text-blue-900">
+                      {dashboard?.returnPickupsPending || 0}
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card className="bg-emerald-50 border-emerald-200">
+                  <CardContent className="p-4 flex flex-col justify-center items-center">
+                    <p className="text-sm font-medium text-emerald-800">
+                      Active Return Pickups
+                    </p>
+                    <p className="text-3xl font-bold text-emerald-900">
+                      {dashboard?.activeReturnPickups || 0}
+                    </p>
+                  </CardContent>
+                </Card>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <h5 className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-1">
-                    Identity Documents
-                  </h5>
-                  <p className="text-sm">
-                    <span className="font-medium">Aadhaar:</span>{" "}
-                    {selectedApp.aadhaarNumber}
-                  </p>
-                  <p className="text-sm">
-                    <span className="font-medium">PAN:</span>{" "}
-                    {selectedApp.panNumber}
-                  </p>
-                  <p className="text-sm">
-                    <span className="font-medium">License:</span>{" "}
-                    {selectedApp.drivingLicense || "N/A"}
-                  </p>
-                </div>
-                <div>
-                  <h5 className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-1">
-                    Vehicle Details
-                  </h5>
-                  <p className="text-sm capitalize">
-                    <span className="font-medium">Type:</span>{" "}
-                    {selectedApp.vehicleType}
-                  </p>
-                  <p className="text-sm">
-                    <span className="font-medium">Reg. Number:</span>{" "}
-                    {selectedApp.vehicleNumber || "N/A"}
-                  </p>
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>City Analytics</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>City</TableHead>
+                          <TableHead className="text-right">
+                            Active Deliveries
+                          </TableHead>
+                          <TableHead className="text-right">
+                            Available Partners
+                          </TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {cityAnalytics.map((c, i) => (
+                          <TableRow key={i}>
+                            <TableCell className="font-medium">
+                              {c.city || "Unknown"}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {c.deliveries}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {c.partners}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Partner Leaderboard (Top 5)</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Partner Name</TableHead>
+                          <TableHead className="text-right">
+                            Completed
+                          </TableHead>
+                          <TableHead className="text-right">
+                            Success Rate
+                          </TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {[...partners]
+                          .sort((a, b) => b.totalDelivered - a.totalDelivered)
+                          .slice(0, 5)
+                          .map((p) => (
+                            <TableRow key={p.id}>
+                              <TableCell>
+                                <Link
+                                  to={`/admin/delivery-partners/${p.id}`}
+                                  className="text-blue-600 hover:underline"
+                                >
+                                  {p.user.name}
+                                </Link>
+                              </TableCell>
+                              <TableCell className="text-right">
+                                {p.totalDelivered}
+                              </TableCell>
+                              <TableCell className="text-right">
+                                {p.successRate.toFixed(1)}%
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
               </div>
-
-              <div>
-                <h5 className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-1">
-                  Address
-                </h5>
-                <p className="text-sm">{selectedApp.addressLine}</p>
-                <p className="text-sm">
-                  {selectedApp.city}, {selectedApp.state} {selectedApp.pincode}
-                </p>
-              </div>
-
-              {selectedApp.status === "rejected" && (
-                <div className="bg-red-50 text-red-800 p-3 rounded-md text-sm">
-                  <span className="font-semibold">
-                    Previous Rejection Reason:
-                  </span>{" "}
-                  {selectedApp.rejectionReason}
-                </div>
-              )}
-
-              {showRejectInput && (
-                <div className="space-y-2 pt-4 border-t">
-                  <label className="text-sm font-medium text-red-600">
-                    Reason for Rejection *
-                  </label>
-                  <textarea
-                    value={rejectReason}
-                    onChange={(e) => setRejectReason(e.target.value)}
-                    placeholder="Explain why the application is being rejected..."
-                    rows={3}
-                    className="flex min-h-20 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  />
-                  <div className="flex justify-end gap-2 mt-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setShowRejectInput(false)}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={handleReject}
-                    >
-                      Confirm Rejection
-                    </Button>
-                  </div>
-                </div>
-              )}
             </div>
           )}
 
-          <DialogFooter className="gap-2 sm:gap-0">
-            {!showRejectInput && (
-              <>
-                <Button variant="outline" onClick={() => setSelectedApp(null)}>
-                  Close
-                </Button>
-                <div className="flex gap-2">
-                  {selectedApp?.status === "pending" && (
-                    <>
-                      <Button
-                        variant="destructive"
-                        onClick={() => setShowRejectInput(true)}
-                      >
-                        Reject
-                      </Button>
-                      <Button
-                        className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                        onClick={handleApprove}
-                      >
-                        Approve Partner
-                      </Button>
-                    </>
+          {/* DELIVERIES TAB */}
+          {activeTab === "deliveries" && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Deliveries Lifecycle</CardTitle>
+              </CardHeader>
+              <CardContent className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Order #</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>City</TableHead>
+                      <TableHead>Partner</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {deliveries.map((d) => (
+                      <TableRow key={d.id}>
+                        <TableCell className="font-medium">
+                          {d.orderNumber}
+                        </TableCell>
+                        <TableCell>
+                          <span className="px-2 py-1 bg-zinc-100 text-xs rounded font-semibold uppercase">
+                            {d.delivery?.status || d.status}
+                          </span>
+                        </TableCell>
+                        <TableCell>{d.seller?.city || "N/A"}</TableCell>
+                        <TableCell>
+                          {d.delivery?.partner?.user?.name || "Unassigned"}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Link to={`/admin/deliveries/${d.id}`}>
+                            <Button size="sm" variant="outline">
+                              Details
+                            </Button>
+                          </Link>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* RETURNS TAB */}
+          {activeTab === "returns" && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Return Pickups Lifecycle</CardTitle>
+              </CardHeader>
+              <CardContent className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Order #</TableHead>
+                      <TableHead>Return Status</TableHead>
+                      <TableHead>City</TableHead>
+                      <TableHead>Partner</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {returns.map((r) => (
+                      <TableRow key={r.id}>
+                        <TableCell className="font-medium">
+                          {r.orderNumber}
+                        </TableCell>
+                        <TableCell>
+                          <span className="px-2 py-1 bg-amber-100 text-amber-800 text-xs rounded font-semibold uppercase">
+                            {r.returnStatus}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          {(r.addressSnapshot as any)?.city || "N/A"}
+                        </TableCell>
+                        <TableCell>
+                          {r.returnPartner?.user?.name || "Unassigned"}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Link to={`/admin/deliveries/${r.id}`}>
+                            <Button size="sm" variant="outline">
+                              Details
+                            </Button>
+                          </Link>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* PARTNERS TAB */}
+          {activeTab === "partners" && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Partner Directory & Performance</CardTitle>
+              </CardHeader>
+              <CardContent className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Partner Name</TableHead>
+                      <TableHead>City</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Success Rate</TableHead>
+                      <TableHead>Active Tasks</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {partners.map((p) => (
+                      <TableRow key={p.id}>
+                        <TableCell className="font-medium">
+                          {p.user.name}
+                        </TableCell>
+                        <TableCell>{p.city}</TableCell>
+                        <TableCell>
+                          <span
+                            className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                              p.partnerStatus === "Available"
+                                ? "bg-emerald-100 text-emerald-800"
+                                : p.partnerStatus === "Busy"
+                                  ? "bg-amber-100 text-amber-800"
+                                  : p.partnerStatus === "Suspended"
+                                    ? "bg-red-100 text-red-800"
+                                    : "bg-zinc-100 text-zinc-800"
+                            }`}
+                          >
+                            {p.partnerStatus}
+                          </span>
+                        </TableCell>
+                        <TableCell>{p.successRate.toFixed(1)}%</TableCell>
+                        <TableCell>{p.activeTasks}</TableCell>
+                        <TableCell className="text-right">
+                          <Link to={`/admin/delivery-partners/${p.id}`}>
+                            <Button size="sm" variant="outline">
+                              Details
+                            </Button>
+                          </Link>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* EXCEPTIONS TAB */}
+          {activeTab === "exceptions" && (
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-red-600">
+                    Delivery Exceptions
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Order #</TableHead>
+                        <TableHead>Partner</TableHead>
+                        <TableHead>Failure Reason</TableHead>
+                        <TableHead className="text-right">Action</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {exceptions.deliveryExceptions.map((d: any) => (
+                        <TableRow key={d.id}>
+                          <TableCell className="font-medium">
+                            {d.order.orderNumber}
+                          </TableCell>
+                          <TableCell>
+                            {d.partner?.user?.name || "Unknown"}
+                          </TableCell>
+                          <TableCell className="text-red-600 font-medium">
+                            {d.failureReason}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Link to={`/admin/deliveries/${d.orderId}`}>
+                              <Button size="sm" variant="outline">
+                                Investigate
+                              </Button>
+                            </Link>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                  {exceptions.deliveryExceptions.length === 0 && (
+                    <div className="p-4 text-center text-zinc-500">
+                      No delivery exceptions recorded.
+                    </div>
                   )}
-                  {selectedApp?.status === "approved" && (
-                    <Button variant="destructive" onClick={handleSuspend}>
-                      Suspend Partner
-                    </Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-amber-600">
+                    Return Pickup Exceptions
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Order #</TableHead>
+                        <TableHead>Partner</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="text-right">Action</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {exceptions.returnPickupsExceptions.map((r: any) => (
+                        <TableRow key={r.id}>
+                          <TableCell className="font-medium">
+                            {r.orderNumber}
+                          </TableCell>
+                          <TableCell>
+                            {r.returnPartner?.user?.name || "Unknown"}
+                          </TableCell>
+                          <TableCell className="text-amber-600 font-medium">
+                            {r.returnStatus}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Link to={`/admin/deliveries/${r.id}`}>
+                              <Button size="sm" variant="outline">
+                                Investigate
+                              </Button>
+                            </Link>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                  {exceptions.returnPickupsExceptions.length === 0 && (
+                    <div className="p-4 text-center text-zinc-500">
+                      No return exceptions recorded.
+                    </div>
                   )}
-                  {selectedApp?.status === "suspended" && (
-                    <Button
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                      onClick={handleReactivate}
-                    >
-                      Reactivate Partner
-                    </Button>
-                  )}
-                </div>
-              </>
-            )}
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 };

@@ -63,6 +63,21 @@ enum OrderStatus {
   replacement_rejected
 }
 
+enum RefundStatus {
+  NONE
+  READY
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum SettlementStatus {
+  PENDING
+  HOLDING
+  SETTLED
+  REFUNDED
+}
+
 enum PaymentStatus {
   pending
   paid
@@ -169,6 +184,7 @@ model User {
   reviews         Review[]
   questions       ProductQuestion[]
   answers         ProductAnswer[]
+  wallet          Wallet?
 
   @@index([email])
   @@index([role])
@@ -177,35 +193,36 @@ model User {
 }
 
 model Seller {
-  id              String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId          String       @unique(map: "sellers_user_unique") @map("user_id") @db.Uuid
-  shopName        String       @map("shop_name") @db.VarChar(120)
-  shopSlug        String       @unique(map: "sellers_slug_unique") @map("shop_slug") @db.VarChar(120)
-  description     String?
-  logoUrl         String?      @map("logo_url")
-  status          SellerStatus @default(pending)
-  avgDispatchDays Int          @default(2) @map("avg_dispatch_days") @db.SmallInt
-  bankNameEnc     String?      @map("bank_name_enc")
-  bankAccountEnc  String?      @map("bank_account_enc")
-  ifscEnc         String?      @map("ifsc_enc")
-  rejectionReason String?      @map("rejection_reason")
-  gstin           String?      @db.VarChar(15)
-  panNumber       String?      @map("pan_number") @db.VarChar(10)
-  addressLine     String?      @map("address_line") @db.VarChar(200)
-  city            String?      @db.VarChar(80)
-  state           String?      @db.VarChar(80)
-  pincode         String?      @db.VarChar(10)
-  lat             Decimal?     @db.Decimal(9, 6)
-  lng             Decimal?     @db.Decimal(9, 6)
-  totalSales      Decimal      @default(0) @map("total_sales") @db.Decimal(14, 2)
-  totalOrders     Int          @default(0) @map("total_orders")
-  createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt       DateTime     @default(now()) @map("updated_at") @db.Timestamptz
-  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade, map: "sellers_user_fk")
-  products        Product[]
-  orders          Order[]
-  returnInspections Order[] @relation("ReturnInspectedBy")
-  coupons         Coupon[]
+  id                String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId            String       @unique(map: "sellers_user_unique") @map("user_id") @db.Uuid
+  shopName          String       @map("shop_name") @db.VarChar(120)
+  shopSlug          String       @unique(map: "sellers_slug_unique") @map("shop_slug") @db.VarChar(120)
+  description       String?
+  logoUrl           String?      @map("logo_url")
+  status            SellerStatus @default(pending)
+  avgDispatchDays   Int          @default(2) @map("avg_dispatch_days") @db.SmallInt
+  bankNameEnc       String?      @map("bank_name_enc")
+  bankAccountEnc    String?      @map("bank_account_enc")
+  ifscEnc           String?      @map("ifsc_enc")
+  rejectionReason   String?      @map("rejection_reason")
+  gstin             String?      @db.VarChar(15)
+  panNumber         String?      @map("pan_number") @db.VarChar(10)
+  addressLine       String?      @map("address_line") @db.VarChar(200)
+  city              String?      @db.VarChar(80)
+  state             String?      @db.VarChar(80)
+  pincode           String?      @db.VarChar(10)
+  lat               Decimal?     @db.Decimal(9, 6)
+  lng               Decimal?     @db.Decimal(9, 6)
+  totalSales        Decimal      @default(0) @map("total_sales") @db.Decimal(14, 2)
+  totalOrders       Int          @default(0) @map("total_orders")
+  createdAt         DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime     @default(now()) @map("updated_at") @db.Timestamptz
+  user              User         @relation(fields: [userId], references: [id], onDelete: Cascade, map: "sellers_user_fk")
+  products          Product[]
+  orders            Order[]
+  returnInspections Order[]      @relation("ReturnInspectedBy")
+  coupons           Coupon[]
+  adCampaigns       AdCampaign[]
 
   @@index([status])
   @@index([userId])
@@ -213,40 +230,40 @@ model Seller {
 }
 
 model DeliveryPartner {
-  id             String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId         String     @unique(map: "dp_user_unique") @map("user_id") @db.Uuid
-  status         DeliveryPartnerStatus @default(pending)
-  vehicleType    String     @default("bike") @map("vehicle_type") @db.VarChar(30)
-  vehicleNumber  String?    @map("vehicle_number") @db.VarChar(20)
-  isAvailable    Boolean    @default(false) @map("is_available")
-  aadhaarNumber  String?    @map("aadhaar_number") @db.VarChar(20)
-  panNumber      String?    @map("pan_number") @db.VarChar(10)
-  drivingLicense String?    @map("driving_license") @db.VarChar(20)
-  emergencyContactName  String? @map("emergency_contact_name") @db.VarChar(100)
-  emergencyContactPhone String? @map("emergency_contact_phone") @db.VarChar(20)
-  rejectionReason String?    @map("rejection_reason")
-  approvedAt     DateTime?  @map("approved_at") @db.Timestamptz
-  approvedBy     String?    @map("approved_by") @db.Uuid
-  rejectedAt     DateTime?  @map("rejected_at") @db.Timestamptz
-  rejectedBy     String?    @map("rejected_by") @db.Uuid
-  suspendedAt    DateTime?  @map("suspended_at") @db.Timestamptz
-  suspendedBy    String?    @map("suspended_by") @db.Uuid
-  currentLat     Decimal?   @map("current_lat") @db.Decimal(9, 6)
-  currentLng     Decimal?   @map("current_lng") @db.Decimal(9, 6)
-  totalDelivered Int        @default(0) @map("total_delivered")
-  totalFailed    Int        @default(0) @map("total_failed")
-  rating         Decimal?   @db.Decimal(3, 2)
-  addressLine    String?    @map("address_line") @db.VarChar(200)
-  city           String?    @db.VarChar(80)
-  state          String?    @db.VarChar(80)
-  pincode        String?    @db.VarChar(10)
-  lat            Decimal?   @db.Decimal(9, 6)
-  lng            Decimal?   @db.Decimal(9, 6)
-  createdAt      DateTime   @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt      DateTime   @default(now()) @map("updated_at") @db.Timestamptz
-  user           User       @relation(fields: [userId], references: [id], onDelete: Cascade, map: "dp_user_fk")
-  deliveries     Delivery[]
-  returnOrders   Order[]    @relation("ReturnPartner")
+  id                    String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId                String                @unique(map: "dp_user_unique") @map("user_id") @db.Uuid
+  status                DeliveryPartnerStatus @default(pending)
+  vehicleType           String                @default("bike") @map("vehicle_type") @db.VarChar(30)
+  vehicleNumber         String?               @map("vehicle_number") @db.VarChar(20)
+  isAvailable           Boolean               @default(false) @map("is_available")
+  aadhaarNumber         String?               @map("aadhaar_number") @db.VarChar(20)
+  panNumber             String?               @map("pan_number") @db.VarChar(10)
+  drivingLicense        String?               @map("driving_license") @db.VarChar(20)
+  emergencyContactName  String?               @map("emergency_contact_name") @db.VarChar(100)
+  emergencyContactPhone String?               @map("emergency_contact_phone") @db.VarChar(20)
+  rejectionReason       String?               @map("rejection_reason")
+  approvedAt            DateTime?             @map("approved_at") @db.Timestamptz
+  approvedBy            String?               @map("approved_by") @db.Uuid
+  rejectedAt            DateTime?             @map("rejected_at") @db.Timestamptz
+  rejectedBy            String?               @map("rejected_by") @db.Uuid
+  suspendedAt           DateTime?             @map("suspended_at") @db.Timestamptz
+  suspendedBy           String?               @map("suspended_by") @db.Uuid
+  currentLat            Decimal?              @map("current_lat") @db.Decimal(9, 6)
+  currentLng            Decimal?              @map("current_lng") @db.Decimal(9, 6)
+  totalDelivered        Int                   @default(0) @map("total_delivered")
+  totalFailed           Int                   @default(0) @map("total_failed")
+  rating                Decimal?              @db.Decimal(3, 2)
+  addressLine           String?               @map("address_line") @db.VarChar(200)
+  city                  String?               @db.VarChar(80)
+  state                 String?               @db.VarChar(80)
+  pincode               String?               @db.VarChar(10)
+  lat                   Decimal?              @db.Decimal(9, 6)
+  lng                   Decimal?              @db.Decimal(9, 6)
+  createdAt             DateTime              @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt             DateTime              @default(now()) @map("updated_at") @db.Timestamptz
+  user                  User                  @relation(fields: [userId], references: [id], onDelete: Cascade, map: "dp_user_fk")
+  deliveries            Delivery[]
+  returnOrders          Order[]               @relation("ReturnPartner")
 
   @@index([status])
   @@index([isAvailable])
@@ -313,15 +330,16 @@ model Product {
   category     Category?     @relation(fields: [categoryId], references: [id], onDelete: SetNull, map: "products_category_fk")
   variantGroup VariantGroup? @relation(fields: [variantGroupId], references: [id], onDelete: SetNull, map: "products_variant_group_fk")
 
-  images     ProductImage[]
-  cartItems  CartItem[]
-  orderItems OrderItem[]
-  wishlists  Wishlist[]
-  coupons    Coupon[]
-  activities UserActivity[]
-  reviews    Review[]
-  questions  ProductQuestion[]
-  policies   ProductPolicy[]
+  images      ProductImage[]
+  cartItems   CartItem[]
+  orderItems  OrderItem[]
+  wishlists   Wishlist[]
+  coupons     Coupon[]
+  activities  UserActivity[]
+  reviews     Review[]
+  questions   ProductQuestion[]
+  policies    ProductPolicy[]
+  adCampaigns AdCampaign[]
 
   @@index([sellerId])
   @@index([categoryId])
@@ -398,56 +416,70 @@ model CartItem {
 }
 
 model Order {
-  id                String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  orderNumber       String          @unique @map("order_number") @db.VarChar(20)
-  customerId        String          @map("customer_id") @db.Uuid
-  sellerId          String          @map("seller_id") @db.Uuid
-  addressId         String          @map("address_id") @db.Uuid
-  addressSnapshot   Json            @map("address_snapshot")
-  status            OrderStatus     @default(placed)
-  paymentStatus     PaymentStatus   @default(pending) @map("payment_status")
-  razorpayOrderId   String?         @map("razorpay_order_id") @db.VarChar(64)
-  razorpayPaymentId String?         @map("razorpay_payment_id") @db.VarChar(64)
-  razorpaySignature String?         @map("razorpay_signature")
-  subtotal          Decimal         @db.Decimal(12, 2)
-  shippingCharge    Decimal         @default(0) @map("shipping_charge") @db.Decimal(10, 2)
-  discount          Decimal         @default(0) @db.Decimal(10, 2)
-  couponId          String?         @map("coupon_id") @db.Uuid
-  couponCode        String?         @map("coupon_code") @db.VarChar(50)
-  total             Decimal         @db.Decimal(12, 2)
-  cancelReason      String?         @map("cancel_reason")
-  cancelledAt       DateTime?       @map("cancelled_at") @db.Timestamptz
-  cancelledBy          String?         @map("cancelled_by") @db.Uuid
-  deliveredAt          DateTime?       @map("delivered_at") @db.Timestamptz
-  returnStatus         ReturnStatus    @default(NONE) @map("return_status")
-  returnReason         ReturnReason?   @map("return_reason")
-  returnNotes          String?         @map("return_notes")
-  returnRequestedAt    DateTime?       @map("return_requested_at") @db.Timestamptz
-  returnApprovedAt     DateTime?       @map("return_approved_at") @db.Timestamptz
-  returnRejectedAt     DateTime?       @map("return_rejected_at") @db.Timestamptz
-  returnRejectedReason String?         @map("return_rejected_reason")
-  returnPartnerId      String?         @map("return_partner_id") @db.Uuid
-  returnAssignedAt     DateTime?       @map("return_assigned_at") @db.Timestamptz
-  returnPickedUpAt     DateTime?       @map("return_picked_up_at") @db.Timestamptz
-  returnCompletedAt    DateTime?       @map("return_completed_at") @db.Timestamptz
+  id                     String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderNumber            String                 @unique @map("order_number") @db.VarChar(20)
+  customerId             String                 @map("customer_id") @db.Uuid
+  sellerId               String                 @map("seller_id") @db.Uuid
+  addressId              String                 @map("address_id") @db.Uuid
+  addressSnapshot        Json                   @map("address_snapshot")
+  status                 OrderStatus            @default(placed)
+  paymentStatus          PaymentStatus          @default(pending) @map("payment_status")
+  razorpayOrderId        String?                @map("razorpay_order_id") @db.VarChar(64)
+  razorpayPaymentId      String?                @map("razorpay_payment_id") @db.VarChar(64)
+  razorpaySignature      String?                @map("razorpay_signature")
+  subtotal               Decimal                @db.Decimal(12, 2)
+  shippingCharge         Decimal                @default(0) @map("shipping_charge") @db.Decimal(10, 2)
+  discount               Decimal                @default(0) @db.Decimal(10, 2)
+  couponId               String?                @map("coupon_id") @db.Uuid
+  couponCode             String?                @map("coupon_code") @db.VarChar(50)
+  total                  Decimal                @db.Decimal(12, 2)
+  cancelReason           String?                @map("cancel_reason")
+  cancelledAt            DateTime?              @map("cancelled_at") @db.Timestamptz
+  cancelledBy            String?                @map("cancelled_by") @db.Uuid
+  deliveredAt            DateTime?              @map("delivered_at") @db.Timestamptz
+  returnStatus           ReturnStatus           @default(NONE) @map("return_status")
+  returnReason           ReturnReason?          @map("return_reason")
+  returnNotes            String?                @map("return_notes")
+  returnRequestedAt      DateTime?              @map("return_requested_at") @db.Timestamptz
+  returnApprovedAt       DateTime?              @map("return_approved_at") @db.Timestamptz
+  returnRejectedAt       DateTime?              @map("return_rejected_at") @db.Timestamptz
+  returnRejectedReason   String?                @map("return_rejected_reason")
+  returnPartnerId        String?                @map("return_partner_id") @db.Uuid
+  returnAssignedAt       DateTime?              @map("return_assigned_at") @db.Timestamptz
+  returnPickedUpAt       DateTime?              @map("return_picked_up_at") @db.Timestamptz
+  returnCompletedAt      DateTime?              @map("return_completed_at") @db.Timestamptz
   returnInspectionStatus ReturnInspectionStatus @default(PENDING_INSPECTION) @map("return_inspection_status")
   returnInspectionNotes  String?                @map("return_inspection_notes")
   returnInspectedAt      DateTime?              @map("return_inspected_at") @db.Timestamptz
   returnInspectedById    String?                @map("return_inspected_by_id") @db.Uuid
-  billUrl              String?         @map("bill_url")
-  idempotencyKey       String          @unique @default(dbgenerated("gen_random_uuid()")) @map("idempotency_key") @db.Uuid
-  createdAt            DateTime        @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt            DateTime        @default(now()) @map("updated_at") @db.Timestamptz
-  customer          User            @relation(fields: [customerId], references: [id], map: "orders_customer_fk")
-  seller            Seller          @relation(fields: [sellerId], references: [id], map: "orders_seller_fk")
-  coupon            Coupon?         @relation(fields: [couponId], references: [id], map: "orders_coupon_fk")
-  items             OrderItem[]
-  timeline          OrderTimeline[]
-  delivery          Delivery?
-  payments          Payment[]
-  couponUsages      CouponUsage[]
-  returnPartner     DeliveryPartner? @relation("ReturnPartner", fields: [returnPartnerId], references: [id], map: "orders_return_partner_fk")
-  returnInspectedBy Seller?          @relation("ReturnInspectedBy", fields: [returnInspectedById], references: [id], map: "orders_return_inspected_by_fk")
+  refundStatus           RefundStatus           @default(NONE) @map("refund_status")
+  refundAmount           Decimal?               @map("refund_amount") @db.Decimal(12, 2)
+  refundEligibleAt       DateTime?              @map("refund_eligible_at") @db.Timestamptz
+  refundInitiatedAt      DateTime?              @map("refund_initiated_at") @db.Timestamptz
+  refundedAt             DateTime?              @map("refunded_at") @db.Timestamptz
+  refundFailureReason    String?                @map("refund_failure_reason")
+  refundProcessedById    String?                @map("refund_processed_by_id") @db.Uuid
+
+  settlementStatus       SettlementStatus       @default(PENDING) @map("settlement_status")
+  settlementAmount       Decimal?               @map("settlement_amount") @db.Decimal(12, 2)
+  settlementHeldAt       DateTime?              @map("settlement_held_at") @db.Timestamptz
+  settledAt              DateTime?              @map("settled_at") @db.Timestamptz
+  settlementReleasedAt   DateTime?              @map("settlement_released_at") @db.Timestamptz
+
+  billUrl                String?                @map("bill_url")
+  idempotencyKey         String                 @unique @default(dbgenerated("gen_random_uuid()")) @map("idempotency_key") @db.Uuid
+  createdAt              DateTime               @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt              DateTime               @default(now()) @map("updated_at") @db.Timestamptz
+  customer               User                   @relation(fields: [customerId], references: [id], map: "orders_customer_fk")
+  seller                 Seller                 @relation(fields: [sellerId], references: [id], map: "orders_seller_fk")
+  coupon                 Coupon?                @relation(fields: [couponId], references: [id], map: "orders_coupon_fk")
+  items                  OrderItem[]
+  timeline               OrderTimeline[]
+  delivery               Delivery?
+  payments               Payment[]
+  couponUsages           CouponUsage[]
+  returnPartner          DeliveryPartner?       @relation("ReturnPartner", fields: [returnPartnerId], references: [id], map: "orders_return_partner_fk")
+  returnInspectedBy      Seller?                @relation("ReturnInspectedBy", fields: [returnInspectedById], references: [id], map: "orders_return_inspected_by_fk")
 
   @@index([customerId])
   @@index([sellerId])
@@ -751,4 +783,81 @@ model ProductPolicy {
   @@index([productId])
   @@index([policyId])
   @@map("product_policies")
+}
+
+// ── Wallet System ────────────────────────────────────────────────────────────
+
+model Wallet {
+  id           String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String              @unique @map("user_id") @db.Uuid
+  balance      Decimal             @default(0) @db.Decimal(14, 2)
+  currency     String              @default("INR") @db.VarChar(3)
+  createdAt    DateTime            @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime            @updatedAt @map("updated_at") @db.Timestamptz
+  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade, map: "wallet_user_fk")
+  transactions WalletTransaction[]
+
+  @@map("wallets")
+}
+
+model WalletTransaction {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  walletId      String   @map("wallet_id") @db.Uuid
+  type          String   @db.VarChar(10) // "credit" | "debit"
+  amount        Decimal  @db.Decimal(14, 2)
+  balanceBefore Decimal  @map("balance_before") @db.Decimal(14, 2)
+  balanceAfter  Decimal  @map("balance_after") @db.Decimal(14, 2)
+  referenceType String   @map("reference_type") @db.VarChar(30) // order_payout, ad_spend, refund_debit, manual_credit, manual_debit, withdrawal
+  referenceId   String?  @map("reference_id") @db.Uuid
+  description   String
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
+  wallet        Wallet   @relation(fields: [walletId], references: [id], onDelete: Cascade, map: "wt_wallet_fk")
+
+  @@index([walletId, createdAt(sort: Desc)])
+  @@index([referenceType])
+  @@map("wallet_transactions")
+}
+
+// ── Sponsored Ads System ────────────────────────────────────────────────────
+
+model AdCampaign {
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sellerId         String    @map("seller_id") @db.Uuid
+  productId        String    @map("product_id") @db.Uuid
+  title            String    @db.VarChar(200)
+  dailyBudget      Decimal   @map("daily_budget") @db.Decimal(10, 2)
+  totalBudget      Decimal   @map("total_budget") @db.Decimal(10, 2)
+  costPerClick     Decimal   @map("cost_per_click") @db.Decimal(6, 2)
+  status           String    @default("active") @db.VarChar(20) // active, paused, exhausted, expired
+  tags             String[]  @default([])
+  startDate        DateTime  @default(now()) @map("start_date") @db.Timestamptz
+  endDate          DateTime? @map("end_date") @db.Timestamptz
+  totalSpent       Decimal   @default(0) @map("total_spent") @db.Decimal(14, 2)
+  totalImpressions Int       @default(0) @map("total_impressions")
+  totalClicks      Int       @default(0) @map("total_clicks")
+  todaySpent       Decimal   @default(0) @map("today_spent") @db.Decimal(10, 2)
+  todayDate        DateTime  @default(now()) @map("today_date") @db.Date
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  seller           Seller    @relation(fields: [sellerId], references: [id], onDelete: Cascade, map: "ad_seller_fk")
+  product          Product   @relation(fields: [productId], references: [id], onDelete: Cascade, map: "ad_product_fk")
+  events           AdEvent[]
+
+  @@index([status, startDate, endDate])
+  @@index([sellerId])
+  @@index([productId])
+  @@map("ad_campaigns")
+}
+
+model AdEvent {
+  id         String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  campaignId String     @map("campaign_id") @db.Uuid
+  eventType  String     @map("event_type") @db.VarChar(15) // "impression" | "click"
+  userId     String?    @map("user_id") @db.Uuid
+  cost       Decimal    @default(0) @db.Decimal(6, 2)
+  createdAt  DateTime   @default(now()) @map("created_at") @db.Timestamptz
+  campaign   AdCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade, map: "ae_campaign_fk")
+
+  @@index([campaignId, eventType, createdAt])
+  @@map("ad_events")
 }

@@ -80,7 +80,7 @@ export const OrdersPage: React.FC = () => {
           <p className="text-xs text-zinc-400 mt-1">
             Browse our shop catalog to place your first order.
           </p>
-          <Link to="/shop">
+          <Link to="/">
             <Button className="mt-6 font-bold" size="sm">
               Explore Catalogue
             </Button>
@@ -129,22 +129,51 @@ export const OrdersPage: React.FC = () => {
                   </div>
 
                   <div className="flex gap-2 items-center">
-                    <span
-                      className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${getStatusStyle(order.status)}`}
-                    >
-                      {order.status.toUpperCase().replace(/_/g, ' ')}
-                    </span>
-                    {order.returnStatus && order.returnStatus !== 'NONE' && (
-                      <span
-                        className={`inline-block px-3 py-1 rounded-full text-xs font-bold border ${
-                          order.returnStatus === 'REQUESTED' ? 'bg-blue-50 text-blue-700 border-blue-200' :
-                          order.returnStatus === 'APPROVED' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
-                          'bg-rose-50 text-rose-700 border-rose-200'
-                        }`}
-                      >
-                        RETURN {order.returnStatus.toUpperCase()}
-                      </span>
-                    )}
+                    {(() => {
+                      const o = order as any;
+                      if (o.refundStatus && o.refundStatus !== 'NONE') {
+                        return (
+                          <span
+                            className={`inline-block px-3 py-1 rounded-full text-xs font-bold border ${
+                              o.refundStatus === 'COMPLETED'
+                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                : o.refundStatus === 'FAILED'
+                                  ? 'bg-rose-50 text-rose-700 border-rose-200'
+                                  : o.refundStatus === 'READY'
+                                    ? 'bg-blue-50 text-blue-700 border-blue-200'
+                                    : 'bg-amber-50 text-amber-700 border-amber-200'
+                            }`}
+                          >
+                            REFUND {o.refundStatus}
+                          </span>
+                        );
+                      }
+                      if (o.returnStatus && o.returnStatus !== 'NONE') {
+                        return (
+                          <span
+                            className={`inline-block px-3 py-1 rounded-full text-xs font-bold border ${
+                              o.returnStatus === 'REQUESTED'
+                                ? 'bg-blue-50 text-blue-700 border-blue-200'
+                                : o.returnStatus === 'APPROVED' ||
+                                    o.returnStatus === 'COMPLETED'
+                                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                  : o.returnStatus === 'REJECTED'
+                                    ? 'bg-rose-50 text-rose-700 border-rose-200'
+                                    : 'bg-amber-50 text-amber-700 border-amber-200'
+                            }`}
+                          >
+                            RETURN {o.returnStatus}
+                          </span>
+                        );
+                      }
+                      return (
+                        <span
+                          className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${getStatusStyle(order.status)}`}
+                        >
+                          {order.status.toUpperCase().replace(/_/g, ' ')}
+                        </span>
+                      );
+                    })()}
                   </div>
                 </div>
 
@@ -162,7 +191,7 @@ export const OrdersPage: React.FC = () => {
                     </p>
                   </div>
 
-                  <Link to={`/shop/orders/${order.id}`}>
+                  <Link to={`/orders/${order.id}`}>
                     <Button
                       variant="outline"
                       size="sm"
