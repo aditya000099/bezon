@@ -49,6 +49,8 @@ import { SellerReturns } from '../pages/seller/SellerReturns';
 import { SellerReturnDetail } from '../pages/seller/SellerReturnDetail';
 import { SellerOrderDetail } from '../pages/seller/SellerOrderDetail';
 import { SellerAddProduct } from '../pages/seller/SellerAddProduct';
+import { SellerWallet } from '../pages/seller/SellerWallet';
+import { SellerAds } from '../pages/seller/SellerAds';
 // Delivery Pages
 import { DeliveryQueue } from '../pages/delivery/DeliveryQueue';
 import { DeliveryHistory } from '../pages/delivery/DeliveryHistory';
@@ -65,6 +67,7 @@ import { AdminUsers } from '../pages/admin/AdminUsers';
 import { AdminPolicies } from '../pages/admin/AdminPolicies';
 import { AdminRefunds } from '../pages/admin/AdminRefunds';
 import { AdminReturns } from '../pages/admin/AdminReturns';
+import { AdminWallets } from '../pages/admin/AdminWallets';
 
 export const AppRouter: React.FC = () => {
   return (
@@ -139,6 +142,8 @@ export const AppRouter: React.FC = () => {
           <Route path="inventory" element={<SellerInventory />} />
           <Route path="settings" element={<SellerSettings />} />
           <Route path="coupons" element={<SellerCoupons />} />
+          <Route path="wallet" element={<SellerWallet />} />
+          <Route path="ads" element={<SellerAds />} />
           <Route path="qa" element={<SellerQA />} />
         </Route>
 
@@ -175,6 +180,7 @@ export const AppRouter: React.FC = () => {
           <Route path="policies" element={<AdminPolicies />} />
           <Route path="refunds" element={<AdminRefunds />} />
           <Route path="returns" element={<AdminReturns />} />
+          <Route path="wallets" element={<AdminWallets />} />
         </Route>
 
         {/* Catch-all Redirect */}

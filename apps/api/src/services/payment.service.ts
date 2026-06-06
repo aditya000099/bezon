@@ -5,6 +5,7 @@ import { PdfUtil } from '../utils/pdf.util.js';
 import { S3Service } from './s3.service.js';
 import { CartService } from './cart.service.js';
 import { RecommendationService } from './recommendation.service.js';
+import { WalletService } from './wallet.service.js';
 import { addressSchema } from '@bezon/validation';
 
 
@@ -447,6 +448,39 @@ export class PaymentService {
     // update flow. A Delivery record is only created when the seller marks
     // the order as READY_FOR_PICKUP — not at payment confirmation.
     // See: order.service.ts → updateOrderStatus → ready_for_pickup handler.
+
+    // Post-transaction: Credit seller wallets (order total minus 5% commission)
+    const PLATFORM_COMMISSION = 0.05;
+    setTimeout(async () => {
+      try {
+        const paidOrders = await prisma.order.findMany({
+          where: { razorpayOrderId },
+          include: { seller: { select: { userId: true, id: true } } },
+        });
+        for (const order of paidOrders) {
+          const sellerPayout = Math.round(Number(order.total) * (1 - PLATFORM_COMMISSION) * 100) / 100;
+          if (sellerPayout > 0) {
+            await WalletService.creditWallet(
+              order.seller.userId,
+              sellerPayout,
+              'order_payout',
+              order.id,
+              `Payout for order #${order.orderNumber} (₹${Number(order.total)} - 5% commission)`
+            );
+          }
+          // Update seller sales counters
+          await prisma.seller.update({
+            where: { id: order.seller.id },
+            data: {
+              totalSales: { increment: Number(order.total) },
+              totalOrders: { increment: 1 },
+            },
+          });
+        }
+      } catch (err) {
+        console.error('Failed to credit seller wallets:', err);
+      }
+    }, 0);
 
     // Post-transaction: Generate PDF invoices and upload to S3 async
     setTimeout(async () => {

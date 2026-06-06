@@ -19,6 +19,8 @@ import deliveryRouter from './delivery.routes.js';
 import policyRouter from './policy.routes.js';
 import applicationRouter from './application.routes.js';
 import supportChatRouter from './support-chat.routes.js';
+import walletRouter from './wallet.routes.js';
+import adsRouter from './ads.routes.js';
 
 const router = Router();
 
@@ -43,5 +45,7 @@ router.use('/delivery', deliveryRouter);
 router.use('/policies', policyRouter);
 router.use('/applications', applicationRouter);
 router.use('/support', supportChatRouter);
+router.use('/wallet', walletRouter);
+router.use('/ads', adsRouter);
 
 export default router;

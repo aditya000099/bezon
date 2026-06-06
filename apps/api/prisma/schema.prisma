@@ -169,6 +169,7 @@ model User {
   reviews         Review[]
   questions       ProductQuestion[]
   answers         ProductAnswer[]
+  wallet          Wallet?
 
   @@index([email])
   @@index([role])
@@ -206,6 +207,7 @@ model Seller {
   orders          Order[]
   returnInspections Order[] @relation("ReturnInspectedBy")
   coupons         Coupon[]
+  adCampaigns     AdCampaign[]
 
   @@index([status])
   @@index([userId])
@@ -313,15 +315,16 @@ model Product {
   category     Category?     @relation(fields: [categoryId], references: [id], onDelete: SetNull, map: "products_category_fk")
   variantGroup VariantGroup? @relation(fields: [variantGroupId], references: [id], onDelete: SetNull, map: "products_variant_group_fk")
 
-  images     ProductImage[]
-  cartItems  CartItem[]
-  orderItems OrderItem[]
-  wishlists  Wishlist[]
-  coupons    Coupon[]
-  activities UserActivity[]
-  reviews    Review[]
-  questions  ProductQuestion[]
-  policies   ProductPolicy[]
+  images      ProductImage[]
+  cartItems   CartItem[]
+  orderItems  OrderItem[]
+  wishlists   Wishlist[]
+  coupons     Coupon[]
+  activities  UserActivity[]
+  reviews     Review[]
+  questions   ProductQuestion[]
+  policies    ProductPolicy[]
+  adCampaigns AdCampaign[]
 
   @@index([sellerId])
   @@index([categoryId])
@@ -751,4 +754,80 @@ model ProductPolicy {
   @@index([productId])
   @@index([policyId])
   @@map("product_policies")
+}
+
+// ── Wallet System ────────────────────────────────────────────────────────────
+
+model Wallet {
+  id           String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String              @unique @map("user_id") @db.Uuid
+  balance      Decimal             @default(0) @db.Decimal(14, 2)
+  currency     String              @default("INR") @db.VarChar(3)
+  createdAt    DateTime            @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime            @updatedAt @map("updated_at") @db.Timestamptz
+  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade, map: "wallet_user_fk")
+  transactions WalletTransaction[]
+
+  @@map("wallets")
+}
+
+model WalletTransaction {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  walletId      String   @map("wallet_id") @db.Uuid
+  type          String   @db.VarChar(10) // "credit" | "debit"
+  amount        Decimal  @db.Decimal(14, 2)
+  balanceBefore Decimal  @map("balance_before") @db.Decimal(14, 2)
+  balanceAfter  Decimal  @map("balance_after") @db.Decimal(14, 2)
+  referenceType String   @map("reference_type") @db.VarChar(30) // order_payout, ad_spend, refund_debit, manual_credit, manual_debit, withdrawal
+  referenceId   String?  @map("reference_id") @db.Uuid
+  description   String
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
+  wallet        Wallet   @relation(fields: [walletId], references: [id], onDelete: Cascade, map: "wt_wallet_fk")
+
+  @@index([walletId, createdAt(sort: Desc)])
+  @@index([referenceType])
+  @@map("wallet_transactions")
+}
+
+// ── Sponsored Ads System ────────────────────────────────────────────────────
+
+model AdCampaign {
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sellerId         String    @map("seller_id") @db.Uuid
+  productId        String    @map("product_id") @db.Uuid
+  title            String    @db.VarChar(200)
+  dailyBudget      Decimal   @map("daily_budget") @db.Decimal(10, 2)
+  totalBudget      Decimal   @map("total_budget") @db.Decimal(10, 2)
+  costPerClick     Decimal   @map("cost_per_click") @db.Decimal(6, 2)
+  status           String    @default("active") @db.VarChar(20) // active, paused, exhausted, expired
+  startDate        DateTime  @default(now()) @map("start_date") @db.Timestamptz
+  endDate          DateTime? @map("end_date") @db.Timestamptz
+  totalSpent       Decimal   @default(0) @map("total_spent") @db.Decimal(14, 2)
+  totalImpressions Int       @default(0) @map("total_impressions")
+  totalClicks      Int       @default(0) @map("total_clicks")
+  todaySpent       Decimal   @default(0) @map("today_spent") @db.Decimal(10, 2)
+  todayDate        DateTime  @default(now()) @map("today_date") @db.Date
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  seller           Seller    @relation(fields: [sellerId], references: [id], onDelete: Cascade, map: "ad_seller_fk")
+  product          Product   @relation(fields: [productId], references: [id], onDelete: Cascade, map: "ad_product_fk")
+  events           AdEvent[]
+
+  @@index([status, startDate, endDate])
+  @@index([sellerId])
+  @@index([productId])
+  @@map("ad_campaigns")
+}
+
+model AdEvent {
+  id         String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  campaignId String     @map("campaign_id") @db.Uuid
+  eventType  String     @map("event_type") @db.VarChar(15) // "impression" | "click"
+  userId     String?    @map("user_id") @db.Uuid
+  cost       Decimal    @default(0) @db.Decimal(6, 2)
+  createdAt  DateTime   @default(now()) @map("created_at") @db.Timestamptz
+  campaign   AdCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade, map: "ae_campaign_fk")
+
+  @@index([campaignId, eventType, createdAt])
+  @@map("ad_events")
 }

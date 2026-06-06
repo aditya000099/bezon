@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Card,
   CardHeader,
@@ -28,6 +28,7 @@ export const ShopPage: React.FC = () => {
   const { toast } = useToast();
   const { addItem } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
+  const navigate = useNavigate();
 
   // Catalogue and Categories states
   const [products, setProducts] = useState<Product[]>([]);
@@ -116,7 +117,16 @@ export const ShopPage: React.FC = () => {
     }
   };
 
-  const renderProductCard = (p: Product) => (
+  const handleProductClick = async (e: React.MouseEvent, p: any) => {
+    e.preventDefault();
+    if (p.isSponsored && p.campaignId) {
+      // Fire and forget click tracking
+      api.post(API_ENDPOINTS.ads.click(p.campaignId)).catch(console.error);
+    }
+    navigate(`/shop/products/${p.slug}`);
+  };
+
+  const renderProductCard = (p: any) => (
     <Card
       key={p.id}
       className="overflow-hidden flex flex-col justify-between bg-card relative group"
@@ -133,7 +143,12 @@ export const ShopPage: React.FC = () => {
           className={`h-4 w-4 ${isInWishlist(p.id) ? 'fill-rose-500 text-rose-500' : 'text-zinc-400'}`}
         />
       </button>
-      <Link to={`/shop/products/${p.slug}`}>
+      {p.isSponsored && (
+        <div className="absolute top-2 left-2 z-10 px-2 py-0.5 bg-zinc-900/80 backdrop-blur text-[9px] font-bold tracking-widest text-white rounded uppercase shadow-sm">
+          Sponsored
+        </div>
+      )}
+      <div onClick={(e) => handleProductClick(e, p)}>
         <div className="aspect-square bg-secondary flex items-center justify-center text-zinc-300 font-semibold text-xs select-none cursor-pointer overflow-hidden rounded-2xl">
           {(() => {
             const primaryImg =
@@ -149,16 +164,16 @@ export const ShopPage: React.FC = () => {
             );
           })()}
         </div>
-      </Link>
+      </div>
       <CardHeader className="p-2 pb-0">
         <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
           {p.brand || 'Unbranded'}
         </span>
-        <Link to={`/shop/products/${p.slug}`}>
+        <div onClick={(e) => handleProductClick(e, p)} className="cursor-pointer">
           <CardTitle className="text-base font-bold text-zinc-800 line-clamp-1 mt-0.5 hover:text-zinc-600 transition-colors">
             {p.title}
           </CardTitle>
-        </Link>
+        </div>
         <div className="flex items-center gap-1 mt-0.5 text-xs text-amber-500 font-bold">
           <Star className="h-3 w-3 fill-amber-500 text-amber-500" />
           <span>{p.avgRating ? Number(p.avgRating).toFixed(1) : '0.0'}</span>
