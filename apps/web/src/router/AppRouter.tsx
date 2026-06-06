@@ -65,6 +65,7 @@ import { AdminUsers } from '../pages/admin/AdminUsers';
 import { AdminPolicies } from '../pages/admin/AdminPolicies';
 import { AdminRefunds } from '../pages/admin/AdminRefunds';
 import { AdminReturns } from '../pages/admin/AdminReturns';
+import { AdminReturnDetail } from '../pages/admin/AdminReturnDetail';
 
 export const AppRouter: React.FC = () => {
   return (
@@ -175,6 +176,7 @@ export const AppRouter: React.FC = () => {
           <Route path="policies" element={<AdminPolicies />} />
           <Route path="refunds" element={<AdminRefunds />} />
           <Route path="returns" element={<AdminReturns />} />
+          <Route path="returns/:id" element={<AdminReturnDetail />} />
         </Route>
 
         {/* Catch-all Redirect */}

@@ -68,7 +68,17 @@ export class OrderService {
       return await prisma.order.findMany({
         where,
         include: {
-          items: true,
+          items: {
+            include: {
+              product: {
+                select: {
+                  title: true,
+                  slug: true,
+                  images: true,
+                }
+              }
+            }
+          },
           customer: {
             select: {
               name: true,
@@ -99,6 +109,16 @@ export class OrderService {
                 },
               },
             },
+          },
+          returnPartner: {
+            include: {
+              user: {
+                select: {
+                  name: true,
+                  phone: true,
+                }
+              }
+            }
           },
         },
         orderBy: { createdAt: 'desc' },
