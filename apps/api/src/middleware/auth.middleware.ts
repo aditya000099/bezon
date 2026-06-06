@@ -15,6 +15,7 @@ declare global {
         avatarUrl: string | null;
         isActive: boolean;
         seller?: {
+          id: string;
           status: string;
           rejectionReason: string | null;
         } | null;
@@ -64,7 +65,7 @@ export const authenticateUser = async (req: Request, res: Response, next: NextFu
         avatarUrl: true,
         isActive: true,
         seller: {
-          select: { status: true, rejectionReason: true },
+          select: { id: true, status: true, rejectionReason: true },
         },
       },
     });
