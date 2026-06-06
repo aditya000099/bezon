@@ -373,3 +373,78 @@ export const inspectReturn = async (req: Request, res: Response, next: NextFunct
     next(err);
   }
 };
+
+/**
+ * Phase 7 - Simulate Refund Processing
+ */
+export const simulateRefundProcessing = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const id = req.params.id as string;
+    
+    if (!req.user || req.user.role !== 'admin') {
+      return res.status(401).json({ success: false, message: 'Unauthorized session. Admin only.' });
+    }
+
+    const order = await OrderService.simulateRefundProcessing(id, req.user.id);
+    
+    res.json({
+      success: true,
+      message: 'Refund processing started.',
+      data: order,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Phase 7 - Simulate Refund Completed
+ */
+export const simulateRefundCompleted = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const id = req.params.id as string;
+    
+    if (!req.user || req.user.role !== 'admin') {
+      return res.status(401).json({ success: false, message: 'Unauthorized session. Admin only.' });
+    }
+
+    const order = await OrderService.simulateRefundCompleted(id, req.user.id);
+    
+    res.json({
+      success: true,
+      message: 'Refund completed.',
+      data: order,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Phase 7 - Simulate Refund Failed
+ */
+export const simulateRefundFailed = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const id = req.params.id as string;
+    const { reason } = req.body;
+    
+    if (!req.user || req.user.role !== 'admin') {
+      return res.status(401).json({ success: false, message: 'Unauthorized session. Admin only.' });
+    }
+
+    if (!reason) {
+      return res.status(400).json({ success: false, message: 'Failure reason is required.' });
+    }
+
+    const order = await OrderService.simulateRefundFailed(id, req.user.id, reason);
+    
+    res.json({
+      success: true,
+      message: 'Refund marked as failed.',
+      data: order,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+

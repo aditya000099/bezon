@@ -66,8 +66,10 @@ import { AdminDeliveries } from '../pages/admin/AdminDeliveries';
 import { AdminUsers } from '../pages/admin/AdminUsers';
 import { AdminPolicies } from '../pages/admin/AdminPolicies';
 import { AdminRefunds } from '../pages/admin/AdminRefunds';
+import { AdminRefundDetail } from '../pages/admin/AdminRefundDetail';
 import { AdminReturns } from '../pages/admin/AdminReturns';
 import { AdminWallets } from '../pages/admin/AdminWallets';
+import { AdminReturnDetail } from '../pages/admin/AdminReturnDetail';
 
 export const AppRouter: React.FC = () => {
   return (
@@ -111,7 +113,10 @@ export const AppRouter: React.FC = () => {
           <Route path="profile" element={<ProfilePage />} />
           <Route path="profile/edit" element={<EditProfilePage />} />
           <Route path="become-seller" element={<BecomeSellerPage />} />
-          <Route path="become-delivery-partner" element={<BecomeDeliveryPartnerPage />} />
+          <Route
+            path="become-delivery-partner"
+            element={<BecomeDeliveryPartnerPage />}
+          />
           <Route path="addresses" element={<AddressesPage />} />
           <Route
             path="terms-and-conditions"
@@ -179,8 +184,10 @@ export const AppRouter: React.FC = () => {
           <Route path="users" element={<AdminUsers />} />
           <Route path="policies" element={<AdminPolicies />} />
           <Route path="refunds" element={<AdminRefunds />} />
+          <Route path="refunds/:id" element={<AdminRefundDetail />} />
           <Route path="returns" element={<AdminReturns />} />
           <Route path="wallets" element={<AdminWallets />} />
+          <Route path="returns/:id" element={<AdminReturnDetail />} />
         </Route>
 
         {/* Catch-all Redirect */}

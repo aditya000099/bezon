@@ -279,6 +279,10 @@ export interface OrderDetail {
   returnApprovedAt?: string;
   returnRejectedAt?: string;
   returnRejectedReason?: string;
+  refundStatus?: string;
+  refundAmount?: string;
+  refundedAt?: string;
+  refundFailureReason?: string;
   subtotal: number;
   total: number;
   createdAt: string;
