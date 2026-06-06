@@ -63,6 +63,14 @@ enum OrderStatus {
   replacement_rejected
 }
 
+enum RefundStatus {
+  NONE
+  READY
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
 enum PaymentStatus {
   pending
   paid
@@ -434,6 +442,13 @@ model Order {
   returnInspectionNotes  String?                @map("return_inspection_notes")
   returnInspectedAt      DateTime?              @map("return_inspected_at") @db.Timestamptz
   returnInspectedById    String?                @map("return_inspected_by_id") @db.Uuid
+  refundStatus         RefundStatus    @default(NONE) @map("refund_status")
+  refundAmount         Decimal?        @map("refund_amount") @db.Decimal(12, 2)
+  refundEligibleAt     DateTime?       @map("refund_eligible_at") @db.Timestamptz
+  refundInitiatedAt    DateTime?       @map("refund_initiated_at") @db.Timestamptz
+  refundedAt           DateTime?       @map("refunded_at") @db.Timestamptz
+  refundFailureReason  String?         @map("refund_failure_reason")
+  refundProcessedById  String?         @map("refund_processed_by_id") @db.Uuid
   billUrl              String?         @map("bill_url")
   idempotencyKey       String          @unique @default(dbgenerated("gen_random_uuid()")) @map("idempotency_key") @db.Uuid
   createdAt            DateTime        @default(now()) @map("created_at") @db.Timestamptz

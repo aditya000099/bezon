@@ -250,6 +250,22 @@ export const SellerReturnDetail: React.FC = () => {
                 {new Date(order.createdAt).toLocaleDateString()}
               </p>
             </div>
+            {order.refundStatus && order.refundStatus !== "NONE" && (
+              <div>
+                <p className="text-zinc-500 mb-1">Refund Status</p>
+                <span
+                  className={`inline-block px-2 py-0.5 text-xs font-semibold rounded-full ${
+                    order.refundStatus === "COMPLETED"
+                      ? "bg-emerald-100 text-emerald-800"
+                      : order.refundStatus === "FAILED"
+                        ? "bg-red-100 text-red-800"
+                        : "bg-blue-100 text-blue-800"
+                  }`}
+                >
+                  {order.refundStatus}
+                </span>
+              </div>
+            )}
             <div>
               <p className="text-zinc-500 mb-1">Customer City</p>
               <p className="font-medium text-zinc-900 flex items-center gap-1">

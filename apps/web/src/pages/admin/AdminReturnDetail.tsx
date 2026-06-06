@@ -76,7 +76,7 @@ export const AdminReturnDetail: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-zinc-500">
+      <div className="flex flex-col items-center justify-center min-h-100 text-zinc-500">
         <Spinner className="h-8 w-8 animate-spin mb-4 text-teal-500" />
         <p className="font-medium">Loading return details...</p>
       </div>
@@ -85,7 +85,7 @@ export const AdminReturnDetail: React.FC = () => {
 
   if (!order || !order.returnStatus || order.returnStatus === "NONE") {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-zinc-500">
+      <div className="flex flex-col items-center justify-center min-h-100 text-zinc-500">
         <WarningCircle className="h-12 w-12 mb-3 opacity-20" />
         <p>Return details not found.</p>
         <Button
@@ -146,7 +146,15 @@ export const AdminReturnDetail: React.FC = () => {
             <div>
               <p className="text-zinc-500 mb-1">Return Reason</p>
               <p className="font-semibold capitalize text-zinc-900">
-                {order.returnReason ? order.returnReason.split('_').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ') : 'Other'}
+                {order.returnReason
+                  ? order.returnReason
+                      .split("_")
+                      .map(
+                        (w: string) =>
+                          w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(),
+                      )
+                      .join(" ")
+                  : "Other"}
               </p>
             </div>
             <div>
@@ -171,13 +179,19 @@ export const AdminReturnDetail: React.FC = () => {
             </div>
             <div>
               <p className="text-zinc-500 mb-1">Seller</p>
-              <Link to={`/admin/sellers`} className="font-medium text-teal-600 hover:underline">
+              <Link
+                to={`/admin/sellers`}
+                className="font-medium text-teal-600 hover:underline"
+              >
                 {order.seller?.shopName || "Unknown Seller"}
               </Link>
             </div>
             <div>
               <p className="text-zinc-500 mb-1">Customer</p>
-              <Link to={`/admin/users`} className="font-medium text-teal-600 hover:underline">
+              <Link
+                to={`/admin/users`}
+                className="font-medium text-teal-600 hover:underline"
+              >
                 {order.customer?.name || "Unknown Customer"}
               </Link>
             </div>
@@ -197,7 +211,8 @@ export const AdminReturnDetail: React.FC = () => {
           <Card className="shadow-sm">
             <CardHeader className="pb-3 border-b">
               <CardTitle className="text-base flex items-center gap-2">
-                <Package className="h-5 w-5 text-teal-600" /> Product Information
+                <Package className="h-5 w-5 text-teal-600" /> Product
+                Information
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-4 space-y-4">
@@ -227,7 +242,10 @@ export const AdminReturnDetail: React.FC = () => {
                     <p className="text-sm font-bold text-teal-600">
                       ₹{Number(item.unitPrice).toLocaleString()}
                     </p>
-                    <Link to={`/admin/products`} className="text-xs text-teal-600 hover:underline">
+                    <Link
+                      to={`/admin/products`}
+                      className="text-xs text-teal-600 hover:underline"
+                    >
                       View Product
                     </Link>
                   </div>
@@ -240,42 +258,65 @@ export const AdminReturnDetail: React.FC = () => {
           <Card className="shadow-sm">
             <CardHeader className="pb-3 border-b">
               <CardTitle className="text-base flex items-center gap-2">
-                <Clock className="h-5 w-5 text-teal-600" /> Return Lifecycle Timeline
+                <Clock className="h-5 w-5 text-teal-600" /> Return Lifecycle
+                Timeline
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-6">
               <div className="space-y-6">
                 {/* Organize timeline logically by categorizing if possible. Since timeline is just linear notes, we will render it beautifully */}
-                <div className="relative pl-6 space-y-8 before:absolute before:inset-y-0 before:left-[11px] before:w-px before:bg-zinc-200">
+                <div className="relative pl-6 space-y-8 before:absolute before:inset-y-0 before:left-2.75 before:w-px before:bg-zinc-200">
                   {order.timeline
                     ?.slice()
                     .reverse()
                     .map((t: any, idx: number) => {
-                      const isLogistics = t.note.toLowerCase().includes("pickup") || t.note.toLowerCase().includes("partner") || t.note.toLowerCase().includes("assigned");
-                      const isInspection = t.note.toLowerCase().includes("inspect") || t.note.toLowerCase().includes("restocked") || t.note.toLowerCase().includes("damaged") || t.note.toLowerCase().includes("disposed");
-                      const isRequest = t.note.toLowerCase().includes("request") || t.note.toLowerCase().includes("approve") || t.note.toLowerCase().includes("reject");
-                      
+                      const isLogistics =
+                        t.note.toLowerCase().includes("pickup") ||
+                        t.note.toLowerCase().includes("partner") ||
+                        t.note.toLowerCase().includes("assigned");
+                      const isInspection =
+                        t.note.toLowerCase().includes("inspect") ||
+                        t.note.toLowerCase().includes("restocked") ||
+                        t.note.toLowerCase().includes("damaged") ||
+                        t.note.toLowerCase().includes("disposed");
+                      const isRequest =
+                        t.note.toLowerCase().includes("request") ||
+                        t.note.toLowerCase().includes("approve") ||
+                        t.note.toLowerCase().includes("reject");
+
                       let dotColor = "bg-teal-500";
                       if (isInspection) dotColor = "bg-amber-500";
                       if (isLogistics) dotColor = "bg-blue-500";
 
                       return (
                         <div key={t.id || idx} className="relative">
-                          <div className="absolute -left-[31px] bg-white p-1 rounded-full border border-zinc-200">
-                            <div className={`h-2 w-2 rounded-full ${dotColor}`} />
+                          <div className="absolute -left-7.75 bg-white p-1 rounded-full border border-zinc-200">
+                            <div
+                              className={`h-2 w-2 rounded-full ${dotColor}`}
+                            />
                           </div>
                           <div>
-                            <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${isLogistics ? 'bg-blue-100 text-blue-800' : isInspection ? 'bg-amber-100 text-amber-800' : 'bg-teal-100 text-teal-800'}`}>
-                              {isLogistics ? 'Logistics Event' : isInspection ? 'Inspection Event' : isRequest ? 'Request Event' : 'System Event'}
+                            <span
+                              className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${isLogistics ? "bg-blue-100 text-blue-800" : isInspection ? "bg-amber-100 text-amber-800" : "bg-teal-100 text-teal-800"}`}
+                            >
+                              {isLogistics
+                                ? "Logistics Event"
+                                : isInspection
+                                  ? "Inspection Event"
+                                  : isRequest
+                                    ? "Request Event"
+                                    : "System Event"}
                             </span>
-                            <p className="font-medium text-zinc-900 mt-1">{t.note}</p>
+                            <p className="font-medium text-zinc-900 mt-1">
+                              {t.note}
+                            </p>
                             <p className="text-xs text-zinc-500 mt-1">
                               {new Date(t.createdAt).toLocaleString()}
                             </p>
                           </div>
                         </div>
                       );
-                  })}
+                    })}
                 </div>
               </div>
             </CardContent>
@@ -395,7 +436,8 @@ export const AdminReturnDetail: React.FC = () => {
           <Card className="bg-zinc-50 border-zinc-200">
             <CardContent className="p-4 text-sm text-zinc-500 flex items-center gap-2">
               <CheckCircle className="h-4 w-4" />
-              This page is read-only. Admins cannot modify return statuses or seller inspection results directly.
+              This page is read-only. Admins cannot modify return statuses or
+              seller inspection results directly.
             </CardContent>
           </Card>
         </div>

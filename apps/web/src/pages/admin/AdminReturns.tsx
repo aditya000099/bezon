@@ -518,7 +518,7 @@ export const AdminReturns: React.FC = () => {
                       </TableCell>
                       <TableCell>
                         <div
-                          className="text-sm font-medium text-zinc-900 max-w-[200px] truncate"
+                          className="text-sm font-medium text-zinc-900 max-w-50 truncate"
                           title={order.items?.[0]?.product?.title}
                         >
                           {order.items?.[0]?.product?.title ||

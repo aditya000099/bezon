@@ -64,6 +64,7 @@ import { AdminDeliveries } from '../pages/admin/AdminDeliveries';
 import { AdminUsers } from '../pages/admin/AdminUsers';
 import { AdminPolicies } from '../pages/admin/AdminPolicies';
 import { AdminRefunds } from '../pages/admin/AdminRefunds';
+import { AdminRefundDetail } from '../pages/admin/AdminRefundDetail';
 import { AdminReturns } from '../pages/admin/AdminReturns';
 import { AdminReturnDetail } from '../pages/admin/AdminReturnDetail';
 
@@ -175,6 +176,7 @@ export const AppRouter: React.FC = () => {
           <Route path="users" element={<AdminUsers />} />
           <Route path="policies" element={<AdminPolicies />} />
           <Route path="refunds" element={<AdminRefunds />} />
+          <Route path="refunds/:id" element={<AdminRefundDetail />} />
           <Route path="returns" element={<AdminReturns />} />
           <Route path="returns/:id" element={<AdminReturnDetail />} />
         </Route>
