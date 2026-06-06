@@ -49,6 +49,8 @@ import { SellerReturns } from '../pages/seller/SellerReturns';
 import { SellerReturnDetail } from '../pages/seller/SellerReturnDetail';
 import { SellerOrderDetail } from '../pages/seller/SellerOrderDetail';
 import { SellerAddProduct } from '../pages/seller/SellerAddProduct';
+import { SellerWallet } from '../pages/seller/SellerWallet';
+import { SellerAds } from '../pages/seller/SellerAds';
 // Delivery Pages
 import { DeliveryQueue } from '../pages/delivery/DeliveryQueue';
 import { DeliveryHistory } from '../pages/delivery/DeliveryHistory';
@@ -68,6 +70,7 @@ import { AdminPolicies } from '../pages/admin/AdminPolicies';
 import { AdminRefunds } from '../pages/admin/AdminRefunds';
 import { AdminRefundDetail } from '../pages/admin/AdminRefundDetail';
 import { AdminReturns } from '../pages/admin/AdminReturns';
+import { AdminWallets } from '../pages/admin/AdminWallets';
 import { AdminReturnDetail } from '../pages/admin/AdminReturnDetail';
 
 export const AppRouter: React.FC = () => {
@@ -112,7 +115,10 @@ export const AppRouter: React.FC = () => {
           <Route path="profile" element={<ProfilePage />} />
           <Route path="profile/edit" element={<EditProfilePage />} />
           <Route path="become-seller" element={<BecomeSellerPage />} />
-          <Route path="become-delivery-partner" element={<BecomeDeliveryPartnerPage />} />
+          <Route
+            path="become-delivery-partner"
+            element={<BecomeDeliveryPartnerPage />}
+          />
           <Route path="addresses" element={<AddressesPage />} />
           <Route
             path="terms-and-conditions"
@@ -143,6 +149,8 @@ export const AppRouter: React.FC = () => {
           <Route path="inventory" element={<SellerInventory />} />
           <Route path="settings" element={<SellerSettings />} />
           <Route path="coupons" element={<SellerCoupons />} />
+          <Route path="wallet" element={<SellerWallet />} />
+          <Route path="ads" element={<SellerAds />} />
           <Route path="qa" element={<SellerQA />} />
         </Route>
 
@@ -182,6 +190,7 @@ export const AppRouter: React.FC = () => {
           <Route path="refunds" element={<AdminRefunds />} />
           <Route path="refunds/:id" element={<AdminRefundDetail />} />
           <Route path="returns" element={<AdminReturns />} />
+          <Route path="wallets" element={<AdminWallets />} />
           <Route path="returns/:id" element={<AdminReturnDetail />} />
         </Route>
 

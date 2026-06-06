@@ -155,6 +155,24 @@ export const API_ENDPOINTS = {
   support: {
     chat: `${API_V1}/support/chat`,
   },
+  // Wallet
+  wallet: {
+    me: `${API_V1}/wallet/me`,
+    transactions: `${API_V1}/wallet/transactions`,
+    all: `${API_V1}/wallet/all`,
+    manualCredit: `${API_V1}/wallet/manual-credit`,
+  },
+  // Ads
+  ads: {
+    campaigns: `${API_V1}/ads/campaigns`,
+    myCampaigns: `${API_V1}/ads/campaigns/me`,
+    updateCampaign: (id: string) => `${API_V1}/ads/campaigns/${id}`,
+    deleteCampaign: (id: string) => `${API_V1}/ads/campaigns/${id}`,
+    campaignStats: (id: string) => `${API_V1}/ads/campaigns/${id}/stats`,
+    sponsored: `${API_V1}/ads/sponsored`,
+    click: (campaignId: string) => `${API_V1}/ads/click/${campaignId}`,
+    adminCampaigns: `${API_V1}/ads/admin/campaigns`,
+  },
 } as const;
 
 export default API_ENDPOINTS;

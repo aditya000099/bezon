@@ -4,6 +4,8 @@ import { RecommendationService } from '../services/recommendation.service.js';
 import prisma from '../db/client.js';
 import { GeoService } from '../services/geo.service.js';
 
+import { AdsService } from '../services/ads.service.js';
+
 /**
  * Get all published products with search and filtering
  */
@@ -29,9 +31,38 @@ export const getProducts = async (
       });
     }
 
+    // Inject Sponsored Products
+    // Only inject if there's no specific search/sort, or if we want them everywhere. Let's show them everywhere.
+    const organicProducts = result.products;
+    const organicProductIds = organicProducts.map((p: any) => p.id);
+    
+    // Fetch 1 sponsored product for every 4 organic products
+    const numAds = Math.max(1, Math.floor(organicProducts.length / 4));
+    const sponsored = await AdsService.getSponsoredProducts({
+      categoryId: category?.toString(),
+      excludeProductIds: organicProductIds,
+      limit: numAds
+    });
+
+    // Mix them in (every 5th slot)
+    const mixedProducts = [];
+    let organicIdx = 0;
+    let sponsoredIdx = 0;
+
+    for (let i = 0; i < organicProducts.length + sponsored.length; i++) {
+      if (i % 5 === 0 && sponsoredIdx < sponsored.length) {
+        mixedProducts.push(sponsored[sponsoredIdx++]);
+      } else if (organicIdx < organicProducts.length) {
+        mixedProducts.push(organicProducts[organicIdx++]);
+      }
+    }
+
     res.json({
       success: true,
-      data: result,
+      data: {
+        ...result,
+        products: mixedProducts
+      },
     });
   } catch (err) {
     next(err);
