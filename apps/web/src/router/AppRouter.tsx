@@ -61,6 +61,8 @@ import { AdminSellers } from '../pages/admin/AdminSellers';
 import { AdminPartners } from '../pages/admin/AdminPartners';
 import { AdminOrders } from '../pages/admin/AdminOrders';
 import { AdminDeliveries } from '../pages/admin/AdminDeliveries';
+import { AdminDeliveryDetail } from '../pages/admin/AdminDeliveryDetail';
+import { AdminDeliveryPartnerDetail } from '../pages/admin/AdminDeliveryPartnerDetail';
 import { AdminUsers } from '../pages/admin/AdminUsers';
 import { AdminPolicies } from '../pages/admin/AdminPolicies';
 import { AdminRefunds } from '../pages/admin/AdminRefunds';
@@ -173,6 +175,8 @@ export const AppRouter: React.FC = () => {
           <Route path="partners" element={<AdminPartners />} />
           <Route path="orders" element={<AdminOrders />} />
           <Route path="deliveries" element={<AdminDeliveries />} />
+          <Route path="deliveries/:id" element={<AdminDeliveryDetail />} />
+          <Route path="delivery-partners/:id" element={<AdminDeliveryPartnerDetail />} />
           <Route path="users" element={<AdminUsers />} />
           <Route path="policies" element={<AdminPolicies />} />
           <Route path="refunds" element={<AdminRefunds />} />

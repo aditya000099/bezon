@@ -19,6 +19,7 @@ import deliveryRouter from './delivery.routes.js';
 import policyRouter from './policy.routes.js';
 import applicationRouter from './application.routes.js';
 import supportChatRouter from './support-chat.routes.js';
+import adminDeliveryRouter from './admin_delivery.routes.js';
 
 const router = Router();
 
@@ -43,5 +44,6 @@ router.use('/delivery', deliveryRouter);
 router.use('/policies', policyRouter);
 router.use('/applications', applicationRouter);
 router.use('/support', supportChatRouter);
+router.use('/admin-deliveries', adminDeliveryRouter);
 
 export default router;
