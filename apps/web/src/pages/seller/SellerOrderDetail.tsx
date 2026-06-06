@@ -21,6 +21,7 @@ import {
   Calendar,
   Pulse,
   Download,
+  Database,
 } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/button';
 import {
@@ -496,6 +497,46 @@ export const SellerOrderDetail: React.FC = () => {
                 <span>Total Amount</span>
                 <span>₹{total.toLocaleString()}</span>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Settlement Information */}
+          <Card className="bg-white border-zinc-200 shadow-sm">
+            <CardHeader className="border-b border-zinc-100 pb-4">
+              <CardTitle className="text-base font-bold text-zinc-800 flex items-center gap-2">
+                <Database className="h-5 w-5 text-zinc-400" />
+                Settlement Details
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 space-y-4 text-sm">
+              <div className="flex justify-between items-center text-zinc-600">
+                <span>Escrow Status</span>
+                <span className={`px-2.5 py-0.5 text-[10px] font-bold rounded uppercase tracking-wider ${
+                  order.settlementStatus === 'SETTLED' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
+                  order.settlementStatus === 'HOLDING' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
+                  'bg-zinc-50 text-zinc-700 border border-zinc-200'
+                }`}>
+                  {order.settlementStatus || 'PENDING'}
+                </span>
+              </div>
+              
+              {order.settlementAmount && (
+                <div className="flex justify-between text-zinc-600">
+                  <span>Settlement Amount</span>
+                  <span className="font-semibold text-zinc-800">
+                    ₹{parseFloat(order.settlementAmount).toLocaleString()}
+                  </span>
+                </div>
+              )}
+              
+              {order.settledAt && (
+                <div className="flex justify-between text-zinc-600">
+                  <span>Settled On</span>
+                  <span className="font-semibold text-emerald-600">
+                    {new Date(order.settledAt).toLocaleDateString()}
+                  </span>
+                </div>
+              )}
             </CardContent>
           </Card>
 

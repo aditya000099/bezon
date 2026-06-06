@@ -28,7 +28,7 @@ export const updateCampaign = async (req: Request, res: Response, next: NextFunc
   try {
     const sellerId = req.user!.seller?.id;
     if (!sellerId) return res.status(403).json({ success: false, message: 'Seller access required.' });
-    const campaign = await AdsService.updateCampaign(sellerId, req.params.id, req.body);
+    const campaign = await AdsService.updateCampaign(sellerId, req.params.id as string, req.body);
     res.json({ success: true, data: campaign });
   } catch (err: any) {
     if (err.message) return res.status(400).json({ success: false, message: err.message });
@@ -40,7 +40,7 @@ export const deleteCampaign = async (req: Request, res: Response, next: NextFunc
   try {
     const sellerId = req.user!.seller?.id;
     if (!sellerId) return res.status(403).json({ success: false, message: 'Seller access required.' });
-    await AdsService.deleteCampaign(sellerId, req.params.id);
+    await AdsService.deleteCampaign(sellerId, req.params.id as string);
     res.json({ success: true, message: 'Campaign deleted.' });
   } catch (err: any) {
     if (err.message) return res.status(400).json({ success: false, message: err.message });
@@ -52,7 +52,7 @@ export const getCampaignStats = async (req: Request, res: Response, next: NextFu
   try {
     const sellerId = req.user!.seller?.id;
     if (!sellerId) return res.status(403).json({ success: false, message: 'Seller access required.' });
-    const stats = await AdsService.getCampaignStats(sellerId, req.params.id);
+    const stats = await AdsService.getCampaignStats(sellerId, req.params.id as string);
     res.json({ success: true, data: stats });
   } catch (err: any) {
     if (err.message) return res.status(400).json({ success: false, message: err.message });
@@ -78,7 +78,7 @@ export const getSponsoredProducts = async (req: Request, res: Response, next: Ne
 // Public: record ad click
 export const recordAdClick = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const result = await AdsService.recordClick(req.params.campaignId, req.user?.id);
+    const result = await AdsService.recordClick(req.params.campaignId as string, req.user?.id);
     res.json({ success: true, data: result });
   } catch (err) {
     next(err);
