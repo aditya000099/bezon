@@ -163,12 +163,13 @@ export const getDashboardStats = async (
         },
       }),
       prisma.order.aggregate({
-        where: { sellerId: seller.id, settlementStatus: 'HOLDING' },
+        where: { sellerId: seller.id, settlementStatus: 'HOLDING', paymentStatus: 'paid' },
         _sum: { settlementAmount: true },
+        _count: true,
       }),
       prisma.order.aggregate({
         where: { sellerId: seller.id, settlementStatus: 'SETTLED' },
-        _sum: { settlementAmount: true },
+        _sum: { settlementAmount: true, total: true },
       }),
     ]);
 
@@ -198,7 +199,9 @@ export const getDashboardStats = async (
         incomingOrders,
         lowStockAlerts: lowStockProducts,
         pendingSettlements: Number(holdingSettlements?._sum?.settlementAmount || 0),
-        settledAmount: Number(completedSettlements?._sum?.settlementAmount || 0),
+        pendingSettlementOrders: holdingSettlements?._count || 0,
+        totalSettledAmount: Number(completedSettlements?._sum?.settlementAmount || 0),
+        totalCommissionPaid: Number(completedSettlements?._sum?.total || 0) - Number(completedSettlements?._sum?.settlementAmount || 0),
       },
     });
   } catch (err) {

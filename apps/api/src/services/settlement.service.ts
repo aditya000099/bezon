@@ -1,6 +1,5 @@
 import prisma from "../db/client.js";
 import { WalletService } from "./wallet.service.js";
-import { RETURN_WINDOW_DAYS } from "../utils/constants.js";
 
 export class SettlementService {
   static async processSettlements() {
@@ -35,6 +34,12 @@ export class SettlementService {
     let failedCount = 0;
     const now = new Date();
 
+    const returnPolicy = await prisma.policy.findFirst({
+      where: { type: 'return', isActive: true },
+      orderBy: { createdAt: 'desc' }
+    });
+    const returnWindowDays = returnPolicy?.durationDays || 7;
+
     for (const order of orders) {
       try {
         // Calculate delivery time
@@ -57,7 +62,7 @@ export class SettlementService {
 
         const deliveryTime = new Date(order.deliveredAt!).getTime();
         const expirationTime =
-          deliveryTime + RETURN_WINDOW_DAYS * 24 * 60 * 60 * 1000;
+          deliveryTime + returnWindowDays * 24 * 60 * 60 * 1000;
 
         if (now.getTime() > expirationTime) {
           // Order is eligible for settlement!

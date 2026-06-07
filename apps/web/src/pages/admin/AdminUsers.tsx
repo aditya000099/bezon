@@ -40,17 +40,22 @@ export const AdminUsers: React.FC = () => {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [roleFilter, setRoleFilter] = useState<string>('all');
+  const [roleCounts, setRoleCounts] = useState<any>(null);
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [roleFilter]);
 
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const res = await api.get(API_ENDPOINTS.users.adminList);
+      const res = await api.get(API_ENDPOINTS.users.adminList, {
+        params: roleFilter !== 'all' ? { role: roleFilter } : {}
+      });
       if (res.data.success) {
         setUsers(res.data.data);
+        setRoleCounts(res.data.roleCounts);
       }
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Failed to fetch users");
@@ -77,6 +82,41 @@ export const AdminUsers: React.FC = () => {
           </p>
         </div>
       </div>
+
+      {roleCounts && (
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <Card className={`cursor-pointer transition-colors ${roleFilter === 'all' ? 'border-indigo-500 bg-indigo-50/30' : 'hover:border-zinc-300'}`} onClick={() => setRoleFilter('all')}>
+            <CardContent className="p-4 flex flex-col justify-center items-center">
+              <span className="text-xl font-bold text-zinc-900">{roleCounts.total}</span>
+              <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider mt-1">Total Users</span>
+            </CardContent>
+          </Card>
+          <Card className={`cursor-pointer transition-colors ${roleFilter === 'customer' ? 'border-teal-500 bg-teal-50/30' : 'hover:border-zinc-300'}`} onClick={() => setRoleFilter('customer')}>
+            <CardContent className="p-4 flex flex-col justify-center items-center">
+              <span className="text-xl font-bold text-teal-600">{roleCounts.customers}</span>
+              <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider mt-1">Customers</span>
+            </CardContent>
+          </Card>
+          <Card className={`cursor-pointer transition-colors ${roleFilter === 'seller' ? 'border-amber-500 bg-amber-50/30' : 'hover:border-zinc-300'}`} onClick={() => setRoleFilter('seller')}>
+            <CardContent className="p-4 flex flex-col justify-center items-center">
+              <span className="text-xl font-bold text-amber-600">{roleCounts.sellers}</span>
+              <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider mt-1">Sellers</span>
+            </CardContent>
+          </Card>
+          <Card className={`cursor-pointer transition-colors ${roleFilter === 'delivery' ? 'border-blue-500 bg-blue-50/30' : 'hover:border-zinc-300'}`} onClick={() => setRoleFilter('delivery')}>
+            <CardContent className="p-4 flex flex-col justify-center items-center">
+              <span className="text-xl font-bold text-blue-600">{roleCounts.delivery}</span>
+              <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider mt-1">Delivery</span>
+            </CardContent>
+          </Card>
+          <Card className={`cursor-pointer transition-colors ${roleFilter === 'admin' ? 'border-rose-500 bg-rose-50/30' : 'hover:border-zinc-300'}`} onClick={() => setRoleFilter('admin')}>
+            <CardContent className="p-4 flex flex-col justify-center items-center">
+              <span className="text-xl font-bold text-rose-600">{roleCounts.admins}</span>
+              <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider mt-1">Admins</span>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       <Card className="bg-white border-zinc-200 shadow-sm overflow-hidden">
         <div className="p-4 border-b border-zinc-200 bg-zinc-50/50 flex flex-col sm:flex-row justify-between items-center gap-4">

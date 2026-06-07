@@ -1,4 +1,5 @@
 import prisma from '../db/client.js';
+import { PLATFORM_COMMISSION_RATE } from '../config/constants.js';
 
 export class WalletService {
   // Get or auto-create wallet for a user
@@ -125,7 +126,50 @@ export class WalletService {
       prisma.walletTransaction.count({ where }),
     ]);
 
-    return { transactions, total, page, limit, totalPages: Math.ceil(total / limit) };
+    // Attach full order metrics for settlement visibility
+    const orderIds = transactions
+      .filter((t) => ['order_payout', 'order_payment', 'refund_debit', 'refund'].includes(t.referenceType) && t.referenceId)
+      .map((t) => t.referenceId as string);
+
+    let ordersById = new Map<string, any>();
+    if (orderIds.length > 0) {
+      const orders = await prisma.order.findMany({
+        where: { id: { in: orderIds } },
+        select: {
+          id: true,
+          orderNumber: true,
+          total: true,
+          settlementAmount: true,
+          refundAmount: true,
+          customer: { select: { name: true, email: true } },
+          seller: { select: { shopName: true } }
+        }
+      });
+      orders.forEach((o) => ordersById.set(o.id, o));
+    }
+
+    const enhancedTransactions = transactions.map((t) => {
+      let orderDetails = null;
+      if (t.referenceId && ordersById.has(t.referenceId)) {
+        const o = ordersById.get(t.referenceId);
+        const orderTotal = o.total ? Number(o.total) : 0;
+        // Re-derive commission amount to ensure accuracy and transparency
+        const commissionDeducted = Math.round(orderTotal * PLATFORM_COMMISSION_RATE * 100) / 100;
+        
+        orderDetails = {
+          orderNumber: o.orderNumber,
+          orderTotal,
+          commissionDeducted,
+          settlementAmount: o.settlementAmount ? Number(o.settlementAmount) : 0,
+          refundAmount: o.refundAmount ? Number(o.refundAmount) : 0,
+          customerName: o.customer?.name || o.customer?.email,
+          shopName: o.seller?.shopName,
+        };
+      }
+      return { ...t, orderDetails };
+    });
+
+    return { transactions: enhancedTransactions, total, page, limit, totalPages: Math.ceil(total / limit) };
   }
 
   // Admin: get all wallets with user info (paginated, searchable)

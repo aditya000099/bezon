@@ -2,6 +2,8 @@ import { Prisma } from '@prisma/client';
 import crypto from 'crypto';
 import prisma from '../db/client.js';
 import { PdfUtil } from '../utils/pdf.util.js';
+import { CryptoUtil } from '../utils/crypto.util.js';
+import { PLATFORM_COMMISSION_RATE } from '../config/constants.js';
 import { S3Service } from './s3.service.js';
 import { CartService } from './cart.service.js';
 import { RecommendationService } from './recommendation.service.js';
@@ -178,8 +180,7 @@ export class PaymentService {
         // Apply discount only to the seller who owns the coupon
         const orderDiscount = (couponResult && sellerId === couponResult.sellerId) ? couponResult.discount : 0;
         const finalTotal = Math.max(0, subtotal - orderDiscount);
-        const PLATFORM_COMMISSION = 0.05;
-        const settlementAmount = Math.round(finalTotal * (1 - PLATFORM_COMMISSION) * 100) / 100;
+        const settlementAmount = Math.round(finalTotal * (1 - PLATFORM_COMMISSION_RATE) * 100) / 100;
 
         const order = await tx.order.create({
           data: {

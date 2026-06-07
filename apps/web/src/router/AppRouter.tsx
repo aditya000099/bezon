@@ -71,6 +71,7 @@ import { AdminRefundDetail } from '../pages/admin/AdminRefundDetail';
 import { AdminReturns } from '../pages/admin/AdminReturns';
 import { AdminWallets } from '../pages/admin/AdminWallets';
 import { AdminReturnDetail } from '../pages/admin/AdminReturnDetail';
+import { AdminSettlementQueue } from '../pages/admin/AdminSettlementQueue';
 
 const ProtectedCustomerRoute = () => (
   <RoleGuard allowedRoles={['customer']}>
@@ -186,8 +187,9 @@ export const AppRouter: React.FC = () => {
           <Route path="refunds" element={<AdminRefunds />} />
           <Route path="refunds/:id" element={<AdminRefundDetail />} />
           <Route path="returns" element={<AdminReturns />} />
-          <Route path="wallets" element={<AdminWallets />} />
           <Route path="returns/:id" element={<AdminReturnDetail />} />
+          <Route path="wallets" element={<AdminWallets />} />
+          <Route path="settlements/queue" element={<AdminSettlementQueue />} />
         </Route>
 
         {/* Catch-all Redirect */}

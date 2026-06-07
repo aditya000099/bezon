@@ -146,6 +146,12 @@ export const AdminDashboard: React.FC = () => {
           totalOrders: orders.length > 0 ? orders.length : null,
           escrowBalance: settlementMetrics ? formatCurrency(settlementMetrics.escrowBalance) : null,
           fundsOnHold: settlementMetrics ? formatCurrency(settlementMetrics.fundsOnHold) : null,
+          totalCommissionEarned: settlementMetrics ? formatCurrency(settlementMetrics.totalCommissionEarned) : null,
+          totalSettlementsReleased: settlementMetrics ? formatCurrency(settlementMetrics.totalSettlementsReleased) : null,
+          totalRefundsProcessed: settlementMetrics ? settlementMetrics.totalRefundsProcessed : null,
+          sellersAwaitingSettlement: settlementMetrics ? settlementMetrics.sellersAwaitingSettlement : null,
+          escrowComposition: settlementMetrics ? settlementMetrics.escrowComposition : null,
+          fundsOnHoldBySeller: settlementMetrics ? settlementMetrics.fundsOnHoldBySeller : [],
         });
 
         // 3. Compute and set pending actions
@@ -392,35 +398,140 @@ export const AdminDashboard: React.FC = () => {
           )}
         </Card>
 
-        {/* Escrow Metrics */}
+        {/* Detailed Escrow Metrics */}
         <Card className="bg-white border-slate-200 shadow-sm p-6 lg:col-span-4 sm:col-span-2">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-              Settlement Escrow
+          <div className="flex items-center justify-between mb-6">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+              <Database className="h-4 w-4" /> Settlement Escrow Dashboard
             </span>
-            <div className="h-8 w-8 bg-zinc-50 rounded-lg flex items-center justify-center text-zinc-600">
-              <Database className="h-4 w-4" />
-            </div>
+            <Link to="/admin/settlements/queue">
+              <Button variant="outline" size="sm" className="font-semibold text-xs border-zinc-300">
+                View Settlement Queue <ArrowRight className="ml-2 h-3 w-3" />
+              </Button>
+            </Link>
           </div>
           {loadingApps ? (
             renderCardLoader()
           ) : metrics && metrics.escrowBalance !== null ? (
-            <div className="flex gap-12">
-              <div>
-                <h3 className="text-2xl font-extrabold text-slate-900">
-                  {metrics.escrowBalance}
-                </h3>
-                <span className="text-[10px] text-slate-500 font-medium uppercase tracking-wider block mt-1">
-                  Current Escrow Balance
-                </span>
+            <div className="space-y-8">
+              {/* Top Level Balances */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                <div>
+                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block mb-1">
+                    Escrow Balance
+                  </span>
+                  <h3 className="text-2xl font-black text-slate-900 font-mono">
+                    {metrics.escrowBalance}
+                  </h3>
+                </div>
+                <div>
+                  <span className="text-[10px] text-amber-600 font-bold uppercase tracking-wider block mb-1">
+                    Funds On Hold
+                  </span>
+                  <h3 className="text-2xl font-black text-amber-600 font-mono">
+                    {metrics.fundsOnHold}
+                  </h3>
+                </div>
+                <div>
+                  <span className="text-[10px] text-emerald-600 font-bold uppercase tracking-wider block mb-1">
+                    Total Commission Earned
+                  </span>
+                  <h3 className="text-2xl font-black text-emerald-600 font-mono">
+                    {metrics.totalCommissionEarned}
+                  </h3>
+                </div>
+                <div>
+                  <span className="text-[10px] text-indigo-600 font-bold uppercase tracking-wider block mb-1">
+                    Settlements Released
+                  </span>
+                  <h3 className="text-2xl font-black text-indigo-600 font-mono">
+                    {metrics.totalSettlementsReleased}
+                  </h3>
+                </div>
               </div>
-              <div>
-                <h3 className="text-2xl font-extrabold text-amber-600">
-                  {metrics.fundsOnHold}
-                </h3>
-                <span className="text-[10px] text-slate-500 font-medium uppercase tracking-wider block mt-1">
-                  Funds On Hold
-                </span>
+
+              {/* Escrow Composition and Sellers Table */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Composition */}
+                <div className="border border-slate-200 rounded-xl p-4">
+                  <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 border-b border-slate-100 pb-2">
+                    Escrow Composition
+                  </h4>
+                  <ul className="space-y-3 text-sm">
+                    <li className="flex justify-between items-center">
+                      <span className="text-slate-600 font-medium">Funds On Hold</span>
+                      <span className="font-bold text-amber-600 font-mono">₹{metrics.escrowComposition?.fundsOnHold.toLocaleString()}</span>
+                    </li>
+                    <li className="flex justify-between items-center">
+                      <span className="text-slate-600 font-medium">Platform Revenue</span>
+                      <span className="font-bold text-emerald-600 font-mono">₹{metrics.escrowComposition?.platformRevenue.toLocaleString()}</span>
+                    </li>
+                    <li className="flex justify-between items-center text-slate-400">
+                      <span>Refund Reserved</span>
+                      <span className="font-mono">₹{metrics.escrowComposition?.refundReserved.toLocaleString()}</span>
+                    </li>
+                    <li className="flex justify-between items-center text-slate-400">
+                      <span>Awaiting Transfer</span>
+                      <span className="font-mono">₹{metrics.escrowComposition?.settledAwaitingTransfer.toLocaleString()}</span>
+                    </li>
+                  </ul>
+                  <div className="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center">
+                    <div className="flex flex-col">
+                      <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Refunds</span>
+                      <span className="font-bold text-slate-800">{metrics.totalRefundsProcessed} Processed</span>
+                    </div>
+                    <div className="flex flex-col text-right">
+                      <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Queue</span>
+                      <span className="font-bold text-slate-800">{metrics.sellersAwaitingSettlement} Sellers Waiting</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Funds on Hold by Seller Table */}
+                <div className="lg:col-span-2 border border-slate-200 rounded-xl overflow-hidden">
+                  <div className="bg-slate-50 px-4 py-3 border-b border-slate-200">
+                    <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                      Funds On Hold By Seller
+                    </h4>
+                  </div>
+                  {metrics.fundsOnHoldBySeller && metrics.fundsOnHoldBySeller.length > 0 ? (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm text-left">
+                        <thead className="bg-white border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                          <tr>
+                            <th className="px-4 py-2">Seller</th>
+                            <th className="px-4 py-2 text-center">Orders</th>
+                            <th className="px-4 py-2 text-right">Gross Hold</th>
+                            <th className="px-4 py-2 text-right">Commission</th>
+                            <th className="px-4 py-2 text-right">Exp. Settlement</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 bg-white">
+                          {metrics.fundsOnHoldBySeller.slice(0, 5).map((s: any, idx: number) => (
+                            <tr key={idx} className="hover:bg-slate-50">
+                              <td className="px-4 py-3 font-semibold text-slate-800">{s.shopName}</td>
+                              <td className="px-4 py-3 text-center text-slate-600">{s.pendingOrdersCount}</td>
+                              <td className="px-4 py-3 text-right font-mono text-slate-500">₹{s.grossAmountOnHold.toLocaleString()}</td>
+                              <td className="px-4 py-3 text-right font-mono text-rose-500">-₹{s.commissionAmount.toLocaleString()}</td>
+                              <td className="px-4 py-3 text-right font-mono font-bold text-emerald-600">₹{s.expectedSettlementAmount.toLocaleString()}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <div className="p-8 text-center text-slate-500 text-sm italic bg-white h-full flex flex-col justify-center">
+                      No funds currently on hold.
+                    </div>
+                  )}
+                  {metrics.fundsOnHoldBySeller && metrics.fundsOnHoldBySeller.length > 5 && (
+                    <div className="bg-slate-50 p-2 text-center border-t border-slate-200">
+                      <Link to="/admin/settlements/queue" className="text-xs font-bold text-indigo-600 hover:text-indigo-800">
+                        View All {metrics.fundsOnHoldBySeller.length} Sellers
+                      </Link>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           ) : (
