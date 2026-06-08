@@ -4,7 +4,11 @@ import { CategoryService } from '../services/category.service.js';
 /**
  * Get all active categories in hierarchy sorted
  */
-export const getCategories = async (req: Request, res: Response, next: NextFunction) => {
+export const getCategories = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const categories = await CategoryService.getAllCategories();
 
@@ -20,7 +24,11 @@ export const getCategories = async (req: Request, res: Response, next: NextFunct
 /**
  * Create a new product category (Admin only)
  */
-export const createCategory = async (req: Request, res: Response, next: NextFunction) => {
+export const createCategory = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const { name, description, parentId, sortOrder } = req.body;
 
@@ -48,7 +56,11 @@ export const createCategory = async (req: Request, res: Response, next: NextFunc
   }
 };
 
-export const getAdminCategories = async (req: Request, res: Response, next: NextFunction) => {
+export const getAdminCategories = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const categories = await CategoryService.getAdminCategories();
     res.json({ success: true, data: categories });
@@ -57,21 +69,31 @@ export const getAdminCategories = async (req: Request, res: Response, next: Next
   }
 };
 
-export const getCategoryById = async (req: Request, res: Response, next: NextFunction) => {
+export const getCategoryById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
-    const category = await CategoryService.getCategoryById(req.params.id);
+    const category = await CategoryService.getCategoryById(
+      req.params.id as string,
+    );
     res.json({ success: true, data: category });
   } catch (err) {
     next(err);
   }
 };
 
-export const updateCategory = async (req: Request, res: Response, next: NextFunction) => {
+export const updateCategory = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const { id } = req.params;
     const { name, description, parentId, sortOrder, isActive } = req.body;
 
-    const updated = await CategoryService.updateCategory(id, {
+    const updated = await CategoryService.updateCategory(id as string, {
       name,
       description,
       parentId,
@@ -79,16 +101,24 @@ export const updateCategory = async (req: Request, res: Response, next: NextFunc
       isActive: isActive !== undefined ? Boolean(isActive) : undefined,
     });
 
-    res.json({ success: true, message: 'Category updated successfully.', data: updated });
+    res.json({
+      success: true,
+      message: 'Category updated successfully.',
+      data: updated,
+    });
   } catch (err) {
     next(err);
   }
 };
 
-export const deleteCategory = async (req: Request, res: Response, next: NextFunction) => {
+export const deleteCategory = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const { id } = req.params;
-    await CategoryService.deleteCategory(id);
+    await CategoryService.deleteCategory(id as string);
     res.json({ success: true, message: 'Category deleted successfully.' });
   } catch (err) {
     next(err);
