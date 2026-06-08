@@ -41,7 +41,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
     setToasts((prev) => [...prev, { id, message, type }]);
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 4000);
+    }, 3000);
   }, []);
 
   const toast = useMemo(
@@ -59,7 +59,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
       {children}
       {/* Toast Render Overlay - Dynamic Island Style */}
       <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-3 pointer-events-none">
-        <AnimatePresence mode="popLayout">
+        <AnimatePresence>
           {toasts.map((t) => {
             let Icon = Info;
             let iconColor = 'text-blue-400';
@@ -81,37 +81,66 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
                 layout
                 initial={{
                   opacity: 0,
-                  y: -40,
-                  scale: 0.8,
-                  filter: 'blur(8px)',
+                  y: -25,
+                  scale: 0.85,
+                  filter: 'blur(10px)',
                 }}
-                animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+                animate={{
+                  opacity: 1,
+                  y: 0,
+                  scale: 1,
+                  filter: 'blur(0px)',
+                }}
                 exit={{
-                  opacity: 0,
-                  scale: 0.8,
-                  filter: 'blur(8px)',
-                  transition: { duration: 0.2 },
+                  width: 42,
+                  minWidth: 42,
+                  paddingLeft: 8,
+                  paddingRight: 8,
+                  opacity: [1, 1, 0],
+                  scale: [1, 0.9, 0.5],
+                  transition: {
+                    duration: 0.45,
+                    times: [0, 0.8, 1],
+                    ease: [0.4, 0, 0.2, 1],
+                  },
                 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                className="pointer-events-auto flex items-center gap-3 bg-black/95 backdrop-blur-2xl border border-white/10 px-4 py-2.5 rounded-full shadow-2xl overflow-hidden min-w-[200px] justify-between max-w-[90vw]"
+                transition={{
+                  type: 'spring',
+                  stiffness: 550,
+                  damping: 35,
+                }}
+                className="pointer-events-auto flex items-center gap-3 bg-black/95 backdrop-blur-2xl border border-white/10 px-4 py-2.5 rounded-full shadow-2xl overflow-hidden justify-between max-w-[90vw] origin-center h-[42px]"
               >
-                <div className="flex items-center gap-3 overflow-hidden">
+                <div className="flex items-center gap-3 overflow-hidden whitespace-nowrap">
                   <motion.div layout>
-                    <Icon className={`h-5 w-5 ${iconColor}`} />
+                    <Icon className={`h-5 w-5 shrink-0 ${iconColor}`} />
                   </motion.div>
                   <motion.span
                     layout
-                    className="text-white text-sm font-semibold tracking-tight truncate"
+                    exit={{
+                      opacity: 0,
+                      width: 0,
+                      marginRight: 0,
+                      transition: {
+                        duration: 0.12,
+                      },
+                    }}
+                    className="text-white text-sm font-semibold tracking-tight truncate overflow-hidden"
                   >
                     {t.message}
                   </motion.span>
                 </div>
                 <motion.button
                   layout
-                  onClick={() =>
-                    setToasts((prev) => prev.filter((item) => item.id !== t.id))
-                  }
-                  className="ml-3 text-white/50 hover:text-white transition-colors flex items-center justify-center outline-none shrink-0 bg-white/10 hover:bg-white/20 p-1 rounded-full"
+                  exit={{
+                    opacity: 0,
+                    scale: 0.7,
+                    width: 0,
+                    marginLeft: 0,
+                    transition: {
+                      duration: 0.12,
+                    },
+                  }}
                 >
                   <X className="h-3 w-3" />
                 </motion.button>

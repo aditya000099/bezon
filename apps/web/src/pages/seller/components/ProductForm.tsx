@@ -161,7 +161,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     }
     setIsGeneratingAI(true);
     try {
-      const res = await api.post(API_ENDPOINTS.products.generateDescription, { shortDescription });
+      const res = await api.post(API_ENDPOINTS.products.generateDescription, {
+        shortDescription,
+      });
       if (res.data.success) {
         setDescription(res.data.data);
         setShowAIInput(false);
@@ -169,7 +171,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         toast.success('AI description generated successfully.');
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to generate AI description.');
+      toast.error(
+        err.response?.data?.message || 'Failed to generate AI description.',
+      );
     } finally {
       setIsGeneratingAI(false);
     }
@@ -188,9 +192,13 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           const formData = new FormData();
           formData.append('image', files[i]);
 
-          const uploadRes = await api.post(API_ENDPOINTS.media.upload, formData, {
-            headers: { 'Content-Type': 'multipart/form-data' },
-          });
+          const uploadRes = await api.post(
+            API_ENDPOINTS.media.upload,
+            formData,
+            {
+              headers: { 'Content-Type': 'multipart/form-data' },
+            },
+          );
 
           if (uploadRes.data.success) {
             const { url, s3Key } = uploadRes.data.data;
@@ -203,7 +211,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         } catch (imgErr: any) {
           failedCount++;
           console.error(`Failed to upload image ${files[i].name}:`, imgErr);
-          toast.error(imgErr.response?.data?.message || `Failed to upload ${files[i].name}`);
+          toast.error(
+            imgErr.response?.data?.message ||
+              `Failed to upload ${files[i].name}`,
+          );
         }
       }
       setImages(currentImages);
@@ -391,7 +402,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 AI Write
               </Button>
             </div>
-            
+
             {showAIInput && (
               <div className="flex gap-2 p-3 bg-teal-50/50 border border-teal-100 rounded-md mb-1 animate-in fade-in slide-in-from-top-1">
                 <Input
@@ -399,20 +410,29 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   placeholder="E.g. wireless noise cancelling headphones with 30hr battery..."
                   value={shortDescription}
                   onChange={(e) => setShortDescription(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleGenerateAI(); } }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleGenerateAI();
+                    }
+                  }}
                 />
-                <Button 
-                  type="button" 
-                  size="sm" 
+                <Button
+                  type="button"
+                  size="sm"
                   className="h-8 bg-teal-600 hover:bg-teal-700"
                   onClick={handleGenerateAI}
                   disabled={isGeneratingAI || !shortDescription}
                 >
-                  {isGeneratingAI ? <Spinner className="h-3 w-3 animate-spin" /> : 'Generate'}
+                  {isGeneratingAI ? (
+                    <Spinner className="h-3 w-3 animate-spin" />
+                  ) : (
+                    'Generate'
+                  )}
                 </Button>
               </div>
             )}
-            
+
             <textarea
               className="flex min-h-25 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               placeholder="Detailed description of the product..."
@@ -446,7 +466,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           </div>
           <div className="flex flex-col gap-1.5">
             <label className="text-[10px] font-bold text-zinc-400 uppercase">
-              Price (₹) *
+              Discounted Price (₹) *
             </label>
             <Input
               type="number"
@@ -458,7 +478,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           </div>
           <div className="flex flex-col gap-1.5">
             <label className="text-[10px] font-bold text-zinc-400 uppercase">
-              Compare Price (₹)
+              Actual Price (₹)
             </label>
             <Input
               type="number"

@@ -176,7 +176,10 @@ export const ShopPage: React.FC = () => {
         <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
           {p.brand || 'Unbranded'}
         </span>
-        <div onClick={(e) => handleProductClick(e, p)} className="cursor-pointer">
+        <div
+          onClick={(e) => handleProductClick(e, p)}
+          className="cursor-pointer"
+        >
           <CardTitle className="text-base font-bold text-zinc-800 line-clamp-1 mt-0.5 hover:text-zinc-600 transition-colors">
             {p.title}
           </CardTitle>
@@ -190,9 +193,27 @@ export const ShopPage: React.FC = () => {
         </div>
       </CardHeader>
       <CardContent className="p-4 pt-3 flex items-baseline gap-2">
-        <span className="text-lg font-extrabold text-zinc-900">
-          ₹{Number(p.basePrice).toLocaleString()}
-        </span>
+        <div className="flex flex-row justify-between items-center w-full">
+          <div className="flex gap-2 justify-center items-center">
+            <span className="text-lg font-extrabold text-zinc-900">
+              ₹{Number(p.basePrice).toLocaleString()}
+            </span>
+            <span className="text-xs font-medium text-zinc-500 line-through">
+              ₹{Number(p.comparePrice).toLocaleString()}
+            </span>
+          </div>
+          <div>
+            {p.comparePrice && Number(p.comparePrice) > Number(p.basePrice) && (
+              <span className="bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-0.5 rounded">
+                Save{' '}
+                {Math.round(
+                  ((p.comparePrice - p.basePrice) / p.comparePrice) * 100,
+                )}
+                %
+              </span>
+            )}
+          </div>
+        </div>
       </CardContent>
       <CardFooter className="p-4 pt-0">
         {p.totalStock > 0 ? (
