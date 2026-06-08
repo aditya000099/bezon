@@ -1,26 +1,25 @@
+import { Button } from '@bezon/ui';
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import {
-  User,
-  MapPin,
-  Package,
-  Heart,
-  FileText,
-  Shield,
-  ShieldWarning,
-  SignOut,
-  CaretRight,
-  Truck,
+  UserIcon,
+  MapPinIcon,
+  PackageIcon,
+  HeartIcon,
+  FileTextIcon,
+  ShieldIcon,
+  ShieldWarningIcon,
+  SignOutIcon,
+  CaretRightIcon,
+  TruckIcon,
 } from '@phosphor-icons/react';
-import { Button } from '@/components/ui/button';
+;
 
 export const ProfilePage: React.FC = () => {
   const { user, logout, checkAuth } = useAuth();
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
+
 
   return (
     <div className="max-w-4xl mx-auto flex flex-col gap-8">
@@ -62,11 +61,11 @@ export const ProfilePage: React.FC = () => {
             >
               <div className="flex items-center gap-3 text-zinc-700 font-medium">
                 <div className="p-2 bg-teal-50 text-teal-600 rounded-lg group-hover:bg-teal-100 transition-colors">
-                  <User className="h-5 w-5" />
+                  <UserIcon className="h-5 w-5" />
                 </div>
                 Edit Profile
               </div>
-              <CaretRight className="h-5 w-5 text-zinc-400 group-hover:text-teal-600 transition-colors" />
+              <CaretRightIcon className="h-5 w-5 text-zinc-400 group-hover:text-teal-600 transition-colors" />
             </Link>
             <Link
               to="/addresses"
@@ -74,11 +73,11 @@ export const ProfilePage: React.FC = () => {
             >
               <div className="flex items-center gap-3 text-zinc-700 font-medium">
                 <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg group-hover:bg-emerald-100 transition-colors">
-                  <MapPin className="h-5 w-5" />
+                  <MapPinIcon className="h-5 w-5" />
                 </div>
                 Saved Addresses
               </div>
-              <CaretRight className="h-5 w-5 text-zinc-400 group-hover:text-emerald-600 transition-colors" />
+              <CaretRightIcon className="h-5 w-5 text-zinc-400 group-hover:text-emerald-600 transition-colors" />
             </Link>
           </div>
         </div>
@@ -97,11 +96,11 @@ export const ProfilePage: React.FC = () => {
             >
               <div className="flex items-center gap-3 text-zinc-700 font-medium">
                 <div className="p-2 bg-blue-50 text-blue-600 rounded-lg group-hover:bg-blue-100 transition-colors">
-                  <Package className="h-5 w-5" />
+                  <PackageIcon className="h-5 w-5" />
                 </div>
                 Recent Orders
               </div>
-              <CaretRight className="h-5 w-5 text-zinc-400 group-hover:text-blue-600 transition-colors" />
+              <CaretRightIcon className="h-5 w-5 text-zinc-400 group-hover:text-blue-600 transition-colors" />
             </Link>
             <Link
               to="/wishlist"
@@ -109,11 +108,11 @@ export const ProfilePage: React.FC = () => {
             >
               <div className="flex items-center gap-3 text-zinc-700 font-medium">
                 <div className="p-2 bg-rose-50 text-rose-600 rounded-lg group-hover:bg-rose-100 transition-colors">
-                  <Heart className="h-5 w-5" />
+                  <HeartIcon className="h-5 w-5" />
                 </div>
                 Wishlist
               </div>
-              <CaretRight className="h-5 w-5 text-zinc-400 group-hover:text-rose-600 transition-colors" />
+              <CaretRightIcon className="h-5 w-5 text-zinc-400 group-hover:text-rose-600 transition-colors" />
             </Link>
           </div>
         </div>
@@ -132,11 +131,11 @@ export const ProfilePage: React.FC = () => {
             >
               <div className="flex items-center gap-3 text-zinc-700 font-medium">
                 <div className="p-2 bg-zinc-100 text-zinc-600 rounded-lg group-hover:bg-zinc-200 transition-colors">
-                  <FileText className="h-5 w-5" />
+                  <FileTextIcon className="h-5 w-5" />
                 </div>
                 Terms & Conditions
               </div>
-              <CaretRight className="h-5 w-5 text-zinc-400 group-hover:text-zinc-600 transition-colors" />
+              <CaretRightIcon className="h-5 w-5 text-zinc-400 group-hover:text-zinc-600 transition-colors" />
             </Link>
             <Link
               to="/privacy-policy"
@@ -144,11 +143,11 @@ export const ProfilePage: React.FC = () => {
             >
               <div className="flex items-center gap-3 text-zinc-700 font-medium">
                 <div className="p-2 bg-zinc-100 text-zinc-600 rounded-lg group-hover:bg-zinc-200 transition-colors">
-                  <Shield className="h-5 w-5" />
+                  <ShieldIcon className="h-5 w-5" />
                 </div>
                 Privacy Policy
               </div>
-              <CaretRight className="h-5 w-5 text-zinc-400 group-hover:text-zinc-600 transition-colors" />
+              <CaretRightIcon className="h-5 w-5 text-zinc-400 group-hover:text-zinc-600 transition-colors" />
             </Link>
           </div>
         </div>
@@ -175,7 +174,7 @@ export const ProfilePage: React.FC = () => {
             {user?.seller?.status === 'pending' && (
               <div className="text-center">
                 <div className="inline-flex items-center justify-center p-3 bg-amber-50 text-amber-500 rounded-full mb-3">
-                  <FileText className="h-6 w-6" />
+                  <FileTextIcon className="h-6 w-6" />
                 </div>
                 <h3 className="font-medium text-zinc-900 mb-1">
                   Application Pending Review
@@ -224,7 +223,7 @@ export const ProfilePage: React.FC = () => {
             {user?.deliveryPartner?.status === 'pending' && (
               <div className="text-center">
                 <div className="inline-flex items-center justify-center p-3 bg-amber-50 text-amber-500 rounded-full mb-3">
-                  <FileText className="h-6 w-6" />
+                  <FileTextIcon className="h-6 w-6" />
                 </div>
                 <h3 className="font-medium text-zinc-900 mb-1">
                   Application Pending Review

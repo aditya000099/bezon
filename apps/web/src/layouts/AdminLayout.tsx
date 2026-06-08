@@ -2,17 +2,17 @@ import React from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import {
-  SquaresFour,
-  Users,
-  ShoppingBag,
-  ClipboardText,
-  ShieldWarning,
-  Truck,
-  SignOut,
-  ShieldCheck,
-  CurrencyDollar,
-  ArrowCounterClockwise,
-  Wallet,
+  SquaresFourIcon,
+  UsersIcon,
+  ShoppingBagIcon,
+  ClipboardTextIcon,
+  ShieldWarningIcon,
+  TruckIcon,
+  SignOutIcon,
+  ShieldCheckIcon,
+  CurrencyDollarIcon,
+  ArrowCounterClockwiseIcon,
+  WalletIcon,
 } from "@phosphor-icons/react";
 
 export const AdminLayout: React.FC = () => {
@@ -20,16 +20,16 @@ export const AdminLayout: React.FC = () => {
   const location = useLocation();
 
   const links = [
-    { to: "/admin", label: "Dashboard", icon: SquaresFour },
-    { to: "/admin/users", label: "Platform Users", icon: Users },
-    { to: "/admin/orders", label: "All Orders", icon: ClipboardText },
-    { to: "/admin/deliveries", label: "Delivery Ops", icon: Truck },
-    { to: "/admin/sellers", label: "Sellers Management", icon: ShieldWarning },
-    { to: "/admin/partners", label: "Delivery Partners", icon: Users },
-    { to: "/admin/policies", label: "Policies", icon: ShieldCheck },
-    { to: "/admin/refunds", label: "Refund Management", icon: CurrencyDollar },
-    { to: "/admin/returns", label: "Returns", icon: ArrowCounterClockwise },
-    { to: "/admin/wallets", label: "Wallets", icon: Wallet },
+    { to: "/admin", label: "Dashboard", icon: SquaresFourIcon },
+    { to: "/admin/users", label: "Platform UsersIcon", icon: UsersIcon },
+    { to: "/admin/orders", label: "All Orders", icon: ClipboardTextIcon },
+    { to: "/admin/deliveries", label: "Delivery Ops", icon: TruckIcon },
+    { to: "/admin/sellers", label: "Sellers Management", icon: ShieldWarningIcon },
+    { to: "/admin/partners", label: "Delivery Partners", icon: UsersIcon },
+    { to: "/admin/policies", label: "Policies", icon: ShieldCheckIcon },
+    { to: "/admin/refunds", label: "Refund Management", icon: CurrencyDollarIcon },
+    { to: "/admin/returns", label: "Returns", icon: ArrowCounterClockwiseIcon },
+    { to: "/admin/wallets", label: "Wallets", icon: WalletIcon },
   ];
 
   return (
@@ -37,7 +37,7 @@ export const AdminLayout: React.FC = () => {
       {/* Dark Sidebar */}
       <aside className="w-64 bg-zinc-900 text-zinc-300 flex flex-col shrink-0 h-full">
         <div className="h-16 flex items-center px-6 border-b border-zinc-800 gap-2 bg-zinc-950">
-          <ShieldWarning className="h-6 w-6 text-primary" />
+          <ShieldWarningIcon className="h-6 w-6 text-primary" />
           <span className="font-bold text-lg text-white">Bezon Admin</span>
         </div>
         <nav className="flex-1 px-4 py-6 flex flex-col gap-1">
@@ -65,7 +65,7 @@ export const AdminLayout: React.FC = () => {
             onClick={logout}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-zinc-400 hover:bg-rose-950 hover:text-rose-400 transition-colors"
           >
-            <SignOut className="h-5 w-5" />
+            <SignOutIcon className="h-5 w-5" />
             <span>Logout</span>
           </button>
         </div>

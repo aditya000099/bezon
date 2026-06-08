@@ -1,26 +1,21 @@
+import { logger } from "@/utils/logger";
+import { Button, Input, Card, CardHeader, CardTitle, CardContent, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@bezon/ui';
 import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+;
+;
+;
+;
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/components/ui/dialog';
-import {
-  Plus,
-  PencilSimple,
-  Trash,
-  Tag,
-  Calendar,
-  Percent,
-  Hash,
-  Spinner,
-  ToggleLeft,
-  ToggleRight,
+  PlusIcon,
+  PencilSimpleIcon,
+  TrashIcon,
+  TagIcon,
+  CalendarIcon,
+  PercentIcon,
+  HashIcon,
+  SpinnerIcon,
+  ToggleLeftIcon,
+  ToggleRightIcon,
 } from '@phosphor-icons/react';
 import api from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api.config';
@@ -108,7 +103,7 @@ export const SellerCoupons: React.FC = () => {
         if (catRes.data.success) setCategories(catRes.data.data);
         if (prodRes.data.success) setProducts(prodRes.data.data);
       } catch (err) {
-        console.error('Failed to load categories/products', err);
+        logger.error('Failed to load categories/products', err);
       }
     };
     loadMeta();
@@ -257,18 +252,18 @@ export const SellerCoupons: React.FC = () => {
           onClick={handleOpenCreate}
           className="w-full sm:w-auto font-bold flex items-center gap-2"
         >
-          <Plus className="h-4 w-4" /> Create Coupon
+          <PlusIcon className="h-4 w-4" /> Create Coupon
         </Button>
       </div>
 
       {loading ? (
         <div className="flex flex-col items-center justify-center min-h-75 text-zinc-400 gap-2">
-          <Spinner className="h-8 w-8 animate-spin text-teal-500" />
+          <SpinnerIcon className="h-8 w-8 animate-spin text-teal-500" />
           <p className="text-sm font-semibold">Loading coupons...</p>
         </div>
       ) : coupons.length === 0 ? (
         <Card className="flex flex-col items-center justify-center min-h-75 text-zinc-400 p-8 border-dashed border-2 bg-white/50">
-          <Tag className="h-12 w-12 text-zinc-300 mb-2" />
+          <TagIcon className="h-12 w-12 text-zinc-300 mb-2" />
           <p className="font-bold text-zinc-700">No coupons created yet</p>
           <p className="text-xs text-zinc-400 mt-1">
             Create your first coupon to offer discounts to customers.
@@ -284,16 +279,16 @@ export const SellerCoupons: React.FC = () => {
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Tag className="h-4 w-4 text-teal-500" />
+                    <TagIcon className="h-4 w-4 text-teal-500" />
                     <CardTitle className="text-base font-extrabold text-zinc-800 font-mono tracking-wider">
                       {coupon.code}
                     </CardTitle>
                   </div>
                   <div className="flex items-center gap-1">
                     {coupon.isActive ? (
-                      <ToggleRight className="h-5 w-5 text-emerald-500" />
+                      <ToggleRightIcon className="h-5 w-5 text-emerald-500" />
                     ) : (
-                      <ToggleLeft className="h-5 w-5 text-zinc-400" />
+                      <ToggleLeftIcon className="h-5 w-5 text-zinc-400" />
                     )}
                     <span
                       className={`text-[10px] font-bold uppercase tracking-wider ${coupon.isActive ? 'text-emerald-600' : 'text-zinc-400'}`}
@@ -318,7 +313,7 @@ export const SellerCoupons: React.FC = () => {
                     <span className="font-extrabold text-zinc-800 flex items-center gap-1">
                       {coupon.discountType === 'percentage' ? (
                         <>
-                          <Percent className="h-3 w-3" />
+                          <PercentIcon className="h-3 w-3" />
                           {coupon.discountValue}%
                         </>
                       ) : (
@@ -331,7 +326,7 @@ export const SellerCoupons: React.FC = () => {
                       Usage
                     </span>
                     <span className="font-extrabold text-zinc-800 flex items-center gap-1">
-                      <Hash className="h-3 w-3" />
+                      <HashIcon className="h-3 w-3" />
                       {coupon.usedCount} / {coupon.maxUses}
                     </span>
                   </div>
@@ -343,7 +338,7 @@ export const SellerCoupons: React.FC = () => {
                       Valid From
                     </span>
                     <span className="font-semibold text-zinc-700 flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
+                      <CalendarIcon className="h-3 w-3" />
                       {formatDate(coupon.validFrom)}
                     </span>
                   </div>
@@ -352,7 +347,7 @@ export const SellerCoupons: React.FC = () => {
                       Valid Until
                     </span>
                     <span className="font-semibold text-zinc-700 flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
+                      <CalendarIcon className="h-3 w-3" />
                       {formatDate(coupon.validUntil)}
                     </span>
                   </div>
@@ -391,7 +386,7 @@ export const SellerCoupons: React.FC = () => {
                     className="h-8 w-8 text-zinc-500 hover:text-zinc-800"
                     onClick={() => handleOpenEdit(coupon)}
                   >
-                    <PencilSimple className="h-4 w-4" />
+                    <PencilSimpleIcon className="h-4 w-4" />
                   </Button>
                   <Button
                     size="icon"
@@ -399,7 +394,7 @@ export const SellerCoupons: React.FC = () => {
                     className="h-8 w-8 text-rose-500 hover:text-rose-700 hover:bg-rose-50"
                     onClick={() => handleDelete(coupon.id)}
                   >
-                    <Trash className="h-4 w-4" />
+                    <TrashIcon className="h-4 w-4" />
                   </Button>
                 </div>
               </CardContent>

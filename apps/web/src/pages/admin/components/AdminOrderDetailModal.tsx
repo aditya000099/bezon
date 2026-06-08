@@ -1,15 +1,9 @@
+import { Card, Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@bezon/ui';
 import React from 'react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Clock, User, Storefront, Truck, Phone, Envelope, Database } from '@phosphor-icons/react';
+;
+;
+;
+import { ClockIcon, UserIcon, StorefrontIcon, TruckIcon, PhoneIcon, EnvelopeIcon, DatabaseIcon } from '@phosphor-icons/react';
 import { OrderTrackingStepper } from '../../../components/ui/OrderTrackingStepper';
 import { formatStatusText } from '../../../utils/statusFormatter';
 
@@ -51,7 +45,7 @@ export const AdminOrderDetailModal: React.FC<AdminOrderDetailModalProps> = ({
 
         {loadingDetails ? (
           <div className="py-20 text-center">
-            <Clock className="h-8 w-8 animate-spin mx-auto text-indigo-500 mb-2" />
+            <ClockIcon className="h-8 w-8 animate-spin mx-auto text-indigo-500 mb-2" />
             <p className="text-sm text-zinc-500 font-medium">Loading full order metadata...</p>
           </div>
         ) : selectedOrderDetails ? (
@@ -68,18 +62,18 @@ export const AdminOrderDetailModal: React.FC<AdminOrderDetailModalProps> = ({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Card className="p-4 bg-white border-zinc-200">
                     <h4 className="text-xs font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-1.5 mb-3">
-                      <User className="h-4 w-4 text-zinc-500" />
+                      <UserIcon className="h-4 w-4 text-zinc-500" />
                       Customer Information
                     </h4>
                     <p className="font-semibold text-zinc-800">{selectedOrderDetails.customer?.name}</p>
                     <div className="text-xs text-zinc-500 mt-2 space-y-1">
                       <div className="flex items-center gap-1.5">
-                        <Envelope className="h-3.5 w-3.5" />
+                        <EnvelopeIcon className="h-3.5 w-3.5" />
                         <span>{selectedOrderDetails.customer?.email}</span>
                       </div>
                       {selectedOrderDetails.customer?.phone && (
                         <div className="flex items-center gap-1.5">
-                          <Phone className="h-3.5 w-3.5" />
+                          <PhoneIcon className="h-3.5 w-3.5" />
                           <span>{selectedOrderDetails.customer.phone}</span>
                         </div>
                       )}
@@ -88,13 +82,13 @@ export const AdminOrderDetailModal: React.FC<AdminOrderDetailModalProps> = ({
 
                   <Card className="p-4 bg-white border-zinc-200">
                     <h4 className="text-xs font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-1.5 mb-3">
-                      <Storefront className="h-4 w-4 text-zinc-500" />
+                      <StorefrontIcon className="h-4 w-4 text-zinc-500" />
                       Seller Information
                     </h4>
                     <p className="font-semibold text-zinc-800">{selectedOrderDetails.seller?.shopName}</p>
                     <div className="text-xs text-zinc-500 mt-2 space-y-1">
                       <div className="flex items-center gap-1.5">
-                        <Envelope className="h-3.5 w-3.5" />
+                        <EnvelopeIcon className="h-3.5 w-3.5" />
                         <span>{selectedOrderDetails.seller?.user?.email || 'N/A'}</span>
                       </div>
                     </div>
@@ -104,7 +98,7 @@ export const AdminOrderDetailModal: React.FC<AdminOrderDetailModalProps> = ({
                 {/* Delivery partner info card */}
                 <Card className="p-4 bg-white border-zinc-200">
                   <h4 className="text-xs font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-1.5 mb-3">
-                    <Truck className="h-4 w-4 text-zinc-500" />
+                    <TruckIcon className="h-4 w-4 text-zinc-500" />
                     Delivery Information
                   </h4>
                   {selectedOrderDetails.delivery?.partner ? (
@@ -144,7 +138,7 @@ export const AdminOrderDetailModal: React.FC<AdminOrderDetailModalProps> = ({
                 {/* Settlement Information */}
                 <Card className="p-4 bg-white border-zinc-200">
                   <h4 className="text-xs font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-1.5 mb-3">
-                    <Database className="h-4 w-4 text-zinc-500" />
+                    <DatabaseIcon className="h-4 w-4 text-zinc-500" />
                     Settlement & Escrow
                   </h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

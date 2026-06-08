@@ -1,23 +1,17 @@
+import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter, Input, Button } from '@bezon/ui';
 import React, { useEffect, useState } from 'react';
+;
+;
+;
 import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardDescription,
-  CardFooter,
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import {
-  Spinner,
-  Truck,
-  ShieldCheck,
-  User,
-  Compass,
-  Star,
-  NavigationArrow,
-  MapPin,
+  SpinnerIcon,
+  TruckIcon,
+  ShieldCheckIcon,
+  UserIcon,
+  CompassIcon,
+  StarIcon,
+  NavigationArrowIcon,
+  MapPinIcon,
 } from '@phosphor-icons/react';
 import api from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api.config';
@@ -109,7 +103,7 @@ export const DeliveryProfile: React.FC = () => {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-75 text-zinc-500">
-        <Spinner className="h-8 w-8 animate-spin mb-4 text-teal-600" />
+        <SpinnerIcon className="h-8 w-8 animate-spin mb-4 text-teal-600" />
         <p className="font-bold">Loading courier profile...</p>
       </div>
     );
@@ -156,7 +150,7 @@ export const DeliveryProfile: React.FC = () => {
               Rating
             </span>
             <span className="text-base font-extrabold text-amber-400 mt-0.5 flex items-center gap-0.5 justify-center">
-              <Star className="h-3.5 w-3.5 fill-amber-400" />{' '}
+              <StarIcon className="h-3.5 w-3.5 fill-amber-400" />{' '}
               {stats.rating.toFixed(1)}
             </span>
           </div>
@@ -198,7 +192,7 @@ export const DeliveryProfile: React.FC = () => {
         <Card className="bg-white border-zinc-200 shadow-sm rounded-2xl overflow-hidden">
           <CardHeader className="border-b border-zinc-100 pb-3 p-5">
             <CardTitle className="text-base font-extrabold text-zinc-800 flex items-center gap-2">
-              <Truck className="h-5 w-5 text-teal-600" /> Vehicle Information
+              <TruckIcon className="h-5 w-5 text-teal-600" /> Vehicle Information
             </CardTitle>
           </CardHeader>
           <CardContent className="p-5 flex flex-col gap-4">
@@ -216,7 +210,7 @@ export const DeliveryProfile: React.FC = () => {
                 <option value="bike">Bicycle / Motorcycle</option>
                 <option value="car">Car / Sedan</option>
                 <option value="van">Delivery Van</option>
-                <option value="truck">Heavy Truck</option>
+                <option value="truck">Heavy TruckIcon</option>
               </select>
             </div>
 
@@ -242,7 +236,7 @@ export const DeliveryProfile: React.FC = () => {
         <Card className="bg-white border-zinc-200 shadow-sm rounded-2xl overflow-hidden">
           <CardHeader className="border-b border-zinc-100 pb-3 p-5">
             <CardTitle className="text-base font-extrabold text-zinc-800 flex items-center gap-2">
-              <NavigationArrow className="h-5 w-5 text-teal-600" /> Base Address
+              <NavigationArrowIcon className="h-5 w-5 text-teal-600" /> Base Address
               (Google Maps)
             </CardTitle>
             <CardDescription className="text-xs font-medium">
@@ -331,7 +325,7 @@ export const DeliveryProfile: React.FC = () => {
 
             {formData.lat && formData.lng && (
               <div className="text-[10px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 p-2 rounded-xl self-start flex items-center gap-1 mt-1">
-                <Compass className="h-3.5 w-3.5 text-emerald-500 animate-spin-slow" />
+                <CompassIcon className="h-3.5 w-3.5 text-emerald-500 animate-spin-slow" />
                 Base coordinates active: {formData.lat}, {formData.lng}
               </div>
             )}
@@ -342,7 +336,7 @@ export const DeliveryProfile: React.FC = () => {
               disabled={saving}
               className="w-full rounded-xl font-bold"
             >
-              {saving && <Spinner className="h-4 w-4 mr-2 animate-spin" />}
+              {saving && <SpinnerIcon className="h-4 w-4 mr-2 animate-spin" />}
               Save Courier Settings
             </Button>
           </CardFooter>

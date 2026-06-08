@@ -2,11 +2,11 @@ import React from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
-  Compass,
-  CheckSquare,
-  ClockCounterClockwise,
-  User,
-  SignOut,
+  CompassIcon,
+  CheckSquareIcon,
+  ClockCounterClockwiseIcon,
+  UserIcon,
+  SignOutIcon,
 } from '@phosphor-icons/react';
 
 export const DeliveryLayout: React.FC = () => {
@@ -14,13 +14,13 @@ export const DeliveryLayout: React.FC = () => {
   const location = useLocation();
 
   const bottomNavItems = [
-    { to: '/delivery', label: 'Tasks Queue', icon: CheckSquare },
+    { to: '/delivery', label: 'Tasks Queue', icon: CheckSquareIcon },
     {
       to: '/delivery/history',
       label: 'Past Trips',
-      icon: ClockCounterClockwise,
+      icon: ClockCounterClockwiseIcon,
     },
-    { to: '/delivery/profile', label: 'My Status', icon: User },
+    { to: '/delivery/profile', label: 'My Status', icon: UserIcon },
   ];
 
   return (
@@ -28,7 +28,7 @@ export const DeliveryLayout: React.FC = () => {
       {/* Mobile Top Header */}
       <header className="h-14 bg-white border-b border-zinc-200 sticky top-0 z-40 flex items-center justify-between px-4">
         <div className="flex items-center gap-2">
-          <Compass className="h-5 w-5 text-primary animate-spin" />
+          <CompassIcon className="h-5 w-5 text-primary animate-spin" />
           <h2 className="font-bold text-zinc-800">Bezon Delivery</h2>
         </div>
         <button
@@ -36,7 +36,7 @@ export const DeliveryLayout: React.FC = () => {
           title="Logout"
           className="p-2 text-zinc-500 hover:text-rose-600 rounded-lg hover:bg-zinc-100 transition-colors"
         >
-          <SignOut className="h-4 w-4" />
+          <SignOutIcon className="h-4 w-4" />
         </button>
       </header>
 

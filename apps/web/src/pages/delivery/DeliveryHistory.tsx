@@ -1,19 +1,14 @@
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@bezon/ui';
 import React, { useEffect, useState } from 'react';
+;
 import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from '@/components/ui/card';
-import {
-  Spinner,
-  Calendar,
-  MapPin,
-  Package,
-  CheckCircle,
-  XCircle,
-  Eye,
+  SpinnerIcon,
+  CalendarIcon,
+  MapPinIcon,
+  PackageIcon,
+  CheckCircleIcon,
+  XCircleIcon,
+  EyeIcon,
 } from '@phosphor-icons/react';
 import api from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api.config';
@@ -63,7 +58,7 @@ export const DeliveryHistory: React.FC = () => {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[300px] text-zinc-500">
-        <Spinner className="h-8 w-8 animate-spin mb-4 text-teal-600" />
+        <SpinnerIcon className="h-8 w-8 animate-spin mb-4 text-teal-600" />
         <p className="font-bold">Loading delivery logs...</p>
       </div>
     );
@@ -82,7 +77,7 @@ export const DeliveryHistory: React.FC = () => {
 
       {trips.length === 0 ? (
         <div className="bg-white border border-zinc-200 rounded-2xl p-8 text-center shadow-sm">
-          <Calendar className="h-10 w-10 text-zinc-300 mx-auto" />
+          <CalendarIcon className="h-10 w-10 text-zinc-300 mx-auto" />
           <p className="text-zinc-400 text-xs mt-2 font-semibold">
             No past deliveries logged yet.
           </p>
@@ -110,11 +105,11 @@ export const DeliveryHistory: React.FC = () => {
                     >
                       {isSuccess ? (
                         <>
-                          <CheckCircle className="h-3 w-3" /> Delivered
+                          <CheckCircleIcon className="h-3 w-3" /> Delivered
                         </>
                       ) : (
                         <>
-                          <XCircle className="h-3 w-3" /> Failed
+                          <XCircleIcon className="h-3 w-3" /> Failed
                         </>
                       )}
                     </span>
@@ -126,7 +121,7 @@ export const DeliveryHistory: React.FC = () => {
                 <CardContent className="p-4 space-y-3.5">
                   {/* Items */}
                   <div className="flex items-start gap-2">
-                    <Package className="h-4 w-4 text-zinc-400 mt-0.5 shrink-0" />
+                    <PackageIcon className="h-4 w-4 text-zinc-400 mt-0.5 shrink-0" />
                     <span className="text-xs text-zinc-600 font-medium">
                       {formatItemsString(trip.order)}
                     </span>
@@ -175,7 +170,7 @@ export const DeliveryHistory: React.FC = () => {
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-250"
                         />
                         <div className="absolute inset-0 bg-zinc-950/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-1 bg-black/30">
-                          <Eye className="h-4 w-4" /> View Image
+                          <EyeIcon className="h-4 w-4" /> View Image
                         </div>
                       </a>
                     </div>

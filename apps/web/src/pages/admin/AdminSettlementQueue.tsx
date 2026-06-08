@@ -1,18 +1,19 @@
+import { Card, CardHeader, CardTitle, CardContent, Button, Input } from '@bezon/ui';
 import React, { useState, useEffect } from 'react';
 import {
-  Database,
-  MagnifyingGlass,
-  CheckCircle,
-  Clock,
+  DatabaseIcon,
+  MagnifyingGlassIcon,
+  CheckCircleIcon,
+  ClockIcon,
   SpinnerIcon,
-  CaretLeft,
-  CaretRight,
-  Receipt,
-  DownloadSimple
+  CaretLeftIcon,
+  CaretRightIcon,
+  ReceiptIcon,
+  DownloadSimpleIcon
 } from '@phosphor-icons/react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+;
+;
+;
 import api from '../../lib/api';
 import { useToast } from '../../context/ToastContext';
 
@@ -57,7 +58,7 @@ export const AdminSettlementQueue: React.FC = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-zinc-900 flex items-center gap-2">
-            <Database className="h-6 w-6 text-indigo-600" /> Settlement Queue
+            <DatabaseIcon className="h-6 w-6 text-indigo-600" /> Settlement Queue
           </h1>
           <p className="text-zinc-500 text-sm mt-1">
             View orders awaiting settlement and expected payout timelines
@@ -65,7 +66,7 @@ export const AdminSettlementQueue: React.FC = () => {
         </div>
 
         <form onSubmit={handleSearch} className="relative w-72">
-          <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 w-4 h-4" />
+          <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 w-4 h-4" />
           <Input
             placeholder="Search order number or seller..."
             className="pl-9 bg-white"
@@ -112,11 +113,11 @@ export const AdminSettlementQueue: React.FC = () => {
                       <td className="px-6 py-4">
                         {item.settlementStatus === 'HOLDING' ? (
                           <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-800">
-                            <Clock weight="bold" /> Holding
+                            <ClockIcon weight="bold" /> Holding
                           </span>
                         ) : item.settlementStatus === 'SETTLED' ? (
                           <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800">
-                            <CheckCircle weight="bold" /> Settled
+                            <CheckCircleIcon weight="bold" /> Settled
                           </span>
                         ) : (
                           <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-zinc-100 text-zinc-800">
@@ -156,7 +157,7 @@ export const AdminSettlementQueue: React.FC = () => {
                   disabled={page === 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                 >
-                  <CaretLeft className="w-4 h-4 mr-1" /> Prev
+                  <CaretLeftIcon className="w-4 h-4 mr-1" /> Prev
                 </Button>
                 <Button
                   variant="outline"
@@ -164,7 +165,7 @@ export const AdminSettlementQueue: React.FC = () => {
                   disabled={page === totalPages}
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 >
-                  Next <CaretRight className="w-4 h-4 ml-1" />
+                  Next <CaretRightIcon className="w-4 h-4 ml-1" />
                 </Button>
               </div>
             </div>

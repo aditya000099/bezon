@@ -1,15 +1,15 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
-  PaperPlaneRight,
-  Robot,
+  PaperPlaneRightIcon,
+  RobotIcon,
   User as UserIcon,
-  Spinner,
-  Package,
-  ArrowCounterClockwise,
-  Question,
-  Sparkle,
-  CaretDown,
-  Trash,
+  SpinnerIcon,
+  PackageIcon,
+  ArrowCounterClockwiseIcon,
+  QuestionIcon,
+  SparkleIcon,
+  CaretDownIcon,
+  TrashIcon,
 } from '@phosphor-icons/react';
 import { API_ENDPOINTS } from '../config/api.config';
 import { useAuth } from '../context/AuthContext';
@@ -266,17 +266,17 @@ export const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({
     if (!context) {
       return [
         {
-          icon: Package,
+          icon: PackageIcon,
           label: "Where's my order?",
           message: "Where's my order? Can you help me track it?",
         },
         {
-          icon: ArrowCounterClockwise,
+          icon: ArrowCounterClockwiseIcon,
           label: 'Return / Refund',
           message: 'I need help with a return or refund for my order.',
         },
         {
-          icon: Question,
+          icon: QuestionIcon,
           label: 'Product question',
           message: 'I have a question about a product.',
         },
@@ -286,17 +286,17 @@ export const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({
     if (context.type === 'order') {
       return [
         {
-          icon: Package,
+          icon: PackageIcon,
           label: 'Where is my delivery?',
           message: `Where is my delivery for order #${context.orderNumber}?`,
         },
         {
-          icon: ArrowCounterClockwise,
+          icon: ArrowCounterClockwiseIcon,
           label: 'Check return eligibility',
           message: `Can you check if order #${context.orderNumber} is eligible for a return, refund, or replacement?`,
         },
         {
-          icon: Question,
+          icon: QuestionIcon,
           label: 'Delivery partner details',
           message: `Can you show me the delivery guy details for order #${context.orderNumber}?`,
         },
@@ -305,17 +305,17 @@ export const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({
 
     return [
       {
-        icon: Question,
+        icon: QuestionIcon,
         label: 'Product specifications',
         message: `Can you give me the details and specifications for product "${context.productTitle}"?`,
       },
       {
-        icon: ArrowCounterClockwise,
+        icon: ArrowCounterClockwiseIcon,
         label: 'Return policy duration',
         message: `What return or refund policies apply to product "${context.productTitle}"?`,
       },
       {
-        icon: Sparkle,
+        icon: SparkleIcon,
         label: 'Check rating reviews',
         message: `What are reviews and ratings saying about product "${context.productTitle}"?`,
       },
@@ -344,7 +344,7 @@ export const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({
         <div className="flex items-center gap-3">
           <div className="relative">
             <div className="w-10 h-10 rounded-2xl bg-white flex items-center justify-center">
-              <Robot className="h-5 w-5 text-zinc-600" />
+              <RobotIcon className="h-5 w-5 text-zinc-600" />
             </div>
             <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white" />
           </div>
@@ -358,7 +358,7 @@ export const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({
             title="Reset Chat"
             className="p-1.5 rounded-lg hover:bg-zinc-200 text-zinc-400 hover:text-rose-500 transition-colors"
           >
-            <Trash className="h-4.5 w-4.5" />
+            <TrashIcon className="h-4.5 w-4.5" />
           </button>
         )}
       </div>
@@ -375,7 +375,7 @@ export const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center px-4 max-w-2xl mx-auto">
             <div className="w-16 h-16 rounded-3xl bg-white flex items-center justify-center mb-4">
-              <Sparkle className="h-7 w-7 text-zinc-400" />
+              <SparkleIcon className="h-7 w-7 text-zinc-400" />
             </div>
             <h4 className="text-zinc-800 font-bold text-base mb-2">
               Bezon Support AI
@@ -404,7 +404,7 @@ export const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({
             >
               {msg.role === 'assistant' && (
                 <div className="shrink-0 w-8 h-8 rounded-2xl bg-white flex items-center justify-center mt-0.5">
-                  <Robot className="h-3.5 w-3.5 text-zinc-600" />
+                  <RobotIcon className="h-3.5 w-3.5 text-zinc-600" />
                 </div>
               )}
               <div
@@ -416,7 +416,7 @@ export const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({
               >
                 {msg.content || (
                   <div className="flex items-center gap-2 text-zinc-400">
-                    <Spinner className="h-3.5 w-3.5 animate-spin text-zinc-400" />
+                    <SpinnerIcon className="h-3.5 w-3.5 animate-spin text-zinc-400" />
                     <span className="text-[10px] text-zinc-500">
                       Checking data...
                     </span>
@@ -441,7 +441,7 @@ export const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({
             onClick={() => scrollToBottom()}
             className="p-2 rounded-full bg-zinc-900 text-white hover:bg-zinc-800 transition-colors"
           >
-            <CaretDown className="h-4.5 w-4.5" />
+            <CaretDownIcon className="h-4.5 w-4.5" />
           </button>
         </div>
       )}

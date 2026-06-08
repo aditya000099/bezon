@@ -1,23 +1,18 @@
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, Input, Button } from '@bezon/ui';
 import React, { useEffect, useState } from "react";
+;
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-import {
-  Spinner,
-  Users,
-  MagnifyingGlass,
-  Envelope,
-  Calendar,
-  Shield,
-  Pulse,
-  Tag,
+  SpinnerIcon,
+  UsersIcon,
+  MagnifyingGlassIcon,
+  EnvelopeIcon,
+  CalendarIcon,
+  ShieldIcon,
+  PulseIcon,
+  TagIcon,
 } from "@phosphor-icons/react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+;
+;
 import api from "../../lib/api";
 import { API_ENDPOINTS } from "../../config/api.config";
 import { useToast } from "../../context/ToastContext";
@@ -75,7 +70,7 @@ export const AdminUsers: React.FC = () => {
       <div className="flex flex-col sm:flex-row justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-zinc-800 tracking-tight">
-            Platform Users
+            Platform UsersIcon
           </h1>
           <p className="text-sm text-zinc-500 mt-1">
             Manage user accounts and view behavioral insights.
@@ -88,7 +83,7 @@ export const AdminUsers: React.FC = () => {
           <Card className={`cursor-pointer transition-colors ${roleFilter === 'all' ? 'border-indigo-500 bg-indigo-50/30' : 'hover:border-zinc-300'}`} onClick={() => setRoleFilter('all')}>
             <CardContent className="p-4 flex flex-col justify-center items-center">
               <span className="text-xl font-bold text-zinc-900">{roleCounts.total}</span>
-              <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider mt-1">Total Users</span>
+              <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider mt-1">Total UsersIcon</span>
             </CardContent>
           </Card>
           <Card className={`cursor-pointer transition-colors ${roleFilter === 'customer' ? 'border-teal-500 bg-teal-50/30' : 'hover:border-zinc-300'}`} onClick={() => setRoleFilter('customer')}>
@@ -121,9 +116,9 @@ export const AdminUsers: React.FC = () => {
       <Card className="bg-white border-zinc-200 shadow-sm overflow-hidden">
         <div className="p-4 border-b border-zinc-200 bg-zinc-50/50 flex flex-col sm:flex-row justify-between items-center gap-4">
           <div className="relative w-full sm:w-80">
-            <MagnifyingGlass className="absolute left-3 top-2.5 h-4 w-4 text-zinc-400" />
+            <MagnifyingGlassIcon className="absolute left-3 top-2.5 h-4 w-4 text-zinc-400" />
             <Input
-              placeholder="MagnifyingGlass users by name or email..."
+              placeholder="MagnifyingGlassIcon users by name or email..."
               className="pl-9 bg-white"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -137,9 +132,9 @@ export const AdminUsers: React.FC = () => {
             className="w-full sm:w-auto font-medium"
           >
             {loading ? (
-              <Spinner className="h-4 w-4 animate-spin mr-2" />
+              <SpinnerIcon className="h-4 w-4 animate-spin mr-2" />
             ) : (
-              <Users className="h-4 w-4 mr-2" />
+              <UsersIcon className="h-4 w-4 mr-2" />
             )}
             Refresh Directory
           </Button>
@@ -147,12 +142,12 @@ export const AdminUsers: React.FC = () => {
 
         {loading ? (
           <div className="flex flex-col items-center justify-center p-12 text-zinc-500">
-            <Spinner className="h-8 w-8 animate-spin mb-4 text-teal-500" />
+            <SpinnerIcon className="h-8 w-8 animate-spin mb-4 text-teal-500" />
             <p className="font-medium">Loading user database...</p>
           </div>
         ) : filteredUsers.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-12 text-zinc-500 bg-zinc-50/30">
-            <Users className="h-12 w-12 text-zinc-300 mb-3" />
+            <UsersIcon className="h-12 w-12 text-zinc-300 mb-3" />
             <p className="font-bold text-zinc-700">No users found</p>
             <p className="text-sm text-zinc-400">
               Try adjusting your search filters.
@@ -185,7 +180,7 @@ export const AdminUsers: React.FC = () => {
                         <div>
                           <p className="font-bold text-zinc-800">{user.name}</p>
                           <div className="flex items-center gap-1 text-zinc-500 text-xs mt-0.5">
-                            <Envelope className="h-3 w-3" />
+                            <EnvelopeIcon className="h-3 w-3" />
                             {user.email}
                           </div>
                         </div>
@@ -194,7 +189,7 @@ export const AdminUsers: React.FC = () => {
                     <td className="px-6 py-4">
                       <div className="flex flex-col gap-1.5">
                         <div className="flex items-center gap-1.5">
-                          <Shield
+                          <ShieldIcon
                             className={`h-3.5 w-3.5 ${user.role === "admin" ? "text-rose-500" : user.role === "seller" ? "text-amber-500" : "text-zinc-400"}`}
                           />
                           <span className="font-semibold text-zinc-700 capitalize text-xs">
@@ -225,7 +220,7 @@ export const AdminUsers: React.FC = () => {
                                       key={cat}
                                       className="inline-flex items-center gap-1 px-2 py-0.5 bg-teal-50 text-teal-700 border border-teal-100 rounded text-[10px] font-bold"
                                     >
-                                      <Tag className="h-2.5 w-2.5" />
+                                      <TagIcon className="h-2.5 w-2.5" />
                                       {cat}
                                     </span>
                                   ),
@@ -243,7 +238,7 @@ export const AdminUsers: React.FC = () => {
                                       key={term}
                                       className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 text-amber-700 border border-amber-100 rounded text-[10px] font-bold"
                                     >
-                                      <MagnifyingGlass className="h-2.5 w-2.5" />
+                                      <MagnifyingGlassIcon className="h-2.5 w-2.5" />
                                       {term}
                                     </span>
                                   ),
@@ -253,7 +248,7 @@ export const AdminUsers: React.FC = () => {
                           </>
                         ) : (
                           <div className="flex items-center gap-2 text-zinc-400 text-xs italic">
-                            <Pulse className="h-3.5 w-3.5" />
+                            <PulseIcon className="h-3.5 w-3.5" />
                             No activity data yet
                           </div>
                         )}
@@ -261,7 +256,7 @@ export const AdminUsers: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 text-right text-xs text-zinc-500 whitespace-nowrap">
                       <div className="flex items-center justify-end gap-1">
-                        <Calendar className="h-3 w-3" />
+                        <CalendarIcon className="h-3 w-3" />
                         {new Date(user.createdAt).toLocaleDateString("en-US", {
                           month: "short",
                           day: "numeric",

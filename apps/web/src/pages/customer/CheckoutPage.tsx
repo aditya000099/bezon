@@ -1,23 +1,11 @@
+import { logger } from "@/utils/logger";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, Button, Input, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@bezon/ui';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/components/ui/dialog';
+;
+;
+;
+;
 import { useCart } from '../../context/CartContext';
 import { useToast } from '../../context/ToastContext';
 import api from '../../lib/api';
@@ -25,22 +13,22 @@ import { API_ENDPOINTS } from '../../config/api.config';
 import { addressSchema } from '@bezon/validation';
 import { fireConfetti } from '@/components/ui/confetti';
 import {
-  MapPin,
-  Phone,
-  User,
-  House,
-  ShieldCheck,
-  ArrowLeft,
-  Bank,
-  CreditCard,
-  Wallet,
-  WarningCircle,
-  Spinner,
-  Tag,
-  CheckCircle,
-  X,
-  SealPercent,
-  Plus,
+  MapPinIcon,
+  PhoneIcon,
+  UserIcon,
+  HouseIcon,
+  ShieldCheckIcon,
+  ArrowLeftIcon,
+  BankIcon,
+  CreditCardIcon,
+  WalletIcon,
+  WarningCircleIcon,
+  SpinnerIcon,
+  TagIcon,
+  CheckCircleIcon,
+  XIcon,
+  SealPercentIcon,
+  PlusIcon,
 } from '@phosphor-icons/react';
 
 export const CheckoutPage: React.FC = () => {
@@ -56,7 +44,7 @@ export const CheckoutPage: React.FC = () => {
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
   const [pincode, setPincode] = useState('');
-  const [label, setLabel] = useState('House');
+  const [label, setLabel] = useState('HouseIcon');
 
   const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
   const [loadingAddresses, setLoadingAddresses] = useState(true);
@@ -91,7 +79,7 @@ export const CheckoutPage: React.FC = () => {
       try {
         const res = await api.get(API_ENDPOINTS.coupons.forCart);
         if (res.data.success) setAvailableCoupons(res.data.data);
-      } catch {}
+      } catch (err: any) { logger.error(err); }
     };
     if (items.length > 0) fetchCoupons();
   }, [items.length]);
@@ -114,7 +102,7 @@ export const CheckoutPage: React.FC = () => {
           }
         }
       } catch (err) {
-        console.error('Failed to load addresses', err);
+        logger.error('Failed to load addresses', err);
         setSelectedAddressId('manual');
       } finally {
         setLoadingAddresses(false);
@@ -124,7 +112,7 @@ export const CheckoutPage: React.FC = () => {
   }, []);
 
   const populateForm = (addr: any) => {
-    setLabel(addr.label || 'House');
+    setLabel(addr.label || 'HouseIcon');
     setFullName(addr.fullName || '');
     setPhone(addr.phone || '');
     setLine1(addr.line1 || '');
@@ -136,7 +124,7 @@ export const CheckoutPage: React.FC = () => {
   };
 
   const resetForm = () => {
-    setLabel('House');
+    setLabel('HouseIcon');
     setFullName('');
     setPhone('');
     setLine1('');
@@ -317,7 +305,7 @@ export const CheckoutPage: React.FC = () => {
             size="sm"
             className="gap-2 text-zinc-500 hover:text-zinc-900 -ml-3"
           >
-            <ArrowLeft className="h-4 w-4" /> Back to Cart
+            <ArrowLeftIcon className="h-4 w-4" /> Back to Cart
           </Button>
         </Link>
         <h1 className="text-3xl font-extrabold text-zinc-900 tracking-tight">
@@ -341,7 +329,7 @@ export const CheckoutPage: React.FC = () => {
               {/* Saved Addresses List */}
               {loadingAddresses ? (
                 <div className="flex justify-center p-8">
-                  <Spinner className="h-6 w-6 animate-spin text-teal-600" />
+                  <SpinnerIcon className="h-6 w-6 animate-spin text-teal-600" />
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -369,10 +357,10 @@ export const CheckoutPage: React.FC = () => {
                                 : 'bg-zinc-100 text-zinc-500'
                             }`}
                           >
-                            {addr.label === 'House' ? (
-                              <House className="h-3.5 w-3.5" />
+                            {addr.label === 'HouseIcon' ? (
+                              <HouseIcon className="h-3.5 w-3.5" />
                             ) : (
-                              <MapPin className="h-3.5 w-3.5" />
+                              <MapPinIcon className="h-3.5 w-3.5" />
                             )}
                           </div>
                           <span className="font-extrabold text-sm text-zinc-800 uppercase tracking-wider">
@@ -425,7 +413,7 @@ export const CheckoutPage: React.FC = () => {
                     <div
                       className={`p-3 rounded-2xl ${selectedAddressId === 'manual' ? 'bg-white/10 text-white' : 'bg-white text-zinc-400 shadow-sm'}`}
                     >
-                      <Plus className="h-5 w-5" />
+                      <PlusIcon className="h-5 w-5" />
                     </div>
                     <span className="font-bold text-sm">
                       Deliver to a different address
@@ -446,7 +434,7 @@ export const CheckoutPage: React.FC = () => {
                         Full Name
                       </label>
                       <div className="relative">
-                        <User className="absolute left-3 top-3 h-4 w-4 text-zinc-400" />
+                        <UserIcon className="absolute left-3 top-3 h-4 w-4 text-zinc-400" />
                         <Input
                           placeholder="Jane Doe"
                           className="pl-9 rounded-xl border-zinc-200"
@@ -463,10 +451,10 @@ export const CheckoutPage: React.FC = () => {
 
                     <div className="flex flex-col gap-1.5">
                       <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
-                        Phone Number
+                        PhoneIcon Number
                       </label>
                       <div className="relative">
-                        <Phone className="absolute left-3 top-3 h-4 w-4 text-zinc-400" />
+                        <PhoneIcon className="absolute left-3 top-3 h-4 w-4 text-zinc-400" />
                         <Input
                           placeholder="9876543210"
                           className="pl-9 rounded-xl border-zinc-200"
@@ -483,12 +471,12 @@ export const CheckoutPage: React.FC = () => {
 
                     <div className="flex flex-col gap-1.5">
                       <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
-                        Address Tag / Label
+                        Address TagIcon / Label
                       </label>
                       <div className="relative">
-                        <House className="absolute left-3 top-3 h-4 w-4 text-zinc-400" />
+                        <HouseIcon className="absolute left-3 top-3 h-4 w-4 text-zinc-400" />
                         <Input
-                          placeholder="e.g. House, Office"
+                          placeholder="e.g. HouseIcon, Office"
                           className="pl-9 rounded-xl border-zinc-200"
                           value={label}
                           onChange={(e) => setLabel(e.target.value)}
@@ -506,7 +494,7 @@ export const CheckoutPage: React.FC = () => {
                         Street Address (Line 1)
                       </label>
                       <Input
-                        placeholder="Flat, House no., Building, Company"
+                        placeholder="Flat, HouseIcon no., Building, Company"
                         value={line1}
                         onChange={(e) => setLine1(e.target.value)}
                         className="rounded-xl border-zinc-200"
@@ -670,7 +658,7 @@ export const CheckoutPage: React.FC = () => {
               {appliedCoupon ? (
                 <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-xl p-4">
                   <div className="flex items-center gap-3">
-                    <CheckCircle className="h-5 w-5 text-emerald-600" />
+                    <CheckCircleIcon className="h-5 w-5 text-emerald-600" />
                     <div>
                       <p className="font-bold text-emerald-800 text-sm">
                         {appliedCoupon.code}
@@ -685,7 +673,7 @@ export const CheckoutPage: React.FC = () => {
                     onClick={removeCoupon}
                     className="text-zinc-400 hover:text-rose-500 transition-colors"
                   >
-                    <X className="h-4 w-4" />
+                    <XIcon className="h-4 w-4" />
                   </button>
                 </div>
               ) : (
@@ -756,7 +744,7 @@ export const CheckoutPage: React.FC = () => {
                             }}
                           >
                             {couponLoading && couponCode === c.code ? (
-                              <Spinner className="h-3 w-3 animate-spin" />
+                              <SpinnerIcon className="h-3 w-3 animate-spin" />
                             ) : (
                               'Apply'
                             )}
@@ -776,13 +764,13 @@ export const CheckoutPage: React.FC = () => {
                       onClick={() => setShowManualInput(true)}
                       className="text-xs text-teal-600 font-semibold hover:underline flex items-center gap-1 mt-1"
                     >
-                      <Tag className="h-3 w-3" /> Have a different code?
+                      <TagIcon className="h-3 w-3" /> Have a different code?
                     </button>
                   ) : (
                     <div className="flex flex-col gap-2">
                       <div className="flex gap-2">
                         <div className="relative flex-1">
-                          <Tag className="absolute left-3 top-3 h-4 w-4 text-zinc-400" />
+                          <TagIcon className="absolute left-3 top-3 h-4 w-4 text-zinc-400" />
                           <Input
                             placeholder="Enter coupon code"
                             className="pl-9 uppercase"
@@ -803,7 +791,7 @@ export const CheckoutPage: React.FC = () => {
                           className="font-bold px-6 border-0 bg-zinc-200/50 hover:bg-zinc-200 rounded-2xl"
                         >
                           {couponLoading ? (
-                            <Spinner className="h-4 w-4 animate-spin" />
+                            <SpinnerIcon className="h-4 w-4 animate-spin" />
                           ) : (
                             'Apply'
                           )}
@@ -872,7 +860,7 @@ export const CheckoutPage: React.FC = () => {
           </Card>
 
           <div className="bg-teal-50/50 border border-teal-100 rounded-xl p-4 flex gap-3 text-xs text-zinc-600">
-            <ShieldCheck className="h-5 w-5 text-teal-500 shrink-0" />
+            <ShieldCheckIcon className="h-5 w-5 text-teal-500 shrink-0" />
             <p>
               Your orders are created before payment verification. Successful
               sandbox processing confirms your allocation.
@@ -936,7 +924,7 @@ export const CheckoutPage: React.FC = () => {
                       : 'bg-white text-zinc-600 hover:bg-zinc-100'
                   }`}
                 >
-                  <CreditCard className="h-5 w-5" />
+                  <CreditCardIcon className="h-5 w-5" />
                   <span className="text-xs font-bold">Card</span>
                 </button>
 
@@ -948,7 +936,7 @@ export const CheckoutPage: React.FC = () => {
                       : 'bg-white text-zinc-600 hover:bg-zinc-100'
                   }`}
                 >
-                  <Wallet className="h-5 w-5" />
+                  <WalletIcon className="h-5 w-5" />
                   <span className="text-xs font-bold">UPI</span>
                 </button>
 
@@ -960,14 +948,14 @@ export const CheckoutPage: React.FC = () => {
                       : 'bg-white text-zinc-600 hover:bg-zinc-100'
                   }`}
                 >
-                  <Bank className="h-5 w-5" />
+                  <BankIcon className="h-5 w-5" />
                   <span className="text-xs font-bold">Netbank</span>
                 </button>
               </div>
             </div>
 
             <div className="flex gap-2 bg-amber-50 border border-amber-200 rounded-xl p-3 text-[11px] text-amber-800 leading-relaxed">
-              <WarningCircle className="h-4 w-4 shrink-0 mt-0.5" />
+              <WarningCircleIcon className="h-4 w-4 shrink-0 mt-0.5" />
               <p>
                 This is a secure developer sandbox mimicking the Razorpay
                 checkout overlay. You can trigger payment verification success
@@ -984,7 +972,7 @@ export const CheckoutPage: React.FC = () => {
               disabled={isProcessing}
             >
               {isProcessing ? (
-                <Spinner className="h-4 w-4 animate-spin" />
+                <SpinnerIcon className="h-4 w-4 animate-spin" />
               ) : (
                 'Simulate Failure'
               )}
@@ -995,7 +983,7 @@ export const CheckoutPage: React.FC = () => {
               disabled={isProcessing}
             >
               {isProcessing ? (
-                <Spinner className="h-4 w-4 animate-spin" />
+                <SpinnerIcon className="h-4 w-4 animate-spin" />
               ) : (
                 'Simulate Success'
               )}

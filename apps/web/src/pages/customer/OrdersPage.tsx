@@ -1,14 +1,15 @@
+import { Card, CardHeader, CardTitle, CardContent, Button } from '@bezon/ui';
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+;
+;
 import {
-  Spinner,
-  Clipboard,
-  ArrowRight,
-  Clock,
-  ShieldCheck,
-  Question,
+  SpinnerIcon,
+  ClipboardIcon,
+  ArrowRightIcon,
+  ClockIcon,
+  ShieldCheckIcon,
+  QuestionIcon,
 } from '@phosphor-icons/react';
 import api from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api.config';
@@ -70,12 +71,12 @@ export const OrdersPage: React.FC = () => {
 
       {loading ? (
         <div className="flex flex-col items-center justify-center min-h-[300px] text-zinc-400 gap-2">
-          <Spinner className="h-8 w-8 animate-spin text-teal-500" />
+          <SpinnerIcon className="h-8 w-8 animate-spin text-teal-500" />
           <p className="text-sm font-semibold">Loading orders history...</p>
         </div>
       ) : orders.length === 0 ? (
         <Card className="flex flex-col items-center justify-center min-h-[300px] text-zinc-400 p-8 border-dashed border-2 bg-white/50">
-          <Clipboard className="h-12 w-12 text-zinc-300 mb-2" />
+          <ClipboardIcon className="h-12 w-12 text-zinc-300 mb-2" />
           <p className="font-bold text-zinc-700">No orders placed yet</p>
           <p className="text-xs text-zinc-400 mt-1">
             Browse our shop catalog to place your first order.
@@ -197,7 +198,7 @@ export const OrdersPage: React.FC = () => {
                       size="sm"
                       className="font-bold flex items-center gap-1.5 text-xs"
                     >
-                      Track Details <ArrowRight className="h-3.5 w-3.5" />
+                      Track Details <ArrowRightIcon className="h-3.5 w-3.5" />
                     </Button>
                   </Link>
                 </CardContent>

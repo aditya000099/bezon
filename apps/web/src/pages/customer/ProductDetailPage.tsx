@@ -1,3 +1,5 @@
+import { logger } from "@/utils/logger";
+import { Button, Card, CardContent, Input, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@bezon/ui';
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
@@ -11,26 +13,20 @@ import {
   ChatTeardropTextIcon,
   PaperPlaneRightIcon,
   ArrowCounterClockwiseIcon,
-  Money,
+  MoneyIcon,
   ArrowsClockwiseIcon,
   SparkleIcon,
   StorefrontIcon,
   ShieldCheckIcon,
-  MapPin,
-  Truck,
-  House,
-  Calendar,
+  MapPinIcon,
+  TruckIcon,
+  HouseIcon,
+  CalendarIcon,
 } from "@phosphor-icons/react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
+;
+;
+;
+;
 
 import { useCart } from "../../context/CartContext";
 import { useAuth } from "../../context/AuthContext";
@@ -114,7 +110,7 @@ export const ProductDetailPage: React.FC = () => {
           }
         }
       } catch (err) {
-        console.error("Failed to load saved addresses", err);
+        logger.error("Failed to load saved addresses", err);
       } finally {
         setLoadingAddresses(false);
       }
@@ -154,7 +150,7 @@ export const ProductDetailPage: React.FC = () => {
           setDeliveryEstimate(res.data.data);
         }
       } catch (err: any) {
-        console.error("Failed to fetch delivery estimate", err);
+        logger.error("Failed to fetch delivery estimate", err);
         setEstimateError(
           err.response?.data?.message ||
             "Failed to calculate delivery estimate.",
@@ -255,7 +251,7 @@ export const ProductDetailPage: React.FC = () => {
           setReviews(listRes.data.data.reviews);
         }
       } catch (err) {
-        console.error("Failed to fetch reviews", err);
+        logger.error("Failed to fetch reviews", err);
       } finally {
         setLoadingReviews(false);
       }
@@ -280,7 +276,7 @@ export const ProductDetailPage: React.FC = () => {
           setQuestionsTotalCount(res.data.data.pagination.totalCount);
         }
       } catch (err) {
-        console.error("Failed to fetch questions", err);
+        logger.error("Failed to fetch questions", err);
       } finally {
         setLoadingQuestions(false);
       }
@@ -645,7 +641,7 @@ export const ProductDetailPage: React.FC = () => {
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-start gap-3 min-w-0">
                 <div className="p-2.5 bg-indigo-50 text-indigo-600 rounded-2xl shrink-0 mt-0.5">
-                  <MapPin className="h-5 w-5" />
+                  <MapPinIcon className="h-5 w-5" />
                 </div>
                 <div className="min-w-0">
                   <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">
@@ -699,7 +695,7 @@ export const ProductDetailPage: React.FC = () => {
               ) : deliveryEstimate ? (
                 <div className="flex items-start gap-3">
                   <div className="p-2 bg-emerald-50 text-emerald-600 rounded-xl shrink-0">
-                    <Truck className="h-4 w-4" />
+                    <TruckIcon className="h-4 w-4" />
                   </div>
                   <div>
                     <p className="text-xs font-extrabold text-emerald-800">
@@ -780,7 +776,7 @@ export const ProductDetailPage: React.FC = () => {
                       border: "border-blue-100",
                     },
                     refund: {
-                      icon: Money,
+                      icon: MoneyIcon,
                       bg: "bg-emerald-50",
                       text: "text-emerald-700",
                       border: "border-emerald-100",
@@ -1259,7 +1255,7 @@ export const ProductDetailPage: React.FC = () => {
         <DialogContent className="max-w-md bg-white/95 backdrop-blur-2xl border border-slate-100/50 shadow-2xl p-6 rounded-[2.5rem]">
           <DialogHeader>
             <DialogTitle className="text-xl font-extrabold text-slate-800 flex items-center gap-2">
-              <MapPin className="h-5 w-5 text-indigo-600" />
+              <MapPinIcon className="h-5 w-5 text-indigo-600" />
               Select Delivery Address
             </DialogTitle>
           </DialogHeader>
@@ -1348,7 +1344,7 @@ export const ProductDetailPage: React.FC = () => {
                   })
                 ) : (
                   <div className="text-center p-6 border border-dashed border-slate-200 rounded-3xl">
-                    <House className="h-8 w-8 text-zinc-300 mx-auto mb-2" />
+                    <HouseIcon className="h-8 w-8 text-zinc-300 mx-auto mb-2" />
                     <p className="text-xs text-zinc-500 font-medium">
                       No saved addresses found.
                     </p>

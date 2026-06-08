@@ -1,16 +1,11 @@
+import { Card, CardContent, CardHeader, CardTitle, Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@bezon/ui';
 import React, { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@phosphor-icons/react";
+;
+;
+import { SpinnerIcon } from "@phosphor-icons/react";
 import api from "../../lib/api";
 import { useToast } from "../../context/ToastContext";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+;
 
 export const AdminPartners: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -110,7 +105,7 @@ export const AdminPartners: React.FC = () => {
 
       {loading ? (
         <div className="flex justify-center items-center py-20">
-          <Spinner className="animate-spin text-teal-600 h-8 w-8" />
+          <SpinnerIcon className="animate-spin text-teal-600 h-8 w-8" />
         </div>
       ) : (
         <div className="space-y-4">

@@ -1,16 +1,17 @@
+import { Card, CardHeader, CardTitle, CardContent, Button } from '@bezon/ui';
 import React, { useState, useEffect } from 'react';
 import { 
-  Wallet, 
-  ArrowUp, 
-  ArrowDown, 
-  CurrencyDollar, 
-  Funnel, 
-  CaretLeft, 
-  CaretRight, 
-  Receipt 
+  WalletIcon, 
+  ArrowUpIcon, 
+  ArrowDownIcon, 
+  CurrencyDollarIcon, 
+  FunnelIcon, 
+  CaretLeftIcon, 
+  CaretRightIcon, 
+  ReceiptIcon 
 } from '@phosphor-icons/react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+;
+;
 import api from '../../lib/api';
 import API_ENDPOINTS from '../../config/api.config';
 import { useToast } from '../../context/ToastContext';
@@ -78,7 +79,7 @@ export const SellerWallet: React.FC = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900">Wallet & Earnings</h1>
+          <h1 className="text-2xl font-bold text-zinc-900">WalletIcon & Earnings</h1>
           <p className="text-zinc-500 text-sm mt-1">Manage your payouts and ad spends</p>
         </div>
       </div>
@@ -86,11 +87,11 @@ export const SellerWallet: React.FC = () => {
       {/* Balance Card */}
       <Card className="bg-gradient-to-br from-zinc-900 to-zinc-800 text-white border-0 shadow-lg relative overflow-hidden">
         <div className="absolute top-0 right-0 p-6 opacity-10">
-          <Wallet weight="duotone" className="w-32 h-32" />
+          <WalletIcon weight="duotone" className="w-32 h-32" />
         </div>
         <CardContent className="p-8 relative z-10">
           <div className="flex items-center gap-3 mb-2 opacity-80">
-            <CurrencyDollar className="w-5 h-5" />
+            <CurrencyDollarIcon className="w-5 h-5" />
             <span className="font-medium">Available Balance</span>
           </div>
           <div className="flex items-baseline gap-2">
@@ -111,7 +112,7 @@ export const SellerWallet: React.FC = () => {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between border-b pb-4">
           <CardTitle className="text-lg font-bold flex items-center gap-2">
-            <Receipt className="w-5 h-5" />
+            <ReceiptIcon className="w-5 h-5" />
             Transaction History
           </CardTitle>
           <div className="flex items-center gap-2">
@@ -184,7 +185,7 @@ export const SellerWallet: React.FC = () => {
                         <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${
                           tx.type === 'credit' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
                         }`}>
-                          {tx.type === 'credit' ? <ArrowDown weight="bold" /> : <ArrowUp weight="bold" />}
+                          {tx.type === 'credit' ? <ArrowDownIcon weight="bold" /> : <ArrowUpIcon weight="bold" />}
                           {tx.type.toUpperCase()}
                         </span>
                       </td>
@@ -227,7 +228,7 @@ export const SellerWallet: React.FC = () => {
                   disabled={page === 1}
                   onClick={() => setPage(p => Math.max(1, p - 1))}
                 >
-                  <CaretLeft className="w-4 h-4 mr-1" /> Prev
+                  <CaretLeftIcon className="w-4 h-4 mr-1" /> Prev
                 </Button>
                 <Button 
                   variant="outline" 
@@ -235,7 +236,7 @@ export const SellerWallet: React.FC = () => {
                   disabled={page === totalPages}
                   onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                 >
-                  Next <CaretRight className="w-4 h-4 ml-1" />
+                  Next <CaretRightIcon className="w-4 h-4 ml-1" />
                 </Button>
               </div>
             </div>

@@ -1,15 +1,15 @@
+import { logger } from "@/utils/logger";
+import { Card, CardContent, CardHeader, CardTitle, Button } from '@bezon/ui';
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import {
-  Spinner,
-  ChatTeardropText,
-  Storefront,
-  ShieldCheck,
-  PaperPlaneRight,
-  Question,
-  Faders,
+  SpinnerIcon,
+  ChatTeardropTextIcon,
+  StorefrontIcon,
+  ShieldCheckIcon,
+  PaperPlaneRightIcon,
+  QuestionIcon,
+  FadersIcon,
 } from '@phosphor-icons/react';
 import { useToast } from '../../context/ToastContext';
 import api from '../../lib/api';
@@ -45,7 +45,7 @@ interface QuestionUser {
   name: string;
 }
 
-interface Question {
+interface QuestionIcon {
   id: string;
   question: string;
   product: QuestionProduct;
@@ -73,14 +73,14 @@ const BadgePill: React.FC<{ badge: 'seller' | 'verified_buyer' | null }> = ({
   if (badge === 'seller') {
     return (
       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-teal-50 text-teal-700 border border-teal-200">
-        <Storefront className="h-3 w-3" />
+        <StorefrontIcon className="h-3 w-3" />
         Seller
       </span>
     );
   }
   return (
     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
-      <ShieldCheck className="h-3 w-3" />
+      <ShieldCheckIcon className="h-3 w-3" />
       Verified Buyer
     </span>
   );
@@ -97,7 +97,7 @@ export const SellerQA: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
 
   // Questions
-  const [questions, setQuestions] = useState<Question[]>([]);
+  const [questions, setQuestions] = useState<QuestionIcon[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
@@ -118,7 +118,7 @@ export const SellerQA: React.FC = () => {
           setProducts(res.data.data);
         }
       } catch (err) {
-        console.error('Failed to load seller products for Q&A filter', err);
+        logger.error('Failed to load seller products for Q&A filter', err);
       }
     };
     fetchProducts();
@@ -140,7 +140,9 @@ export const SellerQA: React.FC = () => {
       const res = await api.get(API_ENDPOINTS.qa.sellerQuestions, { params });
       if (res.data.success) {
         const responseData = res.data.data;
-        const newQuestions: Question[] = Array.isArray(responseData?.questions)
+        const newQuestions: QuestionIcon[] = Array.isArray(
+          responseData?.questions,
+        )
           ? responseData.questions
           : Array.isArray(responseData)
             ? responseData
@@ -215,7 +217,7 @@ export const SellerQA: React.FC = () => {
       <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center bg-white border border-zinc-200 rounded-xl p-4 shadow-sm">
         <div>
           <h1 className="text-xl font-extrabold text-zinc-900 tracking-tight flex items-center gap-2">
-            <ChatTeardropText className="h-5 w-5 text-teal-500" />
+            <ChatTeardropTextIcon className="h-5 w-5 text-teal-500" />
             Product Q&A
           </h1>
           <p className="text-sm text-zinc-500 mt-1">
@@ -227,7 +229,7 @@ export const SellerQA: React.FC = () => {
       {/* Filters Row */}
       <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center bg-white border border-zinc-200 rounded-xl p-4 shadow-sm">
         <div className="flex items-center gap-2 text-zinc-500">
-          <Faders className="h-4 w-4" />
+          <FadersIcon className="h-4 w-4" />
           <span className="text-xs font-bold uppercase tracking-wider">
             Filters
           </span>
@@ -266,12 +268,12 @@ export const SellerQA: React.FC = () => {
       {/* Questions List */}
       {loading ? (
         <div className="flex flex-col items-center justify-center min-h-75 text-zinc-400 gap-2">
-          <Spinner className="h-8 w-8 animate-spin text-teal-500" />
+          <SpinnerIcon className="h-8 w-8 animate-spin text-teal-500" />
           <p className="text-sm font-semibold">Loading questions...</p>
         </div>
       ) : questions.length === 0 ? (
         <Card className="flex flex-col items-center justify-center min-h-75 text-zinc-400 p-8 border-dashed border-2 bg-white/50">
-          <Question className="h-12 w-12 text-zinc-300 mb-2" />
+          <QuestionIcon className="h-12 w-12 text-zinc-300 mb-2" />
           <p className="font-bold text-zinc-700">
             {selectedProduct || statusFilter !== 'all'
               ? 'No questions match your filters'
@@ -302,7 +304,7 @@ export const SellerQA: React.FC = () => {
                       />
                     ) : (
                       <div className="h-12 w-12 rounded-lg bg-zinc-100 border border-zinc-200 flex items-center justify-center shrink-0">
-                        <Question className="h-5 w-5 text-zinc-400" />
+                        <QuestionIcon className="h-5 w-5 text-zinc-400" />
                       </div>
                     )}
 
@@ -324,7 +326,7 @@ export const SellerQA: React.FC = () => {
                         <span>{formatDate(q.createdAt)}</span>
                         <span className="text-zinc-300">•</span>
                         <span className="flex items-center gap-1">
-                          <ChatTeardropText className="h-3 w-3" />
+                          <ChatTeardropTextIcon className="h-3 w-3" />
                           {q.answerCount || q.answers?.length || 0}{' '}
                           {(q.answerCount || q.answers?.length || 0) === 1
                             ? 'answer'
@@ -384,9 +386,9 @@ export const SellerQA: React.FC = () => {
                       }
                     >
                       {submittingReply[q.id] ? (
-                        <Spinner className="h-4 w-4 animate-spin" />
+                        <SpinnerIcon className="h-4 w-4 animate-spin" />
                       ) : (
-                        <PaperPlaneRight className="h-4 w-4" />
+                        <PaperPlaneRightIcon className="h-4 w-4" />
                       )}
                       Reply
                     </Button>
@@ -406,7 +408,7 @@ export const SellerQA: React.FC = () => {
               >
                 {loadingMore ? (
                   <>
-                    <Spinner className="h-4 w-4 animate-spin mr-2" />
+                    <SpinnerIcon className="h-4 w-4 animate-spin mr-2" />
                     Loading...
                   </>
                 ) : (

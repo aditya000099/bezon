@@ -1,28 +1,22 @@
+import { Card, CardHeader, CardTitle, CardContent, Button, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@bezon/ui';
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+;
+;
+;
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import {
-  Spinner,
-  ArrowLeft,
-  Clock,
-  MapPin,
-  Package,
-  Truck,
-  ShoppingBag,
-  Star,
-  Download,
-  ArrowCounterClockwise,
-  Money,
-  ArrowsClockwise,
+  SpinnerIcon,
+  ArrowLeftIcon,
+  ClockIcon,
+  MapPinIcon,
+  PackageIcon,
+  TruckIcon,
+  ShoppingBagIcon,
+  StarIcon,
+  DownloadIcon,
+  ArrowCounterClockwiseIcon,
+  MoneyIcon,
+  ArrowsClockwiseIcon,
 } from "@phosphor-icons/react";
 import api from "../../lib/api";
 import { API_ENDPOINTS } from "../../config/api.config";
@@ -136,7 +130,7 @@ export const OrderDetailPage: React.FC = () => {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-100 text-zinc-400 gap-2">
-        <Spinner className="h-8 w-8 animate-spin text-teal-500" />
+        <SpinnerIcon className="h-8 w-8 animate-spin text-teal-500" />
         <p className="text-sm font-semibold">Loading order tracking...</p>
       </div>
     );
@@ -145,7 +139,7 @@ export const OrderDetailPage: React.FC = () => {
   if (!order) {
     return (
       <Card className="flex flex-col items-center justify-center min-h-75 text-zinc-400 p-8 border-dashed border-2 bg-white/50 max-w-lg mx-auto mt-12">
-        <Package className="h-12 w-12 text-rose-300 mb-2" />
+        <PackageIcon className="h-12 w-12 text-rose-300 mb-2" />
         <p className="font-bold text-zinc-700">Order not found</p>
         <Link to="/orders" className="mt-4">
           <Button size="sm">Back to History</Button>
@@ -164,7 +158,7 @@ export const OrderDetailPage: React.FC = () => {
               size="sm"
               className="gap-2 text-zinc-500 hover:text-zinc-900 -ml-2"
             >
-              <ArrowLeft className="h-4 w-4" /> Back to History
+              <ArrowLeftIcon className="h-4 w-4" /> Back to History
             </Button>
           </Link>
           <div className="flex gap-2">
@@ -209,7 +203,7 @@ export const OrderDetailPage: React.FC = () => {
                   size="sm"
                   className="gap-2 font-bold bg-zinc-50 text-zinc-700 border-0"
                 >
-                  <Download className="h-4 w-4" /> Download Bill
+                  <DownloadIcon className="h-4 w-4" /> DownloadIcon Bill
                 </Button>
               </a>
             )}
@@ -267,7 +261,7 @@ export const OrderDetailPage: React.FC = () => {
                               className="h-full w-full object-cover"
                             />
                           ) : (
-                            <ShoppingBag className="h-6 w-6 text-zinc-300" />
+                            <ShoppingBagIcon className="h-6 w-6 text-zinc-300" />
                           )}
                         </div>
                         <div>
@@ -323,7 +317,7 @@ export const OrderDetailPage: React.FC = () => {
                           className="h-full w-full object-cover"
                         />
                       ) : (
-                        <ShoppingBag className="h-5 w-5 text-zinc-300" />
+                        <ShoppingBagIcon className="h-5 w-5 text-zinc-300" />
                       )}
                     </div>
                     <div className="min-w-0">
@@ -342,7 +336,7 @@ export const OrderDetailPage: React.FC = () => {
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-1">
                           {[...Array(5)].map((_, i) => (
-                            <Star
+                            <StarIcon
                               key={i}
                               className={`h-3.5 w-3.5 ${i < item.review!.rating ? "text-amber-400 fill-amber-400" : "text-zinc-300 fill-zinc-300"}`}
                             />
@@ -452,7 +446,7 @@ export const OrderDetailPage: React.FC = () => {
           {/* Delivery destination card */}
           <Card className="bg-zinc-50/80 border-0">
             <CardHeader className="flex flex-row items-center gap-2 py-4 bg-zinc-100/30 rounded-t-2xl">
-              <MapPin className="h-4 w-4 text-zinc-500" />
+              <MapPinIcon className="h-4 w-4 text-zinc-500" />
               <CardTitle className="text-base font-bold text-zinc-800">
                 Delivery Address
               </CardTitle>
@@ -470,7 +464,7 @@ export const OrderDetailPage: React.FC = () => {
                 {order.addressSnapshot.pincode}
               </p>
               <p className="text-xs text-zinc-400 mt-2 flex items-center gap-1.5">
-                <Truck className="h-3.5 w-3.5" /> Call:{" "}
+                <TruckIcon className="h-3.5 w-3.5" /> Call:{" "}
                 {order.addressSnapshot.phone}
               </p>
             </CardContent>
@@ -522,7 +516,7 @@ export const OrderDetailPage: React.FC = () => {
           {order.returnStatus !== "NONE" && (
             <Card className="bg-zinc-50/80 border-0">
               <CardHeader className="py-4 flex flex-row items-center gap-2 bg-zinc-100/30 rounded-t-2xl">
-                <ArrowCounterClockwise className="h-4 w-4 text-blue-500" />
+                <ArrowCounterClockwiseIcon className="h-4 w-4 text-blue-500" />
                 <CardTitle className="text-base font-bold text-zinc-800">
                   Return Status
                 </CardTitle>
@@ -612,7 +606,7 @@ export const OrderDetailPage: React.FC = () => {
           {order.refundStatus && order.refundStatus !== "NONE" && (
             <Card className="bg-zinc-50/80 border-0">
               <CardHeader className="py-4 flex flex-row items-center gap-2 bg-zinc-100/30 rounded-t-2xl">
-                <Money className="h-4 w-4 text-emerald-500" />
+                <MoneyIcon className="h-4 w-4 text-emerald-500" />
                 <CardTitle className="text-base font-bold text-zinc-800">
                   Refund Status
                 </CardTitle>
@@ -671,7 +665,7 @@ export const OrderDetailPage: React.FC = () => {
           {/* Vertical Timeline logs */}
           <Card className="bg-zinc-50/80 border-0 flex-1">
             <CardHeader className="py-4 flex flex-row items-center gap-2 bg-zinc-100/30 rounded-t-2xl">
-              <Clock className="h-4 w-4 text-zinc-500" />
+              <ClockIcon className="h-4 w-4 text-zinc-500" />
               <CardTitle className="text-base font-bold text-zinc-800">
                 Status Logs
               </CardTitle>
@@ -801,7 +795,7 @@ export const OrderDetailPage: React.FC = () => {
                 className="font-bold bg-blue-600 hover:bg-blue-700 text-white"
               >
                 {submittingReturn ? (
-                  <Spinner className="h-4 w-4 animate-spin mr-2" />
+                  <SpinnerIcon className="h-4 w-4 animate-spin mr-2" />
                 ) : null}
                 Submit Request
               </Button>
@@ -864,7 +858,7 @@ export const OrderDetailPage: React.FC = () => {
                 className="font-bold bg-rose-600 hover:bg-rose-700 text-white"
               >
                 {cancelling ? (
-                  <Spinner className="h-4 w-4 animate-spin mr-2" />
+                  <SpinnerIcon className="h-4 w-4 animate-spin mr-2" />
                 ) : null}
                 Confirm Cancellation
               </Button>

@@ -1,33 +1,20 @@
+import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter, Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Input } from '@bezon/ui';
 import React, { useState, useEffect } from 'react';
 import {
-  Megaphone,
-  Plus,
-  Pause,
-  Play,
-  Trash,
-  Eye,
-  CursorClick,
-  CurrencyDollar,
+  MegaphoneIcon,
+  PlusIcon,
+  PauseIcon,
+  PlayIcon,
+  TrashIcon,
+  EyeIcon,
+  CursorClickIcon,
+  CurrencyDollarIcon,
   SpinnerIcon,
 } from '@phosphor-icons/react';
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardDescription,
-  CardFooter,
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
+;
+;
+;
+;
 import api from '../../lib/api';
 import API_ENDPOINTS from '../../config/api.config';
 import { useToast } from '../../context/ToastContext';
@@ -167,13 +154,13 @@ export const SellerAds: React.FC = () => {
           </p>
         </div>
         <Button onClick={() => setShowCreate(true)} className="gap-2">
-          <Plus weight="bold" /> Create Campaign
+          <PlusIcon weight="bold" /> Create Campaign
         </Button>
       </div>
 
       {campaigns.length === 0 ? (
         <Card className="flex flex-col items-center justify-center p-12 text-center border-dashed">
-          <Megaphone className="w-16 h-16 text-zinc-300 mb-4" />
+          <MegaphoneIcon className="w-16 h-16 text-zinc-300 mb-4" />
           <h3 className="text-lg font-bold text-zinc-900">No campaigns yet</h3>
           <p className="text-zinc-500 max-w-sm mt-2 mb-6">
             Create your first sponsored ad campaign to boost your products to
@@ -239,11 +226,11 @@ export const SellerAds: React.FC = () => {
 
                       <div className="flex flex-wrap gap-x-4 gap-y-2 mt-3">
                         <div className="flex items-center gap-1.5 text-sm text-zinc-600">
-                          <Eye className="w-4 h-4" />{' '}
+                          <EyeIcon className="w-4 h-4" />{' '}
                           <span>{campaign.totalImpressions} views</span>
                         </div>
                         <div className="flex items-center gap-1.5 text-sm text-zinc-600">
-                          <CursorClick className="w-4 h-4" />{' '}
+                          <CursorClickIcon className="w-4 h-4" />{' '}
                           <span>{campaign.totalClicks} clicks</span>
                         </div>
                         <div className="flex items-center gap-1.5 text-sm font-medium text-emerald-600">
@@ -300,7 +287,7 @@ export const SellerAds: React.FC = () => {
                         onClick={() => deleteCampaign(campaign.id)}
                         className="text-rose-600 hover:text-rose-700 hover:bg-rose-50"
                       >
-                        <Trash className="w-4 h-4" />
+                        <TrashIcon className="w-4 h-4" />
                       </Button>
                     )}
                     {(campaign.status === 'active' ||
@@ -315,11 +302,11 @@ export const SellerAds: React.FC = () => {
                       >
                         {campaign.status === 'active' ? (
                           <>
-                            <Pause weight="fill" /> Pause
+                            <PauseIcon weight="fill" /> PauseIcon
                           </>
                         ) : (
                           <>
-                            <Play weight="fill" /> Resume
+                            <PlayIcon weight="fill" /> Resume
                           </>
                         )}
                       </Button>

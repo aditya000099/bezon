@@ -1,17 +1,18 @@
+import { Button, Input } from '@bezon/ui';
 import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { loginSchema } from '@bezon/validation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+;
+;
 
 import {
-  Envelope,
-  Key,
-  Info,
-  ShieldCheck,
-  Lightning,
+  EnvelopeIcon,
+  KeyIcon,
+  InfoIcon,
+  ShieldCheckIcon,
+  LightningIcon,
   StorefrontIcon,
 } from '@phosphor-icons/react';
 
@@ -122,7 +123,7 @@ export const LoginPage: React.FC = () => {
               </label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-zinc-400">
-                  <Envelope className="h-5 w-5" />
+                  <EnvelopeIcon className="h-5 w-5" />
                 </span>
                 <Input
                   type="email"
@@ -148,7 +149,7 @@ export const LoginPage: React.FC = () => {
               </div>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-zinc-400">
-                  <Key className="h-5 w-5" />
+                  <KeyIcon className="h-5 w-5" />
                 </span>
                 <Input
                   type="password"
@@ -172,7 +173,7 @@ export const LoginPage: React.FC = () => {
           {/* Quick Demo Accounts */}
           <div className="mt-8 pt-8 border-t border-zinc-100">
             <div className="flex items-center gap-1.5 text-xs font-bold text-zinc-400 uppercase tracking-wider mb-4">
-              <Info className="h-4 w-4 text-teal-600" />
+              <InfoIcon className="h-4 w-4 text-teal-600" />
               <span>Quick demo accounts</span>
             </div>
             <div className="grid grid-cols-2 gap-3">

@@ -1,14 +1,8 @@
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Button } from '@bezon/ui';
 import React, { useState } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Spinner, Star, CloudArrowUp, X } from '@phosphor-icons/react';
+;
+;
+import { SpinnerIcon, StarIcon, CloudArrowUpIcon, XIcon } from '@phosphor-icons/react';
 import { useToast } from '../../context/ToastContext';
 import api from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api.config';
@@ -168,7 +162,7 @@ export const WriteReviewModal: React.FC<WriteReviewModalProps> = ({
         </DialogHeader>
 
         <div className="py-4 space-y-6">
-          {/* Star Rating */}
+          {/* StarIcon Rating */}
           <div className="flex flex-col items-center gap-2">
             <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
               Tap to Rate
@@ -183,7 +177,7 @@ export const WriteReviewModal: React.FC<WriteReviewModalProps> = ({
                   onClick={() => setRating(star)}
                   className="transition-transform hover:scale-110 active:scale-95 focus:outline-none"
                 >
-                  <Star
+                  <StarIcon
                     className={`h-8 w-8 ${
                       star <= (hoverRating || rating)
                         ? 'fill-amber-400 text-amber-400'
@@ -233,7 +227,7 @@ export const WriteReviewModal: React.FC<WriteReviewModalProps> = ({
                     onClick={() => removeImage(idx)}
                     className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                   >
-                    <X className="h-4 w-4 text-white" />
+                    <XIcon className="h-4 w-4 text-white" />
                   </button>
                 </div>
               ))}
@@ -241,10 +235,10 @@ export const WriteReviewModal: React.FC<WriteReviewModalProps> = ({
               {images.length < 5 && (
                 <label className="h-16 w-16 flex flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-zinc-300 bg-zinc-50 hover:bg-zinc-100 cursor-pointer transition-colors">
                   {isUploading ? (
-                    <Spinner className="h-4 w-4 animate-spin text-teal-500" />
+                    <SpinnerIcon className="h-4 w-4 animate-spin text-teal-500" />
                   ) : (
                     <>
-                      <CloudArrowUp className="h-4 w-4 text-zinc-400" />
+                      <CloudArrowUpIcon className="h-4 w-4 text-zinc-400" />
                       <span className="text-[10px] font-bold text-zinc-500">
                         Add
                       </span>
@@ -271,7 +265,7 @@ export const WriteReviewModal: React.FC<WriteReviewModalProps> = ({
             disabled={isSubmitting || rating === 0 || isUploading}
           >
             {isSubmitting ? (
-              <Spinner className="h-4 w-4 animate-spin" />
+              <SpinnerIcon className="h-4 w-4 animate-spin" />
             ) : (
               'Submit Review'
             )}

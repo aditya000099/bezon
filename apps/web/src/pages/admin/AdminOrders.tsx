@@ -1,6 +1,7 @@
+import { Button } from '@bezon/ui';
 import React, { useState, useEffect, useMemo } from 'react';
-import { Button } from '@/components/ui/button';
-import { ArrowCounterClockwise } from '@phosphor-icons/react';
+;
+import { ArrowCounterClockwiseIcon } from '@phosphor-icons/react';
 import api from '../../lib/api';
 import { useToast } from '../../context/ToastContext';
 import { AdminOrderMetrics } from './components/AdminOrderMetrics';
@@ -226,7 +227,6 @@ export const AdminOrders: React.FC = () => {
   };
 
 
-
   // formatters removed, using centralized utilities in subcomponents
 
   return (
@@ -253,7 +253,7 @@ export const AdminOrders: React.FC = () => {
             }}
           />
           <Button onClick={fetchOrders} variant="outline" className="flex items-center gap-2">
-            <ArrowCounterClockwise className="h-4 w-4" />
+            <ArrowCounterClockwiseIcon className="h-4 w-4" />
             Refresh
           </Button>
         </div>

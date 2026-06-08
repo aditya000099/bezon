@@ -1,8 +1,9 @@
+import { Card, CardContent, CardHeader, CardTitle, Button } from '@bezon/ui';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, PlusCircle } from '@phosphor-icons/react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { ArrowLeftIcon, PlusCircleIcon } from '@phosphor-icons/react';
+;
+;
 import { ProductForm } from './components/ProductForm';
 
 export const SellerAddProduct: React.FC = () => {
@@ -16,7 +17,7 @@ export const SellerAddProduct: React.FC = () => {
             Seller Products
           </p>
           <h1 className="text-xl font-extrabold text-zinc-800 mt-1 flex items-center gap-2">
-            <PlusCircle className="h-5 w-5 text-teal-500" /> Add Product
+            <PlusCircleIcon className="h-5 w-5 text-teal-500" /> Add Product
           </h1>
           <p className="text-sm text-zinc-500 mt-1">
             Create a new product listing with the same catalog controls used in
@@ -29,7 +30,7 @@ export const SellerAddProduct: React.FC = () => {
           onClick={() => navigate('/seller/products')}
           className="w-full sm:w-auto font-bold flex items-center gap-2 hover:cursor-pointer"
         >
-          <ArrowLeft className="h-4 w-4" /> Back to Products
+          <ArrowLeftIcon className="h-4 w-4" /> Back to Products
         </Button>
       </div>
 

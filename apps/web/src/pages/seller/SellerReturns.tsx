@@ -1,8 +1,9 @@
+import { Card, CardHeader, CardTitle, CardContent, Button, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@bezon/ui';
 import React, { useState, useEffect, useMemo } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Spinner, ArrowCounterClockwise, MagnifyingGlass, DownloadSimple, Eye } from '@phosphor-icons/react';
+;
+;
+;
+import { SpinnerIcon, ArrowCounterClockwiseIcon, MagnifyingGlassIcon, DownloadSimpleIcon, EyeIcon } from '@phosphor-icons/react';
 import api from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api.config';
 import { useToast } from '../../context/ToastContext';
@@ -231,7 +232,7 @@ export const SellerReturns: React.FC = () => {
         
         <div className="flex items-center gap-3 w-full md:w-auto">
           <div className="relative flex-1 md:w-64">
-            <MagnifyingGlass className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-400" />
+            <MagnifyingGlassIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-400" />
             <input
               type="text"
               placeholder="Search returns..."
@@ -241,7 +242,7 @@ export const SellerReturns: React.FC = () => {
             />
           </div>
           <Button variant="outline" size="sm" onClick={exportCSV} className="shrink-0">
-            <DownloadSimple className="h-4 w-4 sm:mr-2" /> <span className="hidden sm:inline">Export CSV</span>
+            <DownloadSimpleIcon className="h-4 w-4 sm:mr-2" /> <span className="hidden sm:inline">Export CSV</span>
           </Button>
         </div>
       </div>
@@ -250,11 +251,11 @@ export const SellerReturns: React.FC = () => {
         <div className="p-0">
           {loading ? (
             <div className="flex justify-center items-center h-48">
-              <Spinner className="h-8 w-8 animate-spin text-teal-600" />
+              <SpinnerIcon className="h-8 w-8 animate-spin text-teal-600" />
             </div>
           ) : filteredOrders.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-48 text-zinc-500">
-              <ArrowCounterClockwise className="h-12 w-12 mb-4 opacity-20" />
+              <ArrowCounterClockwiseIcon className="h-12 w-12 mb-4 opacity-20" />
               <p>No returns found in this view.</p>
             </div>
           ) : (
@@ -291,7 +292,7 @@ export const SellerReturns: React.FC = () => {
 
                     <Button asChild variant="outline" size="sm" className="w-full">
                       <Link to={`/seller/returns/${order.id}`}>
-                        <Eye className="mr-2 h-4 w-4" /> View Details
+                        <EyeIcon className="mr-2 h-4 w-4" /> View Details
                       </Link>
                     </Button>
                   </div>
@@ -343,7 +344,7 @@ export const SellerReturns: React.FC = () => {
                         <TableCell className="text-right">
                           <Button asChild size="sm" variant="default" className="bg-teal-600 hover:bg-teal-700">
                             <Link to={`/seller/returns/${order.id}`}>
-                              <Eye className="mr-1.5 h-4 w-4" /> View Details
+                              <EyeIcon className="mr-1.5 h-4 w-4" /> View Details
                             </Link>
                           </Button>
                         </TableCell>

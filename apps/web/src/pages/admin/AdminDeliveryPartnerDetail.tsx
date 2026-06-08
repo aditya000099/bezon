@@ -1,8 +1,9 @@
+import { Card, CardContent, CardHeader, CardTitle, Button } from '@bezon/ui';
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Spinner, ArrowLeft, ChartBar, MapPin, Truck, ArrowUUpLeft } from "@phosphor-icons/react";
+;
+;
+import { SpinnerIcon, ArrowLeftIcon, ChartBarIcon, MapPinIcon, TruckIcon, ArrowUUpLeftIcon } from "@phosphor-icons/react";
 import api from "../../lib/api";
 import { API_ENDPOINTS } from "../../config/api.config";
 import { useToast } from "../../context/ToastContext";
@@ -34,7 +35,7 @@ export const AdminDeliveryPartnerDetail: React.FC = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <Spinner className="animate-spin text-teal-600 h-8 w-8" />
+        <SpinnerIcon className="animate-spin text-teal-600 h-8 w-8" />
       </div>
     );
   }
@@ -55,7 +56,7 @@ export const AdminDeliveryPartnerDetail: React.FC = () => {
         </div>
         <div className="flex items-center gap-4 mt-2">
           <Link to="/admin/deliveries">
-            <Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button>
+            <Button variant="ghost" size="icon"><ArrowLeftIcon className="h-5 w-5" /></Button>
           </Link>
           <h1 className="text-2xl font-bold">{partner.user.name}</h1>
           <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
@@ -73,7 +74,7 @@ export const AdminDeliveryPartnerDetail: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <ChartBar className="h-5 w-5" /> Performance Metrics
+              <ChartBarIcon className="h-5 w-5" /> Performance Metrics
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -100,7 +101,7 @@ export const AdminDeliveryPartnerDetail: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <MapPin className="h-5 w-5" /> Profile & Location
+              <MapPinIcon className="h-5 w-5" /> Profile & Location
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -130,7 +131,7 @@ export const AdminDeliveryPartnerDetail: React.FC = () => {
               activeAssignments.map((a: any, i: number) => (
                 <div key={i} className="border p-3 rounded-lg flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
-                    {a.type === 'delivery' ? <Truck className="text-blue-500" /> : <ArrowUUpLeft className="text-amber-500" />}
+                    {a.type === 'delivery' ? <TruckIcon className="text-blue-500" /> : <ArrowUUpLeftIcon className="text-amber-500" />}
                     <div>
                       <p className="font-semibold">{a.type === 'delivery' ? 'Delivery' : 'Return Pickup'}</p>
                       <p className="text-xs text-zinc-500">Order: {a.type === 'delivery' ? a.order?.orderNumber : a.orderNumber}</p>

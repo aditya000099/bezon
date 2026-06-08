@@ -1,28 +1,22 @@
+import { Card, CardHeader, CardTitle, CardContent, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Button, Input } from '@bezon/ui';
 import React, { useState, useEffect, useMemo } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+;
+;
+;
+;
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Spinner,
-  ArrowCounterClockwise,
-  CheckCircle,
-  Truck,
-  WarningCircle,
-  MagnifyingGlass,
-  ChartBar,
-  Storefront,
-  Package,
-  Clock,
-  Money,
-  CaretRight,
+  SpinnerIcon,
+  ArrowCounterClockwiseIcon,
+  CheckCircleIcon,
+  TruckIcon,
+  WarningCircleIcon,
+  MagnifyingGlassIcon,
+  ChartBarIcon,
+  StorefrontIcon,
+  PackageIcon,
+  ClockIcon,
+  MoneyIcon,
+  CaretRightIcon,
 } from "@phosphor-icons/react";
 import api from "../../lib/api";
 import { API_ENDPOINTS } from "../../config/api.config";
@@ -274,7 +268,7 @@ export const AdminReturns: React.FC = () => {
         <Card className="bg-zinc-50 border-zinc-200">
           <CardHeader className="py-4">
             <CardTitle className="text-sm font-medium text-zinc-700 flex items-center gap-2">
-              <ArrowCounterClockwise className="h-4 w-4" /> Total Returns
+              <ArrowCounterClockwiseIcon className="h-4 w-4" /> Total Returns
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -287,7 +281,7 @@ export const AdminReturns: React.FC = () => {
         <Card className="bg-blue-50/50 border-blue-100">
           <CardHeader className="py-4">
             <CardTitle className="text-sm font-medium text-blue-700 flex items-center gap-2">
-              <WarningCircle className="h-4 w-4" /> Pending Seller Action
+              <WarningCircleIcon className="h-4 w-4" /> Pending Seller Action
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -300,7 +294,7 @@ export const AdminReturns: React.FC = () => {
         <Card className="bg-amber-50/50 border-amber-100">
           <CardHeader className="py-4">
             <CardTitle className="text-sm font-medium text-amber-700 flex items-center gap-2">
-              <Truck className="h-4 w-4" /> In Transit
+              <TruckIcon className="h-4 w-4" /> In Transit
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -313,7 +307,7 @@ export const AdminReturns: React.FC = () => {
         <Card className="bg-yellow-50/50 border-yellow-200">
           <CardHeader className="py-4">
             <CardTitle className="text-sm font-medium text-yellow-800 flex items-center gap-2">
-              <MagnifyingGlass className="h-4 w-4" /> Pending Inspection
+              <MagnifyingGlassIcon className="h-4 w-4" /> Pending Inspection
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -326,7 +320,7 @@ export const AdminReturns: React.FC = () => {
         <Card className="bg-emerald-50/50 border-emerald-100 shadow-[0_0_15px_rgba(16,185,129,0.1)]">
           <CardHeader className="py-4">
             <CardTitle className="text-sm font-medium text-emerald-700 flex items-center gap-2">
-              <Money className="h-4 w-4" /> Refund Queue
+              <MoneyIcon className="h-4 w-4" /> Refund Queue
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -346,7 +340,7 @@ export const AdminReturns: React.FC = () => {
             {analytics.avgTime && (
               <div className="bg-white p-4 rounded-lg border flex items-center gap-3">
                 <div className="p-2 bg-teal-100 rounded-md text-teal-600">
-                  <Clock className="h-5 w-5" />
+                  <ClockIcon className="h-5 w-5" />
                 </div>
                 <div>
                   <p className="text-xs text-zinc-500 font-medium">
@@ -361,7 +355,7 @@ export const AdminReturns: React.FC = () => {
             {analytics.topProduct && (
               <div className="bg-white p-4 rounded-lg border flex items-center gap-3">
                 <div className="p-2 bg-rose-100 rounded-md text-rose-600">
-                  <Package className="h-5 w-5" />
+                  <PackageIcon className="h-5 w-5" />
                 </div>
                 <div className="overflow-hidden">
                   <p className="text-xs text-zinc-500 font-medium">
@@ -379,7 +373,7 @@ export const AdminReturns: React.FC = () => {
             {analytics.topSeller && (
               <div className="bg-white p-4 rounded-lg border flex items-center gap-3">
                 <div className="p-2 bg-amber-100 rounded-md text-amber-600">
-                  <Storefront className="h-5 w-5" />
+                  <StorefrontIcon className="h-5 w-5" />
                 </div>
                 <div className="overflow-hidden">
                   <p className="text-xs text-zinc-500 font-medium">
@@ -437,13 +431,13 @@ export const AdminReturns: React.FC = () => {
                 : "text-zinc-500 hover:text-zinc-700"
             }`}
           >
-            <CheckCircle weight="fill" /> Refund Ready ({refundReady.length})
+            <CheckCircleIcon weight="fill" /> Refund Ready ({refundReady.length})
           </button>
         </div>
 
         <div className="flex items-center gap-2 w-full md:w-auto">
           <div className="relative flex-1 md:w-64">
-            <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+            <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
             <Input
               placeholder="Search orders, customers, products..."
               value={searchQuery}
@@ -469,11 +463,11 @@ export const AdminReturns: React.FC = () => {
         <CardContent className="p-0">
           {loading ? (
             <div className="flex justify-center items-center h-48">
-              <Spinner className="h-8 w-8 animate-spin text-teal-600" />
+              <SpinnerIcon className="h-8 w-8 animate-spin text-teal-600" />
             </div>
           ) : currentList.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-48 text-zinc-500 text-center p-4">
-              <CheckCircle className="h-12 w-12 mb-4 text-emerald-500 opacity-80" />
+              <CheckCircleIcon className="h-12 w-12 mb-4 text-emerald-500 opacity-80" />
               <p className="font-medium text-lg text-zinc-800">
                 {activeTab === "ACTION_REQUIRED"
                   ? "All clear! No returns currently require action."
@@ -558,10 +552,10 @@ export const AdminReturns: React.FC = () => {
                         <TableCell>
                           <div className="flex flex-col gap-1 text-xs">
                             <span className="flex items-center gap-1 text-emerald-600">
-                              <CheckCircle weight="fill" /> Return Completed
+                              <CheckCircleIcon weight="fill" /> Return Completed
                             </span>
                             <span className="flex items-center gap-1 text-emerald-600">
-                              <CheckCircle weight="fill" /> Inspection Completed
+                              <CheckCircleIcon weight="fill" /> Inspection Completed
                             </span>
                             <span className="flex items-center gap-1 font-bold text-teal-700 mt-1 bg-teal-50 w-fit px-1.5 py-0.5 rounded border border-teal-200">
                               Refund Ready
@@ -576,7 +570,7 @@ export const AdminReturns: React.FC = () => {
                           onClick={() => navigate(`/admin/returns/${order.id}`)}
                           className="flex items-center gap-1 ml-auto"
                         >
-                          View Details <CaretRight />
+                          View Details <CaretRightIcon />
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -632,7 +626,7 @@ export const AdminReturns: React.FC = () => {
                   )}
                   {activeTab === "REFUND_READY" && (
                     <div className="bg-emerald-50 text-emerald-800 text-xs p-2 rounded mb-3 font-semibold flex items-center gap-1 border border-emerald-100">
-                      <CheckCircle weight="fill" /> Ready for Refund
+                      <CheckCircleIcon weight="fill" /> Ready for Refund
                     </div>
                   )}
                   <Button
@@ -640,7 +634,7 @@ export const AdminReturns: React.FC = () => {
                     variant="outline"
                     className="w-full text-sm flex items-center justify-center gap-1"
                   >
-                    View Details <CaretRight />
+                    View Details <CaretRightIcon />
                   </Button>
                 </div>
               ))}

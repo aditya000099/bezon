@@ -1,11 +1,12 @@
+import { Card, CardHeader, CardTitle, CardContent } from '@bezon/ui';
 import React, { useEffect, useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+;
 import {
-  CurrencyDollar,
-  ShoppingBag,
-  Warning,
-  ArrowUpRight,
-  Spinner,
+  CurrencyDollarIcon,
+  ShoppingBagIcon,
+  WarningIcon,
+  ArrowUpRightIcon,
+  SpinnerIcon,
 } from '@phosphor-icons/react';
 import api from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api.config';
@@ -45,7 +46,7 @@ export const SellerDashboard: React.FC = () => {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] text-zinc-500">
-        <Spinner className="h-8 w-8 animate-spin mb-4 text-teal-500" />
+        <SpinnerIcon className="h-8 w-8 animate-spin mb-4 text-teal-500" />
         <p className="font-medium">Loading dashboard...</p>
       </div>
     );
@@ -65,7 +66,7 @@ export const SellerDashboard: React.FC = () => {
             </CardTitle>
           </div>
           <div className="h-10 w-10 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
-            <CurrencyDollar className="h-5 w-5" />
+            <CurrencyDollarIcon className="h-5 w-5" />
           </div>
         </Card>
 
@@ -82,7 +83,7 @@ export const SellerDashboard: React.FC = () => {
             </span>
           </div>
           <div className="h-10 w-10 bg-emerald-50 rounded-lg flex items-center justify-center text-emerald-600">
-            <ShoppingBag className="h-5 w-5" />
+            <ShoppingBagIcon className="h-5 w-5" />
           </div>
         </Card>
 
@@ -99,7 +100,7 @@ export const SellerDashboard: React.FC = () => {
             </span>
           </div>
           <div className="h-10 w-10 bg-amber-50 rounded-lg flex items-center justify-center text-amber-600">
-            <Warning className="h-5 w-5" />
+            <WarningIcon className="h-5 w-5" />
           </div>
         </Card>
 
@@ -116,7 +117,7 @@ export const SellerDashboard: React.FC = () => {
             </span>
           </div>
           <div className="h-10 w-10 bg-rose-50 rounded-lg flex items-center justify-center text-rose-600">
-            <Warning className="h-5 w-5" />
+            <WarningIcon className="h-5 w-5" />
           </div>
         </Card>
       </div>
@@ -147,7 +148,7 @@ export const SellerDashboard: React.FC = () => {
               <p className="text-sm font-medium text-zinc-500 group-hover:text-teal-600">Pending Return Requests</p>
               <div className="mt-2 flex justify-between items-center">
                 <span className="text-xl font-bold">Review</span>
-                <ArrowUpRight className="h-4 w-4 text-zinc-400 group-hover:text-teal-600" />
+                <ArrowUpRightIcon className="h-4 w-4 text-zinc-400 group-hover:text-teal-600" />
               </div>
             </a>
             
@@ -155,7 +156,7 @@ export const SellerDashboard: React.FC = () => {
               <p className="text-sm font-medium text-zinc-500 group-hover:text-teal-600">Returns In Transit</p>
               <div className="mt-2 flex justify-between items-center">
                 <span className="text-xl font-bold">Track</span>
-                <ArrowUpRight className="h-4 w-4 text-zinc-400 group-hover:text-teal-600" />
+                <ArrowUpRightIcon className="h-4 w-4 text-zinc-400 group-hover:text-teal-600" />
               </div>
             </a>
             
@@ -163,7 +164,7 @@ export const SellerDashboard: React.FC = () => {
               <p className="text-sm font-medium text-zinc-500 group-hover:text-yellow-600">Pending Inspection</p>
               <div className="mt-2 flex justify-between items-center">
                 <span className="text-xl font-bold">Inspect</span>
-                <ArrowUpRight className="h-4 w-4 text-zinc-400 group-hover:text-yellow-600" />
+                <ArrowUpRightIcon className="h-4 w-4 text-zinc-400 group-hover:text-yellow-600" />
               </div>
             </a>
             
@@ -171,7 +172,7 @@ export const SellerDashboard: React.FC = () => {
               <p className="text-sm font-medium text-zinc-500 group-hover:text-red-600">Damaged Returns</p>
               <div className="mt-2 flex justify-between items-center">
                 <span className="text-xl font-bold">View</span>
-                <ArrowUpRight className="h-4 w-4 text-zinc-400 group-hover:text-red-600" />
+                <ArrowUpRightIcon className="h-4 w-4 text-zinc-400 group-hover:text-red-600" />
               </div>
             </a>
           </div>

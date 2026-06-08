@@ -1,26 +1,21 @@
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, Input, Button } from '@bezon/ui';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+;
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from '@/components/ui/card';
-import {
-  Spinner,
-  Package,
-  MagnifyingGlass,
-  Calendar,
-  CaretRight,
-  Clock,
-  CheckCircle,
-  Truck,
-  Warning,
-  User,
+  SpinnerIcon,
+  PackageIcon,
+  MagnifyingGlassIcon,
+  CalendarIcon,
+  CaretRightIcon,
+  ClockIcon,
+  CheckCircleIcon,
+  TruckIcon,
+  WarningIcon,
+  UserIcon,
 } from '@phosphor-icons/react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+;
+;
 import api from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api.config';
 import { useToast } from '../../context/ToastContext';
@@ -72,19 +67,19 @@ export const SellerOrders: React.FC = () => {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'placed':
-        return <Clock className="h-3.5 w-3.5" />;
+        return <ClockIcon className="h-3.5 w-3.5" />;
       case 'confirmed':
-        return <CheckCircle className="h-3.5 w-3.5" />;
+        return <CheckCircleIcon className="h-3.5 w-3.5" />;
       case 'ready_for_pickup':
-        return <Package className="h-3.5 w-3.5" />;
+        return <PackageIcon className="h-3.5 w-3.5" />;
       case 'out_for_delivery':
-        return <Truck className="h-3.5 w-3.5" />;
+        return <TruckIcon className="h-3.5 w-3.5" />;
       case 'delivered':
-        return <CheckCircle className="h-3.5 w-3.5" />;
+        return <CheckCircleIcon className="h-3.5 w-3.5" />;
       case 'cancelled':
-        return <Warning className="h-3.5 w-3.5" />;
+        return <WarningIcon className="h-3.5 w-3.5" />;
       default:
-        return <Clock className="h-3.5 w-3.5" />;
+        return <ClockIcon className="h-3.5 w-3.5" />;
     }
   };
 
@@ -110,9 +105,9 @@ export const SellerOrders: React.FC = () => {
       <Card className="bg-white border-zinc-200 shadow-sm overflow-hidden">
         <div className="p-4 border-b border-zinc-200 bg-zinc-50/50 flex flex-col sm:flex-row justify-between items-center gap-4">
           <div className="relative w-full sm:w-80">
-            <MagnifyingGlass className="absolute left-3 top-2.5 h-4 w-4 text-zinc-400" />
+            <MagnifyingGlassIcon className="absolute left-3 top-2.5 h-4 w-4 text-zinc-400" />
             <Input
-              placeholder="MagnifyingGlass by Order ID or Customer Name..."
+              placeholder="MagnifyingGlassIcon by Order ID or Customer Name..."
               className="pl-9 bg-white"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -126,9 +121,9 @@ export const SellerOrders: React.FC = () => {
             className="w-full sm:w-auto font-medium hover:cursor-pointer"
           >
             {loading ? (
-              <Spinner className="h-4 w-4 animate-spin mr-2" />
+              <SpinnerIcon className="h-4 w-4 animate-spin mr-2" />
             ) : (
-              <Package className="h-4 w-4 mr-2" />
+              <PackageIcon className="h-4 w-4 mr-2" />
             )}
             Refresh Orders
           </Button>
@@ -136,12 +131,12 @@ export const SellerOrders: React.FC = () => {
 
         {loading ? (
           <div className="flex flex-col items-center justify-center p-12 text-zinc-500">
-            <Spinner className="h-8 w-8 animate-spin mb-4 text-teal-500" />
+            <SpinnerIcon className="h-8 w-8 animate-spin mb-4 text-teal-500" />
             <p className="font-medium">Loading orders...</p>
           </div>
         ) : filteredOrders.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-12 text-zinc-500 bg-zinc-50/30">
-            <Package className="h-12 w-12 text-zinc-300 mb-3" />
+            <PackageIcon className="h-12 w-12 text-zinc-300 mb-3" />
             <p className="font-bold text-zinc-700">No orders found</p>
             <p className="text-sm text-zinc-400">
               Wait for customers to place orders or adjust your search.
@@ -183,7 +178,7 @@ export const SellerOrders: React.FC = () => {
                           {order.id}
                         </div>
                         <div className="flex items-center gap-1 text-zinc-500 text-[11px] mt-1 font-medium">
-                          <Calendar className="h-3 w-3" />
+                          <CalendarIcon className="h-3 w-3" />
                           {new Date(order.createdAt).toLocaleDateString(
                             'en-US',
                             {
@@ -199,7 +194,7 @@ export const SellerOrders: React.FC = () => {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
                           <div className="h-8 w-8 rounded-full bg-teal-50 flex items-center justify-center text-teal-600">
-                            <User className="h-4 w-4" />
+                            <UserIcon className="h-4 w-4" />
                           </div>
                           <div>
                             <div className="font-semibold text-zinc-800">
@@ -221,7 +216,7 @@ export const SellerOrders: React.FC = () => {
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2 text-zinc-600 font-medium">
-                          <Package className="h-4 w-4 text-zinc-400" />
+                          <PackageIcon className="h-4 w-4 text-zinc-400" />
                           {totalItems} item{totalItems !== 1 ? 's' : ''}
                         </div>
                       </td>
@@ -245,7 +240,7 @@ export const SellerOrders: React.FC = () => {
                           size="icon"
                           className="text-zinc-400 group-hover:text-teal-600 group-hover:bg-teal-50"
                         >
-                          <CaretRight className="h-5 w-5" />
+                          <CaretRightIcon className="h-5 w-5" />
                         </Button>
                       </td>
                     </tr>

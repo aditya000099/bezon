@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
-import { ShoppingCart, SignOut, Storefront } from '@phosphor-icons/react';
+import { ShoppingCartIcon, SignOutIcon, StorefrontIcon } from '@phosphor-icons/react';
 
 export const CustomerNavbar: React.FC = () => {
   const { user, logout } = useAuth();
@@ -33,7 +33,7 @@ export const CustomerNavbar: React.FC = () => {
             to="/"
             className="flex items-center gap-2 font-bold text-2xl text-zinc-900 hover:opacity-80 transition-opacity"
           >
-            <Storefront className="h-7 w-7 text-teal-700" weight="fill" />
+            <StorefrontIcon className="h-7 w-7 text-teal-700" weight="fill" />
             <span className="tracking-tight">Bezon</span>
           </Link>
           <nav className="hidden md:flex items-center gap-6 text-sm font-bold text-zinc-500">
@@ -61,7 +61,7 @@ export const CustomerNavbar: React.FC = () => {
             to="/cart"
             className="relative p-2 text-zinc-500 hover:text-zinc-900 transition-colors bg-white hover:bg-zinc-100 rounded-full"
           >
-            <ShoppingCart className="h-5 w-5" weight="bold" />
+            <ShoppingCartIcon className="h-5 w-5" weight="bold" />
             {cartCount > 0 && (
               <span className="absolute -top-1 -right-1 bg-teal-700 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-extrabold shadow-sm">
                 {cartCount}
@@ -99,7 +99,7 @@ export const CustomerNavbar: React.FC = () => {
                   title="Logout"
                   className="p-2 text-zinc-400 hover:text-rose-500 transition-colors rounded-full hover:bg-rose-50"
                 >
-                  <SignOut className="h-5 w-5" weight="bold" />
+                  <SignOutIcon className="h-5 w-5" weight="bold" />
                 </button>
               </>
             ) : (

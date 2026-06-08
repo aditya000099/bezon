@@ -1,21 +1,17 @@
+import { logger } from "@/utils/logger";
+import { Card, CardHeader, CardTitle, CardContent, CardFooter, Button, Input } from '@bezon/ui';
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+;
+;
+;
 import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardFooter,
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-  ShoppingBag,
-  Star,
-  MagnifyingGlass,
-  Spinner,
-  Sparkle,
-  Heart,
+  ShoppingBagIcon,
+  StarIcon,
+  MagnifyingGlassIcon,
+  SpinnerIcon,
+  SparkleIcon,
+  HeartIcon,
 } from '@phosphor-icons/react';
 import type { Product, Category } from '@bezon/types';
 import api from '../../lib/api';
@@ -62,7 +58,7 @@ export const ShopPage: React.FC = () => {
           setCategories(response.data.data);
         }
       } catch (err) {
-        console.error('Failed to load categories', err);
+        logger.error('Failed to load categories', err);
       }
     };
     const fetchRecommendations = async () => {
@@ -74,7 +70,7 @@ export const ShopPage: React.FC = () => {
           setRecommendedProducts(res.data.data);
         }
       } catch (err) {
-        console.error('Failed to load recommendations', err);
+        logger.error('Failed to load recommendations', err);
       }
     };
 
@@ -128,7 +124,7 @@ export const ShopPage: React.FC = () => {
     e.preventDefault();
     if (p.isSponsored && p.campaignId) {
       // Fire and forget click tracking
-      api.post(API_ENDPOINTS.ads.click(p.campaignId)).catch(console.error);
+      api.post(API_ENDPOINTS.ads.click(p.campaignId)).catch(logger.error);
     }
     navigate(`/products/${p.slug}`);
   };
@@ -146,7 +142,7 @@ export const ShopPage: React.FC = () => {
         }}
         className="absolute top-2 right-2 z-10 h-8 w-8 bg-white/80 hover:bg-white text-zinc-400 hover:text-rose-500 rounded-full flex items-center justify-center backdrop-blur-sm transition-colors"
       >
-        <Heart
+        <HeartIcon
           className={`h-4 w-4 ${isInWishlist(p.id) ? 'fill-rose-500 text-rose-500' : 'text-zinc-400'}`}
         />
       </button>
@@ -167,7 +163,7 @@ export const ShopPage: React.FC = () => {
                 className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
             ) : (
-              <ShoppingBag className="h-10 w-10 opacity-40 mb-2 block mx-auto text-zinc-400" />
+              <ShoppingBagIcon className="h-10 w-10 opacity-40 mb-2 block mx-auto text-zinc-400" />
             );
           })()}
         </div>
@@ -185,7 +181,7 @@ export const ShopPage: React.FC = () => {
           </CardTitle>
         </div>
         <div className="flex items-center gap-1 mt-0.5 text-xs text-amber-500 font-bold">
-          <Star className="h-3 w-3 fill-amber-500 text-amber-500" />
+          <StarIcon className="h-3 w-3 fill-amber-500 text-amber-500" />
           <span>{p.avgRating ? Number(p.avgRating).toFixed(1) : '0.0'}</span>
           <span className="text-zinc-400 font-normal">
             ({p.reviewCount || 0})
@@ -245,7 +241,7 @@ export const ShopPage: React.FC = () => {
       <div className="flex flex-col gap-4 bg-card rounded-2xl p-4">
         <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
           <div className="relative w-full sm:w-80">
-            <MagnifyingGlass className="absolute inset-y-0 left-3 flex items-center text-zinc-400 h-4 w-4 mt-3" />
+            <MagnifyingGlassIcon className="absolute inset-y-0 left-3 flex items-center text-zinc-400 h-4 w-4 mt-3" />
             <Input
               type="text"
               value={searchQuery}
@@ -304,7 +300,7 @@ export const ShopPage: React.FC = () => {
         !selectedCategory && (
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-2 px-1">
-              <Sparkle className="h-5 w-5 text-teal-500" />
+              <SparkleIcon className="h-5 w-5 text-teal-500" />
               <h2 className="text-xl font-black text-zinc-800 tracking-tight">
                 Recommended for You
               </h2>
@@ -318,12 +314,12 @@ export const ShopPage: React.FC = () => {
       {/* Catalog Grid */}
       {loading ? (
         <div className="flex flex-col items-center justify-center min-h-75 text-zinc-400 gap-2">
-          <Spinner className="h-8 w-8 animate-spin text-teal-500" />
+          <SpinnerIcon className="h-8 w-8 animate-spin text-teal-500" />
           <p className="text-sm font-semibold">Loading catalog items...</p>
         </div>
       ) : products.length === 0 ? (
         <div className="flex flex-col items-center justify-center min-h-75 text-zinc-400 border-2 border-dashed border-zinc-200 rounded-2xl p-8 bg-white/50">
-          <ShoppingBag className="h-12 w-12 text-zinc-300 mb-2" />
+          <ShoppingBagIcon className="h-12 w-12 text-zinc-300 mb-2" />
           <p className="font-bold text-zinc-700">No matching products found</p>
           <p className="text-xs text-zinc-400 mt-1">
             Try widening your search terms or changing category filters.

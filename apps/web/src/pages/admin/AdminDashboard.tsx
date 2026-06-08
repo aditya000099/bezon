@@ -1,31 +1,26 @@
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button } from '@bezon/ui';
 import { formatStatusText } from "../../utils/statusFormatter";
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
-  Users,
-  ShoppingBag,
-  ShieldCheck,
-  CurrencyInr,
+  UsersIcon,
+  ShoppingBagIcon,
+  ShieldCheckIcon,
+  CurrencyInrIcon,
   ActivityIcon,
-  FileText,
-  WarningCircle,
-  Database,
-  HardDrives,
-  Clock,
-  ListDashes,
-  ArrowRight,
-  Package,
-  ArrowCounterClockwise,
-  Spinner,
+  FileTextIcon,
+  WarningCircleIcon,
+  DatabaseIcon,
+  HardDrivesIcon,
+  ClockIcon,
+  ListDashesIcon,
+  ArrowRightIcon,
+  PackageIcon,
+  ArrowCounterClockwiseIcon,
+  SpinnerIcon,
 } from "@phosphor-icons/react";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+;
+;
 import { useToast } from "../../context/ToastContext";
 import api from "../../lib/api";
 
@@ -294,7 +289,7 @@ export const AdminDashboard: React.FC = () => {
               Platform GMV
             </span>
             <div className="h-8 w-8 bg-indigo-50 rounded-lg flex items-center justify-center text-indigo-600">
-              <CurrencyInr className="h-4 w-4" />
+              <CurrencyInrIcon className="h-4 w-4" />
             </div>
           </div>
           {loadingApps ? (
@@ -339,7 +334,7 @@ export const AdminDashboard: React.FC = () => {
               Total Orders
             </span>
             <div className="h-8 w-8 bg-emerald-50 rounded-lg flex items-center justify-center text-emerald-600">
-              <ShoppingBag className="h-4 w-4" />
+              <ShoppingBagIcon className="h-4 w-4" />
             </div>
           </div>
           {loadingApps ? (
@@ -361,10 +356,10 @@ export const AdminDashboard: React.FC = () => {
         <Card className="bg-white border-slate-200 shadow-sm p-6">
           <div className="flex items-center justify-between mb-4">
             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-              Active Users
+              Active UsersIcon
             </span>
             <div className="h-8 w-8 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600">
-              <Users className="h-4 w-4" />
+              <UsersIcon className="h-4 w-4" />
             </div>
           </div>
           {loadingApps ? (
@@ -422,7 +417,7 @@ export const AdminDashboard: React.FC = () => {
         <Card className="bg-white border-slate-200 shadow-sm p-6 lg:col-span-4 sm:col-span-2">
           <div className="flex items-center justify-between mb-6">
             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
-              <Database className="h-4 w-4" /> Settlement Escrow Dashboard
+              <DatabaseIcon className="h-4 w-4" /> Settlement Escrow Dashboard
             </span>
             <Link to="/admin/settlements/queue">
               <Button
@@ -430,7 +425,7 @@ export const AdminDashboard: React.FC = () => {
                 size="sm"
                 className="font-semibold text-xs border-zinc-300"
               >
-                View Settlement Queue <ArrowRight className="ml-2 h-3 w-3" />
+                View Settlement Queue <ArrowRightIcon className="ml-2 h-3 w-3" />
               </Button>
             </Link>
           </div>
@@ -614,14 +609,14 @@ export const AdminDashboard: React.FC = () => {
           <Card className="bg-white border-slate-200 shadow-sm">
             <CardHeader className="pb-4 border-b border-slate-100">
               <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                <WarningCircle className="h-5 w-5 text-amber-500" />
+                <WarningCircleIcon className="h-5 w-5 text-amber-500" />
                 Pending Actions Needed
               </CardTitle>
             </CardHeader>
             <CardContent className="p-0">
               {loadingApps ? (
                 <div className="flex items-center justify-center p-12 text-slate-500">
-                  <Spinner className="h-6 w-6 animate-spin text-indigo-500 mr-2" />
+                  <SpinnerIcon className="h-6 w-6 animate-spin text-indigo-500 mr-2" />
                   <span className="text-sm font-medium">
                     Loading pending actions...
                   </span>
@@ -635,7 +630,7 @@ export const AdminDashboard: React.FC = () => {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className="bg-amber-100 text-amber-700 p-2 rounded-lg">
-                          <Users className="h-5 w-5" />
+                          <UsersIcon className="h-5 w-5" />
                         </div>
                         <div>
                           <p className="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
@@ -648,7 +643,7 @@ export const AdminDashboard: React.FC = () => {
                           </p>
                         </div>
                       </div>
-                      <ArrowRight className="h-4 w-4 text-slate-400 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all" />
+                      <ArrowRightIcon className="h-4 w-4 text-slate-400 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all" />
                     </div>
                   </Link>
                   <Link
@@ -658,7 +653,7 @@ export const AdminDashboard: React.FC = () => {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className="bg-blue-100 text-blue-700 p-2 rounded-lg">
-                          <Users className="h-5 w-5" />
+                          <UsersIcon className="h-5 w-5" />
                         </div>
                         <div>
                           <p className="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
@@ -671,7 +666,7 @@ export const AdminDashboard: React.FC = () => {
                           </p>
                         </div>
                       </div>
-                      <ArrowRight className="h-4 w-4 text-slate-400 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all" />
+                      <ArrowRightIcon className="h-4 w-4 text-slate-400 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all" />
                     </div>
                   </Link>
                   <Link
@@ -681,7 +676,7 @@ export const AdminDashboard: React.FC = () => {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className="bg-indigo-100 text-indigo-700 p-2 rounded-lg">
-                          <ArrowCounterClockwise className="h-5 w-5" />
+                          <ArrowCounterClockwiseIcon className="h-5 w-5" />
                         </div>
                         <div>
                           <p className="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
@@ -694,7 +689,7 @@ export const AdminDashboard: React.FC = () => {
                           </p>
                         </div>
                       </div>
-                      <ArrowRight className="h-4 w-4 text-slate-400 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all" />
+                      <ArrowRightIcon className="h-4 w-4 text-slate-400 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all" />
                     </div>
                   </Link>
                 </div>
@@ -837,7 +832,7 @@ export const AdminDashboard: React.FC = () => {
             <CardContent>
               {loadingApps ? (
                 <div className="flex items-center justify-center p-8 text-slate-500">
-                  <Spinner className="h-5 w-5 animate-spin text-indigo-500 mr-2" />
+                  <SpinnerIcon className="h-5 w-5 animate-spin text-indigo-500 mr-2" />
                   <span className="text-xs font-medium">
                     Loading activities...
                   </span>
@@ -874,14 +869,14 @@ export const AdminDashboard: React.FC = () => {
           <Card className="bg-white border-slate-200 shadow-sm">
             <CardHeader>
               <CardTitle className="text-base font-bold text-slate-800 flex items-center gap-2">
-                <ShieldCheck className="h-5 w-5 text-emerald-500" />
+                <ShieldCheckIcon className="h-5 w-5 text-emerald-500" />
                 Platform Health
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {loadingApps ? (
                 <div className="flex items-center justify-center p-8 text-slate-500">
-                  <Spinner className="h-5 w-5 animate-spin text-indigo-500 mr-2" />
+                  <SpinnerIcon className="h-5 w-5 animate-spin text-indigo-500 mr-2" />
                   <span className="text-xs font-medium">
                     Checking systems...
                   </span>
@@ -890,7 +885,7 @@ export const AdminDashboard: React.FC = () => {
                 <>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-sm text-slate-600">
-                      <HardDrives className="h-4 w-4" />
+                      <HardDrivesIcon className="h-4 w-4" />
                       API Status
                     </div>
                     <span
@@ -905,8 +900,8 @@ export const AdminDashboard: React.FC = () => {
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-sm text-slate-600">
-                      <Database className="h-4 w-4" />
-                      Database
+                      <DatabaseIcon className="h-4 w-4" />
+                      DatabaseIcon
                     </div>
                     <span
                       className={`text-xs font-bold px-2 py-1 rounded ${
@@ -920,7 +915,7 @@ export const AdminDashboard: React.FC = () => {
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-sm text-slate-600">
-                      <Clock className="h-4 w-4" />
+                      <ClockIcon className="h-4 w-4" />
                       Background Jobs
                     </div>
                     <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded">
@@ -929,7 +924,7 @@ export const AdminDashboard: React.FC = () => {
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-sm text-slate-600">
-                      <ListDashes className="h-4 w-4" />
+                      <ListDashesIcon className="h-4 w-4" />
                       Queue Status
                     </div>
                     <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded">
