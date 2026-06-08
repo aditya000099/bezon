@@ -1,5 +1,14 @@
-import { logger } from "@/utils/logger";
-import { Button, Input, Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@bezon/ui';
+import { logger } from '@/utils/logger';
+import {
+  Button,
+  Input,
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@bezon/ui';
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useToast } from '../../context/ToastContext';
@@ -20,9 +29,6 @@ import {
   PhoneIcon,
   CompassIcon,
 } from '@phosphor-icons/react';
-;
-;
-;
 import { GoogleAddressInput } from '../../components/ui/GoogleAddressInput';
 
 // Types representing what an Address looks like, matching our database schema!
@@ -55,7 +61,7 @@ export const AddressesPage: React.FC = () => {
   const [editingAddress, setEditingAddress] = useState<Address | null>(null);
 
   // Form input field states!
-  const [label, setLabel] = useState('HouseIcon');
+  const [label, setLabel] = useState('House');
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [line1, setLine1] = useState('');
@@ -94,7 +100,7 @@ export const AddressesPage: React.FC = () => {
 
   // Resets all form fields to default/empty values
   const resetForm = () => {
-    setLabel('HouseIcon');
+    setLabel('House');
     setFullName('');
     setPhone('');
     setLine1('');
@@ -113,7 +119,7 @@ export const AddressesPage: React.FC = () => {
   // Fills the form fields with an address we want to edit
   const startEdit = (address: Address) => {
     setEditingAddress(address);
-    setLabel(address.label || 'HouseIcon');
+    setLabel(address.label || 'House');
     setFullName(address.fullName || '');
     setPhone(address.phone || '');
     setLine1(address.line1 || '');
@@ -265,7 +271,7 @@ export const AddressesPage: React.FC = () => {
 
       {/* Address Edit/Add Form Container */}
       {showForm && (
-        <Card className="border-0 bg-zinc-50/80 shadow-none rounded-[2rem] overflow-hidden animate-in fade-in slide-in-from-top-4 duration-250">
+        <Card className="border-0 bg-zinc-50/80 shadow-none rounded-4xl overflow-hidden animate-in fade-in slide-in-from-top-4 duration-250">
           <CardHeader className="bg-zinc-100/50 p-6">
             <CardTitle className="text-xl font-bold text-zinc-800">
               {editingAddress ? 'Edit Saved Address' : 'Add New Saved Address'}
@@ -278,13 +284,13 @@ export const AddressesPage: React.FC = () => {
 
           <form onSubmit={handleSubmit}>
             <CardContent className="p-6 flex flex-col gap-5">
-              {/* Address Label (HouseIcon / Work / Other) */}
+              {/* Address Label (House / Work / Other) */}
               <div className="flex flex-col gap-2">
                 <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
                   Address Label / Tag
                 </label>
                 <div className="flex flex-wrap gap-2">
-                  {['HouseIcon', 'Work', 'Other'].map((item) => (
+                  {['House', 'Work', 'Other'].map((item) => (
                     <button
                       key={item}
                       type="button"
@@ -296,16 +302,20 @@ export const AddressesPage: React.FC = () => {
                       }`}
                     >
                       <div className="flex items-center gap-1.5">
-                        {item === 'HouseIcon' && <HouseIcon className="h-3.5 w-3.5" />}
+                        {item === 'House' && (
+                          <HouseIcon className="h-3.5 w-3.5" />
+                        )}
                         {item === 'Work' && (
                           <BriefcaseIcon className="h-3.5 w-3.5" />
                         )}
-                        {item === 'Other' && <MapPinIcon className="h-3.5 w-3.5" />}
+                        {item === 'Other' && (
+                          <MapPinIcon className="h-3.5 w-3.5" />
+                        )}
                         {item}
                       </div>
                     </button>
                   ))}
-                  {label !== 'HouseIcon' &&
+                  {label !== 'Housen' &&
                     label !== 'Work' &&
                     label !== 'Other' && (
                       <span className="text-xs font-bold text-teal-600 bg-teal-50 px-3 py-2 rounded-xl">
@@ -313,7 +323,7 @@ export const AddressesPage: React.FC = () => {
                       </span>
                     )}
                 </div>
-                {/* Text input if they want to name it something custom like "Parent's HouseIcon" */}
+                {/* Text input if they want to name it something custom like "Parent's House" */}
                 {label === 'Other' && (
                   <Input
                     placeholder="Enter custom label (e.g. My Cabin)"
@@ -360,8 +370,8 @@ export const AddressesPage: React.FC = () => {
                     htmlFor="fullname-input"
                     className="text-xs font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5"
                   >
-                    <UserIcon className="h-3.5 w-3.5 text-zinc-400" /> Receiver's
-                    Full Name *
+                    <UserIcon className="h-3.5 w-3.5 text-zinc-400" />{' '}
+                    Receiver's Full Name *
                   </label>
                   <Input
                     id="fullname-input"
@@ -380,7 +390,7 @@ export const AddressesPage: React.FC = () => {
                     className="text-xs font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5"
                   >
                     <PhoneIcon className="h-3.5 w-3.5 text-zinc-400" /> Delivery
-                    PhoneIcon *
+                    Phone *
                   </label>
                   <Input
                     id="phone-input"
@@ -417,8 +427,8 @@ export const AddressesPage: React.FC = () => {
                     htmlFor="line2-input"
                     className="text-xs font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5"
                   >
-                    <MapPinIcon className="h-3.5 w-3.5 text-zinc-300" /> Landmark /
-                    Apartment Name (Line 2)
+                    <MapPinIcon className="h-3.5 w-3.5 text-zinc-300" />{' '}
+                    Landmark / Apartment Name (Line 2)
                   </label>
                   <Input
                     id="line2-input"
@@ -471,8 +481,8 @@ export const AddressesPage: React.FC = () => {
                     htmlFor="pincode-input"
                     className="text-xs font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5"
                   >
-                    <CompassIcon className="h-3.5 w-3.5 text-zinc-400" /> Pincode (6
-                    Digits) *
+                    <CompassIcon className="h-3.5 w-3.5 text-zinc-400" />{' '}
+                    Pincode (6 Digits) *
                   </label>
                   <Input
                     id="pincode-input"
@@ -596,9 +606,13 @@ export const AddressesPage: React.FC = () => {
                         : 'bg-white text-zinc-500 border-zinc-200'
                     }`}
                   >
-                    {addr.label === 'HouseIcon' && <HouseIcon className="h-4 w-4" />}
-                    {addr.label === 'Work' && <BriefcaseIcon className="h-4 w-4" />}
-                    {addr.label !== 'HouseIcon' && addr.label !== 'Work' && (
+                    {addr.label === 'House' && (
+                      <HouseIcon className="h-4 w-4" />
+                    )}
+                    {addr.label === 'Work' && (
+                      <BriefcaseIcon className="h-4 w-4" />
+                    )}
+                    {addr.label !== 'House' && addr.label !== 'Work' && (
                       <MapPinIcon className="h-4 w-4" />
                     )}
                   </div>

@@ -1,13 +1,10 @@
-import { logger } from "@/utils/logger";
+import { logger } from '@/utils/logger';
 import { Button, Input } from '@bezon/ui';
 import React, { useEffect, useState } from 'react';
-;
-;
 import {
   SpinnerIcon,
-  Image as ImageIcon,
+  ImageIcon,
   XIcon,
-  Link as LinkIcon,
   CheckCircleIcon,
   ShieldCheckIcon,
   SparkleIcon,

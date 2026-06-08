@@ -1,9 +1,14 @@
-import { Card, CardHeader, CardTitle, CardContent, CardFooter, Button, Input } from '@bezon/ui';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardFooter,
+  Button,
+  Input,
+} from '@bezon/ui';
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-;
-;
-;
 import {
   ShoppingBagIcon,
   StarIcon,
@@ -12,7 +17,6 @@ import {
   HeartIcon,
   StorefrontIcon,
   MapPinIcon,
-  InfoIcon,
   ArrowLeftIcon,
   GridFourIcon,
 } from '@phosphor-icons/react';
@@ -23,6 +27,7 @@ import { useToast } from '../../context/ToastContext';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 import { useAuth } from '../../context/AuthContext';
+import { logger } from '@/utils/logger';
 
 interface SellerShopData {
   id: string;
@@ -58,6 +63,7 @@ export const SellerShopPage: React.FC = () => {
           setSeller(response.data.data);
         }
       } catch (err) {
+        logger.error(err);
         toast.error('Could not load seller shop profile.');
       } finally {
         setLoading(false);
@@ -77,6 +83,7 @@ export const SellerShopPage: React.FC = () => {
       await addItem(product.id, 1, price);
       toast.success(`Added ${product.title} to shopping cart!`);
     } catch (err) {
+      logger.error(err);
       toast.error('Failed to add item to cart. Try again.');
     } finally {
       setAddingToCart((prev) => ({ ...prev, [product.id]: false }));
@@ -213,7 +220,7 @@ export const SellerShopPage: React.FC = () => {
           <Card className="bg-white border border-zinc-200 shadow-sm rounded-2xl">
             <CardHeader className="p-4 pb-2">
               <CardTitle className="text-sm font-bold text-zinc-800 uppercase tracking-wider">
-                MagnifyingGlassIcon Shop
+                Shop
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4 pt-0">
@@ -221,7 +228,7 @@ export const SellerShopPage: React.FC = () => {
                 <MagnifyingGlassIcon className="absolute left-3 top-3 h-4 w-4 text-zinc-400" />
                 <Input
                   type="text"
-                  placeholder="MagnifyingGlassIcon products..."
+                  placeholder="Search products..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-9 text-xs rounded-xl"

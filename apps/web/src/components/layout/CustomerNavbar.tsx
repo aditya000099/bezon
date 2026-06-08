@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
-import { ShoppingCartIcon, SignOutIcon, StorefrontIcon } from '@phosphor-icons/react';
+import { ShoppingCartIcon, SignOutIcon } from '@phosphor-icons/react';
 
 export const CustomerNavbar: React.FC = () => {
   const { user, logout } = useAuth();
@@ -33,7 +33,7 @@ export const CustomerNavbar: React.FC = () => {
             to="/"
             className="flex items-center gap-2 font-bold text-2xl text-zinc-900 hover:opacity-80 transition-opacity"
           >
-            <StorefrontIcon className="h-7 w-7 text-teal-700" weight="fill" />
+            {/* <StorefrontIcon className="h-7 w-7 text-teal-700" weight="fill" /> */}
             <span className="tracking-tight">Bezon</span>
           </Link>
           <nav className="hidden md:flex items-center gap-6 text-sm font-bold text-zinc-500">

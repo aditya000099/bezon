@@ -31,21 +31,8 @@ export const AskAiButton: React.FC<AskAiButtonProps> = ({
           </svg>
           <div className="txt-wrapper">
             <div className={`txt-1 ${isGenerating ? 'show-anim' : ''}`}>
-              <span className="btn-letter">A</span>
-              <span className="btn-letter">s</span>
-              <span className="btn-letter">k</span>
+              <span>Ask</span>
             </div>
-            {/* <div className={`txt-2 ${isGenerating ? 'show-anim' : ''}`}>
-              <span className="btn-letter">A</span>
-              <span className="btn-letter">s</span>
-              <span className="btn-letter">k</span>
-              <span className="btn-letter">i</span>
-              <span className="btn-letter">n</span>
-              <span className="btn-letter">g</span>
-              <span className="btn-letter">.</span>
-              <span className="btn-letter">.</span>
-              <span className="btn-letter">.</span>
-            </div> */}
           </div>
         </button>
       </div>
@@ -58,46 +45,36 @@ const StyledWrapper = styled.div`
     position: relative;
     display: inline-block;
   }
+  .txt-1 {
+    color: white;
+  }
 
   .btn {
-    --border-radius: 24px;
-    --padding: 4px;
-    --transition: 0.4s;
-    --button-color: #101010; /* Same as background */
-    --highlight-color-hue: 250deg; /* Purple/Indigo hue to match our brand */
+    position: relative;
 
-    user-select: none;
     display: flex;
-    justify-content: center;
     align-items: center;
-    padding: 0.5em 0.8em 0.5em 1em;
-    font-family: 'Inter', 'Segoe UI', sans-serif;
-    font-size: 0.9em;
-    font-weight: 600;
+    gap: 8px;
 
-    background-color: var(--button-color);
+    height: 36px;
+
+    padding: 0 14px;
+
+    border-radius: 999px;
+
+    border: 1px solid rgba(255, 255, 255, 0.08);
+
+    background: linear-gradient(
+      180deg,
+      rgba(28, 28, 32, 1),
+      rgba(16, 16, 18, 1)
+    );
 
     box-shadow:
-      /* inset */
-      inset 0px 1px 1px rgba(255, 255, 255, 0.2),
-      inset 0px 2px 2px rgba(255, 255, 255, 0.15),
-      inset 0px 4px 4px rgba(255, 255, 255, 0.1),
-      inset 0px 8px 8px rgba(255, 255, 255, 0.05),
-      inset 0px 16px 16px rgba(255, 255, 255, 0.05),
-      /* drop */ 0px -1px 1px rgba(0, 0, 0, 0.02),
-      0px -2px 2px rgba(0, 0, 0, 0.03),
-      0px -4px 4px rgba(0, 0, 0, 0.05),
-      0px -8px 8px rgba(0, 0, 0, 0.06),
-      0px -16px 16px rgba(0, 0, 0, 0.08);
+      inset 0 1px 0 rgba(255, 255, 255, 0.06),
+      0 6px 20px rgba(0, 0, 0, 0.18);
 
-    border: solid 1px #fff2;
-    border-radius: var(--border-radius);
-    cursor: pointer;
-
-    transition:
-      box-shadow var(--transition),
-      border var(--transition),
-      background-color var(--transition);
+    transition: all 0.2s ease;
   }
 
   .btn:disabled {
@@ -105,88 +82,40 @@ const StyledWrapper = styled.div`
     opacity: 0.8;
   }
 
-  .btn::before {
-    content: '';
-    position: absolute;
-    top: calc(0px - var(--padding));
-    left: calc(0px - var(--padding));
-    width: calc(100% + var(--padding) * 2);
-    height: calc(100% + var(--padding) * 2);
-    border-radius: calc(var(--border-radius) + var(--padding));
-    pointer-events: none;
-    background-image: linear-gradient(0deg, #0004, #000a);
-
-    z-index: -1;
-    transition:
-      box-shadow var(--transition),
-      filter var(--transition);
-    box-shadow:
-      0 -8px 8px -6px #0000 inset,
-      0 -16px 16px -8px #00000000 inset,
-      1px 1px 1px #fff2,
-      2px 2px 2px #fff1,
-      -1px -1px 1px #0002,
-      -2px -2px 2px #0001;
-  }
   .btn::after {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inset: 0;
     border-radius: inherit;
-    pointer-events: none;
-    background-image: linear-gradient(
-      0deg,
-      #fff,
-      hsl(var(--highlight-color-hue), 100%, 70%),
-      hsla(var(--highlight-color-hue), 100%, 70%, 50%),
-      8%,
-      transparent
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.08),
+      transparent 40%
     );
-    background-position: 0 0;
-    opacity: 0;
-    transition:
-      opacity var(--transition),
-      filter var(--transition);
+    pointer-events: none;
   }
 
   .btn-letter {
     position: relative;
     display: inline-block;
-    color: #fff5;
-    animation: letter-anim 2s ease-in-out infinite;
+    color: rgba(255, 255, 255, 0.92);
     transition:
       color var(--transition),
       text-shadow var(--transition),
       opacity var(--transition);
   }
 
-  @keyframes letter-anim {
-    50% {
-      text-shadow: 0 0 3px #fff8;
-      color: #fff;
-    }
-  }
-
   .btn-svg {
-    flex-grow: 1;
-    height: 18px;
-    margin-right: 0.5rem;
-    fill: #e8e8e8;
-    animation: flicker 2s linear infinite;
-    animation-delay: 0.5s;
-    filter: drop-shadow(0 0 2px #fff9);
-    transition:
-      fill var(--transition),
-      filter var(--transition),
-      opacity var(--transition);
-  }
-  @keyframes flicker {
-    50% {
-      opacity: 0.3;
-    }
+    width: 14px;
+    height: 14px;
+
+    fill: currentColor;
+
+    color: rgba(255, 255, 255, 0.9);
+
+    filter: none;
+
+    animation: none;
   }
 
   /* Focus state */
@@ -194,26 +123,19 @@ const StyledWrapper = styled.div`
     position: relative;
     display: flex;
     align-items: center;
-    min-width: 4em;
+    min-width: auto;
   }
-  .txt-1,
-  .txt-2 {
-    position: absolute;
-    word-spacing: -1em;
+
+  .txt-wrapper {
+    display: flex;
+    align-items: center;
   }
-  .txt-1 {
-    animation: appear-anim 1s ease-in-out forwards;
-  }
-  .txt-2 {
-    opacity: 0;
-  }
-  @keyframes appear-anim {
-    0% {
-      opacity: 0;
-    }
-    100% {
-      opacity: 1;
-    }
+
+  .btn-text {
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
   }
 
   .btn:focus .txt-1,
@@ -277,44 +199,6 @@ const StyledWrapper = styled.div`
     filter: brightness(100%);
   }
 
-  /* Animation delays for .btn-letter elements */
-  .btn-letter:nth-child(1),
-  .btn:focus .btn-letter:nth-child(1) {
-    animation-delay: 0s;
-  }
-  .btn-letter:nth-child(2),
-  .btn:focus .btn-letter:nth-child(2) {
-    animation-delay: 0.08s;
-  }
-  .btn-letter:nth-child(3),
-  .btn:focus .btn-letter:nth-child(3) {
-    animation-delay: 0.16s;
-  }
-  .btn-letter:nth-child(4),
-  .btn:focus .btn-letter:nth-child(4) {
-    animation-delay: 0.24s;
-  }
-  .btn-letter:nth-child(5),
-  .btn:focus .btn-letter:nth-child(5) {
-    animation-delay: 0.32s;
-  }
-  .btn-letter:nth-child(6),
-  .btn:focus .btn-letter:nth-child(6) {
-    animation-delay: 0.4s;
-  }
-  .btn-letter:nth-child(7),
-  .btn:focus .btn-letter:nth-child(7) {
-    animation-delay: 0.48s;
-  }
-  .btn-letter:nth-child(8),
-  .btn:focus .btn-letter:nth-child(8) {
-    animation-delay: 0.56s;
-  }
-  .btn-letter:nth-child(9),
-  .btn:focus .btn-letter:nth-child(9) {
-    animation-delay: 0.64s;
-  }
-
   /* Active state */
   .btn:active {
     border: solid 1px hsla(var(--highlight-color-hue), 100%, 80%, 70%);
@@ -341,7 +225,13 @@ const StyledWrapper = styled.div`
 
   /* Hover state */
   .btn:hover {
-    border: solid 1px hsla(var(--highlight-color-hue), 100%, 80%, 40%);
+    transform: translateY(-1px);
+
+    border-color: rgba(255, 255, 255, 0.14);
+
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 10px 28px rgba(0, 0, 0, 0.24);
   }
 
   .btn:hover::before {
@@ -352,6 +242,9 @@ const StyledWrapper = styled.div`
       2px 2px 2px #fff1,
       -1px -1px 1px #0002,
       -2px -2px 2px #0001;
+  }
+  .btn:active {
+    transform: translateY(1px) scale(0.98);
   }
 
   .btn:hover::after {

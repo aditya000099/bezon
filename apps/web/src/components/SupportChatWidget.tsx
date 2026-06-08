@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
-  PaperPlaneRightIcon,
   RobotIcon,
-  User as UserIcon,
+  UserIcon,
   SpinnerIcon,
   PackageIcon,
   ArrowCounterClockwiseIcon,
@@ -14,6 +13,7 @@ import {
 import { API_ENDPOINTS } from '../config/api.config';
 import { useAuth } from '../context/AuthContext';
 import { AskAiButton } from './ui/AskAiButton';
+import { logger } from '@/utils/logger';
 
 interface Message {
   id: string;
@@ -81,6 +81,7 @@ export const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({
         }));
         setMessages(parsed);
       } catch (e) {
+        logger.error(e);
         setMessages([]);
       }
     } else {

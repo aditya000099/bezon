@@ -1,10 +1,15 @@
-import { logger } from "@/utils/logger";
-import { Card, CardHeader, CardTitle, CardContent, CardFooter, Button, Input } from '@bezon/ui';
+import { logger } from '@/utils/logger';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardFooter,
+  Button,
+  Input,
+} from '@bezon/ui';
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-;
-;
-;
+import { useNavigate } from 'react-router-dom';
 import {
   ShoppingBagIcon,
   StarIcon,
@@ -94,6 +99,7 @@ export const ShopPage: React.FC = () => {
           setProducts(response.data.data.products || []);
         }
       } catch (err) {
+        logger.error(err);
         toast.error('Could not load products. Please check connection.');
       } finally {
         setLoading(false);
@@ -114,6 +120,7 @@ export const ShopPage: React.FC = () => {
       await addItem(product.id, 1, price);
       toast.success(`Added ${product.title} to shopping cart!`);
     } catch (err) {
+      logger.error(err);
       toast.error('Failed to add item to cart. Try again.');
     } finally {
       setAddingToCart((prev) => ({ ...prev, [product.id]: false }));

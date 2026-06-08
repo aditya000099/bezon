@@ -1,5 +1,14 @@
-import { logger } from "@/utils/logger";
-import { Button, Input, Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@bezon/ui';
+import { logger } from '@/utils/logger';
+import {
+  Button,
+  Input,
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@bezon/ui';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -15,10 +24,6 @@ import {
   EnvelopeIcon,
   SpinnerIcon,
 } from '@phosphor-icons/react';
-;
-;
-;
-
 // A list of cool, beautiful preset avatars the user can click to quickly choose a profile photo!
 const PRESET_AVATARS = [
   'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop',
@@ -195,7 +200,8 @@ export const EditProfilePage: React.FC = () => {
                   htmlFor="phone-input"
                   className="text-xs font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5"
                 >
-                  <PhoneIcon className="h-3.5 w-3.5 text-zinc-400" /> PhoneIcon Number
+                  <PhoneIcon className="h-3.5 w-3.5 text-zinc-400" /> Phone
+                  Number
                 </label>
                 <Input
                   id="phone-input"
@@ -253,7 +259,7 @@ export const EditProfilePage: React.FC = () => {
             >
               Cancel
             </Button>
-            {/* FloppyDiskIcon Button */}
+
             <Button
               type="submit"
               disabled={submitting}
@@ -265,7 +271,7 @@ export const EditProfilePage: React.FC = () => {
                 </>
               ) : (
                 <>
-                  <FloppyDiskIcon className="h-4 w-4" /> FloppyDiskIcon Changes
+                  <FloppyDiskIcon className="h-4 w-4" /> Save Changes
                 </>
               )}
             </Button>
