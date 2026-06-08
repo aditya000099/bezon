@@ -15,6 +15,7 @@ import {
   MapPinIcon,
   ArrowLeftIcon,
   GridFourIcon,
+  ShoppingBagIcon,
 } from '@phosphor-icons/react';
 import type { Product } from '@bezon/types';
 import api from '../../lib/api';

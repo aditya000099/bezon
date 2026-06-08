@@ -15,6 +15,17 @@ import { CheckoutCouponStep } from './components/CheckoutCouponStep';
 import { CheckoutSummaryPanel } from './components/CheckoutSummaryPanel';
 import { CheckoutRazorpayModal } from './components/CheckoutRazorpayModal';
 
+const loadRazorpayScript = () => {
+  return new Promise((resolve) => {
+    if ((window as any).Razorpay) return resolve(true);
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
+
 export const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
   const { items, cartTotal, clearCart } = useCart();
@@ -177,9 +188,79 @@ export const CheckoutPage: React.FC = () => {
       const response = await api.post(API_ENDPOINTS.payments.createOrder, payload);
 
       if (response.data.success) {
-        setRazorpayOrderId(response.data.data.razorpayOrderId);
-        setIsRazorpayOpen(true);
-        toast.info('Connecting to Razorpay Secure Payment Server...');
+        const { razorpayOrderId: newOrderId, amount, keyId, isMock } = response.data.data;
+        
+        if (isMock) {
+          // Fallback to custom checkout modal
+          setRazorpayOrderId(newOrderId);
+          setIsRazorpayOpen(true);
+          toast.info('Connecting to Razorpay Simulated Server...');
+          setIsProcessing(false);
+          return;
+        }
+
+        const scriptLoaded = await loadRazorpayScript();
+        if (!scriptLoaded) {
+          toast.error('Razorpay SDK failed to load. Are you online?');
+          setIsProcessing(false);
+          return;
+        }
+
+        const options = {
+          key: keyId,
+          amount: Math.round(amount * 100),
+          currency: 'INR',
+          name: 'Bezon',
+          description: 'Order Payment',
+          order_id: newOrderId,
+          handler: async function (response: any) {
+            setIsProcessing(true);
+            try {
+              const verifyRes = await api.post(API_ENDPOINTS.payments.verify, {
+                razorpayOrderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature,
+              });
+
+              if (verifyRes.data.success) {
+                toast.success('Payment Verified Successfully!');
+                clearCart();
+                navigate('/orders');
+              }
+            } catch (err: any) {
+              toast.error(err.response?.data?.message || 'Payment verification failed.');
+              setIsProcessing(false);
+            }
+          },
+          prefill: {
+            name: fullName,
+            contact: phone,
+          },
+          theme: {
+            color: '#14b8a6', // teal-500
+          },
+          modal: {
+            ondismiss: async function () {
+              setIsProcessing(true);
+              try {
+                await api.post(API_ENDPOINTS.payments.verify, {
+                  razorpayOrderId: newOrderId,
+                });
+              } catch (err: any) {
+                console.log('Payment cancelled by user');
+              } finally {
+                setIsProcessing(false);
+                toast.error('Payment cancelled.');
+              }
+            }
+          }
+        };
+
+        const rzp = new (window as any).Razorpay(options);
+        rzp.on('payment.failed', function (response: any) {
+          toast.error(response.error.description || 'Payment Failed');
+        });
+        rzp.open();
       }
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Failed to place orders. Out of stock?');

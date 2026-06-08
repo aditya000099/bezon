@@ -8,6 +8,7 @@ import {
   MagnifyingGlassIcon,
   SpinnerIcon,
   SparkleIcon,
+  ShoppingBagIcon,
 } from '@phosphor-icons/react';
 import type { Product, Category } from '@bezon/types';
 import api from '../../lib/api';
