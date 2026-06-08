@@ -63,6 +63,7 @@ const DeliveryProfile = React.lazy(() => import('../pages/delivery/DeliveryProfi
 
 // Admin Pages
 const AdminDashboard = React.lazy(() => import('../pages/admin/AdminDashboard').then(module => ({ default: module.AdminDashboard })));
+const AdminCategories = React.lazy(() => import('../pages/admin/AdminCategories').then(module => ({ default: module.AdminCategories })));
 const AdminSellers = React.lazy(() => import('../pages/admin/AdminSellers').then(module => ({ default: module.AdminSellers })));
 const AdminPartners = React.lazy(() => import('../pages/admin/AdminPartners').then(module => ({ default: module.AdminPartners })));
 const AdminOrders = React.lazy(() => import('../pages/admin/AdminOrders').then(module => ({ default: module.AdminOrders })));
@@ -188,6 +189,7 @@ export const AppRouter: React.FC = () => {
           }
         >
           <Route index element={<AdminDashboard />} />
+          <Route path="categories" element={<AdminCategories />} />
           <Route path="sellers" element={<AdminSellers />} />
           <Route path="partners" element={<AdminPartners />} />
           <Route path="orders" element={<AdminOrders />} />

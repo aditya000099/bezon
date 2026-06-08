@@ -24,7 +24,14 @@ export const API_ENDPOINTS = {
     toggle: (productId: string) => `${API_V1}/wishlist/toggle/${productId}`,
   },
   // Categories
-  categories: `${API_V1}/categories`,
+  categories: {
+    base: `${API_V1}/categories`,
+    adminList: `${API_V1}/categories/admin`,
+    detail: (id: string) => `${API_V1}/categories/${id}`,
+    create: `${API_V1}/categories`,
+    update: (id: string) => `${API_V1}/categories/${id}`,
+    delete: (id: string) => `${API_V1}/categories/${id}`,
+  },
   // Media Uploads
   media: {
     upload: `${API_V1}/media/upload`,

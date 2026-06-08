@@ -47,3 +47,50 @@ export const createCategory = async (req: Request, res: Response, next: NextFunc
     next(err);
   }
 };
+
+export const getAdminCategories = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const categories = await CategoryService.getAdminCategories();
+    res.json({ success: true, data: categories });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getCategoryById = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const category = await CategoryService.getCategoryById(req.params.id);
+    res.json({ success: true, data: category });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const updateCategory = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+    const { name, description, parentId, sortOrder, isActive } = req.body;
+
+    const updated = await CategoryService.updateCategory(id, {
+      name,
+      description,
+      parentId,
+      sortOrder: sortOrder !== undefined ? Number(sortOrder) : undefined,
+      isActive: isActive !== undefined ? Boolean(isActive) : undefined,
+    });
+
+    res.json({ success: true, message: 'Category updated successfully.', data: updated });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const deleteCategory = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+    await CategoryService.deleteCategory(id);
+    res.json({ success: true, message: 'Category deleted successfully.' });
+  } catch (err) {
+    next(err);
+  }
+};
