@@ -26,7 +26,6 @@ import {
 } from "@phosphor-icons/react";
 import api from "../../lib/api";
 import { API_ENDPOINTS } from "../../config/api.config";
-import { RETURN_WINDOW_DAYS } from "../../utils/constants";
 import { useToast } from "../../context/ToastContext";
 import { WriteReviewModal } from "../../components/reviews/WriteReviewModal";
 import { OrderTrackingStepper } from "../../components/ui/OrderTrackingStepper";
@@ -189,8 +188,9 @@ export const OrderDetailPage: React.FC = () => {
                     ?.createdAt;
                 if (!deliveredAt) return false;
                 const deliveryTime = new Date(deliveredAt).getTime();
+                const windowDays = (order as any).returnWindowDays || 7;
                 const expirationTime =
-                  deliveryTime + RETURN_WINDOW_DAYS * 24 * 60 * 60 * 1000;
+                  deliveryTime + windowDays * 24 * 60 * 60 * 1000;
                 return Date.now() <= expirationTime;
               })() && (
                 <Button
@@ -747,7 +747,7 @@ export const OrderDetailPage: React.FC = () => {
               </DialogTitle>
               <DialogDescription>
                 Submit a return request for this order. This action is subject
-                to the {RETURN_WINDOW_DAYS}-day return window.
+                to the {(order as any).returnWindowDays || 7}-day return window.
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">

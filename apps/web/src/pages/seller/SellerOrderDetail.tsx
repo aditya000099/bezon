@@ -510,7 +510,7 @@ export const SellerOrderDetail: React.FC = () => {
             </CardHeader>
             <CardContent className="p-4 space-y-4 text-sm">
               <div className="flex justify-between items-center text-zinc-600">
-                <span>Escrow Status</span>
+                <span>Settlement Status</span>
                 <span className={`px-2.5 py-0.5 text-[10px] font-bold rounded uppercase tracking-wider ${
                   order.settlementStatus === 'SETTLED' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
                   order.settlementStatus === 'HOLDING' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
@@ -520,19 +520,44 @@ export const SellerOrderDetail: React.FC = () => {
                 </span>
               </div>
               
-              {order.settlementAmount && (
+              <div className="pt-2 space-y-2">
                 <div className="flex justify-between text-zinc-600">
-                  <span>Settlement Amount</span>
+                  <span>Gross Order Amount</span>
                   <span className="font-semibold text-zinc-800">
-                    ₹{parseFloat(order.settlementAmount).toLocaleString()}
+                    ₹{total.toLocaleString()}
+                  </span>
+                </div>
+                
+                {order.commissionAmount && Number(order.commissionAmount) > 0 && (
+                  <div className="flex justify-between text-rose-600">
+                    <span>Platform Commission</span>
+                    <span className="font-semibold">
+                      -₹{Number(order.commissionAmount).toLocaleString()}
+                    </span>
+                  </div>
+                )}
+                
+                <div className="border-t border-zinc-100 pt-2 flex justify-between font-bold text-zinc-900 text-base">
+                  <span>Final Settlement Amount</span>
+                  <span className="text-emerald-600">
+                    ₹{order.settlementAmount ? Number(order.settlementAmount).toLocaleString() : '0'}
+                  </span>
+                </div>
+              </div>
+
+              {order.settlementStatus === 'HOLDING' && order.expectedSettlementDate && (
+                <div className="flex justify-between text-zinc-600 bg-amber-50/50 p-2 rounded-md border border-amber-100">
+                  <span className="text-amber-800 font-medium text-xs">Expected Release</span>
+                  <span className="font-bold text-amber-600 text-xs">
+                    {new Date(order.expectedSettlementDate).toLocaleDateString()}
                   </span>
                 </div>
               )}
               
               {order.settledAt && (
-                <div className="flex justify-between text-zinc-600">
-                  <span>Settled On</span>
-                  <span className="font-semibold text-emerald-600">
+                <div className="flex justify-between text-zinc-600 bg-emerald-50/50 p-2 rounded-md border border-emerald-100">
+                  <span className="text-emerald-800 font-medium text-xs">Settled On</span>
+                  <span className="font-bold text-emerald-600 text-xs">
                     {new Date(order.settledAt).toLocaleDateString()}
                   </span>
                 </div>

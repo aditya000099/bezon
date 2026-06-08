@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import api from '../../lib/api';
 import API_ENDPOINTS from '../../config/api.config';
 import { useToast } from '../../context/ToastContext';
+import { TransactionDetailsModal } from '@/components/ui/TransactionDetailsModal';
 
 export const SellerWallet: React.FC = () => {
   const [wallet, setWallet] = useState<any>(null);
@@ -23,6 +24,8 @@ export const SellerWallet: React.FC = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [filterType, setFilterType] = useState('');
   const [filterRef, setFilterRef] = useState('');
+  const [selectedTx, setSelectedTx] = useState<any>(null);
+  const [showTxModal, setShowTxModal] = useState(false);
   const { toast } = useToast();
 
   const fetchWalletData = async () => {
@@ -164,6 +167,7 @@ export const SellerWallet: React.FC = () => {
                     <th className="px-6 py-3 font-medium">Type</th>
                     <th className="px-6 py-3 font-medium">Amount</th>
                     <th className="px-6 py-3 font-medium text-right">Balance After</th>
+                    <th className="px-6 py-3 font-medium text-center">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-100">
@@ -189,6 +193,19 @@ export const SellerWallet: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 text-right font-medium text-zinc-900">
                         ₹{Number(tx.balanceAfter).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-xs font-semibold text-teal-600 hover:text-teal-700 hover:bg-teal-50"
+                          onClick={() => {
+                            setSelectedTx(tx);
+                            setShowTxModal(true);
+                          }}
+                        >
+                          View Details
+                        </Button>
                       </td>
                     </tr>
                   ))}
@@ -225,6 +242,12 @@ export const SellerWallet: React.FC = () => {
           )}
         </CardContent>
       </Card>
+      
+      <TransactionDetailsModal 
+        isOpen={showTxModal}
+        onClose={() => setShowTxModal(false)}
+        transaction={selectedTx}
+      />
     </div>
   );
 };

@@ -1,6 +1,5 @@
 import prisma from "../db/client.js";
 import { Prisma } from "@prisma/client";
-import { RETURN_WINDOW_DAYS } from "../utils/constants.js";
 import { RecommendationService } from "./recommendation.service.js";
 import { WalletService } from "./wallet.service.js";
 
@@ -227,7 +226,13 @@ export class OrderService {
       }
     }
 
-    return order;
+    const returnPolicy = await prisma.policy.findFirst({
+      where: { type: 'return', isActive: true },
+      orderBy: { createdAt: 'desc' }
+    });
+    const returnWindowDays = returnPolicy?.durationDays || 7;
+
+    return { ...order, returnWindowDays };
   }
 
   /**
@@ -933,12 +938,19 @@ export class OrderService {
     }
 
     const deliveryTime = new Date(deliveredAt).getTime();
+
+    const returnPolicy = await prisma.policy.findFirst({
+      where: { type: 'return', isActive: true },
+      orderBy: { createdAt: 'desc' }
+    });
+    const returnWindowDays = returnPolicy?.durationDays || 7;
+
     const expirationTime =
-      deliveryTime + RETURN_WINDOW_DAYS * 24 * 60 * 60 * 1000;
+      deliveryTime + returnWindowDays * 24 * 60 * 60 * 1000;
 
     if (Date.now() > expirationTime) {
       const err = new Error(
-        `The ${RETURN_WINDOW_DAYS}-day return window has expired.`,
+        `The ${returnWindowDays}-day return window has expired.`,
       );
       (err as any).status = 400;
       throw err;

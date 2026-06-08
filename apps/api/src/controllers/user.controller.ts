@@ -6,11 +6,13 @@ import { UserService } from '../services/user.service.js';
  */
 export const getAdminUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const users = await UserService.getAdminUsersList();
+    const role = req.query.role as string | undefined;
+    const result = await UserService.getAdminUsersList(role);
     
     res.json({
       success: true,
-      data: users,
+      data: result.users,
+      roleCounts: result.roleCounts
     });
   } catch (err) {
     next(err);
