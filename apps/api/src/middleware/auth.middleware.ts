@@ -55,6 +55,16 @@ export const authenticateUser = async (req: Request, res: Response, next: NextFu
       });
     }
 
+    // Validate UUID to prevent Prisma P2007 error on stale sessions
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(decoded.userId)) {
+      res.clearCookie('token');
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid authorization payload.',
+      });
+    }
+
     // Fetch user from database
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
@@ -103,15 +113,26 @@ export const authenticateUser = async (req: Request, res: Response, next: NextFu
     if (err.name === 'JsonWebTokenError') {
       return res.status(401).json({
         success: false,
-        message: 'Invalid authentication session.',
+        message: 'Invalid authorization token. Please sign in again.',
       });
     }
+
     if (err.name === 'TokenExpiredError') {
       return res.status(401).json({
         success: false,
         message: 'Authentication session expired. Please sign in again.',
       });
     }
+
+    // If Prisma throws a validation or known request error (like invalid UUID format or missing relation), treat it as an invalid token
+    if (err.name === 'PrismaClientValidationError' || err.name === 'PrismaClientKnownRequestError') {
+      res.clearCookie('token');
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid database constraint or session data. Please sign in again.',
+      });
+    }
+
     next(err);
   }
 };
@@ -122,6 +143,11 @@ export const optionalAuth = async (req: Request, _res: Response, next: NextFunct
     if (!token) return next();
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
     if (!decoded.userId) return next();
+    
+    // Validate UUID to prevent Prisma P2007 error
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(decoded.userId)) return next();
+
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
       select: { id: true, name: true, email: true, role: true, avatarUrl: true, isActive: true },
