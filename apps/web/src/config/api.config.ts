@@ -174,6 +174,10 @@ export const API_ENDPOINTS = {
     click: (campaignId: string) => `${API_V1}/ads/click/${campaignId}`,
     adminCampaigns: `${API_V1}/ads/admin/campaigns`,
   },
+  // Logs
+  logs: {
+    clientError: `${API_V1}/logs/client-error`,
+  },
 } as const;
 
 export default API_ENDPOINTS;

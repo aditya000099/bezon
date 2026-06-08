@@ -12,6 +12,7 @@ import apiRouter from './routes/index.js';
 import { SettlementService } from './services/settlement.service.js';
 
 import { initNsfw } from './utils/nsfw.js';
+import { logger } from './utils/logger.js';
 
 dotenv.config();
 
@@ -28,7 +29,12 @@ app.use(
     credentials: true,
   }),
 );
-app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
+const morganFormat = process.env.NODE_ENV === 'production' ? 'combined' : 'dev';
+app.use(
+  morgan(morganFormat, {
+    stream: { write: (message) => logger.http(message.trim()) },
+  })
+);
 app.use(express.json());
 app.use(cookieParser(process.env.COOKIE_SECRET || 'bezon-cookie-secret'));
 
@@ -78,8 +84,8 @@ app.use((req: Request, res: Response) => {
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   // Intercept Prisma Errors to prevent them from leaking raw DB schema info to the UI
   if (err.name === 'PrismaClientValidationError' || err.name === 'PrismaClientKnownRequestError') {
-    console.error(`[Prisma Error] ${err.name} at ${req.method} ${req.url}`);
-    console.error(err.message); // Log full query details to server only
+    logger.error(`[Prisma Error] ${err.name} at ${req.method} ${req.url}`);
+    logger.error(err.message); // Log full query details to server only
 
     return res.status(400).json({
       success: false,
@@ -87,7 +93,7 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     });
   }
 
-  console.error(err.stack);
+  logger.error(err.stack || err.message || err);
   res.status(err.status || 500).json({
     success: false,
     message:
@@ -99,20 +105,20 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 
 // Start Server
 app.listen(PORT, async () => {
-  console.log(`[Bezon Server] Running on port ${PORT}`);
+  logger.info(`[Bezon Server] Running on port ${PORT}`);
 
   // Pre-load NSFW model
   try {
     await initNsfw();
   } catch (error) {
-    console.error('[NSFW] Failed to initialize NSFW model:', error);
+    logger.error('[NSFW] Failed to initialize NSFW model:', error);
   }
 
   // Automatic Settlement Processor setup
   // Runs every 12 hours (43200000 ms) in background
   setInterval(() => {
     SettlementService.processSettlements().catch((err) => 
-      console.error('[SettlementService Error]', err)
+      logger.error('[SettlementService Error]', err)
     );
   }, 43200000);
 });
