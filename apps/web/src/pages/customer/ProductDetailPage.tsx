@@ -1,11 +1,20 @@
-import { logger } from "@/utils/logger";
-import { Button, Card, CardContent, Input, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@bezon/ui';
-import React, { useState, useEffect } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { logger } from '@/utils/logger';
+import {
+  Button,
+  Card,
+  CardContent,
+  Input,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@bezon/ui';
+import React, { useState, useEffect } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
   ArrowLeftIcon,
   StarIcon,
-  ShieldCheckeredIcon,
   HeartIcon,
   ShoppingBagIcon,
   SpinnerIcon,
@@ -15,33 +24,26 @@ import {
   ArrowCounterClockwiseIcon,
   MoneyIcon,
   ArrowsClockwiseIcon,
-  SparkleIcon,
   StorefrontIcon,
   ShieldCheckIcon,
   MapPinIcon,
   TruckIcon,
   HouseIcon,
-  CalendarIcon,
-} from "@phosphor-icons/react";
-;
-;
-;
-;
-
-import { useCart } from "../../context/CartContext";
-import { useAuth } from "../../context/AuthContext";
-import { useToast } from "../../context/ToastContext";
-import { useWishlist } from "../../context/WishlistContext";
-import api from "../../lib/api";
-import { API_ENDPOINTS } from "../../config/api.config";
-import type { Product } from "@bezon/types";
-import { SupportChatWidget } from "../../components/SupportChatWidget";
+} from '@phosphor-icons/react';
+import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
+import { useWishlist } from '../../context/WishlistContext';
+import api from '../../lib/api';
+import { API_ENDPOINTS } from '../../config/api.config';
+import type { Product } from '@bezon/types';
+import { SupportChatWidget } from '../../components/SupportChatWidget';
 
 interface ProductCoupon {
   id: string;
   code: string;
   description: string;
-  discountType: "percentage" | "flat";
+  discountType: 'percentage' | 'flat';
   discountValue: number;
   maxDiscount: number | null;
   minOrderValue: number;
@@ -77,8 +79,8 @@ export const ProductDetailPage: React.FC = () => {
   const [selectedAddress, setSelectedAddress] = useState<any | null>(null);
   const [loadingAddresses, setLoadingAddresses] = useState(false);
   const [addressModalOpen, setAddressModalOpen] = useState(false);
-  const [customPincode, setCustomPincode] = useState("110001"); // Default fallback pincode
-  const [pincodeInput, setPincodeInput] = useState(""); // For typing in the modal/section
+  const [customPincode, setCustomPincode] = useState('110001'); // Default fallback pincode
+  const [pincodeInput, setPincodeInput] = useState(''); // For typing in the modal/section
   const [deliveryEstimate, setDeliveryEstimate] = useState<{
     distanceKm: number;
     deliveryDays: number;
@@ -86,7 +88,7 @@ export const ProductDetailPage: React.FC = () => {
     destinationPincode: string;
   } | null>(null);
   const [loadingEstimate, setLoadingEstimate] = useState(false);
-  const [estimateError, setEstimateError] = useState("");
+  const [estimateError, setEstimateError] = useState('');
 
   // Fetch saved addresses if logged in
   useEffect(() => {
@@ -110,7 +112,7 @@ export const ProductDetailPage: React.FC = () => {
           }
         }
       } catch (err) {
-        logger.error("Failed to load saved addresses", err);
+        logger.error('Failed to load saved addresses', err);
       } finally {
         setLoadingAddresses(false);
       }
@@ -133,7 +135,7 @@ export const ProductDetailPage: React.FC = () => {
       }
 
       setLoadingEstimate(true);
-      setEstimateError("");
+      setEstimateError('');
       try {
         const params: any = {};
         if (hasAddress) {
@@ -150,10 +152,10 @@ export const ProductDetailPage: React.FC = () => {
           setDeliveryEstimate(res.data.data);
         }
       } catch (err: any) {
-        logger.error("Failed to fetch delivery estimate", err);
+        logger.error('Failed to fetch delivery estimate', err);
         setEstimateError(
           err.response?.data?.message ||
-            "Failed to calculate delivery estimate.",
+            'Failed to calculate delivery estimate.',
         );
         setDeliveryEstimate(null);
       } finally {
@@ -167,12 +169,12 @@ export const ProductDetailPage: React.FC = () => {
   const handleApplyCustomPincode = (pincodeStr: string) => {
     const trimmed = pincodeStr.trim();
     if (trimmed.length !== 6 || isNaN(Number(trimmed))) {
-      toast.error("Please enter a valid 6-digit pincode.");
+      toast.error('Please enter a valid 6-digit pincode.');
       return;
     }
     setSelectedAddress(null);
     setCustomPincode(trimmed);
-    setPincodeInput("");
+    setPincodeInput('');
     setAddressModalOpen(false);
     toast.success(`Checking delivery estimate for pincode ${trimmed}`);
   };
@@ -180,10 +182,10 @@ export const ProductDetailPage: React.FC = () => {
   const getDeliveryDateString = (days: number) => {
     const date = new Date();
     date.setDate(date.getDate() + days);
-    return date.toLocaleDateString("en-US", {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
+    return date.toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
     });
   };
 
@@ -199,12 +201,12 @@ export const ProductDetailPage: React.FC = () => {
   const [loadingQuestions, setLoadingQuestions] = useState(false);
   const [questionsTotalCount, setQuestionsTotalCount] = useState(0);
   const [questionsPage, setQuestionsPage] = useState(1);
-  const [questionSort, setQuestionSort] = useState("recent");
+  const [questionSort, setQuestionSort] = useState('recent');
   const [askModalOpen, setAskModalOpen] = useState(false);
-  const [newQuestion, setNewQuestion] = useState("");
+  const [newQuestion, setNewQuestion] = useState('');
   const [askingQuestion, setAskingQuestion] = useState(false);
   const [answeringId, setAnsweringId] = useState<string | null>(null);
-  const [answerText, setAnswerText] = useState("");
+  const [answerText, setAnswerText] = useState('');
   const [submittingAnswer, setSubmittingAnswer] = useState(false);
 
   useEffect(() => {
@@ -227,7 +229,8 @@ export const ProductDetailPage: React.FC = () => {
           setCoupons(couponRes.data.data);
         }
       } catch (err) {
-        toast.error("Failed to load product details.");
+        logger.error(err);
+        toast.error('Failed to load product details.');
       } finally {
         setLoading(false);
       }
@@ -251,7 +254,7 @@ export const ProductDetailPage: React.FC = () => {
           setReviews(listRes.data.data.reviews);
         }
       } catch (err) {
-        logger.error("Failed to fetch reviews", err);
+        logger.error('Failed to fetch reviews', err);
       } finally {
         setLoadingReviews(false);
       }
@@ -276,7 +279,7 @@ export const ProductDetailPage: React.FC = () => {
           setQuestionsTotalCount(res.data.data.pagination.totalCount);
         }
       } catch (err) {
-        logger.error("Failed to fetch questions", err);
+        logger.error('Failed to fetch questions', err);
       } finally {
         setLoadingQuestions(false);
       }
@@ -297,13 +300,13 @@ export const ProductDetailPage: React.FC = () => {
     ? Number(currentProduct.comparePrice)
     : null;
   const currentStock = currentProduct ? currentProduct.totalStock : 0;
-  const currentSku = currentProduct ? currentProduct.sku : "N/A";
+  const currentSku = currentProduct ? currentProduct.sku : 'N/A';
   const allEditions = product
     ? [product, ...(product.familyMembers || [])]
     : [];
 
   const calcCouponDiscount = (coupon: ProductCoupon) => {
-    if (coupon.discountType === "percentage") {
+    if (coupon.discountType === 'percentage') {
       let disc = (Number(coupon.discountValue) / 100) * currentPrice;
       if (coupon.maxDiscount) disc = Math.min(disc, Number(coupon.maxDiscount));
       return Math.round(disc * 100) / 100;
@@ -313,8 +316,8 @@ export const ProductDetailPage: React.FC = () => {
 
   const handleAddToCart = async () => {
     if (!user) {
-      toast.error("Please login to add items to cart.");
-      navigate("/login");
+      toast.error('Please login to add items to cart.');
+      navigate('/login');
       return;
     }
     if (!currentProduct) return;
@@ -322,10 +325,11 @@ export const ProductDetailPage: React.FC = () => {
     try {
       await addItem(currentProduct.id, 1, currentPrice);
       const attrs = currentProduct.attributes as any;
-      const varName = attrs?.color ? ` (${attrs.color})` : "";
+      const varName = attrs?.color ? ` (${attrs.color})` : '';
       toast.success(`${currentProduct.title}${varName} added to cart!`);
     } catch (error) {
-      toast.error("Could not add item to cart. Try again.");
+      logger.error(error);
+      toast.error('Could not add item to cart. Try again.');
     } finally {
       setIsAdding(false);
     }
@@ -333,8 +337,8 @@ export const ProductDetailPage: React.FC = () => {
 
   const handleAddToWishlist = () => {
     if (!user) {
-      toast.error("Please login to use your wishlist.");
-      navigate("/login");
+      toast.error('Please login to use your wishlist.');
+      navigate('/login');
       return;
     }
     if (!currentProduct) return;
@@ -343,12 +347,12 @@ export const ProductDetailPage: React.FC = () => {
 
   const handleAskQuestion = async () => {
     if (!user) {
-      toast.error("Please login to ask a question.");
-      navigate("/login");
+      toast.error('Please login to ask a question.');
+      navigate('/login');
       return;
     }
     if (!currentProduct || newQuestion.trim().length < 10) {
-      toast.warning("Question must be at least 10 characters long.");
+      toast.warning('Question must be at least 10 characters long.');
       return;
     }
     setAskingQuestion(true);
@@ -357,8 +361,8 @@ export const ProductDetailPage: React.FC = () => {
         productId: currentProduct.id,
         question: newQuestion.trim(),
       });
-      toast.success("Your question has been posted!");
-      setNewQuestion("");
+      toast.success('Your question has been posted!');
+      setNewQuestion('');
       setAskModalOpen(false);
       setQuestionsPage(1);
       // Refetch
@@ -370,7 +374,7 @@ export const ProductDetailPage: React.FC = () => {
         setQuestionsTotalCount(res.data.data.pagination.totalCount);
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Failed to post question.");
+      toast.error(err.response?.data?.message || 'Failed to post question.');
     } finally {
       setAskingQuestion(false);
     }
@@ -378,7 +382,7 @@ export const ProductDetailPage: React.FC = () => {
 
   const handleSubmitAnswer = async (questionId: string) => {
     if (answerText.trim().length < 2) {
-      toast.warning("Answer must be at least 2 characters.");
+      toast.warning('Answer must be at least 2 characters.');
       return;
     }
     setSubmittingAnswer(true);
@@ -387,8 +391,8 @@ export const ProductDetailPage: React.FC = () => {
         questionId,
         answer: answerText.trim(),
       });
-      toast.success("Answer posted!");
-      setAnswerText("");
+      toast.success('Answer posted!');
+      setAnswerText('');
       setAnsweringId(null);
       // Update the question in the list with the new answer
       setQuestions((prev) =>
@@ -400,7 +404,7 @@ export const ProductDetailPage: React.FC = () => {
         }),
       );
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Failed to post answer.");
+      toast.error(err.response?.data?.message || 'Failed to post answer.');
     } finally {
       setSubmittingAnswer(false);
     }
@@ -477,8 +481,8 @@ export const ProductDetailPage: React.FC = () => {
                   onClick={() => setActiveImageIndex(i)}
                   className={`aspect-square bg-white border rounded-lg flex items-center justify-center overflow-hidden cursor-pointer transition-colors ${
                     activeImageIndex === i
-                      ? "border-primary ring-2 ring-primary/20"
-                      : "border-zinc-200 hover:border-zinc-300"
+                      ? 'border-primary ring-2 ring-primary/20'
+                      : 'border-zinc-200 hover:border-zinc-300'
                   }`}
                 >
                   <img
@@ -496,7 +500,7 @@ export const ProductDetailPage: React.FC = () => {
           <div>
             <div className="flex items-center gap-2 mb-2">
               <span className="text-[10px] font-bold bg-zinc-100 text-zinc-600 px-2.5 py-1 rounded-full uppercase tracking-wider">
-                {product.category?.name || "Catalogue Item"}
+                {product.category?.name || 'Catalogue Item'}
               </span>
               {product.brand && (
                 <span className="text-zinc-400 text-xs font-semibold">
@@ -529,15 +533,15 @@ export const ProductDetailPage: React.FC = () => {
                       Math.round(
                         product.avgRating ? Number(product.avgRating) : 0,
                       )
-                        ? "fill-amber-500 text-amber-500"
-                        : "fill-zinc-100 text-zinc-200"
+                        ? 'fill-amber-500 text-amber-500'
+                        : 'fill-zinc-100 text-zinc-200'
                     }`}
                   />
                 ))}
                 <span className="text-amber-500 font-extrabold text-sm ml-1.5">
                   {product.avgRating
                     ? Number(product.avgRating).toFixed(1)
-                    : "0.0"}
+                    : '0.0'}
                 </span>
               </div>
               <span className="text-zinc-300">|</span>
@@ -559,7 +563,7 @@ export const ProductDetailPage: React.FC = () => {
               )}
               {currentComparePrice && currentComparePrice > currentPrice && (
                 <span className="bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-0.5 rounded">
-                  Save{" "}
+                  Save{' '}
                   {Math.round(
                     ((currentComparePrice - currentPrice) /
                       currentComparePrice) *
@@ -592,8 +596,8 @@ export const ProductDetailPage: React.FC = () => {
                       key={coupon.id}
                       className={`border rounded-xl p-3.5 flex items-center justify-between transition-all ${
                         meetsMin
-                          ? "border-teal-200 bg-teal-50/30 hover:border-teal-300"
-                          : "border-zinc-100 bg-zinc-50/30 opacity-60"
+                          ? 'border-teal-200 bg-teal-50/30 hover:border-teal-300'
+                          : 'border-zinc-100 bg-zinc-50/30 opacity-60'
                       }`}
                     >
                       <div className="flex items-center gap-3 min-w-0">
@@ -607,8 +611,8 @@ export const ProductDetailPage: React.FC = () => {
                             {coupon.description}
                           </p>
                           <p className="text-[10px] text-zinc-400 mt-0.5">
-                            {coupon.discountType === "percentage"
-                              ? `${Number(coupon.discountValue)}% off${coupon.maxDiscount ? ` (up to ₹${Number(coupon.maxDiscount)})` : ""}`
+                            {coupon.discountType === 'percentage'
+                              ? `${Number(coupon.discountValue)}% off${coupon.maxDiscount ? ` (up to ₹${Number(coupon.maxDiscount)})` : ''}`
                               : `₹${Number(coupon.discountValue)} off`}
                             {Number(coupon.minOrderValue) > 0 &&
                               ` · Min ₹${Number(coupon.minOrderValue)}`}
@@ -653,7 +657,7 @@ export const ProductDetailPage: React.FC = () => {
                         {selectedAddress.fullName} · {selectedAddress.label}
                       </p>
                       <p className="text-xs text-zinc-500 truncate mt-0.5">
-                        {selectedAddress.line1}, {selectedAddress.city} -{" "}
+                        {selectedAddress.line1}, {selectedAddress.city} -{' '}
                         {selectedAddress.pincode}
                       </p>
                     </div>
@@ -673,7 +677,7 @@ export const ProductDetailPage: React.FC = () => {
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  setPincodeInput("");
+                  setPincodeInput('');
                   setAddressModalOpen(true);
                 }}
                 className="rounded-xl border-slate-200 text-xs font-bold hover:bg-slate-100/80 shrink-0 self-center"
@@ -699,13 +703,11 @@ export const ProductDetailPage: React.FC = () => {
                   </div>
                   <div>
                     <p className="text-xs font-extrabold text-emerald-800">
-                      Delivered by{" "}
+                      Delivery by{' '}
                       {getDeliveryDateString(deliveryEstimate.deliveryDays)}
                     </p>
                     <p className="text-[10px] text-zinc-400 mt-0.5">
-                      Est. time: {deliveryEstimate.deliveryDays} days ·{" "}
-                      {deliveryEstimate.distanceKm.toLocaleString()} kms from
-                      seller
+                      Est. time: {deliveryEstimate.deliveryDays} days
                     </p>
                   </div>
                 </div>
@@ -732,8 +734,8 @@ export const ProductDetailPage: React.FC = () => {
                       onClick={() => handleSelectProduct(p)}
                       className={`min-w-30 border rounded-lg p-3 text-left transition-all ${
                         currentProduct?.id === p.id
-                          ? "border-primary bg-primary/5 text-primary-foreground ring-2 ring-primary/20"
-                          : "border-zinc-200 bg-white hover:border-zinc-300 text-zinc-700"
+                          ? 'border-primary bg-primary/5 text-primary-foreground ring-2 ring-primary/20'
+                          : 'border-zinc-200 bg-white hover:border-zinc-300 text-zinc-700'
                       }`}
                     >
                       <p className="text-xs font-bold text-black">{labelStr}</p>
@@ -750,7 +752,7 @@ export const ProductDetailPage: React.FC = () => {
           <p className="text-sm text-zinc-600 leading-relaxed">
             {currentProduct?.description ||
               product.description ||
-              "No description available for this product."}
+              'No description available for this product.'}
           </p>
 
           {/* Product Policies */}
@@ -771,21 +773,21 @@ export const ProductDetailPage: React.FC = () => {
                   > = {
                     return: {
                       icon: ArrowCounterClockwiseIcon,
-                      bg: "bg-blue-50",
-                      text: "text-blue-700",
-                      border: "border-blue-100",
+                      bg: 'bg-blue-50',
+                      text: 'text-blue-700',
+                      border: 'border-blue-100',
                     },
                     refund: {
                       icon: MoneyIcon,
-                      bg: "bg-emerald-50",
-                      text: "text-emerald-700",
-                      border: "border-emerald-100",
+                      bg: 'bg-emerald-50',
+                      text: 'text-emerald-700',
+                      border: 'border-emerald-100',
                     },
                     replace: {
                       icon: ArrowsClockwiseIcon,
-                      bg: "bg-amber-50",
-                      text: "text-amber-700",
-                      border: "border-amber-100",
+                      bg: 'bg-amber-50',
+                      text: 'text-amber-700',
+                      border: 'border-amber-100',
                     },
                   };
                   const c = config[policy.type] || config.return;
@@ -822,7 +824,7 @@ export const ProductDetailPage: React.FC = () => {
                 onClick={handleAddToCart}
                 disabled={isAdding}
               >
-                {isAdding ? "Adding to Cart..." : "Add to Shopping Cart"}
+                {isAdding ? 'Adding to Cart...' : 'Add to Shopping Cart'}
               </Button>
             ) : (
               <Button
@@ -838,13 +840,13 @@ export const ProductDetailPage: React.FC = () => {
               size="icon"
               className={`h-12 w-12 border-zinc-200 hover:text-rose-500 hover:border-rose-200 transition-colors ${
                 currentProduct && isInWishlist(currentProduct.id)
-                  ? "bg-rose-50/50 border-rose-200 text-rose-500 hover:bg-rose-100/50"
-                  : ""
+                  ? 'bg-rose-50/50 border-rose-200 text-rose-500 hover:bg-rose-100/50'
+                  : ''
               }`}
               onClick={handleAddToWishlist}
             >
               <HeartIcon
-                className={`h-5 w-5 ${currentProduct && isInWishlist(currentProduct.id) ? "fill-rose-500 text-rose-500" : "text-zinc-400"}`}
+                className={`h-5 w-5 ${currentProduct && isInWishlist(currentProduct.id) ? 'fill-rose-500 text-rose-500' : 'text-zinc-400'}`}
               />
             </Button>
           </div>
@@ -856,10 +858,10 @@ export const ProductDetailPage: React.FC = () => {
         <div className=" bg-white/5 backdrop-blur-xl rounded-4xl border border-white/10 p-2">
           <SupportChatWidget
             context={{
-              type: "product",
-              productId: currentProduct?.id ?? "",
-              productSlug: currentProduct?.slug ?? "",
-              productTitle: currentProduct?.title ?? "",
+              type: 'product',
+              productId: currentProduct?.id ?? '',
+              productSlug: currentProduct?.slug ?? '',
+              productTitle: currentProduct?.title ?? '',
             }}
           />
         </div>
@@ -901,8 +903,8 @@ export const ProductDetailPage: React.FC = () => {
                           key={star}
                           className={`h-5 w-5 ${
                             star <= Math.round(reviewSummary.avgRating)
-                              ? "fill-amber-500 text-amber-500"
-                              : "fill-zinc-100 text-zinc-200"
+                              ? 'fill-amber-500 text-amber-500'
+                              : 'fill-zinc-100 text-zinc-200'
                           }`}
                         />
                       ))}
@@ -967,12 +969,12 @@ export const ProductDetailPage: React.FC = () => {
                     </div>
                     <div className="flex flex-col">
                       <span className="font-bold text-zinc-800 text-sm">
-                        {review.user?.name || "Verified Buyer"}
+                        {review.user?.name || 'Verified Buyer'}
                       </span>
                       <span className="text-xs text-zinc-400">
                         {new Date(review.createdAt).toLocaleDateString(
-                          "en-US",
-                          { year: "numeric", month: "long", day: "numeric" },
+                          'en-US',
+                          { year: 'numeric', month: 'long', day: 'numeric' },
                         )}
                       </span>
                     </div>
@@ -984,8 +986,8 @@ export const ProductDetailPage: React.FC = () => {
                         key={star}
                         className={`h-4 w-4 ${
                           star <= review.rating
-                            ? "fill-amber-500 text-amber-500"
-                            : "fill-zinc-100 text-zinc-200"
+                            ? 'fill-amber-500 text-amber-500'
+                            : 'fill-zinc-100 text-zinc-200'
                         }`}
                       />
                     ))}
@@ -1030,7 +1032,7 @@ export const ProductDetailPage: React.FC = () => {
             </h2>
             <p className="text-sm text-zinc-500 mt-1">
               {questionsTotalCount} question
-              {questionsTotalCount !== 1 ? "s" : ""} about this product
+              {questionsTotalCount !== 1 ? 's' : ''} about this product
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -1089,15 +1091,15 @@ export const ProductDetailPage: React.FC = () => {
                       {q.question}
                     </p>
                     <p className="text-xs text-zinc-400 mt-1">
-                      Asked by{" "}
+                      Asked by{' '}
                       <span className="font-medium text-zinc-500">
-                        {q.user?.name || "Anonymous"}
+                        {q.user?.name || 'Anonymous'}
                       </span>
-                      {" · "}
-                      {new Date(q.createdAt).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
+                      {' · '}
+                      {new Date(q.createdAt).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
                       })}
                     </p>
                   </div>
@@ -1110,24 +1112,24 @@ export const ProductDetailPage: React.FC = () => {
                       <div key={a.id} className="bg-white/60 rounded-xl p-4">
                         <div className="flex items-center gap-2 mb-2">
                           <span className="text-sm font-semibold text-zinc-700">
-                            {a.user?.name || "Anonymous"}
+                            {a.user?.name || 'Anonymous'}
                           </span>
-                          {a.badge === "seller" && (
+                          {a.badge === 'seller' && (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-100 text-teal-700">
                               <StorefrontIcon className="h-3 w-3" /> Seller
                             </span>
                           )}
-                          {a.badge === "verified_buyer" && (
+                          {a.badge === 'verified_buyer' && (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">
                               <ShieldCheckIcon className="h-3 w-3" /> Verified
                               Buyer
                             </span>
                           )}
                           <span className="text-xs text-zinc-400">
-                            {new Date(a.createdAt).toLocaleDateString("en-US", {
-                              year: "numeric",
-                              month: "short",
-                              day: "numeric",
+                            {new Date(a.createdAt).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric',
                             })}
                           </span>
                         </div>
@@ -1147,7 +1149,7 @@ export const ProductDetailPage: React.FC = () => {
                       placeholder="Write your answer..."
                       className="flex-1 border border-zinc-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
                       onKeyDown={(e) =>
-                        e.key === "Enter" && handleSubmitAnswer(q.id)
+                        e.key === 'Enter' && handleSubmitAnswer(q.id)
                       }
                     />
                     <Button
@@ -1168,7 +1170,7 @@ export const ProductDetailPage: React.FC = () => {
                       variant="ghost"
                       onClick={() => {
                         setAnsweringId(null);
-                        setAnswerText("");
+                        setAnswerText('');
                       }}
                       className="text-zinc-400"
                     >
@@ -1243,7 +1245,7 @@ export const ProductDetailPage: React.FC = () => {
               {askingQuestion ? (
                 <SpinnerIcon className="h-4 w-4 animate-spin" />
               ) : (
-                "Post Question"
+                'Post Question'
               )}
             </Button>
           </DialogFooter>
@@ -1268,11 +1270,11 @@ export const ProductDetailPage: React.FC = () => {
                 maxLength={6}
                 value={pincodeInput}
                 onChange={(e) =>
-                  setPincodeInput(e.target.value.replace(/\D/g, ""))
+                  setPincodeInput(e.target.value.replace(/\D/g, ''))
                 }
                 className="rounded-2xl border-slate-200"
                 onKeyDown={(e) =>
-                  e.key === "Enter" && handleApplyCustomPincode(pincodeInput)
+                  e.key === 'Enter' && handleApplyCustomPincode(pincodeInput)
                 }
               />
               <Button
@@ -1310,15 +1312,15 @@ export const ProductDetailPage: React.FC = () => {
                         }}
                         className={`w-full text-left p-4 rounded-3xl border transition-all flex items-start gap-3 ${
                           isSelected
-                            ? "border-indigo-500 bg-indigo-50/40 shadow-sm"
-                            : "border-slate-100 hover:border-slate-200 bg-slate-50/40 hover:bg-slate-50"
+                            ? 'border-indigo-500 bg-indigo-50/40 shadow-sm'
+                            : 'border-slate-100 hover:border-slate-200 bg-slate-50/40 hover:bg-slate-50'
                         }`}
                       >
                         <div
                           className={`mt-1 h-4 w-4 rounded-full border flex items-center justify-center shrink-0 ${
                             isSelected
-                              ? "border-indigo-600 bg-indigo-600"
-                              : "border-slate-300"
+                              ? 'border-indigo-600 bg-indigo-600'
+                              : 'border-slate-300'
                           }`}
                         >
                           {isSelected && (
@@ -1327,7 +1329,7 @@ export const ProductDetailPage: React.FC = () => {
                         </div>
                         <div className="min-w-0">
                           <p className="text-sm font-extrabold text-slate-800">
-                            {addr.fullName}{" "}
+                            {addr.fullName}{' '}
                             <span className="text-xs font-normal text-zinc-400">
                               ({addr.label})
                             </span>

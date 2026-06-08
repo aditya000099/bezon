@@ -339,7 +339,7 @@ export const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({
   const quickActions = getContextActions();
 
   return (
-    <div className="w-full h-[500px] rounded-3xl bg-secondary/20 flex flex-col overflow-hidden relative">
+    <div className="w-full h-125 rounded-3xl bg-secondary/20 flex flex-col overflow-hidden relative">
       {/* Header */}
       <div className="px-6 py-4 flex items-center justify-between bg-transparent">
         <div className="flex items-center gap-3">

@@ -2,8 +2,6 @@ import { Card, CardContent, CardHeader, CardTitle, Button } from '@bezon/ui';
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeftIcon, PencilSimpleIcon } from '@phosphor-icons/react';
-;
-;
 import { Spinner } from '@phosphor-icons/react';
 import { ProductForm } from './components/ProductForm';
 import api from '../../lib/api';
@@ -41,7 +39,7 @@ export const SellerEditProduct: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-zinc-400 gap-2">
+      <div className="flex flex-col items-center justify-center min-h-100 text-zinc-400 gap-2">
         <Spinner className="h-8 w-8 animate-spin text-teal-500" />
         <p className="text-sm font-semibold">
           Loading product listing details...

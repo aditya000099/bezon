@@ -1,8 +1,13 @@
-import { Card, CardHeader, CardTitle, CardContent, CardFooter, Button } from '@bezon/ui';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardFooter,
+  Button,
+} from '@bezon/ui';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-;
-;
 import {
   ShoppingBagIcon,
   StarIcon,
@@ -10,11 +15,11 @@ import {
   SpinnerIcon,
   ArrowRightIcon,
   EyeIcon,
-  TrashIcon,
 } from '@phosphor-icons/react';
 import { useWishlist } from '../../context/WishlistContext';
 import { useCart } from '../../context/CartContext';
 import { useToast } from '../../context/ToastContext';
+import { logger } from '@/utils/logger';
 
 export const WishlistPage: React.FC = () => {
   const { wishlistItems, loading, toggleWishlist } = useWishlist();
@@ -32,6 +37,7 @@ export const WishlistPage: React.FC = () => {
       await addItem(productId, 1, basePrice);
       toast.success(`Added ${productTitle} to your shopping cart!`);
     } catch (err) {
+      logger.error(err);
       toast.error('Failed to add item to cart. Try again.');
     } finally {
       setAddingToCart((prev) => ({ ...prev, [productId]: false }));
@@ -65,7 +71,7 @@ export const WishlistPage: React.FC = () => {
 
       {wishlistItems.length === 0 ? (
         /* Empty State */
-        <Card className="flex flex-col items-center justify-center min-h-[350px] text-zinc-400 p-8 bg-zinc-50/80 border-0 max-w-lg mx-auto w-full mt-6 rounded-[2rem]">
+        <Card className="flex flex-col items-center justify-center min-h-87.5 text-zinc-400 p-8 bg-zinc-50/80 border-0 max-w-lg mx-auto w-full mt-6 rounded-4xl">
           <div className="p-4 rounded-full bg-zinc-50 border border-zinc-100 mb-4 shadow-inner">
             <HeartIcon className="h-10 w-10 text-zinc-300 fill-zinc-50" />
           </div>

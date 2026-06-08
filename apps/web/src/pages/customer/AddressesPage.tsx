@@ -559,7 +559,7 @@ export const AddressesPage: React.FC = () => {
 
       {/* Main Address List Container */}
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-20 bg-zinc-50/80 rounded-[2rem]">
+        <div className="flex flex-col items-center justify-center py-20 bg-zinc-50/80 rounded-4xl">
           <SpinnerIcon className="h-10 w-10 text-teal-600 animate-spin" />
           <p className="text-zinc-500 font-bold mt-4">
             Loading your saved addresses...
@@ -567,7 +567,7 @@ export const AddressesPage: React.FC = () => {
         </div>
       ) : addresses.length === 0 ? (
         // Empty state UI if there are no addresses!
-        <div className="flex flex-col items-center justify-center py-16 px-6 text-center bg-zinc-50/80 rounded-[2rem]">
+        <div className="flex flex-col items-center justify-center py-16 px-6 text-center bg-zinc-50/80 rounded-4xl">
           <div className="p-4 bg-zinc-50 rounded-full text-zinc-400">
             <MapPinIcon className="h-12 w-12" />
           </div>
@@ -591,7 +591,7 @@ export const AddressesPage: React.FC = () => {
           {addresses.map((addr) => (
             <Card
               key={addr.id}
-              className={`border-0 transition-all rounded-[2rem] overflow-hidden flex flex-col justify-between ${
+              className={`border-0 transition-all rounded-4xl overflow-hidden flex flex-col justify-between ${
                 addr.isDefault
                   ? 'bg-zinc-100/80 ring-4 ring-teal-50/50'
                   : 'bg-zinc-50/80 hover:bg-zinc-100/60'

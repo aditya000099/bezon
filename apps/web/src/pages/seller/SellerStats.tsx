@@ -1,4 +1,11 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, Button } from '@bezon/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  Button,
+} from '@bezon/ui';
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
@@ -15,8 +22,6 @@ import {
   TrendUpIcon,
   WarningCircleIcon,
 } from '@phosphor-icons/react';
-;
-;
 import api from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api.config';
 import { useToast } from '../../context/ToastContext';
@@ -67,7 +72,7 @@ export const SellerStats: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-zinc-400 gap-2">
+      <div className="flex flex-col items-center justify-center min-h-100 text-zinc-400 gap-2">
         <SpinnerIcon className="h-8 w-8 animate-spin text-teal-500" />
         <p className="text-sm font-semibold">Aggregating listing stats...</p>
       </div>
@@ -87,7 +92,8 @@ export const SellerStats: React.FC = () => {
             Business Insights
           </p>
           <h1 className="text-xl font-extrabold text-zinc-800 mt-1 flex items-center gap-2">
-            <ChartBarIcon className="h-5 w-5 text-teal-500" /> Product Performance
+            <ChartBarIcon className="h-5 w-5 text-teal-500" /> Product
+            Performance
           </h1>
           <p className="text-xs text-zinc-500 mt-0.5 font-mono">
             {stats.title} ({stats.sku}) • {stats.brand || 'Unbranded'}
@@ -181,8 +187,8 @@ export const SellerStats: React.FC = () => {
         <Card className="bg-white border border-zinc-200 shadow-xs">
           <CardHeader className="pb-2 border-b border-zinc-50">
             <CardTitle className="text-sm font-bold text-zinc-800 flex items-center gap-2">
-              <ChatTeardropTextIcon className="h-4 w-4 text-zinc-500" /> Customer
-              Feedback
+              <ChatTeardropTextIcon className="h-4 w-4 text-zinc-500" />{' '}
+              Customer Feedback
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6 flex flex-col justify-center items-center h-48 text-center gap-2">
@@ -192,7 +198,7 @@ export const SellerStats: React.FC = () => {
             <p className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
               Verified Reviews
             </p>
-            <p className="text-[10px] text-zinc-400 mt-2 max-w-[200px]">
+            <p className="text-[10px] text-zinc-400 mt-2 max-w-50">
               Feedback rating calculated from customer reviews submitted for
               delivered items.
             </p>
@@ -214,7 +220,7 @@ export const SellerStats: React.FC = () => {
             <p className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
               Wishlist Saves
             </p>
-            <p className="text-[10px] text-zinc-400 mt-2 max-w-[200px]">
+            <p className="text-[10px] text-zinc-400 mt-2 max-w-50">
               Tracks customer shopping interest. Shows how many customers added
               this item to faves.
             </p>
@@ -225,7 +231,8 @@ export const SellerStats: React.FC = () => {
         <Card className="bg-white border border-zinc-200 shadow-xs">
           <CardHeader className="pb-2 border-b border-zinc-50">
             <CardTitle className="text-sm font-bold text-zinc-800 flex items-center gap-2">
-              <PackageIcon className="h-4 w-4 text-zinc-500" /> Inventory Tracking
+              <PackageIcon className="h-4 w-4 text-zinc-500" /> Inventory
+              Tracking
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6 flex flex-col justify-center items-center h-48 text-center gap-3">
@@ -241,8 +248,8 @@ export const SellerStats: React.FC = () => {
 
             {isLowStock ? (
               <span className="text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-100 px-2 py-0.5 rounded flex items-center gap-1 animate-pulse">
-                <WarningCircleIcon className="h-3 w-3" /> Low Stock Alert threshold
-                ({stats.lowStockAlert})
+                <WarningCircleIcon className="h-3 w-3" /> Low Stock Alert
+                threshold ({stats.lowStockAlert})
               </span>
             ) : (
               <span className="text-[10px] font-semibold text-zinc-400 bg-zinc-50 px-2 py-0.5 rounded">

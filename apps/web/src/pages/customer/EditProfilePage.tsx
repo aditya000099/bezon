@@ -110,7 +110,7 @@ export const EditProfilePage: React.FC = () => {
         </Link>
       </div>
 
-      <Card className="border-0 shadow-none rounded-[2rem] overflow-hidden bg-zinc-50/80">
+      <Card className="border-0 shadow-none rounded-4xl overflow-hidden bg-zinc-50/80">
         <CardHeader className="bg-zinc-100/50 p-6 sm:p-10">
           <CardTitle className="text-2xl font-extrabold text-zinc-800">
             Edit Your Profile

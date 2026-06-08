@@ -14,16 +14,12 @@ import {
   CaretRightIcon,
   TruckIcon,
 } from '@phosphor-icons/react';
-;
-
 export const ProfilePage: React.FC = () => {
   const { user, logout, checkAuth } = useAuth();
 
-
-
   return (
     <div className="max-w-4xl mx-auto flex flex-col gap-8">
-      <div className="flex flex-col md:flex-row items-center md:items-start gap-6 bg-zinc-50/80 p-6 sm:p-10 rounded-[2rem]">
+      <div className="flex flex-col md:flex-row items-center md:items-start gap-6 bg-zinc-50/80 p-6 sm:p-10 rounded-4xl">
         {user?.avatarUrl ? (
           <img
             src={user.avatarUrl}

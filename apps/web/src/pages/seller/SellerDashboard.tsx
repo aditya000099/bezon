@@ -1,6 +1,5 @@
 import { Card, CardHeader, CardTitle, CardContent } from '@bezon/ui';
 import React, { useEffect, useState } from 'react';
-;
 import {
   CurrencyDollarIcon,
   ShoppingBagIcon,
@@ -45,7 +44,7 @@ export const SellerDashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-zinc-500">
+      <div className="flex flex-col items-center justify-center min-h-100 text-zinc-500">
         <SpinnerIcon className="h-8 w-8 animate-spin mb-4 text-teal-500" />
         <p className="font-medium">Loading dashboard...</p>
       </div>
@@ -144,32 +143,52 @@ export const SellerDashboard: React.FC = () => {
         </CardHeader>
         <CardContent className="p-0 pt-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            <a href="/seller/returns?tab=action-required" className="block p-4 border rounded-lg hover:border-teal-500 hover:bg-teal-50 transition-colors group">
-              <p className="text-sm font-medium text-zinc-500 group-hover:text-teal-600">Pending Return Requests</p>
+            <a
+              href="/seller/returns?tab=action-required"
+              className="block p-4 border rounded-lg hover:border-teal-500 hover:bg-teal-50 transition-colors group"
+            >
+              <p className="text-sm font-medium text-zinc-500 group-hover:text-teal-600">
+                Pending Return Requests
+              </p>
               <div className="mt-2 flex justify-between items-center">
                 <span className="text-xl font-bold">Review</span>
                 <ArrowUpRightIcon className="h-4 w-4 text-zinc-400 group-hover:text-teal-600" />
               </div>
             </a>
-            
-            <a href="/seller/returns?tab=in-progress" className="block p-4 border rounded-lg hover:border-teal-500 hover:bg-teal-50 transition-colors group">
-              <p className="text-sm font-medium text-zinc-500 group-hover:text-teal-600">Returns In Transit</p>
+
+            <a
+              href="/seller/returns?tab=in-progress"
+              className="block p-4 border rounded-lg hover:border-teal-500 hover:bg-teal-50 transition-colors group"
+            >
+              <p className="text-sm font-medium text-zinc-500 group-hover:text-teal-600">
+                Returns In Transit
+              </p>
               <div className="mt-2 flex justify-between items-center">
                 <span className="text-xl font-bold">Track</span>
                 <ArrowUpRightIcon className="h-4 w-4 text-zinc-400 group-hover:text-teal-600" />
               </div>
             </a>
-            
-            <a href="/seller/returns?tab=action-required" className="block p-4 border rounded-lg hover:border-yellow-500 hover:bg-yellow-50 transition-colors group">
-              <p className="text-sm font-medium text-zinc-500 group-hover:text-yellow-600">Pending Inspection</p>
+
+            <a
+              href="/seller/returns?tab=action-required"
+              className="block p-4 border rounded-lg hover:border-yellow-500 hover:bg-yellow-50 transition-colors group"
+            >
+              <p className="text-sm font-medium text-zinc-500 group-hover:text-yellow-600">
+                Pending Inspection
+              </p>
               <div className="mt-2 flex justify-between items-center">
                 <span className="text-xl font-bold">Inspect</span>
                 <ArrowUpRightIcon className="h-4 w-4 text-zinc-400 group-hover:text-yellow-600" />
               </div>
             </a>
-            
-            <a href="/seller/returns?tab=completed" className="block p-4 border rounded-lg hover:border-red-500 hover:bg-red-50 transition-colors group">
-              <p className="text-sm font-medium text-zinc-500 group-hover:text-red-600">Damaged Returns</p>
+
+            <a
+              href="/seller/returns?tab=completed"
+              className="block p-4 border rounded-lg hover:border-red-500 hover:bg-red-50 transition-colors group"
+            >
+              <p className="text-sm font-medium text-zinc-500 group-hover:text-red-600">
+                Damaged Returns
+              </p>
               <div className="mt-2 flex justify-between items-center">
                 <span className="text-xl font-bold">View</span>
                 <ArrowUpRightIcon className="h-4 w-4 text-zinc-400 group-hover:text-red-600" />

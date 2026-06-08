@@ -1,11 +1,21 @@
-import { logger } from "@/utils/logger";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, Button, Input, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@bezon/ui';
+import { logger } from '@/utils/logger';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+  Button,
+  Input,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogDescription,
+  DialogFooter,
+} from '@bezon/ui';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-;
-;
-;
-;
 import { useCart } from '../../context/CartContext';
 import { useToast } from '../../context/ToastContext';
 import api from '../../lib/api';
@@ -27,7 +37,6 @@ import {
   TagIcon,
   CheckCircleIcon,
   XIcon,
-  SealPercentIcon,
   PlusIcon,
 } from '@phosphor-icons/react';
 
@@ -79,7 +88,9 @@ export const CheckoutPage: React.FC = () => {
       try {
         const res = await api.get(API_ENDPOINTS.coupons.forCart);
         if (res.data.success) setAvailableCoupons(res.data.data);
-      } catch (err: any) { logger.error(err); }
+      } catch (err: any) {
+        logger.error(err);
+      }
     };
     if (items.length > 0) fetchCoupons();
   }, [items.length]);
@@ -316,7 +327,7 @@ export const CheckoutPage: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         {/* Shipping address & items details */}
         <div className="lg:col-span-2 flex flex-col gap-6">
-          <Card className="bg-zinc-50/80 border-0 rounded-[2rem] p-4 sm:p-6">
+          <Card className="bg-zinc-50/80 border-0 rounded-4xl p-4 sm:p-6">
             <CardHeader className="pb-4">
               <CardTitle className="text-xl font-bold text-zinc-800">
                 1. Shipping Address
@@ -340,7 +351,7 @@ export const CheckoutPage: React.FC = () => {
                         setSelectedAddressId(addr.id);
                         populateForm(addr);
                       }}
-                      className={`cursor-pointer border-0 rounded-[1.5rem] p-5 transition-all flex flex-col gap-3 ${
+                      className={`cursor-pointer border-0 rounded-3xl p-5 transition-all flex flex-col gap-3 ${
                         selectedAddressId === addr.id
                           ? 'bg-teal-600 text-white shadow-lg shadow-teal-600/20'
                           : 'bg-white/60 hover:bg-white text-zinc-700'
@@ -404,7 +415,7 @@ export const CheckoutPage: React.FC = () => {
                       setSelectedAddressId('manual');
                       resetForm();
                     }}
-                    className={`cursor-pointer border-0 rounded-[1.5rem] p-5 transition-all flex flex-col items-center justify-center gap-3 min-h-[140px] ${
+                    className={`cursor-pointer border-0 rounded-3xl p-5 transition-all flex flex-col items-center justify-center gap-3 min-h-35 ${
                       selectedAddressId === 'manual'
                         ? 'bg-zinc-800 text-white shadow-xl shadow-zinc-800/20'
                         : 'bg-zinc-200/50 hover:bg-zinc-200 text-zinc-500'
@@ -587,7 +598,7 @@ export const CheckoutPage: React.FC = () => {
           </Card>
 
           {/* Grouped orders display (Multi-Seller Cart) */}
-          <Card className="bg-zinc-50/80 border-0 rounded-[2rem] p-4 sm:p-6">
+          <Card className="bg-zinc-50/80 border-0 rounded-4xl p-4 sm:p-6">
             <CardHeader className="pb-4">
               <CardTitle className="text-xl font-bold text-zinc-800">
                 2. Review & Split Shipments
@@ -645,7 +656,7 @@ export const CheckoutPage: React.FC = () => {
             </CardContent>
           </Card>
 
-          <Card className="bg-zinc-50/80 border-0 rounded-[2rem] p-4 sm:p-6">
+          <Card className="bg-zinc-50/80 border-0 rounded-4xl p-4 sm:p-6">
             <CardHeader className="pb-4">
               <CardTitle className="text-xl font-bold text-zinc-800">
                 3. Apply Coupon
@@ -730,7 +741,10 @@ export const CheckoutPage: React.FC = () => {
                                     toast.success(
                                       `Coupon ${res.data.data.code} applied! You save ₹${res.data.data.discount}`,
                                     );
-                                    fireConfetti({ particleCount: 150, spread: 100 });
+                                    fireConfetti({
+                                      particleCount: 150,
+                                      spread: 100,
+                                    });
                                   }
                                 })
                                 .catch((err: any) => {
@@ -810,7 +824,7 @@ export const CheckoutPage: React.FC = () => {
 
         {/* Order total & CTA */}
         <div className="flex flex-col gap-6">
-          <Card className="bg-zinc-50/80 border-0 rounded-[2rem] p-4 sm:p-6">
+          <Card className="bg-zinc-50/80 border-0 rounded-4xl p-4 sm:p-6">
             <CardHeader className="pb-4 border-b border-zinc-200/50">
               <CardTitle className="text-xl font-bold text-zinc-800">
                 Payment Summary
