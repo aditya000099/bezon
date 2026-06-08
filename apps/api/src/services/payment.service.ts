@@ -1,5 +1,6 @@
 import { Prisma } from '@prisma/client';
 import crypto from 'crypto';
+import { config } from '../config/env.config.js';
 import prisma from '../db/client.js';
 import { PdfUtil } from '../utils/pdf.util.js';
 import { CryptoUtil } from '../utils/crypto.util.js';
@@ -20,8 +21,8 @@ try {
   console.log('⚠️  Razorpay module could not be initialized.');
 }
 
-const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID;
-const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
+const RAZORPAY_KEY_ID = config.RAZORPAY_KEY_ID;
+const RAZORPAY_KEY_SECRET = config.RAZORPAY_KEY_SECRET;
 const isRazorpayConfigured = !!(RAZORPAY_KEY_ID && RAZORPAY_KEY_SECRET && Razorpay);
 
 export class PaymentService {

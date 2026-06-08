@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import prisma from '../db/client.js';
+import { config } from '../config/env.config.js';
 import type { UserRole } from '@bezon/types';
 
 // Extend Express Request type to include authenticated user
@@ -28,7 +29,7 @@ declare global {
   }
 }
 
-const JWT_SECRET = process.env.JWT_SECRET || 'bezon-jwt-secret-key';
+const JWT_SECRET = config.JWT_SECRET;
 
 /**
  * Middleware to authenticate user via JWT in httpOnly cookie

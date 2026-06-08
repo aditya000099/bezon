@@ -1,9 +1,10 @@
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { config } from '../config/env.config.js';
 
-const S3_BUCKET_NAME = process.env.S3_BUCKET_NAME;
-const S3_REGION = process.env.S3_REGION || 'us-east-1';
-const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID;
-const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;
+const S3_BUCKET_NAME = config.S3_BUCKET_NAME;
+const S3_REGION = config.S3_REGION;
+const AWS_ACCESS_KEY_ID = config.AWS_ACCESS_KEY_ID;
+const AWS_SECRET_ACCESS_KEY = config.AWS_SECRET_ACCESS_KEY;
 
 const isS3Configured = !!(S3_BUCKET_NAME && AWS_ACCESS_KEY_ID && AWS_SECRET_ACCESS_KEY);
 

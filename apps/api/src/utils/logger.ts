@@ -1,5 +1,6 @@
 import winston from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
+import { config } from '../config/env.config.js';
 
 // Define custom colors
 const colors = {
@@ -51,7 +52,7 @@ const transports = [
 ];
 
 export const logger = winston.createLogger({
-  level: process.env.NODE_ENV === 'development' ? 'debug' : 'info',
+  level: config.NODE_ENV === 'development' ? 'debug' : 'info',
   levels: {
     error: 0,
     warn: 1,

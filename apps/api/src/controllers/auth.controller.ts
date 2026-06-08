@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { config } from '../config/env.config.js';
 import { loginSchema, registerSchema } from '@bezon/validation';
 import { AuthService } from '../services/auth.service.js';
 
@@ -57,7 +58,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     // Set secure cookie
     res.cookie('token', token, {
       httpOnly: true,
-      secure: process.env.COOKIE_SECURE === 'false' ? false : process.env.NODE_ENV === 'production',
+      secure: config.COOKIE_SECURE,
       sameSite: 'strict',
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
     });
@@ -79,7 +80,7 @@ export const logout = async (req: Request, res: Response, next: NextFunction) =>
   try {
     res.clearCookie('token', {
       httpOnly: true,
-      secure: process.env.COOKIE_SECURE === 'false' ? false : process.env.NODE_ENV === 'production',
+      secure: config.COOKIE_SECURE,
       sameSite: 'strict',
     });
 
