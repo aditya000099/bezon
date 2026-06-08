@@ -20,63 +20,64 @@ import { AdminLayout } from "../layouts/AdminLayout";
 import { DeliveryLayout } from "../layouts/DeliveryLayout";
 
 // Public Pages
-import { LoginPage } from "../pages/public/LoginPage";
-import { RegisterPage } from "../pages/public/RegisterPage";
+const LoginPage = React.lazy(() => import('../pages/public/LoginPage').then(module => ({ default: module.LoginPage })));
+const RegisterPage = React.lazy(() => import('../pages/public/RegisterPage').then(module => ({ default: module.RegisterPage })));
 
 // Customer Pages
-import { ShopPage } from "../pages/customer/ShopPage";
-import { ProductDetailPage } from "../pages/customer/ProductDetailPage";
-import { CartPage } from "../pages/customer/CartPage";
-import { CheckoutPage } from "../pages/customer/CheckoutPage";
-import { OrdersPage } from "../pages/customer/OrdersPage";
-import { OrderDetailPage } from "../pages/customer/OrderDetailPage";
-import { WishlistPage } from "../pages/customer/WishlistPage";
-import { ProfilePage } from "../pages/customer/ProfilePage";
-import { EditProfilePage } from "../pages/customer/EditProfilePage";
-import { AddressesPage } from "../pages/customer/AddressesPage";
-import { TermsConditionsPage } from "../pages/customer/TermsConditionsPage";
-import { PrivacyPolicyPage } from "../pages/customer/PrivacyPolicyPage";
-import { BecomeSellerPage } from "../pages/customer/BecomeSellerPage";
-import { SellerShopPage } from "../pages/customer/SellerShopPage";
-import { BecomeDeliveryPartnerPage } from "../pages/customer/BecomeDeliveryPartnerPage";
+const ShopPage = React.lazy(() => import('../pages/customer/ShopPage').then(module => ({ default: module.ShopPage })));
+const ProductDetailPage = React.lazy(() => import('../pages/customer/ProductDetailPage').then(module => ({ default: module.ProductDetailPage })));
+const CartPage = React.lazy(() => import('../pages/customer/CartPage').then(module => ({ default: module.CartPage })));
+const CheckoutPage = React.lazy(() => import('../pages/customer/CheckoutPage').then(module => ({ default: module.CheckoutPage })));
+const OrdersPage = React.lazy(() => import('../pages/customer/OrdersPage').then(module => ({ default: module.OrdersPage })));
+const OrderDetailPage = React.lazy(() => import('../pages/customer/OrderDetailPage').then(module => ({ default: module.OrderDetailPage })));
+const WishlistPage = React.lazy(() => import('../pages/customer/WishlistPage').then(module => ({ default: module.WishlistPage })));
+const ProfilePage = React.lazy(() => import('../pages/customer/ProfilePage').then(module => ({ default: module.ProfilePage })));
+const EditProfilePage = React.lazy(() => import('../pages/customer/EditProfilePage').then(module => ({ default: module.EditProfilePage })));
+const AddressesPage = React.lazy(() => import('../pages/customer/AddressesPage').then(module => ({ default: module.AddressesPage })));
+const TermsConditionsPage = React.lazy(() => import('../pages/customer/TermsConditionsPage').then(module => ({ default: module.TermsConditionsPage })));
+const PrivacyPolicyPage = React.lazy(() => import('../pages/customer/PrivacyPolicyPage').then(module => ({ default: module.PrivacyPolicyPage })));
+const BecomeSellerPage = React.lazy(() => import('../pages/customer/BecomeSellerPage').then(module => ({ default: module.BecomeSellerPage })));
+const SellerShopPage = React.lazy(() => import('../pages/customer/SellerShopPage').then(module => ({ default: module.SellerShopPage })));
+const BecomeDeliveryPartnerPage = React.lazy(() => import('../pages/customer/BecomeDeliveryPartnerPage').then(module => ({ default: module.BecomeDeliveryPartnerPage })));
 
 // Seller Pages
-import { SellerDashboard } from "../pages/seller/SellerDashboard";
-import { SellerProducts } from "../pages/seller/SellerProducts";
-import { SellerOrders } from "../pages/seller/SellerOrders";
-import { SellerInventory } from "../pages/seller/SellerInventory";
-import { SellerSettings } from "../pages/seller/SellerSettings";
-import { SellerCoupons } from "../pages/seller/SellerCoupons";
+const SellerDashboard = React.lazy(() => import('../pages/seller/SellerDashboard').then(module => ({ default: module.SellerDashboard })));
+const SellerProducts = React.lazy(() => import('../pages/seller/SellerProducts').then(module => ({ default: module.SellerProducts })));
+const SellerOrders = React.lazy(() => import('../pages/seller/SellerOrders').then(module => ({ default: module.SellerOrders })));
+const SellerInventory = React.lazy(() => import('../pages/seller/SellerInventory').then(module => ({ default: module.SellerInventory })));
+const SellerSettings = React.lazy(() => import('../pages/seller/SellerSettings').then(module => ({ default: module.SellerSettings })));
+const SellerCoupons = React.lazy(() => import('../pages/seller/SellerCoupons').then(module => ({ default: module.SellerCoupons })));
 import { SellerQA } from "@/pages/seller/SellerQA";
-import { SellerEditProduct } from "../pages/seller/SellerEditProduct";
-import { SellerStats } from "../pages/seller/SellerStats";
-import { SellerReturns } from "../pages/seller/SellerReturns";
-import { SellerReturnDetail } from "../pages/seller/SellerReturnDetail";
-import { SellerOrderDetail } from "../pages/seller/SellerOrderDetail";
-import { SellerAddProduct } from "../pages/seller/SellerAddProduct";
-import { SellerWallet } from "../pages/seller/SellerWallet";
-import { SellerAds } from "../pages/seller/SellerAds";
+const SellerEditProduct = React.lazy(() => import('../pages/seller/SellerEditProduct').then(module => ({ default: module.SellerEditProduct })));
+const SellerStats = React.lazy(() => import('../pages/seller/SellerStats').then(module => ({ default: module.SellerStats })));
+const SellerReturns = React.lazy(() => import('../pages/seller/SellerReturns').then(module => ({ default: module.SellerReturns })));
+const SellerReturnDetail = React.lazy(() => import('../pages/seller/SellerReturnDetail').then(module => ({ default: module.SellerReturnDetail })));
+const SellerOrderDetail = React.lazy(() => import('../pages/seller/SellerOrderDetail').then(module => ({ default: module.SellerOrderDetail })));
+const SellerAddProduct = React.lazy(() => import('../pages/seller/SellerAddProduct').then(module => ({ default: module.SellerAddProduct })));
+const SellerWallet = React.lazy(() => import('../pages/seller/SellerWallet').then(module => ({ default: module.SellerWallet })));
+const SellerAds = React.lazy(() => import('../pages/seller/SellerAds').then(module => ({ default: module.SellerAds })));
 // Delivery Pages
-import { DeliveryQueue } from "../pages/delivery/DeliveryQueue";
-import { DeliveryHistory } from "../pages/delivery/DeliveryHistory";
-import { DeliveryProfile } from "../pages/delivery/DeliveryProfile";
+const DeliveryQueue = React.lazy(() => import('../pages/delivery/DeliveryQueue').then(module => ({ default: module.DeliveryQueue })));
+const DeliveryHistory = React.lazy(() => import('../pages/delivery/DeliveryHistory').then(module => ({ default: module.DeliveryHistory })));
+const DeliveryProfile = React.lazy(() => import('../pages/delivery/DeliveryProfile').then(module => ({ default: module.DeliveryProfile })));
 
 // Admin Pages
-import { AdminDashboard } from "../pages/admin/AdminDashboard";
-import { AdminSellers } from "../pages/admin/AdminSellers";
-import { AdminPartners } from "../pages/admin/AdminPartners";
-import { AdminOrders } from "../pages/admin/AdminOrders";
-import { AdminDeliveries } from "../pages/admin/AdminDeliveries";
-import { AdminDeliveryDetail } from "../pages/admin/AdminDeliveryDetail";
-import { AdminDeliveryPartnerDetail } from "../pages/admin/AdminDeliveryPartnerDetail";
-import { AdminUsers } from "../pages/admin/AdminUsers";
-import { AdminPolicies } from "../pages/admin/AdminPolicies";
-import { AdminRefunds } from "../pages/admin/AdminRefunds";
-import { AdminRefundDetail } from "../pages/admin/AdminRefundDetail";
-import { AdminReturns } from "../pages/admin/AdminReturns";
-import { AdminWallets } from "../pages/admin/AdminWallets";
-import { AdminReturnDetail } from "../pages/admin/AdminReturnDetail";
-import { AdminSettlementQueue } from "../pages/admin/AdminSettlementQueue";
+const AdminDashboard = React.lazy(() => import('../pages/admin/AdminDashboard').then(module => ({ default: module.AdminDashboard })));
+const AdminSellers = React.lazy(() => import('../pages/admin/AdminSellers').then(module => ({ default: module.AdminSellers })));
+const AdminPartners = React.lazy(() => import('../pages/admin/AdminPartners').then(module => ({ default: module.AdminPartners })));
+const AdminOrders = React.lazy(() => import('../pages/admin/AdminOrders').then(module => ({ default: module.AdminOrders })));
+const AdminDeliveries = React.lazy(() => import('../pages/admin/AdminDeliveries').then(module => ({ default: module.AdminDeliveries })));
+const AdminDeliveryDetail = React.lazy(() => import('../pages/admin/AdminDeliveryDetail').then(module => ({ default: module.AdminDeliveryDetail })));
+const AdminDeliveryPartnerDetail = React.lazy(() => import('../pages/admin/AdminDeliveryPartnerDetail').then(module => ({ default: module.AdminDeliveryPartnerDetail })));
+const AdminUsers = React.lazy(() => import('../pages/admin/AdminUsers').then(module => ({ default: module.AdminUsers })));
+const AdminPolicies = React.lazy(() => import('../pages/admin/AdminPolicies').then(module => ({ default: module.AdminPolicies })));
+const AdminPolicyForm = React.lazy(() => import('../pages/admin/AdminPolicyForm').then(module => ({ default: module.AdminPolicyForm })));
+const AdminRefunds = React.lazy(() => import('../pages/admin/AdminRefunds').then(module => ({ default: module.AdminRefunds })));
+const AdminRefundDetail = React.lazy(() => import('../pages/admin/AdminRefundDetail').then(module => ({ default: module.AdminRefundDetail })));
+const AdminReturns = React.lazy(() => import('../pages/admin/AdminReturns').then(module => ({ default: module.AdminReturns })));
+const AdminWallets = React.lazy(() => import('../pages/admin/AdminWallets').then(module => ({ default: module.AdminWallets })));
+const AdminReturnDetail = React.lazy(() => import('../pages/admin/AdminReturnDetail').then(module => ({ default: module.AdminReturnDetail })));
+const AdminSettlementQueue = React.lazy(() => import('../pages/admin/AdminSettlementQueue').then(module => ({ default: module.AdminSettlementQueue })));
 
 const ProtectedCustomerRoute = () => (
   <RoleGuard allowedRoles={["customer"]}>
@@ -87,7 +88,8 @@ const ProtectedCustomerRoute = () => (
 export const AppRouter: React.FC = () => {
   return (
     <BrowserRouter>
-      <Routes>
+      <React.Suspense fallback={<div className="flex h-screen items-center justify-center">Loading...</div>}>
+        <Routes>
         {/* Public Routes */}
         <Route
           path="/login"
@@ -197,6 +199,8 @@ export const AppRouter: React.FC = () => {
           />
           <Route path="users" element={<AdminUsers />} />
           <Route path="policies" element={<AdminPolicies />} />
+          <Route path="policies/create" element={<AdminPolicyForm />} />
+          <Route path="policies/:id/edit" element={<AdminPolicyForm />} />
           <Route path="refunds" element={<AdminRefunds />} />
           <Route path="refunds/:id" element={<AdminRefundDetail />} />
           <Route path="returns" element={<AdminReturns />} />
@@ -208,6 +212,7 @@ export const AppRouter: React.FC = () => {
         {/* Catch-all Redirect */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      </React.Suspense>
     </BrowserRouter>
   );
 };
