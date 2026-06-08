@@ -1,6 +1,20 @@
 import React from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, Input } from '@bezon/ui';
-import { HouseIcon, MapPinIcon, PlusIcon, SpinnerIcon, UserIcon, PhoneIcon } from '@phosphor-icons/react';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  Input,
+} from '@bezon/ui';
+import {
+  HouseIcon,
+  MapPinIcon,
+  PlusIcon,
+  SpinnerIcon,
+  UserIcon,
+  PhoneIcon,
+} from '@phosphor-icons/react';
 
 interface CheckoutAddressStepProps {
   loadingAddresses: boolean;
@@ -79,13 +93,15 @@ export const CheckoutAddressStep: React.FC<CheckoutAddressStepProps> = ({
                 }}
                 className={`cursor-pointer border-0 rounded-3xl p-5 transition-all flex flex-col gap-3 ${
                   selectedAddressId === addr.id
-                    ? 'bg-teal-600 text-white shadow-lg shadow-teal-600/20'
+                    ? 'bg-zinc-900 text-white shadow-lg shadow-teal-600/20'
                     : 'bg-white/60 hover:bg-white text-zinc-700'
                 }`}
               >
                 <div
                   className={`flex justify-between items-center border-b pb-3 ${
-                    selectedAddressId === addr.id ? 'border-teal-500/50' : 'border-zinc-100'
+                    selectedAddressId === addr.id
+                      ? 'border-teal-500/50'
+                      : 'border-zinc-100'
                   }`}
                 >
                   <div className="flex items-center gap-2">
@@ -102,14 +118,16 @@ export const CheckoutAddressStep: React.FC<CheckoutAddressStepProps> = ({
                         <MapPinIcon className="h-3.5 w-3.5" />
                       )}
                     </div>
-                    <span className="font-extrabold text-sm text-zinc-800 uppercase tracking-wider">
+                    <span className="font-extrabold text-sm text-white uppercase tracking-wider">
                       {addr.label}
                     </span>
                   </div>
                   {addr.isDefault && (
                     <span
                       className={`text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider ${
-                        selectedAddressId === addr.id ? 'bg-white text-teal-600' : 'bg-teal-100 text-teal-700'
+                        selectedAddressId === addr.id
+                          ? 'bg-white text-teal-600'
+                          : 'bg-teal-100 text-teal-700'
                       }`}
                     >
                       Default
@@ -118,12 +136,16 @@ export const CheckoutAddressStep: React.FC<CheckoutAddressStepProps> = ({
                 </div>
                 <div
                   className={`text-sm flex flex-col gap-1.5 ${
-                    selectedAddressId === addr.id ? 'text-teal-50' : 'text-zinc-500'
+                    selectedAddressId === addr.id
+                      ? 'text-teal-50'
+                      : 'text-zinc-500'
                   }`}
                 >
                   <span
                     className={`font-bold ${
-                      selectedAddressId === addr.id ? 'text-white' : 'text-zinc-800'
+                      selectedAddressId === addr.id
+                        ? 'text-white'
+                        : 'text-zinc-800'
                     }`}
                   >
                     {addr.fullName}{' '}
@@ -136,7 +158,8 @@ export const CheckoutAddressStep: React.FC<CheckoutAddressStepProps> = ({
                     {addr.line2 && `, ${addr.line2}`}
                   </span>
                   <span>
-                    {addr.city}, {addr.state} - <span className="font-bold">{addr.pincode}</span>
+                    {addr.city}, {addr.state} -{' '}
+                    <span className="font-bold">{addr.pincode}</span>
                   </span>
                 </div>
               </div>
@@ -156,12 +179,16 @@ export const CheckoutAddressStep: React.FC<CheckoutAddressStepProps> = ({
             >
               <div
                 className={`p-3 rounded-2xl ${
-                  selectedAddressId === 'manual' ? 'bg-white/10 text-white' : 'bg-white text-zinc-400 shadow-sm'
+                  selectedAddressId === 'manual'
+                    ? 'bg-white/10 text-white'
+                    : 'bg-white text-zinc-400 shadow-sm'
                 }`}
               >
                 <PlusIcon className="h-5 w-5" />
               </div>
-              <span className="font-bold text-sm">Deliver to a different address</span>
+              <span className="font-bold text-sm">
+                Deliver to a different address
+              </span>
             </div>
           </div>
         )}
@@ -187,7 +214,9 @@ export const CheckoutAddressStep: React.FC<CheckoutAddressStepProps> = ({
                   />
                 </div>
                 {validationErrors.fullName && (
-                  <p className="text-rose-500 text-xs font-medium">{validationErrors.fullName}</p>
+                  <p className="text-rose-500 text-xs font-medium">
+                    {validationErrors.fullName}
+                  </p>
                 )}
               </div>
 
@@ -205,7 +234,9 @@ export const CheckoutAddressStep: React.FC<CheckoutAddressStepProps> = ({
                   />
                 </div>
                 {validationErrors.phone && (
-                  <p className="text-rose-500 text-xs font-medium">{validationErrors.phone}</p>
+                  <p className="text-rose-500 text-xs font-medium">
+                    {validationErrors.phone}
+                  </p>
                 )}
               </div>
 
@@ -223,7 +254,9 @@ export const CheckoutAddressStep: React.FC<CheckoutAddressStepProps> = ({
                   />
                 </div>
                 {validationErrors.label && (
-                  <p className="text-rose-500 text-xs font-medium">{validationErrors.label}</p>
+                  <p className="text-rose-500 text-xs font-medium">
+                    {validationErrors.label}
+                  </p>
                 )}
               </div>
 
@@ -238,7 +271,9 @@ export const CheckoutAddressStep: React.FC<CheckoutAddressStepProps> = ({
                   className="rounded-xl border-zinc-200"
                 />
                 {validationErrors.line1 && (
-                  <p className="text-rose-500 text-xs font-medium">{validationErrors.line1}</p>
+                  <p className="text-rose-500 text-xs font-medium">
+                    {validationErrors.line1}
+                  </p>
                 )}
               </div>
 
@@ -255,7 +290,9 @@ export const CheckoutAddressStep: React.FC<CheckoutAddressStepProps> = ({
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">City</label>
+                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
+                  City
+                </label>
                 <Input
                   placeholder="Mumbai"
                   value={city}
@@ -263,12 +300,16 @@ export const CheckoutAddressStep: React.FC<CheckoutAddressStepProps> = ({
                   className="rounded-xl border-zinc-200"
                 />
                 {validationErrors.city && (
-                  <p className="text-rose-500 text-xs font-medium">{validationErrors.city}</p>
+                  <p className="text-rose-500 text-xs font-medium">
+                    {validationErrors.city}
+                  </p>
                 )}
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">State</label>
+                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
+                  State
+                </label>
                 <Input
                   placeholder="Maharashtra"
                   value={state}
@@ -276,12 +317,16 @@ export const CheckoutAddressStep: React.FC<CheckoutAddressStepProps> = ({
                   className="rounded-xl border-zinc-200"
                 />
                 {validationErrors.state && (
-                  <p className="text-rose-500 text-xs font-medium">{validationErrors.state}</p>
+                  <p className="text-rose-500 text-xs font-medium">
+                    {validationErrors.state}
+                  </p>
                 )}
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Pincode</label>
+                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
+                  Pincode
+                </label>
                 <Input
                   placeholder="400001"
                   maxLength={6}
@@ -290,13 +335,21 @@ export const CheckoutAddressStep: React.FC<CheckoutAddressStepProps> = ({
                   className="rounded-xl border-zinc-200"
                 />
                 {validationErrors.pincode && (
-                  <p className="text-rose-500 text-xs font-medium">{validationErrors.pincode}</p>
+                  <p className="text-rose-500 text-xs font-medium">
+                    {validationErrors.pincode}
+                  </p>
                 )}
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Country</label>
-                <Input value="India" disabled className="bg-zinc-50 border-zinc-200 rounded-xl" />
+                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
+                  Country
+                </label>
+                <Input
+                  value="India"
+                  disabled
+                  className="bg-zinc-50 border-zinc-200 rounded-xl"
+                />
               </div>
             </div>
           </div>

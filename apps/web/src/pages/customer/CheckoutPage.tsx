@@ -43,15 +43,21 @@ export const CheckoutPage: React.FC = () => {
 
   const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
   const [loadingAddresses, setLoadingAddresses] = useState(true);
-  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
+    null,
+  );
 
   // Interactive UI state
-  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [validationErrors, setValidationErrors] = useState<
+    Record<string, string>
+  >({});
   const [isRazorpayOpen, setIsRazorpayOpen] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<'card' | 'upi' | 'netbanking'>('card');
+  const [paymentMethod, setPaymentMethod] = useState<
+    'card' | 'upi' | 'netbanking'
+  >('card');
   const [razorpayOrderId, setRazorpayOrderId] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
-  
+
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<{
     code: string;
@@ -85,7 +91,8 @@ export const CheckoutPage: React.FC = () => {
           const addresses = res.data.data;
           setSavedAddresses(addresses);
           if (addresses.length > 0) {
-            const defaultAddr = addresses.find((a: any) => a.isDefault) || addresses[0];
+            const defaultAddr =
+              addresses.find((a: any) => a.isDefault) || addresses[0];
             setSelectedAddressId(defaultAddr.id);
             populateForm(defaultAddr);
           } else {
@@ -127,16 +134,19 @@ export const CheckoutPage: React.FC = () => {
   };
 
   // Group cart items by seller
-  const groupedItems = items.reduce((acc, item) => {
-    const sellerName = item.product?.title.includes('Headphones')
-      ? 'Acoustic Labs'
-      : 'Sartorial Goods';
-    if (!acc[sellerName]) {
-      acc[sellerName] = [];
-    }
-    acc[sellerName].push(item);
-    return acc;
-  }, {} as Record<string, typeof items>);
+  const groupedItems = items.reduce(
+    (acc, item) => {
+      const sellerName = item.product?.title.includes('Headphones')
+        ? 'Acoustic Labs'
+        : 'Sartorial Goods';
+      if (!acc[sellerName]) {
+        acc[sellerName] = [];
+      }
+      acc[sellerName].push(item);
+      return acc;
+    },
+    {} as Record<string, typeof items>,
+  );
 
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -185,11 +195,19 @@ export const CheckoutPage: React.FC = () => {
         payload.address = formData;
       }
 
-      const response = await api.post(API_ENDPOINTS.payments.createOrder, payload);
+      const response = await api.post(
+        API_ENDPOINTS.payments.createOrder,
+        payload,
+      );
 
       if (response.data.success) {
-        const { razorpayOrderId: newOrderId, amount, keyId, isMock } = response.data.data;
-        
+        const {
+          razorpayOrderId: newOrderId,
+          amount,
+          keyId,
+          isMock,
+        } = response.data.data;
+
         if (isMock) {
           // Fallback to custom checkout modal
           setRazorpayOrderId(newOrderId);
@@ -228,7 +246,9 @@ export const CheckoutPage: React.FC = () => {
                 navigate('/orders');
               }
             } catch (err: any) {
-              toast.error(err.response?.data?.message || 'Payment verification failed.');
+              toast.error(
+                err.response?.data?.message || 'Payment verification failed.',
+              );
               setIsProcessing(false);
             }
           },
@@ -247,13 +267,13 @@ export const CheckoutPage: React.FC = () => {
                   razorpayOrderId: newOrderId,
                 });
               } catch (err: any) {
-                console.log('Payment cancelled by user');
+                logger.error(err, 'Payment cancelled by user');
               } finally {
                 setIsProcessing(false);
                 toast.error('Payment cancelled.');
               }
-            }
-          }
+            },
+          },
         };
 
         const rzp = new (window as any).Razorpay(options);
@@ -263,7 +283,9 @@ export const CheckoutPage: React.FC = () => {
         rzp.open();
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to place orders. Out of stock?');
+      toast.error(
+        err.response?.data?.message || 'Failed to place orders. Out of stock?',
+      );
     } finally {
       setIsProcessing(false);
     }
@@ -284,7 +306,9 @@ export const CheckoutPage: React.FC = () => {
           description: res.data.data.description,
           finalTotal: res.data.data.finalTotal,
         });
-        toast.success(`Coupon ${res.data.data.code} applied! You save ₹${res.data.data.discount}`);
+        toast.success(
+          `Coupon ${res.data.data.code} applied! You save ₹${res.data.data.discount}`,
+        );
       }
     } catch (err: any) {
       setCouponError(err.response?.data?.message || 'Invalid coupon code.');
@@ -305,8 +329,10 @@ export const CheckoutPage: React.FC = () => {
     try {
       const verifyRes = await api.post(API_ENDPOINTS.payments.verify, {
         razorpayOrderId,
-        razorpayPaymentId: 'pay_' + Math.random().toString(36).substring(2, 10).toUpperCase(),
-        razorpaySignature: 'sig_' + Math.random().toString(36).substring(2, 10).toUpperCase(),
+        razorpayPaymentId:
+          'pay_' + Math.random().toString(36).substring(2, 10).toUpperCase(),
+        razorpaySignature:
+          'sig_' + Math.random().toString(36).substring(2, 10).toUpperCase(),
       });
 
       if (verifyRes.data.success) {
@@ -316,7 +342,9 @@ export const CheckoutPage: React.FC = () => {
         navigate('/orders');
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Payment verification failed.');
+      toast.error(
+        err.response?.data?.message || 'Payment verification failed.',
+      );
     } finally {
       setIsProcessing(false);
     }
@@ -329,11 +357,16 @@ export const CheckoutPage: React.FC = () => {
         razorpayOrderId,
       });
     } catch (err: any) {
-      console.log('Sandbox payment failed expectedly:', err.response?.data?.message);
+      console.log(
+        'Sandbox payment failed expectedly:',
+        err.response?.data?.message,
+      );
     } finally {
       setIsRazorpayOpen(false);
       setIsProcessing(false);
-      toast.error('Razorpay sandbox payment verification failed. Inventory released.');
+      toast.error(
+        'Razorpay sandbox payment verification failed. Inventory released.',
+      );
     }
   };
 
@@ -341,7 +374,11 @@ export const CheckoutPage: React.FC = () => {
     <div className="flex flex-col gap-6 max-w-5xl mx-auto">
       <div className="flex flex-col gap-2 items-start">
         <Link to="/cart">
-          <Button variant="ghost" size="sm" className="gap-2 text-zinc-500 hover:text-zinc-900 -ml-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="gap-2 text-zinc-500 hover:text-zinc-900 -ml-3"
+          >
             <ArrowLeftIcon className="h-4 w-4" /> Back to Cart
           </Button>
         </Link>
