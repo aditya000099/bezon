@@ -41,7 +41,7 @@ interface Coupon {
   validFrom: string;
   validUntil: string;
   isActive: boolean;
-  scopeType: 'global' | 'category' | 'product' | 'variantGroup';
+  scopeType: 'all' | 'category' | 'product' | 'variantGroup';
   scopeCategoryId?: string;
   scopeProductId?: string;
   scopeCategory?: { name: string };
@@ -59,7 +59,7 @@ const defaultForm = {
   maxUsesPerUser: '1',
   validFrom: '',
   validUntil: '',
-  scopeType: 'global' as 'global' | 'category' | 'product' | 'variantGroup',
+  scopeType: 'all' as 'all' | 'category' | 'product' | 'variantGroup',
   scopeCategoryId: '',
   scopeProductId: '',
   applyToAllVariants: false,
@@ -361,7 +361,7 @@ export const SellerCoupons: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <span
                     className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                      coupon.scopeType === 'global'
+                      coupon.scopeType === 'all'
                         ? 'bg-teal-50 text-teal-700 border border-teal-200'
                         : coupon.scopeType === 'category'
                           ? 'bg-amber-50 text-amber-700 border border-amber-200'
@@ -562,7 +562,7 @@ export const SellerCoupons: React.FC = () => {
                   onChange={(e) => updateForm('scopeType', e.target.value)}
                   className="w-full bg-white border border-zinc-200 rounded-lg text-sm px-3 py-2 outline-none font-semibold text-zinc-600 cursor-pointer h-10"
                 >
-                  <option value="global">Global</option>
+                  <option value="all">Global</option>
                   <option value="category">Category</option>
                   <option value="product">Product</option>
                 </select>
