@@ -1,11 +1,7 @@
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@bezon/ui';
 import React from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Database, Receipt, User, Clock, ArrowRight, Wallet, ShoppingCart, Tag, TagChevron } from '@phosphor-icons/react';
+;
+import { DatabaseIcon, ReceiptIcon, UserIcon, ClockIcon, ArrowRightIcon, WalletIcon, ShoppingCartIcon, TagIcon, TagChevronIcon } from '@phosphor-icons/react';
 
 interface TransactionDetailsModalProps {
   isOpen: boolean;
@@ -28,7 +24,7 @@ export const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = (
       <DialogContent className="sm:max-w-md bg-white border-zinc-200 p-0 overflow-hidden shadow-xl">
         <DialogHeader className="bg-zinc-50 border-b border-zinc-100 p-5">
           <DialogTitle className="text-zinc-800 flex items-center gap-2 font-bold font-mono">
-            <Receipt className="h-5 w-5 text-zinc-500" />
+            <ReceiptIcon className="h-5 w-5 text-zinc-500" />
             Transaction Record
           </DialogTitle>
           <div className="text-xs text-zinc-500 font-mono mt-1 flex justify-between items-center">
@@ -61,20 +57,20 @@ export const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = (
           {/* Details Grid */}
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1 flex items-center gap-1"><Clock className="h-3 w-3"/> Timestamp</p>
+              <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1 flex items-center gap-1"><ClockIcon className="h-3 w-3"/> Timestamp</p>
               <p className="text-zinc-700 font-medium">
                 {new Date(transaction.createdAt).toLocaleString()}
               </p>
             </div>
             {order?.customerName && (
               <div>
-                <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1 flex items-center gap-1"><User className="h-3 w-3"/> Customer</p>
+                <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1 flex items-center gap-1"><UserIcon className="h-3 w-3"/> Customer</p>
                 <p className="text-zinc-700 font-medium">{order.customerName}</p>
               </div>
             )}
             {order?.shopName && (
               <div>
-                <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1 flex items-center gap-1"><Tag className="h-3 w-3"/> Seller</p>
+                <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1 flex items-center gap-1"><TagIcon className="h-3 w-3"/> Seller</p>
                 <p className="text-zinc-700 font-medium">{order.shopName}</p>
               </div>
             )}
@@ -85,7 +81,7 @@ export const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = (
             <div className="border border-zinc-200 rounded-xl overflow-hidden">
               <div className="bg-zinc-50 border-b border-zinc-200 p-3 flex items-center justify-between">
                 <span className="text-xs font-bold text-zinc-600 uppercase tracking-wider flex items-center gap-1.5">
-                  <ShoppingCart className="h-4 w-4" /> Order Breakdown
+                  <ShoppingCartIcon className="h-4 w-4" /> Order Breakdown
                 </span>
                 <span className="text-xs font-mono font-bold text-zinc-500">#{order.orderNumber}</span>
               </div>
@@ -124,7 +120,7 @@ export const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = (
               <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-0.5">Prior Balance</p>
               <p className="font-mono text-zinc-600">₹{Number(transaction.balanceBefore).toLocaleString()}</p>
             </div>
-            <ArrowRight className="h-4 w-4 text-zinc-300" />
+            <ArrowRightIcon className="h-4 w-4 text-zinc-300" />
             <div className="text-right">
               <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-0.5">New Balance</p>
               <p className="font-mono font-bold text-zinc-800">₹{Number(transaction.balanceAfter).toLocaleString()}</p>
