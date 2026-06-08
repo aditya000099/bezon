@@ -3,18 +3,14 @@ import {
   CardHeader,
   CardTitle,
   CardContent,
-  CardFooter,
   Button,
   Input,
 } from '@bezon/ui';
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
-  ShoppingBagIcon,
-  StarIcon,
   MagnifyingGlassIcon,
   SpinnerIcon,
-  HeartIcon,
   StorefrontIcon,
   MapPinIcon,
   ArrowLeftIcon,
@@ -28,6 +24,7 @@ import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 import { useAuth } from '../../context/AuthContext';
 import { logger } from '@/utils/logger';
+import { ProductCard } from './components/ProductCard';
 
 interface SellerShopData {
   id: string;
@@ -310,96 +307,20 @@ export const SellerShopPage: React.FC = () => {
                   {/* Product GridFourIcon */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                     {items.map((p) => (
-                      <Card
+                      <ProductCard
                         key={p.id}
-                        className="overflow-hidden border border-zinc-200 shadow-sm hover:shadow-md hover:border-zinc-300 transition-all flex flex-col justify-between bg-white relative rounded-2xl"
-                      >
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            if (!user) {
-                              toast.error('Please login to use your wishlist.');
-                              return;
-                            }
-                            toggleWishlist(p.id, p.title);
-                          }}
-                          className="absolute top-3 right-3 z-10 h-7 w-7 bg-white/90 hover:bg-white text-zinc-400 hover:text-rose-500 border border-zinc-100 rounded-full flex items-center justify-center shadow-xs backdrop-blur-xs transition-colors"
-                        >
-                          <HeartIcon
-                            className={`h-4 w-4 ${isInWishlist(p.id) ? 'fill-rose-500 text-rose-500' : 'text-zinc-400'}`}
-                          />
-                        </button>
-
-                        <Link to={`/products/${p.slug}`}>
-                          <div className="aspect-square bg-zinc-50 border-b border-zinc-100 flex items-center justify-center text-zinc-300 font-semibold text-xs select-none cursor-pointer overflow-hidden">
-                            {(() => {
-                              const primaryImg =
-                                p.images?.find((img: any) => img.isPrimary) ||
-                                p.images?.[0];
-                              return primaryImg ? (
-                                <img
-                                  src={primaryImg.url}
-                                  alt={p.title}
-                                  className="h-full w-full object-cover hover:scale-105 transition-transform duration-300"
-                                />
-                              ) : (
-                                <ShoppingBagIcon className="h-10 w-10 opacity-40 text-zinc-400" />
-                              );
-                            })()}
-                          </div>
-                        </Link>
-
-                        <CardHeader className="p-4 pb-0">
-                          <span className="text-[9px] font-extrabold text-teal-600 uppercase tracking-widest">
-                            {p.brand || 'Seller Direct'}
-                          </span>
-                          <Link to={`/products/${p.slug}`}>
-                            <CardTitle className="text-sm font-bold text-zinc-800 line-clamp-1 mt-0.5 hover:text-teal-600 transition-colors">
-                              {p.title}
-                            </CardTitle>
-                          </Link>
-                          <div className="flex items-center gap-1 mt-0.5 text-xs text-amber-500 font-bold">
-                            <StarIcon className="h-3 w-3 fill-amber-500 text-amber-500" />
-                            <span>
-                              {p.avgRating
-                                ? Number(p.avgRating).toFixed(1)
-                                : '0.0'}
-                            </span>
-                            <span className="text-zinc-400 font-normal">
-                              ({p.reviewCount || 0})
-                            </span>
-                          </div>
-                        </CardHeader>
-
-                        <CardContent className="p-4 pt-2.5 flex items-baseline gap-2">
-                          <span className="text-base font-extrabold text-zinc-900">
-                            ₹{Number(p.basePrice).toLocaleString()}
-                          </span>
-                        </CardContent>
-
-                        <CardFooter className="p-4 pt-0">
-                          {p.totalStock > 0 ? (
-                            <Button
-                              className="w-full text-xs font-bold rounded-xl"
-                              size="sm"
-                              onClick={() => handleAddToCart(p)}
-                              disabled={addingToCart[p.id]}
-                            >
-                              {addingToCart[p.id] ? 'Adding...' : 'Add to Cart'}
-                            </Button>
-                          ) : (
-                            <Button
-                              variant="secondary"
-                              className="w-full text-xs font-bold text-rose-500 bg-rose-50 border-rose-100 hover:bg-rose-50 cursor-not-allowed rounded-xl"
-                              size="sm"
-                              disabled
-                            >
-                              Out of Stock
-                            </Button>
-                          )}
-                        </CardFooter>
-                      </Card>
+                        product={p}
+                        addingToCart={addingToCart[p.id]}
+                        isInWishlist={isInWishlist(p.id)}
+                        onAddToCart={handleAddToCart}
+                        onToggleWishlist={(id, title) => {
+                          if (!user) {
+                            toast.error('Please login to use your wishlist.');
+                            return;
+                          }
+                          toggleWishlist(id, title);
+                        }}
+                      />
                     ))}
                   </div>
                 </div>
