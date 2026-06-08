@@ -174,17 +174,36 @@ export const OrdersPage: React.FC = () => {
                 </div>
 
                 <CardContent className="p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                  <div className="space-y-1">
-                    <p className="text-xs text-zinc-400 font-semibold uppercase tracking-wider">
-                      Merchant shop
-                    </p>
-                    <p className="font-bold text-zinc-800 text-sm">
-                      {(order as any).seller?.shopName || 'Marketplace Seller'}
-                    </p>
-                    <p className="text-xs text-zinc-500 mt-0.5">
-                      Contains {itemsCount}{' '}
-                      {itemsCount === 1 ? 'item' : 'items'}
-                    </p>
+                  <div className="flex items-center gap-4">
+                    <div className="flex -space-x-3">
+                      {order.items?.slice(0, 2).map((item: any, idx: number) => (
+                        <div key={idx} className="h-12 w-12 rounded-full border-2 border-white bg-zinc-100 overflow-hidden flex items-center justify-center relative z-[2] shadow-sm shadow-zinc-200">
+                          {item.imageUrl ? (
+                            <img src={item.imageUrl} alt={item.productTitle} className="h-full w-full object-cover" />
+                          ) : (
+                            <span className="text-[10px] text-zinc-400 font-bold">N/A</span>
+                          )}
+                        </div>
+                      ))}
+                      {order.items && order.items.length > 2 && (
+                        <div className="h-12 w-12 rounded-full border-2 border-white bg-zinc-50 overflow-hidden flex items-center justify-center relative z-[1] shadow-sm shadow-zinc-200">
+                          <span className="text-xs text-zinc-500 font-bold">+{order.items.length - 2}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="space-y-1">
+                      <p className="text-xs text-zinc-400 font-semibold uppercase tracking-wider">
+                        Merchant shop
+                      </p>
+                      <p className="font-bold text-zinc-800 text-sm">
+                        {(order as any).seller?.shopName || 'Marketplace Seller'}
+                      </p>
+                      <p className="text-xs text-zinc-500 mt-0.5">
+                        Contains {itemsCount}{' '}
+                        {itemsCount === 1 ? 'item' : 'items'}
+                      </p>
+                    </div>
                   </div>
 
                   <Link to={`/orders/${order.id}`}>
