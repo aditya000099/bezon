@@ -75,7 +75,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         setLoadingProducts(true);
         setLoadingPolicies(true);
         const [catRes, prodRes, polRes] = await Promise.all([
-          api.get(API_ENDPOINTS.categories),
+          api.get(API_ENDPOINTS.categories.base),
           api.get(API_ENDPOINTS.products.sellerMe),
           api.get(`${API_ENDPOINTS.policies.list}?active=true`),
         ]);

@@ -4,7 +4,6 @@ import { useAuth } from "../context/AuthContext";
 import {
   SquaresFourIcon,
   UsersIcon,
-  ShoppingBagIcon,
   ClipboardTextIcon,
   ShieldWarningIcon,
   TruckIcon,
@@ -13,6 +12,7 @@ import {
   CurrencyDollarIcon,
   ArrowCounterClockwiseIcon,
   WalletIcon,
+  ListIcon,
 } from "@phosphor-icons/react";
 
 export const AdminLayout: React.FC = () => {
@@ -21,13 +21,22 @@ export const AdminLayout: React.FC = () => {
 
   const links = [
     { to: "/admin", label: "Dashboard", icon: SquaresFourIcon },
-    { to: "/admin/users", label: "Platform UsersIcon", icon: UsersIcon },
+    { to: "/admin/users", label: "Platform Users", icon: UsersIcon },
     { to: "/admin/orders", label: "All Orders", icon: ClipboardTextIcon },
+    { to: "/admin/categories", label: "Categories", icon: ListIcon },
     { to: "/admin/deliveries", label: "Delivery Ops", icon: TruckIcon },
-    { to: "/admin/sellers", label: "Sellers Management", icon: ShieldWarningIcon },
+    {
+      to: "/admin/sellers",
+      label: "Sellers Management",
+      icon: ShieldWarningIcon,
+    },
     { to: "/admin/partners", label: "Delivery Partners", icon: UsersIcon },
     { to: "/admin/policies", label: "Policies", icon: ShieldCheckIcon },
-    { to: "/admin/refunds", label: "Refund Management", icon: CurrencyDollarIcon },
+    {
+      to: "/admin/refunds",
+      label: "Refund Management",
+      icon: CurrencyDollarIcon,
+    },
     { to: "/admin/returns", label: "Returns", icon: ArrowCounterClockwiseIcon },
     { to: "/admin/wallets", label: "Wallets", icon: WalletIcon },
   ];

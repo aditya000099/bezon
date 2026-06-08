@@ -1,17 +1,27 @@
 import { logger } from "@/utils/logger";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, Button, Input, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@bezon/ui';
-import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-;
-;
-;
-;
-import { useCart } from '../../context/CartContext';
-import { useToast } from '../../context/ToastContext';
-import api from '../../lib/api';
-import { API_ENDPOINTS } from '../../config/api.config';
-import { addressSchema } from '@bezon/validation';
-import { fireConfetti } from '@/components/ui/confetti';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+  Button,
+  Input,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogDescription,
+  DialogFooter,
+} from "@bezon/ui";
+import React, { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useCart } from "../../context/CartContext";
+import { useToast } from "../../context/ToastContext";
+import api from "../../lib/api";
+import { API_ENDPOINTS } from "../../config/api.config";
+import { addressSchema } from "@bezon/validation";
+import { fireConfetti } from "@/components/ui/confetti";
 import {
   MapPinIcon,
   PhoneIcon,
@@ -27,9 +37,8 @@ import {
   TagIcon,
   CheckCircleIcon,
   XIcon,
-  SealPercentIcon,
   PlusIcon,
-} from '@phosphor-icons/react';
+} from "@phosphor-icons/react";
 
 export const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
@@ -37,14 +46,14 @@ export const CheckoutPage: React.FC = () => {
   const { toast } = useToast();
 
   // Address form state
-  const [fullName, setFullName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [line1, setLine1] = useState('');
-  const [line2, setLine2] = useState('');
-  const [city, setCity] = useState('');
-  const [state, setState] = useState('');
-  const [pincode, setPincode] = useState('');
-  const [label, setLabel] = useState('HouseIcon');
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [line1, setLine1] = useState("");
+  const [line2, setLine2] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
+  const [pincode, setPincode] = useState("");
+  const [label, setLabel] = useState("HouseIcon");
 
   const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
   const [loadingAddresses, setLoadingAddresses] = useState(true);
@@ -58,11 +67,11 @@ export const CheckoutPage: React.FC = () => {
   >({});
   const [isRazorpayOpen, setIsRazorpayOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<
-    'card' | 'upi' | 'netbanking'
-  >('card');
-  const [razorpayOrderId, setRazorpayOrderId] = useState('');
+    "card" | "upi" | "netbanking"
+  >("card");
+  const [razorpayOrderId, setRazorpayOrderId] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
-  const [couponCode, setCouponCode] = useState('');
+  const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<{
     code: string;
     discount: number;
@@ -70,7 +79,7 @@ export const CheckoutPage: React.FC = () => {
     finalTotal: number;
   } | null>(null);
   const [couponLoading, setCouponLoading] = useState(false);
-  const [couponError, setCouponError] = useState('');
+  const [couponError, setCouponError] = useState("");
   const [availableCoupons, setAvailableCoupons] = useState<any[]>([]);
   const [showManualInput, setShowManualInput] = useState(false);
 
@@ -79,7 +88,9 @@ export const CheckoutPage: React.FC = () => {
       try {
         const res = await api.get(API_ENDPOINTS.coupons.forCart);
         if (res.data.success) setAvailableCoupons(res.data.data);
-      } catch (err: any) { logger.error(err); }
+      } catch (err: any) {
+        logger.error(err);
+      }
     };
     if (items.length > 0) fetchCoupons();
   }, [items.length]);
@@ -98,12 +109,12 @@ export const CheckoutPage: React.FC = () => {
             setSelectedAddressId(defaultAddr.id);
             populateForm(defaultAddr);
           } else {
-            setSelectedAddressId('manual');
+            setSelectedAddressId("manual");
           }
         }
       } catch (err) {
-        logger.error('Failed to load addresses', err);
-        setSelectedAddressId('manual');
+        logger.error("Failed to load addresses", err);
+        setSelectedAddressId("manual");
       } finally {
         setLoadingAddresses(false);
       }
@@ -112,35 +123,35 @@ export const CheckoutPage: React.FC = () => {
   }, []);
 
   const populateForm = (addr: any) => {
-    setLabel(addr.label || 'HouseIcon');
-    setFullName(addr.fullName || '');
-    setPhone(addr.phone || '');
-    setLine1(addr.line1 || '');
-    setLine2(addr.line2 || '');
-    setCity(addr.city || '');
-    setState(addr.state || '');
-    setPincode(addr.pincode || '');
+    setLabel(addr.label || "HouseIcon");
+    setFullName(addr.fullName || "");
+    setPhone(addr.phone || "");
+    setLine1(addr.line1 || "");
+    setLine2(addr.line2 || "");
+    setCity(addr.city || "");
+    setState(addr.state || "");
+    setPincode(addr.pincode || "");
     setValidationErrors({});
   };
 
   const resetForm = () => {
-    setLabel('HouseIcon');
-    setFullName('');
-    setPhone('');
-    setLine1('');
-    setLine2('');
-    setCity('');
-    setState('');
-    setPincode('');
+    setLabel("HouseIcon");
+    setFullName("");
+    setPhone("");
+    setLine1("");
+    setLine2("");
+    setCity("");
+    setState("");
+    setPincode("");
     setValidationErrors({});
   };
 
   // Group cart items by seller
   const groupedItems = items.reduce(
     (acc, item) => {
-      const sellerName = item.product?.title.includes('Headphones')
-        ? 'Acoustic Labs'
-        : 'Sartorial Goods';
+      const sellerName = item.product?.title.includes("Headphones")
+        ? "Acoustic Labs"
+        : "Sartorial Goods";
       if (!acc[sellerName]) {
         acc[sellerName] = [];
       }
@@ -163,7 +174,7 @@ export const CheckoutPage: React.FC = () => {
       city,
       state,
       pincode,
-      country: 'India',
+      country: "India",
     };
 
     // Validate shipping address
@@ -176,12 +187,12 @@ export const CheckoutPage: React.FC = () => {
         }
       });
       setValidationErrors(errors);
-      toast.warning('Please fix the shipping address details before checkout.');
+      toast.warning("Please fix the shipping address details before checkout.");
       return;
     }
 
     if (items.length === 0) {
-      toast.error('Your cart is empty. Add items to checkout.');
+      toast.error("Your cart is empty. Add items to checkout.");
       return;
     }
 
@@ -191,7 +202,7 @@ export const CheckoutPage: React.FC = () => {
         couponCode: appliedCoupon?.code || undefined,
       };
 
-      if (selectedAddressId && selectedAddressId !== 'manual') {
+      if (selectedAddressId && selectedAddressId !== "manual") {
         payload.addressId = selectedAddressId;
       } else {
         payload.address = formData;
@@ -205,11 +216,11 @@ export const CheckoutPage: React.FC = () => {
       if (response.data.success) {
         setRazorpayOrderId(response.data.data.razorpayOrderId);
         setIsRazorpayOpen(true);
-        toast.info('Connecting to Razorpay Secure Payment Server...');
+        toast.info("Connecting to Razorpay Secure Payment Server...");
       }
     } catch (err: any) {
       toast.error(
-        err.response?.data?.message || 'Failed to place orders. Out of stock?',
+        err.response?.data?.message || "Failed to place orders. Out of stock?",
       );
     } finally {
       setIsProcessing(false);
@@ -219,7 +230,7 @@ export const CheckoutPage: React.FC = () => {
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) return;
     setCouponLoading(true);
-    setCouponError('');
+    setCouponError("");
     try {
       const res = await api.post(API_ENDPOINTS.coupons.apply, {
         code: couponCode.trim().toUpperCase(),
@@ -237,7 +248,7 @@ export const CheckoutPage: React.FC = () => {
         fireConfetti({ particleCount: 150, spread: 100 });
       }
     } catch (err: any) {
-      setCouponError(err.response?.data?.message || 'Invalid coupon code.');
+      setCouponError(err.response?.data?.message || "Invalid coupon code.");
       setAppliedCoupon(null);
     } finally {
       setCouponLoading(false);
@@ -246,8 +257,8 @@ export const CheckoutPage: React.FC = () => {
 
   const removeCoupon = () => {
     setAppliedCoupon(null);
-    setCouponCode('');
-    setCouponError('');
+    setCouponCode("");
+    setCouponError("");
   };
 
   const handlePaymentSuccess = async () => {
@@ -256,20 +267,20 @@ export const CheckoutPage: React.FC = () => {
       const verifyRes = await api.post(API_ENDPOINTS.payments.verify, {
         razorpayOrderId,
         razorpayPaymentId:
-          'pay_' + Math.random().toString(36).substring(2, 10).toUpperCase(),
+          "pay_" + Math.random().toString(36).substring(2, 10).toUpperCase(),
         razorpaySignature:
-          'sig_' + Math.random().toString(36).substring(2, 10).toUpperCase(),
+          "sig_" + Math.random().toString(36).substring(2, 10).toUpperCase(),
       });
 
       if (verifyRes.data.success) {
         setIsRazorpayOpen(false);
-        toast.success('Payment Verified Successfully via Razorpay Sandbox!');
+        toast.success("Payment Verified Successfully via Razorpay Sandbox!");
         clearCart();
-        navigate('/orders');
+        navigate("/orders");
       }
     } catch (err: any) {
       toast.error(
-        err.response?.data?.message || 'Payment verification failed.',
+        err.response?.data?.message || "Payment verification failed.",
       );
     } finally {
       setIsProcessing(false);
@@ -284,14 +295,14 @@ export const CheckoutPage: React.FC = () => {
       });
     } catch (err: any) {
       console.log(
-        'Sandbox payment failed expectedly:',
+        "Sandbox payment failed expectedly:",
         err.response?.data?.message,
       );
     } finally {
       setIsRazorpayOpen(false);
       setIsProcessing(false);
       toast.error(
-        'Razorpay sandbox payment verification failed. Inventory released.',
+        "Razorpay sandbox payment verification failed. Inventory released.",
       );
     }
   };
@@ -316,7 +327,7 @@ export const CheckoutPage: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         {/* Shipping address & items details */}
         <div className="lg:col-span-2 flex flex-col gap-6">
-          <Card className="bg-zinc-50/80 border-0 rounded-[2rem] p-4 sm:p-6">
+          <Card className="bg-zinc-50/80 border-0 rounded-4xl p-4 sm:p-6">
             <CardHeader className="pb-4">
               <CardTitle className="text-xl font-bold text-zinc-800">
                 1. Shipping Address
@@ -340,24 +351,24 @@ export const CheckoutPage: React.FC = () => {
                         setSelectedAddressId(addr.id);
                         populateForm(addr);
                       }}
-                      className={`cursor-pointer border-0 rounded-[1.5rem] p-5 transition-all flex flex-col gap-3 ${
+                      className={`cursor-pointer border-0 rounded-3xl p-5 transition-all flex flex-col gap-3 ${
                         selectedAddressId === addr.id
-                          ? 'bg-teal-600 text-white shadow-lg shadow-teal-600/20'
-                          : 'bg-white/60 hover:bg-white text-zinc-700'
+                          ? "bg-teal-600 text-white shadow-lg shadow-teal-600/20"
+                          : "bg-white/60 hover:bg-white text-zinc-700"
                       }`}
                     >
                       <div
-                        className={`flex justify-between items-center border-b pb-3 ${selectedAddressId === addr.id ? 'border-teal-500/50' : 'border-zinc-100'}`}
+                        className={`flex justify-between items-center border-b pb-3 ${selectedAddressId === addr.id ? "border-teal-500/50" : "border-zinc-100"}`}
                       >
                         <div className="flex items-center gap-2">
                           <div
                             className={`p-1.5 rounded-xl ${
                               selectedAddressId === addr.id
-                                ? 'bg-white/20 text-white'
-                                : 'bg-zinc-100 text-zinc-500'
+                                ? "bg-white/20 text-white"
+                                : "bg-zinc-100 text-zinc-500"
                             }`}
                           >
-                            {addr.label === 'HouseIcon' ? (
+                            {addr.label === "HouseIcon" ? (
                               <HouseIcon className="h-3.5 w-3.5" />
                             ) : (
                               <MapPinIcon className="h-3.5 w-3.5" />
@@ -369,19 +380,19 @@ export const CheckoutPage: React.FC = () => {
                         </div>
                         {addr.isDefault && (
                           <span
-                            className={`text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider ${selectedAddressId === addr.id ? 'bg-white text-teal-600' : 'bg-teal-100 text-teal-700'}`}
+                            className={`text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider ${selectedAddressId === addr.id ? "bg-white text-teal-600" : "bg-teal-100 text-teal-700"}`}
                           >
                             Default
                           </span>
                         )}
                       </div>
                       <div
-                        className={`text-sm flex flex-col gap-1.5 ${selectedAddressId === addr.id ? 'text-teal-50' : 'text-zinc-500'}`}
+                        className={`text-sm flex flex-col gap-1.5 ${selectedAddressId === addr.id ? "text-teal-50" : "text-zinc-500"}`}
                       >
                         <span
-                          className={`font-bold ${selectedAddressId === addr.id ? 'text-white' : 'text-zinc-800'}`}
+                          className={`font-bold ${selectedAddressId === addr.id ? "text-white" : "text-zinc-800"}`}
                         >
-                          {addr.fullName}{' '}
+                          {addr.fullName}{" "}
                           <span className="font-medium text-zinc-500">
                             ({addr.phone})
                           </span>
@@ -391,7 +402,7 @@ export const CheckoutPage: React.FC = () => {
                           {addr.line2 && `, ${addr.line2}`}
                         </span>
                         <span>
-                          {addr.city}, {addr.state} -{' '}
+                          {addr.city}, {addr.state} -{" "}
                           <span className="font-bold">{addr.pincode}</span>
                         </span>
                       </div>
@@ -401,17 +412,17 @@ export const CheckoutPage: React.FC = () => {
                   {/* Add New Address Option */}
                   <div
                     onClick={() => {
-                      setSelectedAddressId('manual');
+                      setSelectedAddressId("manual");
                       resetForm();
                     }}
-                    className={`cursor-pointer border-0 rounded-[1.5rem] p-5 transition-all flex flex-col items-center justify-center gap-3 min-h-[140px] ${
-                      selectedAddressId === 'manual'
-                        ? 'bg-zinc-800 text-white shadow-xl shadow-zinc-800/20'
-                        : 'bg-zinc-200/50 hover:bg-zinc-200 text-zinc-500'
+                    className={`cursor-pointer border-0 rounded-3xl p-5 transition-all flex flex-col items-center justify-center gap-3 min-h-35 ${
+                      selectedAddressId === "manual"
+                        ? "bg-zinc-800 text-white shadow-xl shadow-zinc-800/20"
+                        : "bg-zinc-200/50 hover:bg-zinc-200 text-zinc-500"
                     }`}
                   >
                     <div
-                      className={`p-3 rounded-2xl ${selectedAddressId === 'manual' ? 'bg-white/10 text-white' : 'bg-white text-zinc-400 shadow-sm'}`}
+                      className={`p-3 rounded-2xl ${selectedAddressId === "manual" ? "bg-white/10 text-white" : "bg-white text-zinc-400 shadow-sm"}`}
                     >
                       <PlusIcon className="h-5 w-5" />
                     </div>
@@ -423,7 +434,7 @@ export const CheckoutPage: React.FC = () => {
               )}
 
               {/* Manual Input Form */}
-              {selectedAddressId === 'manual' && (
+              {selectedAddressId === "manual" && (
                 <div className="pt-6 border-t border-zinc-100 animate-in fade-in slide-in-from-top-2">
                   <h3 className="text-sm font-extrabold text-zinc-800 uppercase tracking-wider mb-4">
                     Enter New Delivery Details
@@ -587,7 +598,7 @@ export const CheckoutPage: React.FC = () => {
           </Card>
 
           {/* Grouped orders display (Multi-Seller Cart) */}
-          <Card className="bg-zinc-50/80 border-0 rounded-[2rem] p-4 sm:p-6">
+          <Card className="bg-zinc-50/80 border-0 rounded-4xl p-4 sm:p-6">
             <CardHeader className="pb-4">
               <CardTitle className="text-xl font-bold text-zinc-800">
                 2. Review & Split Shipments
@@ -645,7 +656,7 @@ export const CheckoutPage: React.FC = () => {
             </CardContent>
           </Card>
 
-          <Card className="bg-zinc-50/80 border-0 rounded-[2rem] p-4 sm:p-6">
+          <Card className="bg-zinc-50/80 border-0 rounded-4xl p-4 sm:p-6">
             <CardHeader className="pb-4">
               <CardTitle className="text-xl font-bold text-zinc-800">
                 3. Apply Coupon
@@ -696,8 +707,8 @@ export const CheckoutPage: React.FC = () => {
                                 {c.description}
                               </p>
                               <p className="text-[10px] text-zinc-400 mt-0.5">
-                                {c.discountType === 'percentage'
-                                  ? `${Number(c.discountValue)}% off${c.maxDiscount ? ` (up to ₹${Number(c.maxDiscount)})` : ''}`
+                                {c.discountType === "percentage"
+                                  ? `${Number(c.discountValue)}% off${c.maxDiscount ? ` (up to ₹${Number(c.maxDiscount)})` : ""}`
                                   : `₹${Number(c.discountValue)} off`}
                                 {Number(c.minOrderValue) > 0 &&
                                   ` · Min ₹${Number(c.minOrderValue)}`}
@@ -713,7 +724,7 @@ export const CheckoutPage: React.FC = () => {
                             disabled={couponLoading}
                             onClick={() => {
                               setCouponCode(c.code);
-                              setCouponError('');
+                              setCouponError("");
                               setCouponLoading(true);
                               api
                                 .post(API_ENDPOINTS.coupons.apply, {
@@ -730,13 +741,16 @@ export const CheckoutPage: React.FC = () => {
                                     toast.success(
                                       `Coupon ${res.data.data.code} applied! You save ₹${res.data.data.discount}`,
                                     );
-                                    fireConfetti({ particleCount: 150, spread: 100 });
+                                    fireConfetti({
+                                      particleCount: 150,
+                                      spread: 100,
+                                    });
                                   }
                                 })
                                 .catch((err: any) => {
                                   const msg =
                                     err.response?.data?.message ||
-                                    'Could not apply this coupon.';
+                                    "Could not apply this coupon.";
                                   setCouponError(msg);
                                   toast.error(msg);
                                 })
@@ -746,7 +760,7 @@ export const CheckoutPage: React.FC = () => {
                             {couponLoading && couponCode === c.code ? (
                               <SpinnerIcon className="h-3 w-3 animate-spin" />
                             ) : (
-                              'Apply'
+                              "Apply"
                             )}
                           </Button>
                         </div>
@@ -777,10 +791,10 @@ export const CheckoutPage: React.FC = () => {
                             value={couponCode}
                             onChange={(e) => {
                               setCouponCode(e.target.value.toUpperCase());
-                              setCouponError('');
+                              setCouponError("");
                             }}
                             onKeyDown={(e) =>
-                              e.key === 'Enter' && handleApplyCoupon()
+                              e.key === "Enter" && handleApplyCoupon()
                             }
                           />
                         </div>
@@ -793,7 +807,7 @@ export const CheckoutPage: React.FC = () => {
                           {couponLoading ? (
                             <SpinnerIcon className="h-4 w-4 animate-spin" />
                           ) : (
-                            'Apply'
+                            "Apply"
                           )}
                         </Button>
                       </div>
@@ -810,7 +824,7 @@ export const CheckoutPage: React.FC = () => {
 
         {/* Order total & CTA */}
         <div className="flex flex-col gap-6">
-          <Card className="bg-zinc-50/80 border-0 rounded-[2rem] p-4 sm:p-6">
+          <Card className="bg-zinc-50/80 border-0 rounded-4xl p-4 sm:p-6">
             <CardHeader className="pb-4 border-b border-zinc-200/50">
               <CardTitle className="text-xl font-bold text-zinc-800">
                 Payment Summary
@@ -853,7 +867,7 @@ export const CheckoutPage: React.FC = () => {
                 disabled={isProcessing || items.length === 0}
               >
                 {isProcessing
-                  ? 'Generating Orders...'
+                  ? "Generating Orders..."
                   : `Place Order & Pay (₹${(appliedCoupon ? appliedCoupon.finalTotal : cartTotal).toLocaleString()})`}
               </Button>
             </CardFooter>
@@ -885,7 +899,7 @@ export const CheckoutPage: React.FC = () => {
               </span>
             </div>
             <DialogDescription className="text-left mt-2">
-              Order Reference ID:{' '}
+              Order Reference ID:{" "}
               <strong className="text-zinc-800 font-mono">
                 {razorpayOrderId}
               </strong>
@@ -917,11 +931,11 @@ export const CheckoutPage: React.FC = () => {
               </label>
               <div className="grid grid-cols-3 gap-3">
                 <button
-                  onClick={() => setPaymentMethod('card')}
+                  onClick={() => setPaymentMethod("card")}
                   className={`border-0 rounded-2xl p-4 flex flex-col items-center gap-3 transition-all ${
-                    paymentMethod === 'card'
-                      ? 'bg-zinc-900 text-white shadow-lg'
-                      : 'bg-white text-zinc-600 hover:bg-zinc-100'
+                    paymentMethod === "card"
+                      ? "bg-zinc-900 text-white shadow-lg"
+                      : "bg-white text-zinc-600 hover:bg-zinc-100"
                   }`}
                 >
                   <CreditCardIcon className="h-5 w-5" />
@@ -929,11 +943,11 @@ export const CheckoutPage: React.FC = () => {
                 </button>
 
                 <button
-                  onClick={() => setPaymentMethod('upi')}
+                  onClick={() => setPaymentMethod("upi")}
                   className={`border-0 rounded-2xl p-4 flex flex-col items-center gap-3 transition-all ${
-                    paymentMethod === 'upi'
-                      ? 'bg-zinc-900 text-white shadow-lg'
-                      : 'bg-white text-zinc-600 hover:bg-zinc-100'
+                    paymentMethod === "upi"
+                      ? "bg-zinc-900 text-white shadow-lg"
+                      : "bg-white text-zinc-600 hover:bg-zinc-100"
                   }`}
                 >
                   <WalletIcon className="h-5 w-5" />
@@ -941,11 +955,11 @@ export const CheckoutPage: React.FC = () => {
                 </button>
 
                 <button
-                  onClick={() => setPaymentMethod('netbanking')}
+                  onClick={() => setPaymentMethod("netbanking")}
                   className={`border-0 rounded-2xl p-4 flex flex-col items-center gap-3 transition-all ${
-                    paymentMethod === 'netbanking'
-                      ? 'bg-zinc-900 text-white shadow-lg'
-                      : 'bg-white text-zinc-600 hover:bg-zinc-100'
+                    paymentMethod === "netbanking"
+                      ? "bg-zinc-900 text-white shadow-lg"
+                      : "bg-white text-zinc-600 hover:bg-zinc-100"
                   }`}
                 >
                   <BankIcon className="h-5 w-5" />
@@ -974,7 +988,7 @@ export const CheckoutPage: React.FC = () => {
               {isProcessing ? (
                 <SpinnerIcon className="h-4 w-4 animate-spin" />
               ) : (
-                'Simulate Failure'
+                "Simulate Failure"
               )}
             </Button>
             <Button
@@ -985,7 +999,7 @@ export const CheckoutPage: React.FC = () => {
               {isProcessing ? (
                 <SpinnerIcon className="h-4 w-4 animate-spin" />
               ) : (
-                'Simulate Success'
+                "Simulate Success"
               )}
             </Button>
           </DialogFooter>

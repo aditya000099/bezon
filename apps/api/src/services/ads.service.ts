@@ -191,6 +191,7 @@ export class AdsService {
             avgRating: true,
             reviewCount: true,
             soldCount: true,
+            categoryId: true,
             images: {
               where: { isPrimary: true },
               take: 1,

@@ -97,7 +97,7 @@ export const SellerCoupons: React.FC = () => {
     const loadMeta = async () => {
       try {
         const [catRes, prodRes] = await Promise.all([
-          api.get(API_ENDPOINTS.categories),
+          api.get(API_ENDPOINTS.categories.base),
           api.get(API_ENDPOINTS.products.sellerMe),
         ]);
         if (catRes.data.success) setCategories(catRes.data.data);

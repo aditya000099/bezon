@@ -58,7 +58,7 @@ export const ShopPage: React.FC = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await api.get(API_ENDPOINTS.categories);
+        const response = await api.get(API_ENDPOINTS.categories.base);
         if (response.data.success) {
           setCategories(response.data.data);
         }
@@ -138,7 +138,7 @@ export const ShopPage: React.FC = () => {
 
   const renderProductCard = (p: any) => (
     <Card
-      key={p.id}
+      key={p.isSponsored ? `sponsored-${p.id}` : p.id}
       className="overflow-hidden flex flex-col justify-between bg-card relative group"
     >
       <button
