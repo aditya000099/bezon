@@ -7,6 +7,8 @@ export class SellerOrderService {
   static async getOrders(
     userId: string,
     filters: { returnStatus?: string; returnInspectionStatus?: string } = {},
+    page: number = 1,
+    limit: number = 10
   ) {
     const seller = await prisma.seller.findUnique({
       where: { userId },
@@ -36,53 +38,69 @@ export class SellerOrderService {
       }
     }
 
-    // Phase 3 Optimization: Replaced large `include` with targeted `select`
-    return await prisma.order.findMany({
-      where: whereClause,
-      select: {
-        id: true,
-        orderNumber: true,
-        total: true,
-        status: true,
-        paymentStatus: true,
-        returnStatus: true,
-        returnInspectionStatus: true,
-        createdAt: true,
-        items: {
-          select: {
-            id: true,
-            productId: true,
-            productTitle: true,
-            qty: true,
-            unitPrice: true,
-            imageUrl: true,
-            product: {
-              select: {
-                slug: true
+    const skip = (page - 1) * limit;
+
+    const [orders, totalCount] = await prisma.$transaction([
+      prisma.order.findMany({
+        where: whereClause,
+        skip,
+        take: limit,
+        select: {
+          id: true,
+          orderNumber: true,
+          total: true,
+          status: true,
+          paymentStatus: true,
+          returnStatus: true,
+          returnInspectionStatus: true,
+          createdAt: true,
+          items: {
+            select: {
+              id: true,
+              productId: true,
+              productTitle: true,
+              qty: true,
+              unitPrice: true,
+              imageUrl: true,
+              product: {
+                select: {
+                  slug: true
+                }
               }
-            }
+            },
           },
-        },
-        customer: {
-          select: {
-            name: true,
-            email: true,
-            phone: true,
+          customer: {
+            select: {
+              name: true,
+              email: true,
+              phone: true,
+            },
           },
-        },
-        returnPartner: {
-          select: {
-            user: {
-              select: {
-                name: true,
-                phone: true,
+          returnPartner: {
+            select: {
+              user: {
+                select: {
+                  name: true,
+                  phone: true,
+                },
               },
             },
           },
         },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.order.count({ where: whereClause })
+    ]);
+
+    return {
+      data: orders,
+      pagination: {
+        page,
+        limit,
+        totalItems: totalCount,
+        totalPages: Math.ceil(totalCount / limit)
+      }
+    };
   }
 
   /**

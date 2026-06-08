@@ -5,7 +5,7 @@ export class AdminOrderService {
   /**
    * Retrieves all orders for an admin
    */
-  static async getOrders(filters: any = {}) {
+  static async getOrders(filters: any = {}, page: number = 1, limit: number = 10) {
     const where: any = {};
     if (filters.paymentStatus) {
       where.paymentStatus = filters.paymentStatus;
@@ -14,50 +14,66 @@ export class AdminOrderService {
       where.returnStatus = filters.returnStatus;
     }
 
-    // Phase 3 Optimization: Replacing large `include` with targeted `select`
-    return await prisma.order.findMany({
-      where,
-      select: {
-        id: true,
-        orderNumber: true,
-        total: true,
-        status: true,
-        paymentStatus: true,
-        returnStatus: true,
-        refundStatus: true,
-        createdAt: true,
-        items: {
-          select: {
-            id: true,
-            productId: true,
-            productTitle: true,
-            qty: true,
-            unitPrice: true,
-            imageUrl: true,
-            product: {
-              select: {
-                slug: true
+    const skip = (page - 1) * limit;
+
+    const [orders, totalCount] = await prisma.$transaction([
+      prisma.order.findMany({
+        where,
+        skip,
+        take: limit,
+        select: {
+          id: true,
+          orderNumber: true,
+          total: true,
+          status: true,
+          paymentStatus: true,
+          returnStatus: true,
+          refundStatus: true,
+          createdAt: true,
+          items: {
+            select: {
+              id: true,
+              productId: true,
+              productTitle: true,
+              qty: true,
+              unitPrice: true,
+              imageUrl: true,
+              product: {
+                select: {
+                  slug: true
+                }
               }
-            }
+            },
           },
-        },
-        customer: {
-          select: {
-            name: true,
-            email: true,
+          customer: {
+            select: {
+              name: true,
+              email: true,
+            },
           },
-        },
-        seller: {
-          select: {
-            shopName: true,
-            user: {
-              select: { email: true },
+          seller: {
+            select: {
+              shopName: true,
+              user: {
+                select: { email: true },
+              },
             },
           },
         },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.order.count({ where })
+    ]);
+
+    return {
+      data: orders,
+      pagination: {
+        page,
+        limit,
+        totalItems: totalCount,
+        totalPages: Math.ceil(totalCount / limit)
+      }
+    };
   }
 
   /**

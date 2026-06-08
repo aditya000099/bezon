@@ -13,21 +13,25 @@ export const getOrders = async (req: Request, res: Response, next: NextFunction)
     }
 
     const filters = req.query;
-    let orders;
+    const page = parseInt(filters.page as string) || 1;
+    const limit = parseInt(filters.limit as string) || 10;
+    
+    let result;
 
     if (req.user.role === 'customer') {
-      orders = await CustomerOrderService.getOrders(req.user.id);
+      result = await CustomerOrderService.getOrders(req.user.id, page, limit);
     } else if (req.user.role === 'seller') {
-      orders = await SellerOrderService.getOrders(req.user.id, filters);
+      result = await SellerOrderService.getOrders(req.user.id, filters, page, limit);
     } else if (req.user.role === 'admin') {
-      orders = await AdminOrderService.getOrders(filters);
+      result = await AdminOrderService.getOrders(filters, page, limit);
     } else {
       return res.status(403).json({ success: false, message: 'Role not supported for order history.' });
     }
 
     res.json({
       success: true,
-      data: orders,
+      data: result.data,
+      pagination: result.pagination,
     });
   } catch (err) {
     next(err);
@@ -137,14 +141,23 @@ export const getSellerOrders = async (req: Request, res: Response, next: NextFun
     }
 
     const { returnStatus, returnInspectionStatus } = req.query;
-    const orders = await SellerOrderService.getOrders(req.user.id, {
-      returnStatus: returnStatus as string,
-      returnInspectionStatus: returnInspectionStatus as string,
-    });
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    
+    const result = await SellerOrderService.getOrders(
+      req.user.id, 
+      {
+        returnStatus: returnStatus as string,
+        returnInspectionStatus: returnInspectionStatus as string,
+      },
+      page,
+      limit
+    );
 
     res.json({
       success: true,
-      data: orders,
+      data: result.data,
+      pagination: result.pagination,
     });
   } catch (err) {
     next(err);

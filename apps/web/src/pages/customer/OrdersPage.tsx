@@ -15,13 +15,23 @@ export const OrdersPage: React.FC = () => {
   const { toast } = useToast();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Pagination State
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [limit] = useState(10);
 
-  const fetchOrders = async () => {
+  const fetchOrders = async (currentPage: number) => {
     setLoading(true);
     try {
-      const res = await api.get(API_ENDPOINTS.orders.base);
+      const res = await api.get(API_ENDPOINTS.orders.base, {
+        params: { page: currentPage, limit },
+      });
       if (res.data.success) {
         setOrders(res.data.data);
+        if (res.data.pagination) {
+          setTotalPages(res.data.pagination.totalPages);
+        }
       }
     } catch (err: any) {
       toast.error(
@@ -33,8 +43,8 @@ export const OrdersPage: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchOrders();
-  }, []);
+    fetchOrders(page);
+  }, [page]);
 
   const getStatusStyle = (status: string) => {
     switch (status) {
@@ -219,6 +229,30 @@ export const OrdersPage: React.FC = () => {
               </Card>
             );
           })}
+          
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-4 mt-6">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+              >
+                Previous
+              </Button>
+              <span className="text-sm font-semibold text-zinc-500">
+                Page {page} of {totalPages}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+              >
+                Next
+              </Button>
+            </div>
+          )}
         </div>
       )}
     </div>

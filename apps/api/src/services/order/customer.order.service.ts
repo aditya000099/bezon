@@ -4,41 +4,57 @@ export class CustomerOrderService {
   /**
    * Retrieves orders for a customer
    */
-  static async getOrders(userId: string) {
-    // Phase 3 Optimization: Replaced large `include` with targeted `select`
-    return await prisma.order.findMany({
-      where: { customerId: userId },
-      select: {
-        id: true,
-        orderNumber: true,
-        total: true,
-        status: true,
-        paymentStatus: true,
-        createdAt: true,
-        items: {
-          select: {
-            id: true,
-            productId: true,
-            productTitle: true,
-            qty: true,
-            unitPrice: true,
-            imageUrl: true,
-            product: {
-              select: {
-                slug: true
+  static async getOrders(userId: string, page: number = 1, limit: number = 10) {
+    const skip = (page - 1) * limit;
+
+    const [orders, totalCount] = await prisma.$transaction([
+      prisma.order.findMany({
+        where: { customerId: userId },
+        skip,
+        take: limit,
+        select: {
+          id: true,
+          orderNumber: true,
+          total: true,
+          status: true,
+          paymentStatus: true,
+          createdAt: true,
+          items: {
+            select: {
+              id: true,
+              productId: true,
+              productTitle: true,
+              qty: true,
+              unitPrice: true,
+              imageUrl: true,
+              product: {
+                select: {
+                  slug: true
+                }
               }
-            }
+            },
+          },
+          seller: {
+            select: {
+              shopName: true,
+              shopSlug: true,
+            },
           },
         },
-        seller: {
-          select: {
-            shopName: true,
-            shopSlug: true,
-          },
-        },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.order.count({ where: { customerId: userId } })
+    ]);
+
+    return {
+      data: orders,
+      pagination: {
+        page,
+        limit,
+        totalItems: totalCount,
+        totalPages: Math.ceil(totalCount / limit)
+      }
+    };
   }
 
   /**
