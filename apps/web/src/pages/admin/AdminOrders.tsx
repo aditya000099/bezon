@@ -105,7 +105,7 @@ export const AdminOrders: React.FC = () => {
         toast.success('Order force cancelled successfully.');
         // Refresh details & list
         fetchOrderDetail(selectedOrderId);
-        fetchOrders();
+        fetchOrders(page);
       }
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Failed to cancel order');
@@ -262,7 +262,7 @@ export const AdminOrders: React.FC = () => {
               endDate,
             }}
           />
-          <Button onClick={fetchOrders} variant="outline" className="flex items-center gap-2">
+          <Button onClick={() => fetchOrders(page)} variant="outline" className="flex items-center gap-2">
             <ArrowCounterClockwiseIcon className="h-4 w-4" />
             Refresh
           </Button>

@@ -1,12 +1,4 @@
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  Input,
-  Button,
-} from "@bezon/ui";
+import { Card, Input, Button } from "@bezon/ui";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -131,7 +123,7 @@ export const SellerOrders: React.FC = () => {
           <Button
             variant="outline"
             size="sm"
-            onClick={fetchOrders}
+            onClick={() => fetchOrders(page)}
             disabled={loading}
             className="w-full sm:w-auto font-medium hover:cursor-pointer"
           >
