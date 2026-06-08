@@ -64,7 +64,19 @@ export class CouponService {
     }
 
     const updateData: any = {};
+    
+    if (body.code !== undefined && body.code !== coupon.code) {
+      const existing = await prisma.coupon.findUnique({ where: { code: body.code } });
+      if (existing) {
+        const err = new Error(`Coupon code "${body.code}" is already taken.`);
+        (err as any).status = 409;
+        throw err;
+      }
+      updateData.code = body.code;
+    }
+
     if (body.description !== undefined) updateData.description = body.description;
+    if (body.discountType !== undefined) updateData.discountType = body.discountType;
     if (body.discountValue !== undefined) updateData.discountValue = body.discountValue;
     if (body.maxDiscount !== undefined) updateData.maxDiscount = body.maxDiscount;
     if (body.minOrderValue !== undefined) updateData.minOrderValue = body.minOrderValue;
@@ -73,6 +85,30 @@ export class CouponService {
     if (body.validFrom !== undefined) updateData.validFrom = new Date(body.validFrom);
     if (body.validUntil !== undefined) updateData.validUntil = new Date(body.validUntil);
     if (body.isActive !== undefined) updateData.isActive = body.isActive;
+
+    if (body.scopeType !== undefined) {
+      updateData.scopeType = body.scopeType;
+
+      if (body.scopeType === 'product' && body.scopeProductId) {
+        const product = await prisma.product.findUnique({ where: { id: body.scopeProductId } });
+        if (!product || product.sellerId !== sellerId) {
+          const err = new Error('You can only update coupons for your own products.');
+          (err as any).status = 403;
+          throw err;
+        }
+      } else if (body.scopeType === 'variantGroup' && body.scopeVariantGroupId) {
+        const productInGroup = await prisma.product.findFirst({ where: { variantGroupId: body.scopeVariantGroupId, sellerId } });
+        if (!productInGroup) {
+          const err = new Error('You can only update coupons for your own products.');
+          (err as any).status = 403;
+          throw err;
+        }
+      }
+
+      updateData.scopeCategoryId = body.scopeCategoryId ?? null;
+      updateData.scopeProductId = body.scopeProductId ?? null;
+      updateData.scopeVariantGroupId = body.scopeVariantGroupId ?? null;
+    }
 
     return prisma.coupon.update({ where: { id: couponId }, data: updateData });
   }

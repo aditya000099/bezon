@@ -1,80 +1,85 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import React from "react";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  Outlet,
+} from "react-router-dom";
 
 // Guards
-import { RoleGuard } from './RoleGuard';
-import { GuestGuard } from './GuestGuard';
-import { SellerGuard } from './SellerGuard';
-import { DeliveryGuard } from './DeliveryGuard';
+import { RoleGuard } from "./RoleGuard";
+import { GuestGuard } from "./GuestGuard";
+import { SellerGuard } from "./SellerGuard";
+import { DeliveryGuard } from "./DeliveryGuard";
 
 // Layouts
-import { CustomerLayout } from '../layouts/CustomerLayout';
-import { SellerLayout } from '../layouts/SellerLayout';
-import { AdminLayout } from '../layouts/AdminLayout';
-import { DeliveryLayout } from '../layouts/DeliveryLayout';
+import { CustomerLayout } from "../layouts/CustomerLayout";
+import { SellerLayout } from "../layouts/SellerLayout";
+import { AdminLayout } from "../layouts/AdminLayout";
+import { DeliveryLayout } from "../layouts/DeliveryLayout";
 
 // Public Pages
-import { LoginPage } from '../pages/public/LoginPage';
-import { RegisterPage } from '../pages/public/RegisterPage';
+import { LoginPage } from "../pages/public/LoginPage";
+import { RegisterPage } from "../pages/public/RegisterPage";
 
 // Customer Pages
-import { ShopPage } from '../pages/customer/ShopPage';
-import { ProductDetailPage } from '../pages/customer/ProductDetailPage';
-import { CartPage } from '../pages/customer/CartPage';
-import { CheckoutPage } from '../pages/customer/CheckoutPage';
-import { OrdersPage } from '../pages/customer/OrdersPage';
-import { OrderDetailPage } from '../pages/customer/OrderDetailPage';
-import { WishlistPage } from '../pages/customer/WishlistPage';
-import { ProfilePage } from '../pages/customer/ProfilePage';
-import { EditProfilePage } from '../pages/customer/EditProfilePage';
-import { AddressesPage } from '../pages/customer/AddressesPage';
-import { TermsConditionsPage } from '../pages/customer/TermsConditionsPage';
-import { PrivacyPolicyPage } from '../pages/customer/PrivacyPolicyPage';
-import { BecomeSellerPage } from '../pages/customer/BecomeSellerPage';
-import { SellerShopPage } from '../pages/customer/SellerShopPage';
-import { BecomeDeliveryPartnerPage } from '../pages/customer/BecomeDeliveryPartnerPage';
+import { ShopPage } from "../pages/customer/ShopPage";
+import { ProductDetailPage } from "../pages/customer/ProductDetailPage";
+import { CartPage } from "../pages/customer/CartPage";
+import { CheckoutPage } from "../pages/customer/CheckoutPage";
+import { OrdersPage } from "../pages/customer/OrdersPage";
+import { OrderDetailPage } from "../pages/customer/OrderDetailPage";
+import { WishlistPage } from "../pages/customer/WishlistPage";
+import { ProfilePage } from "../pages/customer/ProfilePage";
+import { EditProfilePage } from "../pages/customer/EditProfilePage";
+import { AddressesPage } from "../pages/customer/AddressesPage";
+import { TermsConditionsPage } from "../pages/customer/TermsConditionsPage";
+import { PrivacyPolicyPage } from "../pages/customer/PrivacyPolicyPage";
+import { BecomeSellerPage } from "../pages/customer/BecomeSellerPage";
+import { SellerShopPage } from "../pages/customer/SellerShopPage";
+import { BecomeDeliveryPartnerPage } from "../pages/customer/BecomeDeliveryPartnerPage";
 
 // Seller Pages
-import { SellerDashboard } from '../pages/seller/SellerDashboard';
-import { SellerProducts } from '../pages/seller/SellerProducts';
-import { SellerOrders } from '../pages/seller/SellerOrders';
-import { SellerInventory } from '../pages/seller/SellerInventory';
-import { SellerSettings } from '../pages/seller/SellerSettings';
-import { SellerCoupons } from '../pages/seller/SellerCoupons';
-import { SellerQA } from '@/pages/seller/SellerQA';
-import { SellerEditProduct } from '../pages/seller/SellerEditProduct';
-import { SellerStats } from '../pages/seller/SellerStats';
-import { SellerReturns } from '../pages/seller/SellerReturns';
-import { SellerReturnDetail } from '../pages/seller/SellerReturnDetail';
-import { SellerOrderDetail } from '../pages/seller/SellerOrderDetail';
-import { SellerAddProduct } from '../pages/seller/SellerAddProduct';
-import { SellerWallet } from '../pages/seller/SellerWallet';
-import { SellerAds } from '../pages/seller/SellerAds';
+import { SellerDashboard } from "../pages/seller/SellerDashboard";
+import { SellerProducts } from "../pages/seller/SellerProducts";
+import { SellerOrders } from "../pages/seller/SellerOrders";
+import { SellerInventory } from "../pages/seller/SellerInventory";
+import { SellerSettings } from "../pages/seller/SellerSettings";
+import { SellerCoupons } from "../pages/seller/SellerCoupons";
+import { SellerQA } from "@/pages/seller/SellerQA";
+import { SellerEditProduct } from "../pages/seller/SellerEditProduct";
+import { SellerStats } from "../pages/seller/SellerStats";
+import { SellerReturns } from "../pages/seller/SellerReturns";
+import { SellerReturnDetail } from "../pages/seller/SellerReturnDetail";
+import { SellerOrderDetail } from "../pages/seller/SellerOrderDetail";
+import { SellerAddProduct } from "../pages/seller/SellerAddProduct";
+import { SellerWallet } from "../pages/seller/SellerWallet";
+import { SellerAds } from "../pages/seller/SellerAds";
 // Delivery Pages
-import { DeliveryQueue } from '../pages/delivery/DeliveryQueue';
-import { DeliveryHistory } from '../pages/delivery/DeliveryHistory';
-import { DeliveryProfile } from '../pages/delivery/DeliveryProfile';
+import { DeliveryQueue } from "../pages/delivery/DeliveryQueue";
+import { DeliveryHistory } from "../pages/delivery/DeliveryHistory";
+import { DeliveryProfile } from "../pages/delivery/DeliveryProfile";
 
 // Admin Pages
-import { AdminDashboard } from '../pages/admin/AdminDashboard';
-import { AdminProducts } from '../pages/admin/AdminProducts';
-import { AdminSellers } from '../pages/admin/AdminSellers';
-import { AdminPartners } from '../pages/admin/AdminPartners';
-import { AdminOrders } from '../pages/admin/AdminOrders';
-import { AdminDeliveries } from '../pages/admin/AdminDeliveries';
-import { AdminDeliveryDetail } from '../pages/admin/AdminDeliveryDetail';
-import { AdminDeliveryPartnerDetail } from '../pages/admin/AdminDeliveryPartnerDetail';
-import { AdminUsers } from '../pages/admin/AdminUsers';
-import { AdminPolicies } from '../pages/admin/AdminPolicies';
-import { AdminRefunds } from '../pages/admin/AdminRefunds';
-import { AdminRefundDetail } from '../pages/admin/AdminRefundDetail';
-import { AdminReturns } from '../pages/admin/AdminReturns';
-import { AdminWallets } from '../pages/admin/AdminWallets';
-import { AdminReturnDetail } from '../pages/admin/AdminReturnDetail';
-import { AdminSettlementQueue } from '../pages/admin/AdminSettlementQueue';
+import { AdminDashboard } from "../pages/admin/AdminDashboard";
+import { AdminSellers } from "../pages/admin/AdminSellers";
+import { AdminPartners } from "../pages/admin/AdminPartners";
+import { AdminOrders } from "../pages/admin/AdminOrders";
+import { AdminDeliveries } from "../pages/admin/AdminDeliveries";
+import { AdminDeliveryDetail } from "../pages/admin/AdminDeliveryDetail";
+import { AdminDeliveryPartnerDetail } from "../pages/admin/AdminDeliveryPartnerDetail";
+import { AdminUsers } from "../pages/admin/AdminUsers";
+import { AdminPolicies } from "../pages/admin/AdminPolicies";
+import { AdminRefunds } from "../pages/admin/AdminRefunds";
+import { AdminRefundDetail } from "../pages/admin/AdminRefundDetail";
+import { AdminReturns } from "../pages/admin/AdminReturns";
+import { AdminWallets } from "../pages/admin/AdminWallets";
+import { AdminReturnDetail } from "../pages/admin/AdminReturnDetail";
+import { AdminSettlementQueue } from "../pages/admin/AdminSettlementQueue";
 
 const ProtectedCustomerRoute = () => (
-  <RoleGuard allowedRoles={['customer']}>
+  <RoleGuard allowedRoles={["customer"]}>
     <Outlet />
   </RoleGuard>
 );
@@ -107,7 +112,10 @@ export const AppRouter: React.FC = () => {
           <Route index element={<ShopPage />} />
           <Route path="products/:slug" element={<ProductDetailPage />} />
           <Route path="sellers/:shopSlug" element={<SellerShopPage />} />
-          <Route path="terms-and-conditions" element={<TermsConditionsPage />} />
+          <Route
+            path="terms-and-conditions"
+            element={<TermsConditionsPage />}
+          />
           <Route path="privacy-policy" element={<PrivacyPolicyPage />} />
 
           {/* Protected Routes */}
@@ -120,7 +128,10 @@ export const AppRouter: React.FC = () => {
             <Route path="profile" element={<ProfilePage />} />
             <Route path="profile/edit" element={<EditProfilePage />} />
             <Route path="become-seller" element={<BecomeSellerPage />} />
-            <Route path="become-delivery-partner" element={<BecomeDeliveryPartnerPage />} />
+            <Route
+              path="become-delivery-partner"
+              element={<BecomeDeliveryPartnerPage />}
+            />
             <Route path="addresses" element={<AddressesPage />} />
           </Route>
         </Route>
@@ -169,19 +180,21 @@ export const AppRouter: React.FC = () => {
         <Route
           path="/admin"
           element={
-            <RoleGuard allowedRoles={['admin']}>
+            <RoleGuard allowedRoles={["admin"]}>
               <AdminLayout />
             </RoleGuard>
           }
         >
           <Route index element={<AdminDashboard />} />
-          <Route path="products" element={<AdminProducts />} />
           <Route path="sellers" element={<AdminSellers />} />
           <Route path="partners" element={<AdminPartners />} />
           <Route path="orders" element={<AdminOrders />} />
           <Route path="deliveries" element={<AdminDeliveries />} />
           <Route path="deliveries/:id" element={<AdminDeliveryDetail />} />
-          <Route path="delivery-partners/:id" element={<AdminDeliveryPartnerDetail />} />
+          <Route
+            path="delivery-partners/:id"
+            element={<AdminDeliveryPartnerDetail />}
+          />
           <Route path="users" element={<AdminUsers />} />
           <Route path="policies" element={<AdminPolicies />} />
           <Route path="refunds" element={<AdminRefunds />} />

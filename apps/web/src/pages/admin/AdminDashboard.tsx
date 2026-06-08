@@ -43,23 +43,27 @@ export const AdminDashboard: React.FC = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const [sellersRes, deliveryRes, usersRes, ordersRes, settlementsRes, healthRes] =
-          await Promise.all([
-            api
-              .get("/api/v1/applications/admin/applications")
-              .catch(() => ({ data: { data: [] } })),
-            api
-              .get("/api/v1/applications/admin/delivery/applications")
-              .catch(() => ({ data: { data: [] } })),
-            api
-              .get("/api/v1/users/admin")
-              .catch(() => ({ data: { data: [] } })),
-            api.get("/api/v1/orders").catch(() => ({ data: { data: [] } })),
-            api.get("/api/v1/admin-settlements/metrics").catch(() => ({ data: { data: null } })),
-            api
-              .get("/api/v1/health")
-              .catch(() => ({ data: { success: false } })),
-          ]);
+        const [
+          sellersRes,
+          deliveryRes,
+          usersRes,
+          ordersRes,
+          settlementsRes,
+          healthRes,
+        ] = await Promise.all([
+          api
+            .get("/api/v1/applications/admin/applications")
+            .catch(() => ({ data: { data: [] } })),
+          api
+            .get("/api/v1/applications/admin/delivery/applications")
+            .catch(() => ({ data: { data: [] } })),
+          api.get("/api/v1/users/admin").catch(() => ({ data: { data: [] } })),
+          api.get("/api/v1/orders").catch(() => ({ data: { data: [] } })),
+          api
+            .get("/api/v1/admin-settlements/metrics")
+            .catch(() => ({ data: { data: null } })),
+          api.get("/api/v1/health").catch(() => ({ data: { success: false } })),
+        ]);
 
         const sellers = sellersRes.data?.data || [];
         const delivery = deliveryRes.data?.data || [];
@@ -144,14 +148,30 @@ export const AdminDashboard: React.FC = () => {
           netGmv: formatCurrency(netGmvValue),
           hasGmv: grossGmvValue > 0 || refundedGmvValue > 0,
           totalOrders: orders.length > 0 ? orders.length : null,
-          escrowBalance: settlementMetrics ? formatCurrency(settlementMetrics.escrowBalance) : null,
-          fundsOnHold: settlementMetrics ? formatCurrency(settlementMetrics.fundsOnHold) : null,
-          totalCommissionEarned: settlementMetrics ? formatCurrency(settlementMetrics.totalCommissionEarned) : null,
-          totalSettlementsReleased: settlementMetrics ? formatCurrency(settlementMetrics.totalSettlementsReleased) : null,
-          totalRefundsProcessed: settlementMetrics ? settlementMetrics.totalRefundsProcessed : null,
-          sellersAwaitingSettlement: settlementMetrics ? settlementMetrics.sellersAwaitingSettlement : null,
-          escrowComposition: settlementMetrics ? settlementMetrics.escrowComposition : null,
-          fundsOnHoldBySeller: settlementMetrics ? settlementMetrics.fundsOnHoldBySeller : [],
+          escrowBalance: settlementMetrics
+            ? formatCurrency(settlementMetrics.escrowBalance)
+            : null,
+          fundsOnHold: settlementMetrics
+            ? formatCurrency(settlementMetrics.fundsOnHold)
+            : null,
+          totalCommissionEarned: settlementMetrics
+            ? formatCurrency(settlementMetrics.totalCommissionEarned)
+            : null,
+          totalSettlementsReleased: settlementMetrics
+            ? formatCurrency(settlementMetrics.totalSettlementsReleased)
+            : null,
+          totalRefundsProcessed: settlementMetrics
+            ? settlementMetrics.totalRefundsProcessed
+            : null,
+          sellersAwaitingSettlement: settlementMetrics
+            ? settlementMetrics.sellersAwaitingSettlement
+            : null,
+          escrowComposition: settlementMetrics
+            ? settlementMetrics.escrowComposition
+            : null,
+          fundsOnHoldBySeller: settlementMetrics
+            ? settlementMetrics.fundsOnHoldBySeller
+            : [],
         });
 
         // 3. Compute and set pending actions
@@ -405,7 +425,11 @@ export const AdminDashboard: React.FC = () => {
               <Database className="h-4 w-4" /> Settlement Escrow Dashboard
             </span>
             <Link to="/admin/settlements/queue">
-              <Button variant="outline" size="sm" className="font-semibold text-xs border-zinc-300">
+              <Button
+                variant="outline"
+                size="sm"
+                className="font-semibold text-xs border-zinc-300"
+              >
                 View Settlement Queue <ArrowRight className="ml-2 h-3 w-3" />
               </Button>
             </Link>
@@ -459,30 +483,54 @@ export const AdminDashboard: React.FC = () => {
                   </h4>
                   <ul className="space-y-3 text-sm">
                     <li className="flex justify-between items-center">
-                      <span className="text-slate-600 font-medium">Funds On Hold</span>
-                      <span className="font-bold text-amber-600 font-mono">₹{metrics.escrowComposition?.fundsOnHold.toLocaleString()}</span>
+                      <span className="text-slate-600 font-medium">
+                        Funds On Hold
+                      </span>
+                      <span className="font-bold text-amber-600 font-mono">
+                        ₹
+                        {metrics.escrowComposition?.fundsOnHold.toLocaleString()}
+                      </span>
                     </li>
                     <li className="flex justify-between items-center">
-                      <span className="text-slate-600 font-medium">Platform Revenue</span>
-                      <span className="font-bold text-emerald-600 font-mono">₹{metrics.escrowComposition?.platformRevenue.toLocaleString()}</span>
+                      <span className="text-slate-600 font-medium">
+                        Platform Revenue
+                      </span>
+                      <span className="font-bold text-emerald-600 font-mono">
+                        ₹
+                        {metrics.escrowComposition?.platformRevenue.toLocaleString()}
+                      </span>
                     </li>
                     <li className="flex justify-between items-center text-slate-400">
                       <span>Refund Reserved</span>
-                      <span className="font-mono">₹{metrics.escrowComposition?.refundReserved.toLocaleString()}</span>
+                      <span className="font-mono">
+                        ₹
+                        {metrics.escrowComposition?.refundReserved.toLocaleString()}
+                      </span>
                     </li>
                     <li className="flex justify-between items-center text-slate-400">
                       <span>Awaiting Transfer</span>
-                      <span className="font-mono">₹{metrics.escrowComposition?.settledAwaitingTransfer.toLocaleString()}</span>
+                      <span className="font-mono">
+                        ₹
+                        {metrics.escrowComposition?.settledAwaitingTransfer.toLocaleString()}
+                      </span>
                     </li>
                   </ul>
                   <div className="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center">
                     <div className="flex flex-col">
-                      <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Refunds</span>
-                      <span className="font-bold text-slate-800">{metrics.totalRefundsProcessed} Processed</span>
+                      <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                        Refunds
+                      </span>
+                      <span className="font-bold text-slate-800">
+                        {metrics.totalRefundsProcessed} Processed
+                      </span>
                     </div>
                     <div className="flex flex-col text-right">
-                      <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Queue</span>
-                      <span className="font-bold text-slate-800">{metrics.sellersAwaitingSettlement} Sellers Waiting</span>
+                      <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                        Queue
+                      </span>
+                      <span className="font-bold text-slate-800">
+                        {metrics.sellersAwaitingSettlement} Sellers Waiting
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -494,7 +542,8 @@ export const AdminDashboard: React.FC = () => {
                       Funds On Hold By Seller
                     </h4>
                   </div>
-                  {metrics.fundsOnHoldBySeller && metrics.fundsOnHoldBySeller.length > 0 ? (
+                  {metrics.fundsOnHoldBySeller &&
+                  metrics.fundsOnHoldBySeller.length > 0 ? (
                     <div className="overflow-x-auto">
                       <table className="w-full text-sm text-left">
                         <thead className="bg-white border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
@@ -503,19 +552,33 @@ export const AdminDashboard: React.FC = () => {
                             <th className="px-4 py-2 text-center">Orders</th>
                             <th className="px-4 py-2 text-right">Gross Hold</th>
                             <th className="px-4 py-2 text-right">Commission</th>
-                            <th className="px-4 py-2 text-right">Exp. Settlement</th>
+                            <th className="px-4 py-2 text-right">
+                              Exp. Settlement
+                            </th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 bg-white">
-                          {metrics.fundsOnHoldBySeller.slice(0, 5).map((s: any, idx: number) => (
-                            <tr key={idx} className="hover:bg-slate-50">
-                              <td className="px-4 py-3 font-semibold text-slate-800">{s.shopName}</td>
-                              <td className="px-4 py-3 text-center text-slate-600">{s.pendingOrdersCount}</td>
-                              <td className="px-4 py-3 text-right font-mono text-slate-500">₹{s.grossAmountOnHold.toLocaleString()}</td>
-                              <td className="px-4 py-3 text-right font-mono text-rose-500">-₹{s.commissionAmount.toLocaleString()}</td>
-                              <td className="px-4 py-3 text-right font-mono font-bold text-emerald-600">₹{s.expectedSettlementAmount.toLocaleString()}</td>
-                            </tr>
-                          ))}
+                          {metrics.fundsOnHoldBySeller
+                            .slice(0, 5)
+                            .map((s: any, idx: number) => (
+                              <tr key={idx} className="hover:bg-slate-50">
+                                <td className="px-4 py-3 font-semibold text-slate-800">
+                                  {s.shopName}
+                                </td>
+                                <td className="px-4 py-3 text-center text-slate-600">
+                                  {s.pendingOrdersCount}
+                                </td>
+                                <td className="px-4 py-3 text-right font-mono text-slate-500">
+                                  ₹{s.grossAmountOnHold.toLocaleString()}
+                                </td>
+                                <td className="px-4 py-3 text-right font-mono text-rose-500">
+                                  -₹{s.commissionAmount.toLocaleString()}
+                                </td>
+                                <td className="px-4 py-3 text-right font-mono font-bold text-emerald-600">
+                                  ₹{s.expectedSettlementAmount.toLocaleString()}
+                                </td>
+                              </tr>
+                            ))}
                         </tbody>
                       </table>
                     </div>
@@ -524,13 +587,17 @@ export const AdminDashboard: React.FC = () => {
                       No funds currently on hold.
                     </div>
                   )}
-                  {metrics.fundsOnHoldBySeller && metrics.fundsOnHoldBySeller.length > 5 && (
-                    <div className="bg-slate-50 p-2 text-center border-t border-slate-200">
-                      <Link to="/admin/settlements/queue" className="text-xs font-bold text-indigo-600 hover:text-indigo-800">
-                        View All {metrics.fundsOnHoldBySeller.length} Sellers
-                      </Link>
-                    </div>
-                  )}
+                  {metrics.fundsOnHoldBySeller &&
+                    metrics.fundsOnHoldBySeller.length > 5 && (
+                      <div className="bg-slate-50 p-2 text-center border-t border-slate-200">
+                        <Link
+                          to="/admin/settlements/queue"
+                          className="text-xs font-bold text-indigo-600 hover:text-indigo-800"
+                        >
+                          View All {metrics.fundsOnHoldBySeller.length} Sellers
+                        </Link>
+                      </div>
+                    )}
                 </div>
               </div>
             </div>
@@ -600,29 +667,6 @@ export const AdminDashboard: React.FC = () => {
                           <p className="text-xs text-slate-500">
                             {pendingActions.delivery !== null
                               ? `${pendingActions.delivery} pending review`
-                              : "No data available"}
-                          </p>
-                        </div>
-                      </div>
-                      <ArrowRight className="h-4 w-4 text-slate-400 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all" />
-                    </div>
-                  </Link>
-                  <Link
-                    to="/admin/products"
-                    className="p-6 hover:bg-slate-50 transition-colors group border-t sm:border-t-slate-100 border-slate-100"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="bg-rose-100 text-rose-700 p-2 rounded-lg">
-                          <Package className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
-                            Product Reports
-                          </p>
-                          <p className="text-xs text-slate-500">
-                            {pendingActions.products !== null
-                              ? `${pendingActions.products} pending audits`
                               : "No data available"}
                           </p>
                         </div>

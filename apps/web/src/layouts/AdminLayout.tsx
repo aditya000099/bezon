@@ -26,7 +26,6 @@ export const AdminLayout: React.FC = () => {
     { to: "/admin/deliveries", label: "Delivery Ops", icon: Truck },
     { to: "/admin/sellers", label: "Sellers Management", icon: ShieldWarning },
     { to: "/admin/partners", label: "Delivery Partners", icon: Users },
-    { to: "/admin/products", label: "Products Audit", icon: ShoppingBag },
     { to: "/admin/policies", label: "Policies", icon: ShieldCheck },
     { to: "/admin/refunds", label: "Refund Management", icon: CurrencyDollar },
     { to: "/admin/returns", label: "Returns", icon: ArrowCounterClockwise },
