@@ -1,3 +1,5 @@
+import { logger } from "@/utils/logger";
+import { Button } from '@bezon/ui';
 import type { ReactNode } from "react"
 import React, {
   createContext,
@@ -15,7 +17,6 @@ import type {
 } from "canvas-confetti"
 import confetti from "canvas-confetti"
 
-import { Button } from "@/components/ui/button"
 
 type Api = {
   fire: (options?: ConfettiOptions) => void
@@ -66,7 +67,7 @@ const ConfettiComponent = forwardRef<ConfettiRef, Props>((props, ref) => {
       try {
         await instanceRef.current?.({ ...options, ...opts })
       } catch (error) {
-        console.error("Confetti error:", error)
+        logger.error("Confetti error:", error)
       }
     },
     [options]
@@ -87,7 +88,7 @@ const ConfettiComponent = forwardRef<ConfettiRef, Props>((props, ref) => {
         try {
           await fire()
         } catch (error) {
-          console.error("Confetti effect error:", error)
+          logger.error("Confetti effect error:", error)
         }
       })()
     }
@@ -130,7 +131,7 @@ const ConfettiButtonComponent = ({
         },
       })
     } catch (error) {
-      console.error("Confetti button error:", error)
+      logger.error("Confetti button error:", error)
     }
   }
 
@@ -158,6 +159,6 @@ export const fireConfetti = async (opts?: ConfettiOptions) => {
       ...opts,
     })
   } catch (error) {
-    console.error("Confetti error:", error)
+    logger.error("Confetti error:", error)
   }
 }

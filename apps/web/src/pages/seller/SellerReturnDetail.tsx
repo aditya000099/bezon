@@ -1,18 +1,19 @@
+import { Card, CardContent, CardHeader, CardTitle, Button } from '@bezon/ui';
 import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+;
+;
 import {
-  Spinner,
-  ArrowLeft,
-  Package,
-  User,
-  MapPin,
-  Truck,
-  CheckCircle,
-  Clock,
-  WarningCircle,
-  CaretRight,
+  SpinnerIcon,
+  ArrowLeftIcon,
+  PackageIcon,
+  UserIcon,
+  MapPinIcon,
+  TruckIcon,
+  CheckCircleIcon,
+  ClockIcon,
+  WarningCircleIcon,
+  CaretRightIcon,
 } from "@phosphor-icons/react";
 import api from "../../lib/api";
 import { API_ENDPOINTS } from "../../config/api.config";
@@ -159,7 +160,7 @@ export const SellerReturnDetail: React.FC = () => {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] text-zinc-500">
-        <Spinner className="h-8 w-8 animate-spin mb-4 text-teal-500" />
+        <SpinnerIcon className="h-8 w-8 animate-spin mb-4 text-teal-500" />
         <p className="font-medium">Loading return details...</p>
       </div>
     );
@@ -168,7 +169,7 @@ export const SellerReturnDetail: React.FC = () => {
   if (!order || !order.returnStatus || order.returnStatus === "NONE") {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] text-zinc-500">
-        <WarningCircle className="h-12 w-12 mb-3 opacity-20" />
+        <WarningCircleIcon className="h-12 w-12 mb-3 opacity-20" />
         <p>Return details not found.</p>
         <Button
           variant="outline"
@@ -189,11 +190,11 @@ export const SellerReturnDetail: React.FC = () => {
           <Link to="/seller" className="hover:text-zinc-900">
             Dashboard
           </Link>
-          <CaretRight className="mx-2 h-3 w-3" />
+          <CaretRightIcon className="mx-2 h-3 w-3" />
           <Link to="/seller/returns" className="hover:text-zinc-900">
             Returns
           </Link>
-          <CaretRight className="mx-2 h-3 w-3" />
+          <CaretRightIcon className="mx-2 h-3 w-3" />
           <span className="text-zinc-900 font-medium">Return Details</span>
         </nav>
 
@@ -205,7 +206,7 @@ export const SellerReturnDetail: React.FC = () => {
               onClick={() => navigate("/seller/returns")}
               className="h-8 px-2"
             >
-              <ArrowLeft className="h-4 w-4 mr-1" /> Back
+              <ArrowLeftIcon className="h-4 w-4 mr-1" /> Back
             </Button>
             <h1 className="text-2xl font-bold tracking-tight text-zinc-900">
               Return: {order.orderNumber}
@@ -269,7 +270,7 @@ export const SellerReturnDetail: React.FC = () => {
             <div>
               <p className="text-zinc-500 mb-1">Customer City</p>
               <p className="font-medium text-zinc-900 flex items-center gap-1">
-                <MapPin className="h-4 w-4 text-zinc-400" />{" "}
+                <MapPinIcon className="h-4 w-4 text-zinc-400" />{" "}
                 {order.addressSnapshot?.city || "Unknown"}
               </p>
             </div>
@@ -282,7 +283,7 @@ export const SellerReturnDetail: React.FC = () => {
         <Card className="shadow-sm">
           <CardHeader className="pb-3 border-b">
             <CardTitle className="text-base flex items-center gap-2">
-              <Package className="h-5 w-5 text-teal-600" /> Product Information
+              <PackageIcon className="h-5 w-5 text-teal-600" /> Product Information
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-4 space-y-4">
@@ -299,7 +300,7 @@ export const SellerReturnDetail: React.FC = () => {
                   />
                 ) : (
                   <div className="w-20 h-20 bg-zinc-100 rounded-md flex items-center justify-center text-xs text-zinc-400 border">
-                    <Package className="h-8 w-8 text-zinc-300" />
+                    <PackageIcon className="h-8 w-8 text-zinc-300" />
                   </div>
                 )}
                 <div className="flex-1 space-y-1">
@@ -323,7 +324,7 @@ export const SellerReturnDetail: React.FC = () => {
           <Card className="shadow-sm">
             <CardHeader className="pb-3 border-b">
               <CardTitle className="text-base flex items-center gap-2">
-                <User className="h-5 w-5 text-teal-600" /> Customer Information
+                <UserIcon className="h-5 w-5 text-teal-600" /> Customer Information
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-4 text-sm space-y-2">
@@ -362,7 +363,7 @@ export const SellerReturnDetail: React.FC = () => {
             <Card className="shadow-sm">
               <CardHeader className="pb-3 border-b">
                 <CardTitle className="text-base flex items-center gap-2">
-                  <Truck className="h-5 w-5 text-teal-600" /> Delivery Partner
+                  <TruckIcon className="h-5 w-5 text-teal-600" /> Delivery Partner
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-4 text-sm space-y-2">
@@ -406,7 +407,7 @@ export const SellerReturnDetail: React.FC = () => {
       <Card className="shadow-sm">
         <CardHeader className="pb-3 border-b">
           <CardTitle className="text-base flex items-center gap-2">
-            <Clock className="h-5 w-5 text-teal-600" /> Return Lifecycle
+            <ClockIcon className="h-5 w-5 text-teal-600" /> Return Lifecycle
             Timeline
           </CardTitle>
         </CardHeader>
@@ -472,7 +473,7 @@ export const SellerReturnDetail: React.FC = () => {
           ) && (
             <div className="flex w-full justify-between items-center text-zinc-500">
               <div className="flex items-center gap-2">
-                <Truck className="h-5 w-5" />
+                <TruckIcon className="h-5 w-5" />
                 <span>Waiting for logistics to complete return...</span>
               </div>
             </div>
@@ -516,14 +517,14 @@ export const SellerReturnDetail: React.FC = () => {
                     disabled={saving}
                     className="bg-teal-600 hover:bg-teal-700 w-full md:w-auto shrink-0"
                   >
-                    <CheckCircle className="mr-2 h-4 w-4" /> Save Inspection
+                    <CheckCircleIcon className="mr-2 h-4 w-4" /> Save Inspection
                   </Button>
                 </>
               ) : (
                 <div className="flex w-full justify-between items-center">
                   <div>
                     <p className="font-bold text-zinc-800 flex items-center gap-2">
-                      <CheckCircle className="h-5 w-5 text-emerald-500" />{" "}
+                      <CheckCircleIcon className="h-5 w-5 text-emerald-500" />{" "}
                       Return Inspected
                     </p>
                     <p className="text-sm text-zinc-500 mt-1">

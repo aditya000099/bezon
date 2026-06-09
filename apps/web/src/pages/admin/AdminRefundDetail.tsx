@@ -1,19 +1,20 @@
+import { Card, CardContent, CardHeader, CardTitle, Button } from '@bezon/ui';
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+;
+;
 import {
-  ArrowLeft,
-  Money,
-  Package,
-  Truck,
-  User,
-  Storefront,
-  Clock,
-  CheckCircle,
-  WarningCircle,
-  XCircle,
-  Spinner,
+  ArrowLeftIcon,
+  MoneyIcon,
+  PackageIcon,
+  TruckIcon,
+  UserIcon,
+  StorefrontIcon,
+  ClockIcon,
+  CheckCircleIcon,
+  WarningCircleIcon,
+  XCircleIcon,
+  SpinnerIcon,
 } from "@phosphor-icons/react";
 import api from "../../lib/api";
 import { API_ENDPOINTS } from "../../config/api.config";
@@ -44,7 +45,7 @@ export const AdminRefundDetail: React.FC = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <Spinner className="h-8 w-8 text-teal-600 animate-spin" />
+        <SpinnerIcon className="h-8 w-8 text-teal-600 animate-spin" />
       </div>
     );
   }
@@ -94,7 +95,7 @@ export const AdminRefundDetail: React.FC = () => {
           onClick={() => navigate("/admin/refunds")}
           className="rounded-full"
         >
-          <ArrowLeft className="h-5 w-5" />
+          <ArrowLeftIcon className="h-5 w-5" />
         </Button>
         <div>
           <div className="flex items-center gap-3">
@@ -119,7 +120,7 @@ export const AdminRefundDetail: React.FC = () => {
           <Card className="border-emerald-100 shadow-[0_0_15px_rgba(16,185,129,0.05)]">
             <CardHeader className="bg-emerald-50/50 border-b border-emerald-100">
               <CardTitle className="text-emerald-800 flex items-center gap-2 text-lg">
-                <Money className="h-5 w-5" /> Refund Information
+                <MoneyIcon className="h-5 w-5" /> Refund Information
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
@@ -163,7 +164,7 @@ export const AdminRefundDetail: React.FC = () => {
               </div>
               {order.refundFailureReason && (
                 <div className="mt-4 p-3 bg-rose-50 border border-rose-100 rounded text-sm text-rose-800 flex items-start gap-2">
-                  <XCircle className="h-5 w-5 shrink-0 mt-0.5" />
+                  <XCircleIcon className="h-5 w-5 shrink-0 mt-0.5" />
                   <div>
                     <strong>Failure Reason:</strong> {order.refundFailureReason}
                   </div>
@@ -176,7 +177,7 @@ export const AdminRefundDetail: React.FC = () => {
           <Card>
             <CardContent className="p-6">
               <h3 className="font-semibold text-lg text-zinc-900 mb-4 flex items-center gap-2 border-b pb-2">
-                <Package className="text-zinc-500" /> Items & Participants
+                <PackageIcon className="text-zinc-500" /> Items & Participants
               </h3>
 
               <div className="space-y-4">
@@ -190,7 +191,7 @@ export const AdminRefundDetail: React.FC = () => {
                     />
                   ) : (
                     <div className="w-12 h-12 bg-zinc-200 rounded flex items-center justify-center">
-                      <Package className="h-6 w-6 text-zinc-400" />
+                      <PackageIcon className="h-6 w-6 text-zinc-400" />
                     </div>
                   )}
                   <div className="flex-1">
@@ -208,7 +209,7 @@ export const AdminRefundDetail: React.FC = () => {
                   {/* Customer */}
                   <div className="p-3 border rounded-lg flex items-start gap-3">
                     <div className="bg-blue-100 p-2 rounded-full text-blue-600">
-                      <User />
+                      <UserIcon />
                     </div>
                     <div>
                       <p className="text-xs text-zinc-500 font-medium">
@@ -226,7 +227,7 @@ export const AdminRefundDetail: React.FC = () => {
                   {/* Seller */}
                   <div className="p-3 border rounded-lg flex items-start gap-3">
                     <div className="bg-amber-100 p-2 rounded-full text-amber-600">
-                      <Storefront />
+                      <StorefrontIcon />
                     </div>
                     <div>
                       <p className="text-xs text-zinc-500 font-medium">
@@ -248,7 +249,7 @@ export const AdminRefundDetail: React.FC = () => {
           <Card>
             <CardHeader className="bg-emerald-50/50 border-b">
               <CardTitle className="text-sm font-medium flex items-center gap-2 text-emerald-800">
-                <Clock className="h-4 w-4" /> Refund Timeline
+                <ClockIcon className="h-4 w-4" /> Refund Timeline
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-6">
@@ -277,7 +278,7 @@ export const AdminRefundDetail: React.FC = () => {
           <Card>
             <CardHeader className="bg-zinc-50 border-b">
               <CardTitle className="text-sm font-medium flex items-center gap-2 text-zinc-700">
-                <Truck className="h-4 w-4" /> Return & Logistics Timeline
+                <TruckIcon className="h-4 w-4" /> Return & Logistics Timeline
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-6">

@@ -1,8 +1,13 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&family=Hanken+Grotesk:wght@400;500;600&display=swap');
 @import "tailwindcss";
 
 @plugin "tailwindcss-animate";
 
 @theme {
+  --font-sans: 'Hanken Grotesk', sans-serif;
+  --font-display: 'Manrope', sans-serif;
+  --font-heading: 'Manrope', sans-serif;
+
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
@@ -104,7 +109,7 @@
   --input: 0 0% 96%;
   --ring: 0 0% 10%;
 
-  --radius: 1rem;
+  --radius: 0.5rem;
 }
 
 .dark {
@@ -144,6 +149,10 @@
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
+    font-family: var(--font-sans);
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
   }
 }

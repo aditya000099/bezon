@@ -1,10 +1,11 @@
 import crypto from 'crypto';
+import { config } from '../config/env.config.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
 // Hash the raw key using SHA-256 to ensure it's always exactly 32 bytes long
-const rawKey = process.env.ENCRYPTION_KEY || 'default_secret_key_needs_32_bytes_';
+const rawKey = config.ENCRYPTION_KEY;
 const ENCRYPTION_KEY = crypto.createHash('sha256').update(rawKey).digest();
 const ALGORITHM = 'aes-256-cbc';
 

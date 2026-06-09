@@ -1,23 +1,18 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter, Button } from '@bezon/ui';
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+;
+;
 import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardFooter,
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import {
-  ShoppingBag,
-  ArrowRight,
-  Trash,
-  Plus,
-  Minus,
-  Spinner,
-} from '@phosphor-icons/react';
-import { useCart } from '../../context/CartContext';
-import { useToast } from '../../context/ToastContext';
+  ShoppingBagIcon,
+  ArrowRightIcon,
+  TrashIcon,
+  PlusIcon,
+  MinusIcon,
+  SpinnerIcon,
+} from "@phosphor-icons/react";
+import { useCart } from "../../context/CartContext";
+import { useToast } from "../../context/ToastContext";
 
 export const CartPage: React.FC = () => {
   const { toast } = useToast();
@@ -35,10 +30,10 @@ export const CartPage: React.FC = () => {
     setUpdatingItemId(itemId);
     try {
       await updateQty(itemId, newQty);
-      toast.success('Cart updated.');
+      toast.success("Cart updated.");
     } catch (err: any) {
       toast.error(
-        err.response?.data?.message || 'Failed to update item quantity.',
+        err.response?.data?.message || "Failed to update item quantity.",
       );
     } finally {
       setUpdatingItemId(null);
@@ -49,9 +44,9 @@ export const CartPage: React.FC = () => {
     setUpdatingItemId(itemId);
     try {
       await removeItem(itemId);
-      toast.success('Item removed from cart.');
+      toast.success("Item removed from cart.");
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Could not remove item.');
+      toast.error(err.response?.data?.message || "Could not remove item.");
     } finally {
       setUpdatingItemId(null);
     }
@@ -65,14 +60,14 @@ export const CartPage: React.FC = () => {
 
       {loading && items.length === 0 ? (
         <div className="flex flex-col items-center justify-center min-h-75 text-zinc-400 gap-2">
-          <Spinner className="h-8 w-8 animate-spin text-teal-500" />
+          <SpinnerIcon className="h-8 w-8 animate-spin text-teal-500" />
           <p className="text-sm font-semibold">Loading shopping cart...</p>
         </div>
       ) : items.length === 0 ? (
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Empty State */}
-          <Card className="flex-1 bg-zinc-50/80 border-0 flex flex-col items-center justify-center min-h-[300px] p-6 rounded-[2rem]">
-            <ShoppingBag className="h-12 w-12 text-zinc-300 mb-4 animate-bounce" />
+          <Card className="flex-1 bg-zinc-50/80 border-0 flex flex-col items-center justify-center min-h-75 p-6 rounded-4xl">
+            <ShoppingBagIcon className="h-12 w-12 text-zinc-300 mb-4 animate-bounce" />
             <CardTitle className="text-lg font-bold text-zinc-700">
               Your cart is empty
             </CardTitle>
@@ -87,7 +82,7 @@ export const CartPage: React.FC = () => {
           </Card>
 
           {/* Checkout Summaries */}
-          <Card className="w-full lg:w-80 bg-zinc-50/80 border-0 h-fit p-8 flex flex-col gap-4 rounded-[2rem]">
+          <Card className="w-full lg:w-80 bg-zinc-50/80 border-0 h-fit p-8 flex flex-col gap-4 rounded-4xl">
             <CardHeader className="p-0 border-b border-zinc-200/50 pb-4">
               <CardTitle className="text-base font-bold text-zinc-800">
                 Order Summary
@@ -109,7 +104,7 @@ export const CartPage: React.FC = () => {
                 <span>₹0.00</span>
               </div>
               <Button disabled className="w-full font-bold" variant="secondary">
-                Proceed <ArrowRight className="h-4 w-4 ml-1.5" />
+                Proceed <ArrowRightIcon className="h-4 w-4 ml-1.5" />
               </Button>
             </CardFooter>
           </Card>
@@ -125,7 +120,7 @@ export const CartPage: React.FC = () => {
                 ) || (item.product as any)?.images?.[0];
               const attrText = Object.entries(item.product?.attributes || {})
                 .map(([k, v]) => `${k}: ${v}`)
-                .join(', ');
+                .join(", ");
 
               return (
                 <Card
@@ -134,7 +129,7 @@ export const CartPage: React.FC = () => {
                 >
                   {updatingItemId === item.id && (
                     <div className="absolute inset-0 bg-white/60 z-10 flex items-center justify-center">
-                      <Spinner className="h-6 w-6 animate-spin text-teal-600" />
+                      <SpinnerIcon className="h-6 w-6 animate-spin text-teal-600" />
                     </div>
                   )}
 
@@ -147,7 +142,7 @@ export const CartPage: React.FC = () => {
                           className="h-full w-full object-cover"
                         />
                       ) : (
-                        <ShoppingBag className="h-8 w-8 text-zinc-300" />
+                        <ShoppingBagIcon className="h-8 w-8 text-zinc-300" />
                       )}
                     </div>
                     <div>
@@ -174,7 +169,7 @@ export const CartPage: React.FC = () => {
                         onClick={() => handleUpdateQty(item.id, item.qty, -1)}
                         disabled={item.qty <= 1}
                       >
-                        <Minus className="h-3.5 w-3.5" />
+                        <MinusIcon className="h-3.5 w-3.5" />
                       </Button>
                       <span className="w-8 text-center text-sm font-bold text-zinc-800">
                         {item.qty}
@@ -186,7 +181,7 @@ export const CartPage: React.FC = () => {
                         onClick={() => handleUpdateQty(item.id, item.qty, 1)}
                         disabled={item.qty >= (item.product as any).totalStock}
                       >
-                        <Plus className="h-3.5 w-3.5" />
+                        <PlusIcon className="h-3.5 w-3.5" />
                       </Button>
                     </div>
 
@@ -208,7 +203,7 @@ export const CartPage: React.FC = () => {
                       className="text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-full h-9 w-9 shrink-0"
                       onClick={() => handleRemoveItem(item.id)}
                     >
-                      <Trash className="h-4.5 w-4.5" />
+                      <TrashIcon className="h-4.5 w-4.5" />
                     </Button>
                   </div>
                 </Card>
@@ -217,7 +212,7 @@ export const CartPage: React.FC = () => {
           </div>
 
           {/* Summary Panel */}
-          <Card className="w-full lg:w-80 bg-zinc-50/80 border-0 h-fit p-8 flex flex-col gap-4 shrink-0 rounded-[2rem]">
+          <Card className="w-full lg:w-80 bg-zinc-50/80 border-0 h-fit p-8 flex flex-col gap-4 shrink-0 rounded-4xl">
             <CardHeader className="p-0 border-b border-zinc-200/50 pb-4">
               <CardTitle className="text-base font-bold text-zinc-800">
                 Order Summary
@@ -244,7 +239,7 @@ export const CartPage: React.FC = () => {
               </div>
               <Link to="/checkout" className="w-full">
                 <Button className="w-full font-bold">
-                  Proceed to Checkout <ArrowRight className="h-4 w-4 ml-1.5" />
+                  Proceed to Checkout <ArrowRightIcon className="h-4 w-4 ml-1.5" />
                 </Button>
               </Link>
             </CardFooter>

@@ -1,23 +1,18 @@
+import { Card, CardContent, CardHeader, CardTitle, Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@bezon/ui';
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+;
+;
 import {
-  Spinner,
-  ArrowLeft,
-  WarningCircle,
-  CheckCircle,
+  SpinnerIcon,
+  ArrowLeftIcon,
+  WarningCircleIcon,
+  CheckCircleIcon,
 } from "@phosphor-icons/react";
 import api from "../../lib/api";
 import { API_ENDPOINTS } from "../../config/api.config";
 import { useToast } from "../../context/ToastContext";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
+;
 
 export const AdminDeliveryDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -87,7 +82,7 @@ export const AdminDeliveryDetail: React.FC = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <Spinner className="animate-spin text-teal-600 h-8 w-8" />
+        <SpinnerIcon className="animate-spin text-teal-600 h-8 w-8" />
       </div>
     );
   }
@@ -120,7 +115,7 @@ export const AdminDeliveryDetail: React.FC = () => {
         <div className="flex items-center gap-4 mt-2">
           <Link to="/admin/deliveries">
             <Button variant="ghost" size="icon">
-              <ArrowLeft className="h-5 w-5" />
+              <ArrowLeftIcon className="h-5 w-5" />
             </Button>
           </Link>
           <h1 className="text-2xl font-bold">
@@ -217,7 +212,7 @@ export const AdminDeliveryDetail: React.FC = () => {
             </div>
             {currentDelivery?.failureReason && (
               <div className="bg-red-50 text-red-700 p-3 rounded-md flex gap-2">
-                <WarningCircle className="h-5 w-5 shrink-0" />
+                <WarningCircleIcon className="h-5 w-5 shrink-0" />
                 <div>
                   <p className="font-semibold">Delivery Exception</p>
                   <p className="text-xs">{currentDelivery.failureReason}</p>
@@ -297,7 +292,7 @@ export const AdminDeliveryDetail: React.FC = () => {
                   className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active"
                 >
                   <div className="flex items-center justify-center w-10 h-10 rounded-full border border-white bg-slate-300 group-[.is-active]:bg-emerald-500 text-slate-500 group-[.is-active]:text-emerald-50 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2">
-                    <CheckCircle className="h-5 w-5" />
+                    <CheckCircleIcon className="h-5 w-5" />
                   </div>
                   <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-white p-4 rounded border shadow">
                     <div className="flex items-center justify-between space-x-2 mb-1">

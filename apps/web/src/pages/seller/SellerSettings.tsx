@@ -1,21 +1,21 @@
-import React, { useEffect, useState } from 'react';
 import {
   Card,
   CardHeader,
   CardTitle,
   CardContent,
   CardDescription,
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+  Input,
+  Button,
+} from '@bezon/ui';
+import React, { useEffect, useState } from 'react';
 import {
-  Spinner,
-  Storefront,
-  FileText,
-  Bank,
-  ShieldCheck,
-  MapPin,
-  Compass,
+  SpinnerIcon,
+  StorefrontIcon,
+  FileTextIcon,
+  BankIcon,
+  ShieldCheckIcon,
+  MapPinIcon,
+  CompassIcon,
 } from '@phosphor-icons/react';
 import api from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api.config';
@@ -101,14 +101,14 @@ export const SellerSettings: React.FC = () => {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-100 text-zinc-500">
-        <Spinner className="h-8 w-8 animate-spin mb-4 text-teal-500" />
+        <SpinnerIcon className="h-8 w-8 animate-spin mb-4 text-teal-500" />
         <p className="font-medium">Loading settings...</p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-zinc-800 tracking-tight">
           Shop Settings
@@ -122,8 +122,8 @@ export const SellerSettings: React.FC = () => {
         <Card className="bg-white border-zinc-200 shadow-sm">
           <CardHeader className="border-b border-zinc-100 pb-4">
             <CardTitle className="text-lg font-bold text-zinc-800 flex items-center gap-2">
-              <Storefront className="h-5 w-5 text-teal-500" />
-              Storefront Information
+              <StorefrontIcon className="h-5 w-5 text-teal-500" />
+              Information
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6 space-y-4">
@@ -159,8 +159,8 @@ export const SellerSettings: React.FC = () => {
         <Card className="bg-white border-zinc-200 shadow-sm animate-in fade-in slide-in-from-top-4 duration-250">
           <CardHeader className="border-b border-zinc-100 pb-4">
             <CardTitle className="text-lg font-bold text-zinc-800 flex items-center gap-2">
-              <MapPin className="h-5 w-5 text-teal-500" />
-              Storefront Location
+              <MapPinIcon className="h-5 w-5 text-teal-500" />
+              Location
             </CardTitle>
             <CardDescription>
               Configure physical shop address for coordinating delivery courier
@@ -247,9 +247,8 @@ export const SellerSettings: React.FC = () => {
 
             {formData.lat && formData.lng && (
               <div className="text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 p-2.5 rounded-xl self-start inline-flex items-center gap-1.5 mt-2">
-                <Compass className="h-4 w-4 text-emerald-500 animate-spin-slow" />
-                Storefront Geolocation Configured: {formData.lat},{' '}
-                {formData.lng}
+                <CompassIcon className="h-4 w-4 text-emerald-500 animate-spin-slow" />
+                Store Geolocation Configured: {formData.lat}, {formData.lng}
               </div>
             )}
           </CardContent>
@@ -258,7 +257,7 @@ export const SellerSettings: React.FC = () => {
         <Card className="bg-white border-zinc-200 shadow-sm">
           <CardHeader className="border-b border-zinc-100 pb-4">
             <CardTitle className="text-lg font-bold text-zinc-800 flex items-center gap-2">
-              <FileText className="h-5 w-5 text-amber-500" />
+              <FileTextIcon className="h-5 w-5 text-amber-500" />
               Tax Information
             </CardTitle>
             <CardDescription>
@@ -304,8 +303,8 @@ export const SellerSettings: React.FC = () => {
         <Card className="bg-white border-zinc-200 shadow-sm">
           <CardHeader className="border-b border-zinc-100 pb-4">
             <CardTitle className="text-lg font-bold text-zinc-800 flex items-center gap-2">
-              <Bank className="h-5 w-5 text-emerald-500" />
-              Bank Details
+              <BankIcon className="h-5 w-5 text-emerald-500" />
+              Details
             </CardTitle>
             <CardDescription>
               Your payouts will be credited here. Stored securely via end-to-end
@@ -322,7 +321,7 @@ export const SellerSettings: React.FC = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, bankName: e.target.value })
                 }
-                placeholder="Ex: State Bank of India"
+                placeholder="Ex: State BankIcon of India"
               />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -339,7 +338,7 @@ export const SellerSettings: React.FC = () => {
                     }
                     placeholder="Enter account number"
                   />
-                  <ShieldCheck className="absolute right-3 top-2.5 h-4 w-4 text-emerald-500" />
+                  <ShieldCheckIcon className="absolute right-3 top-2.5 h-4 w-4 text-emerald-500" />
                 </div>
                 <p className="text-[10px] text-zinc-400">Stored encrypted.</p>
               </div>
@@ -359,7 +358,7 @@ export const SellerSettings: React.FC = () => {
                     }
                     placeholder="Ex: SBIN0001234"
                   />
-                  <ShieldCheck className="absolute right-3 top-2.5 h-4 w-4 text-emerald-500" />
+                  <ShieldCheckIcon className="absolute right-3 top-2.5 h-4 w-4 text-emerald-500" />
                 </div>
               </div>
             </div>
@@ -368,7 +367,7 @@ export const SellerSettings: React.FC = () => {
 
         <div className="flex justify-end">
           <Button type="submit" disabled={saving} className="font-bold px-8">
-            {saving && <Spinner className="h-4 w-4 mr-2 animate-spin" />}
+            {saving && <SpinnerIcon className="h-4 w-4 mr-2 animate-spin" />}
             Save Settings
           </Button>
         </div>

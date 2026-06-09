@@ -1,37 +1,25 @@
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@bezon/ui';
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+;
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from '@/components/ui/card';
-import {
-  Spinner,
-  ArrowLeft,
-  Package,
-  User,
-  MapPin,
-  Truck,
-  CheckCircle,
-  Clock,
-  CurrencyDollar,
-  Tag,
-  Calendar,
-  Pulse,
-  Download,
-  Database,
+  SpinnerIcon,
+  ArrowLeftIcon,
+  PackageIcon,
+  UserIcon,
+  MapPinIcon,
+  TruckIcon,
+  CheckCircleIcon,
+  ClockIcon,
+  CurrencyDollarIcon,
+  TagIcon,
+  CalendarIcon,
+  PulseIcon,
+  DownloadIcon,
+  DatabaseIcon,
 } from '@phosphor-icons/react';
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/components/ui/dialog';
+;
+;
 import api from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api.config';
 import { useToast } from '../../context/ToastContext';
@@ -157,7 +145,7 @@ export const SellerOrderDetail: React.FC = () => {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-100 text-zinc-500">
-        <Spinner className="h-8 w-8 animate-spin mb-4 text-teal-500" />
+        <SpinnerIcon className="h-8 w-8 animate-spin mb-4 text-teal-500" />
         <p className="font-medium">Loading order details...</p>
       </div>
     );
@@ -166,7 +154,7 @@ export const SellerOrderDetail: React.FC = () => {
   if (!order) {
     return (
       <div className="flex flex-col items-center justify-center min-h-100 text-zinc-500">
-        <Package className="h-12 w-12 text-zinc-300 mb-3" />
+        <PackageIcon className="h-12 w-12 text-zinc-300 mb-3" />
         <p className="font-bold text-zinc-700">Order not found</p>
         <Link
           to="/seller/orders"
@@ -205,7 +193,7 @@ export const SellerOrderDetail: React.FC = () => {
               size="icon"
               className="h-10 w-10 shrink-0"
             >
-              <ArrowLeft className="h-5 w-5" />
+              <ArrowLeftIcon className="h-5 w-5" />
             </Button>
           </Link>
           <div>
@@ -213,7 +201,7 @@ export const SellerOrderDetail: React.FC = () => {
               Order #{order.orderNumber}
             </h1>
             <div className="flex items-center gap-2 text-sm text-zinc-500 mt-1 font-medium">
-              <Calendar className="h-4 w-4" />
+              <CalendarIcon className="h-4 w-4" />
               {new Date(order.createdAt).toLocaleDateString('en-US', {
                 month: 'short',
                 day: 'numeric',
@@ -246,7 +234,7 @@ export const SellerOrderDetail: React.FC = () => {
                 size="sm"
                 className="ml-2 font-bold text-zinc-700 border-zinc-300"
               >
-                <Download className="h-4 w-4 mr-2" />
+                <DownloadIcon className="h-4 w-4 mr-2" />
                 Invoice
               </Button>
             </a>
@@ -272,7 +260,7 @@ export const SellerOrderDetail: React.FC = () => {
           <Card className="bg-white border-zinc-200 shadow-sm">
             <CardHeader className="border-b border-zinc-100 pb-4">
               <CardTitle className="text-lg font-bold text-zinc-800 flex items-center gap-2">
-                <Package className="h-5 w-5 text-zinc-400" />
+                <PackageIcon className="h-5 w-5 text-zinc-400" />
                 Items Overview
               </CardTitle>
             </CardHeader>
@@ -292,7 +280,7 @@ export const SellerOrderDetail: React.FC = () => {
                             className="h-full w-full object-cover"
                           />
                         ) : (
-                          <Package className="h-6 w-6 text-zinc-300" />
+                          <PackageIcon className="h-6 w-6 text-zinc-300" />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -327,11 +315,11 @@ export const SellerOrderDetail: React.FC = () => {
             </CardContent>
           </Card>
 
-          {/* Pulse Timeline */}
+          {/* PulseIcon Timeline */}
           <Card className="bg-white border-zinc-200 shadow-sm">
             <CardHeader className="border-b border-zinc-100 pb-4">
               <CardTitle className="text-lg font-bold text-zinc-800 flex items-center gap-2">
-                <Pulse className="h-5 w-5 text-zinc-400" />
+                <PulseIcon className="h-5 w-5 text-zinc-400" />
                 Delivery & Status Timeline
               </CardTitle>
             </CardHeader>
@@ -345,9 +333,9 @@ export const SellerOrderDetail: React.FC = () => {
                     >
                       <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white bg-zinc-100 text-zinc-500 shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow-sm z-10">
                         {index === 0 ? (
-                          <CheckCircle className="h-5 w-5 text-teal-500" />
+                          <CheckCircleIcon className="h-5 w-5 text-teal-500" />
                         ) : (
-                          <Clock className="h-4 w-4" />
+                          <ClockIcon className="h-4 w-4" />
                         )}
                       </div>
                       <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-white border border-zinc-200 p-4 rounded-xl shadow-sm">
@@ -450,7 +438,7 @@ export const SellerOrderDetail: React.FC = () => {
                         onClick={() => handleUpdateStatus(status)}
                       >
                         {updating ? (
-                          <Spinner className="h-4 w-4 mr-2 animate-spin" />
+                          <SpinnerIcon className="h-4 w-4 mr-2 animate-spin" />
                         ) : null}
                         {status.replace(/_/g, ' ')}
                       </Button>
@@ -465,7 +453,7 @@ export const SellerOrderDetail: React.FC = () => {
           <Card className="bg-white border-zinc-200 shadow-sm">
             <CardHeader className="border-b border-zinc-100 pb-4">
               <CardTitle className="text-base font-bold text-zinc-800 flex items-center gap-2">
-                <CurrencyDollar className="h-5 w-5 text-zinc-400" />
+                <CurrencyDollarIcon className="h-5 w-5 text-zinc-400" />
                 Financial Summary
               </CardTitle>
             </CardHeader>
@@ -480,7 +468,7 @@ export const SellerOrderDetail: React.FC = () => {
               {discount > 0 && (
                 <div className="flex justify-between text-emerald-600 font-medium">
                   <span className="flex items-center gap-1">
-                    <Tag className="h-3 w-3" />
+                    <TagIcon className="h-3 w-3" />
                     Coupon Applied{' '}
                     {order.couponCode ? `(${order.couponCode})` : ''}
                   </span>
@@ -504,13 +492,13 @@ export const SellerOrderDetail: React.FC = () => {
           <Card className="bg-white border-zinc-200 shadow-sm">
             <CardHeader className="border-b border-zinc-100 pb-4">
               <CardTitle className="text-base font-bold text-zinc-800 flex items-center gap-2">
-                <Database className="h-5 w-5 text-zinc-400" />
+                <DatabaseIcon className="h-5 w-5 text-zinc-400" />
                 Settlement Details
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4 space-y-4 text-sm">
               <div className="flex justify-between items-center text-zinc-600">
-                <span>Escrow Status</span>
+                <span>Settlement Status</span>
                 <span className={`px-2.5 py-0.5 text-[10px] font-bold rounded uppercase tracking-wider ${
                   order.settlementStatus === 'SETTLED' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
                   order.settlementStatus === 'HOLDING' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
@@ -520,19 +508,44 @@ export const SellerOrderDetail: React.FC = () => {
                 </span>
               </div>
               
-              {order.settlementAmount && (
+              <div className="pt-2 space-y-2">
                 <div className="flex justify-between text-zinc-600">
-                  <span>Settlement Amount</span>
+                  <span>Gross Order Amount</span>
                   <span className="font-semibold text-zinc-800">
-                    ₹{parseFloat(order.settlementAmount).toLocaleString()}
+                    ₹{total.toLocaleString()}
+                  </span>
+                </div>
+                
+                {order.commissionAmount && Number(order.commissionAmount) > 0 && (
+                  <div className="flex justify-between text-rose-600">
+                    <span>Platform Commission</span>
+                    <span className="font-semibold">
+                      -₹{Number(order.commissionAmount).toLocaleString()}
+                    </span>
+                  </div>
+                )}
+                
+                <div className="border-t border-zinc-100 pt-2 flex justify-between font-bold text-zinc-900 text-base">
+                  <span>Final Settlement Amount</span>
+                  <span className="text-emerald-600">
+                    ₹{order.settlementAmount ? Number(order.settlementAmount).toLocaleString() : '0'}
+                  </span>
+                </div>
+              </div>
+
+              {order.settlementStatus === 'HOLDING' && order.expectedSettlementDate && (
+                <div className="flex justify-between text-zinc-600 bg-amber-50/50 p-2 rounded-md border border-amber-100">
+                  <span className="text-amber-800 font-medium text-xs">Expected Release</span>
+                  <span className="font-bold text-amber-600 text-xs">
+                    {new Date(order.expectedSettlementDate).toLocaleDateString()}
                   </span>
                 </div>
               )}
               
               {order.settledAt && (
-                <div className="flex justify-between text-zinc-600">
-                  <span>Settled On</span>
-                  <span className="font-semibold text-emerald-600">
+                <div className="flex justify-between text-zinc-600 bg-emerald-50/50 p-2 rounded-md border border-emerald-100">
+                  <span className="text-emerald-800 font-medium text-xs">Settled On</span>
+                  <span className="font-bold text-emerald-600 text-xs">
                     {new Date(order.settledAt).toLocaleDateString()}
                   </span>
                 </div>
@@ -544,7 +557,7 @@ export const SellerOrderDetail: React.FC = () => {
           <Card className="bg-white border-zinc-200 shadow-sm">
             <CardHeader className="border-b border-zinc-100 pb-4">
               <CardTitle className="text-base font-bold text-zinc-800 flex items-center gap-2">
-                <User className="h-5 w-5 text-zinc-400" />
+                <UserIcon className="h-5 w-5 text-zinc-400" />
                 Customer & Shipping
               </CardTitle>
             </CardHeader>
@@ -562,7 +575,7 @@ export const SellerOrderDetail: React.FC = () => {
 
               <div className="border-t border-zinc-100 pt-4">
                 <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1 flex items-center gap-1">
-                  <MapPin className="h-3 w-3" /> Shipping Address
+                  <MapPinIcon className="h-3 w-3" /> Shipping Address
                 </p>
                 {order.addressSnapshot ? (
                   <div className="text-sm text-zinc-600 leading-relaxed">
@@ -589,7 +602,7 @@ export const SellerOrderDetail: React.FC = () => {
           <Card className="bg-white border-zinc-200 shadow-sm animate-in fade-in slide-in-from-top-4 duration-250">
             <CardHeader className="border-b border-zinc-100 pb-4">
               <CardTitle className="text-base font-bold text-zinc-800 flex items-center gap-2">
-                <Truck className="h-5 w-5 text-teal-500" />
+                <TruckIcon className="h-5 w-5 text-teal-500" />
                 Fulfillment & Courier
               </CardTitle>
             </CardHeader>
@@ -669,7 +682,7 @@ export const SellerOrderDetail: React.FC = () => {
             <Card className="bg-white border-zinc-200 shadow-sm animate-in fade-in slide-in-from-top-4 duration-250">
               <CardHeader className="border-b border-zinc-100 pb-4">
                 <CardTitle className="text-base font-bold text-zinc-800 flex items-center gap-2">
-                  <Truck className="h-5 w-5 text-rose-500" />
+                  <TruckIcon className="h-5 w-5 text-rose-500" />
                   Return Fulfillment Courier
                 </CardTitle>
               </CardHeader>
@@ -767,7 +780,7 @@ export const SellerOrderDetail: React.FC = () => {
                 className="bg-rose-600 hover:bg-rose-700 text-white"
               >
                 {updating ? (
-                  <Spinner className="h-4 w-4 animate-spin mr-2" />
+                  <SpinnerIcon className="h-4 w-4 animate-spin mr-2" />
                 ) : null}
                 Cancel Order
               </Button>

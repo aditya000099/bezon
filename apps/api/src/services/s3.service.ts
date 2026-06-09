@@ -1,10 +1,11 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import dotenv from 'dotenv';
+import { config } from '../config/env.config.js';
 
 dotenv.config();
 
-const region = process.env.S3_REGION || 'ap-south-1';
-const bucketName = process.env.S3_BUCKET_NAME || 'bezon-assets';
+const region = config.S3_REGION;
+const bucketName = config.S3_BUCKET_NAME;
 
 const s3Client = new S3Client({
   region,

@@ -9,6 +9,7 @@ router.use(authenticateUser, requireRole(['admin']));
 
 router.get('/metrics', adminSettlementController.getAdminSettlementMetrics);
 router.get('/transactions', adminSettlementController.getAdminEscrowTransactions);
+router.get('/queue', adminSettlementController.getAdminSettlementQueue);
 router.post('/process-manual', adminSettlementController.processSettlementsManual);
 
 export default router;

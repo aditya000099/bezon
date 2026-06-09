@@ -1,8 +1,9 @@
+import { Card, CardContent, Button, Input } from '@bezon/ui';
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { MagnifyingGlass, Funnel, CalendarBlank } from '@phosphor-icons/react';
+;
+;
+;
+import { MagnifyingGlassIcon, FunnelIcon, CalendarBlankIcon } from '@phosphor-icons/react';
 
 export interface AdminOrderFiltersProps {
   searchTerm: string;
@@ -41,14 +42,14 @@ export const AdminOrderFilters: React.FC<AdminOrderFiltersProps> = ({
     <Card className="bg-white border-zinc-200 shadow-sm">
       <CardContent className="p-5 space-y-4">
         <div className="flex items-center gap-2 pb-2 border-b border-zinc-100">
-          <Funnel className="h-4 w-4 text-zinc-500" />
+          <FunnelIcon className="h-4 w-4 text-zinc-500" />
           <h3 className="text-sm font-semibold text-zinc-800">Advanced Filter Console</h3>
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="relative">
             <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-zinc-400">
-              <MagnifyingGlass className="h-4 w-4" />
+              <MagnifyingGlassIcon className="h-4 w-4" />
             </span>
             <Input
               type="text"
@@ -138,7 +139,7 @@ export const AdminOrderFilters: React.FC<AdminOrderFiltersProps> = ({
 
           <div className="relative">
             <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-zinc-400">
-              <CalendarBlank className="h-4 w-4" />
+              <CalendarBlankIcon className="h-4 w-4" />
             </span>
             <Input
               type="date"
@@ -150,7 +151,7 @@ export const AdminOrderFilters: React.FC<AdminOrderFiltersProps> = ({
 
           <div className="relative">
             <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-zinc-400">
-              <CalendarBlank className="h-4 w-4" />
+              <CalendarBlankIcon className="h-4 w-4" />
             </span>
             <Input
               type="date"

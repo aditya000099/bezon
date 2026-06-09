@@ -1,20 +1,14 @@
+import { Button, Input, Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@bezon/ui';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import api from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api.config';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  CardFooter,
-} from '@/components/ui/card';
-import { ShieldWarning } from '@phosphor-icons/react';
+;
+;
+;
+import { ShieldWarningIcon } from '@phosphor-icons/react';
 
 export const BecomeSellerPage: React.FC = () => {
   const { user, checkAuth } = useAuth();
@@ -106,7 +100,7 @@ export const BecomeSellerPage: React.FC = () => {
         <Card className="border-rose-100 bg-rose-50/10 shadow-sm">
           <CardHeader>
             <CardTitle className="text-rose-800 flex items-center gap-2">
-              <ShieldWarning className="h-6 w-6 text-rose-600" />
+              <ShieldWarningIcon className="h-6 w-6 text-rose-600" />
               Seller Account Suspended
             </CardTitle>
             <CardDescription>

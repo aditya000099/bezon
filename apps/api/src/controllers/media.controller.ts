@@ -27,7 +27,7 @@ export const uploadImage = async (
       const scores = await detector.calculateBlurScore(file.buffer);
       console.log(`[BlurDetector] Image composite score: ${scores.composite}`);
 
-      const isBlurry = detector.isBlurry(scores, 75);
+      const isBlurry = detector.isBlurry(scores, 50);
 
       if (isBlurry) {
         return res.status(400).json({

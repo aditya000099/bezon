@@ -1,6 +1,7 @@
+import { Button } from '@bezon/ui';
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { DownloadSimple, FileCsv, FilePdf } from '@phosphor-icons/react';
+;
+import { DownloadSimpleIcon, FileCsvIcon, FilePdfIcon } from '@phosphor-icons/react';
 import { useToast } from '../../../context/ToastContext';
 import api from '../../../lib/api';
 
@@ -67,7 +68,7 @@ export const AdminOrderExportControls: React.FC<AdminOrderExportControlsProps> =
         disabled={exportingPdf || exportingCsv}
         className="flex items-center gap-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
       >
-        <FilePdf className="h-4 w-4" />
+        <FilePdfIcon className="h-4 w-4" />
         {exportingPdf ? 'Generating...' : 'Export PDF'}
       </Button>
       
@@ -78,7 +79,7 @@ export const AdminOrderExportControls: React.FC<AdminOrderExportControlsProps> =
         disabled={exportingPdf || exportingCsv}
         className="flex items-center gap-2 border-emerald-200 text-emerald-700 hover:bg-emerald-50"
       >
-        <FileCsv className="h-4 w-4" />
+        <FileCsvIcon className="h-4 w-4" />
         {exportingCsv ? 'Generating...' : 'Export CSV'}
       </Button>
     </div>

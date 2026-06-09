@@ -1,8 +1,7 @@
+import { Card, CardContent, CardHeader, CardTitle, Button } from '@bezon/ui';
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, PencilSimple } from '@phosphor-icons/react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { ArrowLeftIcon, PencilSimpleIcon } from '@phosphor-icons/react';
 import { Spinner } from '@phosphor-icons/react';
 import { ProductForm } from './components/ProductForm';
 import api from '../../lib/api';
@@ -40,7 +39,7 @@ export const SellerEditProduct: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-zinc-400 gap-2">
+      <div className="flex flex-col items-center justify-center min-h-100 text-zinc-400 gap-2">
         <Spinner className="h-8 w-8 animate-spin text-teal-500" />
         <p className="text-sm font-semibold">
           Loading product listing details...
@@ -57,7 +56,7 @@ export const SellerEditProduct: React.FC = () => {
             Seller Products
           </p>
           <h1 className="text-xl font-extrabold text-zinc-800 mt-1 flex items-center gap-2">
-            <PencilSimple className="h-5 w-5 text-teal-500" />
+            <PencilSimpleIcon className="h-5 w-5 text-teal-500" />
             Product
           </h1>
           <p className="text-sm text-zinc-500 mt-1">
@@ -71,7 +70,7 @@ export const SellerEditProduct: React.FC = () => {
           onClick={() => navigate('/seller/products')}
           className="w-full sm:w-auto font-bold flex items-center gap-2 hover:cursor-pointer"
         >
-          <ArrowLeft className="h-4 w-4" /> Back to Products
+          <ArrowLeftIcon className="h-4 w-4" /> Back to Products
         </Button>
       </div>
 

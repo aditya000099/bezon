@@ -1,14 +1,13 @@
+import { logger } from '@/utils/logger';
+import { Button, Input } from '@bezon/ui';
 import React, { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
-  Spinner,
-  Image as ImageIcon,
-  X,
-  Link as LinkIcon,
-  CheckCircle,
-  ShieldCheck,
-  Sparkle,
+  SpinnerIcon,
+  ImageIcon,
+  XIcon,
+  CheckCircleIcon,
+  ShieldCheckIcon,
+  SparkleIcon,
 } from '@phosphor-icons/react';
 import api from '../../../lib/api';
 import { API_ENDPOINTS } from '../../../config/api.config';
@@ -76,7 +75,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         setLoadingProducts(true);
         setLoadingPolicies(true);
         const [catRes, prodRes, polRes] = await Promise.all([
-          api.get(API_ENDPOINTS.categories),
+          api.get(API_ENDPOINTS.categories.base),
           api.get(API_ENDPOINTS.products.sellerMe),
           api.get(`${API_ENDPOINTS.policies.list}?active=true`),
         ]);
@@ -100,7 +99,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           setAvailablePolicies(polRes.data.data);
         }
       } catch (err) {
-        console.error('Failed to load dependencies', err);
+        logger.error('Failed to load dependencies', err);
       } finally {
         setLoadingCategories(false);
         setLoadingProducts(false);
@@ -161,7 +160,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     }
     setIsGeneratingAI(true);
     try {
-      const res = await api.post(API_ENDPOINTS.products.generateDescription, { shortDescription });
+      const res = await api.post(API_ENDPOINTS.products.generateDescription, {
+        shortDescription,
+      });
       if (res.data.success) {
         setDescription(res.data.data);
         setShowAIInput(false);
@@ -169,7 +170,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         toast.success('AI description generated successfully.');
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to generate AI description.');
+      toast.error(
+        err.response?.data?.message || 'Failed to generate AI description.',
+      );
     } finally {
       setIsGeneratingAI(false);
     }
@@ -188,9 +191,13 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           const formData = new FormData();
           formData.append('image', files[i]);
 
-          const uploadRes = await api.post(API_ENDPOINTS.media.upload, formData, {
-            headers: { 'Content-Type': 'multipart/form-data' },
-          });
+          const uploadRes = await api.post(
+            API_ENDPOINTS.media.upload,
+            formData,
+            {
+              headers: { 'Content-Type': 'multipart/form-data' },
+            },
+          );
 
           if (uploadRes.data.success) {
             const { url, s3Key } = uploadRes.data.data;
@@ -202,8 +209,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           }
         } catch (imgErr: any) {
           failedCount++;
-          console.error(`Failed to upload image ${files[i].name}:`, imgErr);
-          toast.error(imgErr.response?.data?.message || `Failed to upload ${files[i].name}`);
+          logger.error(`Failed to upload image ${files[i].name}:`, imgErr);
+          toast.error(
+            imgErr.response?.data?.message ||
+              `Failed to upload ${files[i].name}`,
+          );
         }
       }
       setImages(currentImages);
@@ -387,11 +397,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 className="h-6 text-xs text-teal-600 hover:text-teal-700 hover:bg-teal-50 px-2"
                 onClick={() => setShowAIInput(!showAIInput)}
               >
-                <Sparkle className="h-3 w-3 mr-1" weight="fill" />
+                <SparkleIcon className="h-3 w-3 mr-1" weight="fill" />
                 AI Write
               </Button>
             </div>
-            
+
             {showAIInput && (
               <div className="flex gap-2 p-3 bg-teal-50/50 border border-teal-100 rounded-md mb-1 animate-in fade-in slide-in-from-top-1">
                 <Input
@@ -399,20 +409,29 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   placeholder="E.g. wireless noise cancelling headphones with 30hr battery..."
                   value={shortDescription}
                   onChange={(e) => setShortDescription(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleGenerateAI(); } }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleGenerateAI();
+                    }
+                  }}
                 />
-                <Button 
-                  type="button" 
-                  size="sm" 
+                <Button
+                  type="button"
+                  size="sm"
                   className="h-8 bg-teal-600 hover:bg-teal-700"
                   onClick={handleGenerateAI}
                   disabled={isGeneratingAI || !shortDescription}
                 >
-                  {isGeneratingAI ? <Spinner className="h-3 w-3 animate-spin" /> : 'Generate'}
+                  {isGeneratingAI ? (
+                    <SpinnerIcon className="h-3 w-3 animate-spin" />
+                  ) : (
+                    'Generate'
+                  )}
                 </Button>
               </div>
             )}
-            
+
             <textarea
               className="flex min-h-25 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               placeholder="Detailed description of the product..."
@@ -446,7 +465,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           </div>
           <div className="flex flex-col gap-1.5">
             <label className="text-[10px] font-bold text-zinc-400 uppercase">
-              Price (₹) *
+              Discounted Price (₹) *
             </label>
             <Input
               type="number"
@@ -458,7 +477,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           </div>
           <div className="flex flex-col gap-1.5">
             <label className="text-[10px] font-bold text-zinc-400 uppercase">
-              Compare Price (₹)
+              Actual Price (₹)
             </label>
             <Input
               type="number"
@@ -523,7 +542,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 disabled={uploadingImage}
               >
                 {uploadingImage ? (
-                  <Spinner className="h-4 w-4 animate-spin mr-2" />
+                  <SpinnerIcon className="h-4 w-4 animate-spin mr-2" />
                 ) : (
                   <ImageIcon className="h-4 w-4 mr-2" />
                 )}
@@ -568,7 +587,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                         handleRemoveImage(iIdx);
                       }}
                     >
-                      <X className="h-3 w-3" />
+                      <XIcon className="h-3 w-3" />
                     </Button>
                   </div>
                   {img.isPrimary && (
@@ -615,7 +634,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           <div className="max-h-60 overflow-y-auto p-2 flex flex-col gap-1">
             {loadingProducts ? (
               <div className="p-4 flex justify-center">
-                <Spinner className="h-5 w-5 animate-spin text-zinc-400" />
+                <SpinnerIcon className="h-5 w-5 animate-spin text-zinc-400" />
               </div>
             ) : filteredSearchProducts.length > 0 ? (
               filteredSearchProducts.map((p) => {
@@ -636,7 +655,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                         className={`h-4 w-4 rounded-sm flex items-center justify-center shrink-0 border ${isLinked ? 'bg-teal-600 border-teal-600' : 'border-zinc-300'}`}
                       >
                         {isLinked && (
-                          <CheckCircle className="h-3 w-3 text-white" />
+                          <CheckCircleIcon className="h-3 w-3 text-white" />
                         )}
                       </div>
                       <div className="h-10 w-10 bg-zinc-100 rounded overflow-hidden shrink-0">
@@ -693,7 +712,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
         {loadingPolicies ? (
           <div className="p-4 flex justify-center">
-            <Spinner className="h-5 w-5 animate-spin text-zinc-400" />
+            <SpinnerIcon className="h-5 w-5 animate-spin text-zinc-400" />
           </div>
         ) : availablePolicies.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -728,7 +747,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                     }`}
                   >
                     {isSelected && (
-                      <CheckCircle className="h-3.5 w-3.5 text-white" />
+                      <CheckCircleIcon className="h-3.5 w-3.5 text-white" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -753,7 +772,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           </div>
         ) : (
           <div className="p-4 border border-dashed border-zinc-200 rounded-xl text-center text-sm text-zinc-400">
-            <ShieldCheck className="h-5 w-5 mx-auto mb-1 opacity-50" />
+            <ShieldCheckIcon className="h-5 w-5 mx-auto mb-1 opacity-50" />
             No policies available. Contact your platform admin.
           </div>
         )}
@@ -764,7 +783,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           Cancel
         </Button>
         <Button type="submit" disabled={submitting}>
-          {submitting && <Spinner className="mr-2 h-4 w-4 animate-spin" />}
+          {submitting && <SpinnerIcon className="mr-2 h-4 w-4 animate-spin" />}
           {isEditMode ? 'Save Changes' : 'Publish Product'}
         </Button>
       </div>

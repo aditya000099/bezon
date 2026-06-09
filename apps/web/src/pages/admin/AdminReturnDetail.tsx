@@ -1,19 +1,20 @@
+import { Card, CardContent, CardHeader, CardTitle, Button } from '@bezon/ui';
 import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+;
+;
 import {
-  Spinner,
-  ArrowLeft,
-  Package,
-  User,
-  MapPin,
-  Truck,
-  CheckCircle,
-  Clock,
-  WarningCircle,
-  CaretRight,
-  Storefront,
+  SpinnerIcon,
+  ArrowLeftIcon,
+  PackageIcon,
+  UserIcon,
+  MapPinIcon,
+  TruckIcon,
+  CheckCircleIcon,
+  ClockIcon,
+  WarningCircleIcon,
+  CaretRightIcon,
+  StorefrontIcon,
 } from "@phosphor-icons/react";
 import api from "../../lib/api";
 import { API_ENDPOINTS } from "../../config/api.config";
@@ -77,7 +78,7 @@ export const AdminReturnDetail: React.FC = () => {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-100 text-zinc-500">
-        <Spinner className="h-8 w-8 animate-spin mb-4 text-teal-500" />
+        <SpinnerIcon className="h-8 w-8 animate-spin mb-4 text-teal-500" />
         <p className="font-medium">Loading return details...</p>
       </div>
     );
@@ -86,7 +87,7 @@ export const AdminReturnDetail: React.FC = () => {
   if (!order || !order.returnStatus || order.returnStatus === "NONE") {
     return (
       <div className="flex flex-col items-center justify-center min-h-100 text-zinc-500">
-        <WarningCircle className="h-12 w-12 mb-3 opacity-20" />
+        <WarningCircleIcon className="h-12 w-12 mb-3 opacity-20" />
         <p>Return details not found.</p>
         <Button
           variant="outline"
@@ -107,11 +108,11 @@ export const AdminReturnDetail: React.FC = () => {
           <Link to="/admin" className="hover:text-zinc-900">
             Dashboard
           </Link>
-          <CaretRight className="mx-2 h-3 w-3" />
+          <CaretRightIcon className="mx-2 h-3 w-3" />
           <Link to="/admin/returns" className="hover:text-zinc-900">
             Returns
           </Link>
-          <CaretRight className="mx-2 h-3 w-3" />
+          <CaretRightIcon className="mx-2 h-3 w-3" />
           <span className="text-zinc-900 font-medium">Return Details</span>
         </nav>
 
@@ -123,7 +124,7 @@ export const AdminReturnDetail: React.FC = () => {
               onClick={() => navigate("/admin/returns")}
               className="h-8 px-2"
             >
-              <ArrowLeft className="h-4 w-4 mr-1" /> Back
+              <ArrowLeftIcon className="h-4 w-4 mr-1" /> Back
             </Button>
             <h1 className="text-2xl font-bold tracking-tight text-zinc-900">
               Return Operations: {order.orderNumber}
@@ -211,7 +212,7 @@ export const AdminReturnDetail: React.FC = () => {
           <Card className="shadow-sm">
             <CardHeader className="pb-3 border-b">
               <CardTitle className="text-base flex items-center gap-2">
-                <Package className="h-5 w-5 text-teal-600" /> Product
+                <PackageIcon className="h-5 w-5 text-teal-600" /> Product
                 Information
               </CardTitle>
             </CardHeader>
@@ -229,7 +230,7 @@ export const AdminReturnDetail: React.FC = () => {
                     />
                   ) : (
                     <div className="w-20 h-20 bg-zinc-100 rounded-md flex items-center justify-center text-xs text-zinc-400 border">
-                      <Package className="h-8 w-8 text-zinc-300" />
+                      <PackageIcon className="h-8 w-8 text-zinc-300" />
                     </div>
                   )}
                   <div className="flex-1 space-y-1">
@@ -258,7 +259,7 @@ export const AdminReturnDetail: React.FC = () => {
           <Card className="shadow-sm">
             <CardHeader className="pb-3 border-b">
               <CardTitle className="text-base flex items-center gap-2">
-                <Clock className="h-5 w-5 text-teal-600" /> Return Lifecycle
+                <ClockIcon className="h-5 w-5 text-teal-600" /> Return Lifecycle
                 Timeline
               </CardTitle>
             </CardHeader>
@@ -328,7 +329,7 @@ export const AdminReturnDetail: React.FC = () => {
           <Card className="shadow-sm">
             <CardHeader className="pb-3 border-b">
               <CardTitle className="text-base flex items-center gap-2">
-                <User className="h-5 w-5 text-teal-600" /> Customer Details
+                <UserIcon className="h-5 w-5 text-teal-600" /> Customer Details
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-4 text-sm space-y-2">
@@ -364,7 +365,7 @@ export const AdminReturnDetail: React.FC = () => {
           <Card className="shadow-sm">
             <CardHeader className="pb-3 border-b">
               <CardTitle className="text-base flex items-center gap-2">
-                <Storefront className="h-5 w-5 text-teal-600" /> Seller Details
+                <StorefrontIcon className="h-5 w-5 text-teal-600" /> Seller Details
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-4 text-sm space-y-2">
@@ -394,7 +395,7 @@ export const AdminReturnDetail: React.FC = () => {
             <Card className="shadow-sm">
               <CardHeader className="pb-3 border-b">
                 <CardTitle className="text-base flex items-center gap-2">
-                  <Truck className="h-5 w-5 text-teal-600" /> Delivery Partner
+                  <TruckIcon className="h-5 w-5 text-teal-600" /> Delivery Partner
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-4 text-sm space-y-2">
@@ -435,7 +436,7 @@ export const AdminReturnDetail: React.FC = () => {
           {/* Inspection Notice */}
           <Card className="bg-zinc-50 border-zinc-200">
             <CardContent className="p-4 text-sm text-zinc-500 flex items-center gap-2">
-              <CheckCircle className="h-4 w-4" />
+              <CheckCircleIcon className="h-4 w-4" />
               This page is read-only. Admins cannot modify return statuses or
               seller inspection results directly.
             </CardContent>

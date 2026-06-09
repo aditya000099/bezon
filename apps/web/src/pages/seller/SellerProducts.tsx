@@ -1,15 +1,13 @@
+import { Button, Input, Card } from '@bezon/ui';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
 import {
-  Plus,
-  PencilSimple,
-  Trash,
-  Image as ImageIcon,
-  Spinner,
-  Sparkle,
+  PlusIcon,
+  PencilSimpleIcon,
+  TrashIcon,
+  ImageIcon,
+  SpinnerIcon,
+  SparkleIcon,
 } from '@phosphor-icons/react';
 import api from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api.config';
@@ -95,19 +93,19 @@ export const SellerProducts: React.FC = () => {
           onClick={() => navigate('/seller/add-product')}
           className="w-full sm:w-auto font-bold flex items-center gap-2  hover:cursor-pointer"
         >
-          <Plus className="h-4 w-4" /> Add Product
+          <PlusIcon className="h-4 w-4" /> Add Product
         </Button>
       </div>
 
       {/* Main Listing View */}
       {loading ? (
         <div className="flex flex-col items-center justify-center min-h-75 text-zinc-400 gap-2">
-          <Spinner className="h-8 w-8 animate-spin text-teal-500" />
+          <SpinnerIcon className="h-8 w-8 animate-spin text-teal-500" />
           <p className="text-sm font-semibold">Loading product listings...</p>
         </div>
       ) : filteredProducts.length === 0 ? (
         <Card className="flex flex-col items-center justify-center min-h-75 text-zinc-400 p-8 border-dashed border-2 bg-white/50">
-          <Sparkle className="h-12 w-12 text-zinc-300 mb-2" />
+          <SparkleIcon className="h-12 w-12 text-zinc-300 mb-2" />
           <p className="font-bold text-zinc-700">No products registered yet</p>
           <p className="text-xs text-zinc-400 mt-1">
             Get started by creating your first product listing.
@@ -205,7 +203,7 @@ export const SellerProducts: React.FC = () => {
                             navigate(`/seller/products/${p.id}/edit`)
                           }
                         >
-                          <PencilSimple className="h-4 w-4" />
+                          <PencilSimpleIcon className="h-4 w-4" />
                         </Button>
                         <Button
                           size="icon"
@@ -213,7 +211,7 @@ export const SellerProducts: React.FC = () => {
                           className="h-8 w-8 text-rose-500 hover:text-rose-700 hover:bg-rose-50 hover:cursor-pointer"
                           onClick={() => handleArchive(p.id)}
                         >
-                          <Trash className="h-4 w-4" />
+                          <TrashIcon className="h-4 w-4" />
                         </Button>
                       </div>
                     </td>

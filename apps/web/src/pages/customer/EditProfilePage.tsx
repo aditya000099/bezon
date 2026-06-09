@@ -1,3 +1,14 @@
+import { logger } from '@/utils/logger';
+import {
+  Button,
+  Input,
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@bezon/ui';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -5,25 +16,14 @@ import { useToast } from '../../context/ToastContext';
 import api from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api.config';
 import {
-  ArrowLeft,
-  User,
-  Phone,
+  ArrowLeftIcon,
+  UserIcon,
+  PhoneIcon,
   Image as ImageIcon,
-  FloppyDisk,
-  Envelope,
-  Spinner,
+  FloppyDiskIcon,
+  EnvelopeIcon,
+  SpinnerIcon,
 } from '@phosphor-icons/react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-
 // A list of cool, beautiful preset avatars the user can click to quickly choose a profile photo!
 const PRESET_AVATARS = [
   'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop',
@@ -57,7 +57,7 @@ export const EditProfilePage: React.FC = () => {
     }
   }, [user]);
 
-  // When the user clicks the "FloppyDisk Changes" button, this function runs!
+  // When the user clicks the "FloppyDiskIcon Changes" button, this function runs!
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -87,7 +87,7 @@ export const EditProfilePage: React.FC = () => {
         toast.error(response.data.message || 'Failed to update profile.');
       }
     } catch (err: any) {
-      console.error('Profile update error:', err);
+      logger.error('Profile update error:', err);
       toast.error(
         err.response?.data?.message ||
           'An error occurred while saving your profile.',
@@ -105,12 +105,12 @@ export const EditProfilePage: React.FC = () => {
           to="/profile"
           className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-600 hover:text-teal-600 transition-colors"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeftIcon className="h-4 w-4" />
           Back to Profile
         </Link>
       </div>
 
-      <Card className="border-0 shadow-none rounded-[2rem] overflow-hidden bg-zinc-50/80">
+      <Card className="border-0 shadow-none rounded-4xl overflow-hidden bg-zinc-50/80">
         <CardHeader className="bg-zinc-100/50 p-6 sm:p-10">
           <CardTitle className="text-2xl font-extrabold text-zinc-800">
             Edit Your Profile
@@ -140,7 +140,7 @@ export const EditProfilePage: React.FC = () => {
                 ) : (
                   <div className="h-24 w-24 rounded-full bg-teal-50 border-[6px] border-white flex items-center justify-center text-teal-500 text-3xl font-extrabold shadow-[0_0_40px_-10px_rgba(0,0,0,0.1)]">
                     {name?.charAt(0).toUpperCase() || (
-                      <User className="h-8 w-8" />
+                      <UserIcon className="h-8 w-8" />
                     )}
                   </div>
                 )}
@@ -182,7 +182,7 @@ export const EditProfilePage: React.FC = () => {
                   htmlFor="name-input"
                   className="text-xs font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5"
                 >
-                  <User className="h-3.5 w-3.5 text-zinc-400" /> Full Name
+                  <UserIcon className="h-3.5 w-3.5 text-zinc-400" /> Full Name
                 </label>
                 <Input
                   id="name-input"
@@ -194,13 +194,14 @@ export const EditProfilePage: React.FC = () => {
                 />
               </div>
 
-              {/* Phone number input field */}
+              {/* PhoneIcon number input field */}
               <div className="flex flex-col gap-2">
                 <label
                   htmlFor="phone-input"
                   className="text-xs font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5"
                 >
-                  <Phone className="h-3.5 w-3.5 text-zinc-400" /> Phone Number
+                  <PhoneIcon className="h-3.5 w-3.5 text-zinc-400" /> Phone
+                  Number
                 </label>
                 <Input
                   id="phone-input"
@@ -232,7 +233,7 @@ export const EditProfilePage: React.FC = () => {
               {/* Email (Disabled, secure) */}
               <div className="flex flex-col gap-2 sm:col-span-2">
                 <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
-                  <Envelope className="h-3.5 w-3.5 text-zinc-300" /> Secure
+                  <EnvelopeIcon className="h-3.5 w-3.5 text-zinc-300" /> Secure
                   Email Address
                 </label>
                 <Input
@@ -258,7 +259,7 @@ export const EditProfilePage: React.FC = () => {
             >
               Cancel
             </Button>
-            {/* FloppyDisk Button */}
+
             <Button
               type="submit"
               disabled={submitting}
@@ -266,11 +267,11 @@ export const EditProfilePage: React.FC = () => {
             >
               {submitting ? (
                 <>
-                  <Spinner className="h-4 w-4 animate-spin" /> Saving...
+                  <SpinnerIcon className="h-4 w-4 animate-spin" /> Saving...
                 </>
               ) : (
                 <>
-                  <FloppyDisk className="h-4 w-4" /> FloppyDisk Changes
+                  <FloppyDiskIcon className="h-4 w-4" /> Save Changes
                 </>
               )}
             </Button>

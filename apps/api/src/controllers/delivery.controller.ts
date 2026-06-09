@@ -191,73 +191,8 @@ export const acceptAssignment = async (req: Request, res: Response, next: NextFu
       });
     }
 
-    const result = await prisma.$transaction(async (tx) => {
-      // Lock-read the order to prevent race conditions
-      const order = await tx.order.findUnique({
-        where: { id: orderId },
-        include: { delivery: true },
-      });
-
-      if (!order) {
-        throw Object.assign(new Error('Order not found.'), { status: 404 });
-      }
-
-      if (order.status !== 'ready_for_pickup') {
-        throw Object.assign(new Error('This order is no longer available for assignment.'), { status: 400 });
-      }
-
-      if (order.delivery !== null) {
-        throw Object.assign(new Error('Order already assigned.'), { status: 409 });
-      }
-
-      // Claim the delivery by creating the delivery record
-      const newDelivery = await tx.delivery.create({
-        data: {
-          orderId: order.id,
-          partnerId: partner.id,
-          status: 'assigned',
-          acceptedAt: new Date(),
-        },
-      });
-
-      // Update Order status to 'assigned'
-      await tx.order.update({
-        where: { id: order.id },
-        data: { status: 'assigned' },
-      });
-
-      // Create delivery timeline event
-      await tx.deliveryTimeline.create({
-        data: {
-          deliveryId: newDelivery.id,
-          status: 'assigned',
-          note: `Delivery partner accepted the assignment.`,
-        },
-      });
-
-      // Create order timeline event
-      await tx.orderTimeline.create({
-        data: {
-          orderId: order.id,
-          status: 'assigned',
-          note: `Delivery partner accepted the trip assignment. Awaiting package pickup.`,
-          actorId: userId,
-          actorRole: 'delivery',
-        },
-      });
-
-      // Notify the partner
-      await tx.notification.create({
-        data: {
-          userId: partner.userId,
-          title: 'Assignment Accepted',
-          body: `You accepted delivery for order ${order.orderNumber}. Proceed to pickup.`,
-          type: 'new_task_assigned',
-        },
-      });
-
-      return newDelivery;
-    });
+    const { DeliveryService } = await import('../services/delivery.service.js');
+    const result = await DeliveryService.acceptAssignment(orderId, partner.id, userId);
 
     res.json({
       success: true,
@@ -456,149 +391,14 @@ export const updateAssignmentStatus = async (req: Request, res: Response, next: 
       });
     }
 
-    const delivery = await prisma.delivery.findUnique({
-      where: { id },
-      include: { order: true },
-    });
-
-    if (!delivery) {
-      return res.status(404).json({
-        success: false,
-        message: 'Delivery assignment not found.',
-      });
-    }
-
-    // Ownership enforcement: only the assigned partner can update
-    if (delivery.partnerId === null || delivery.partnerId !== partner.id) {
-      return res.status(403).json({
-        success: false,
-        message: 'You are not the assigned delivery partner for this order.',
-      });
-    }
-
-    // Terminal state check
-    if (TERMINAL_DELIVERY_STATUSES.includes(delivery.status)) {
-      return res.status(400).json({
-        success: false,
-        message: `This delivery is in terminal state "${delivery.status}". No further actions are allowed.`,
-      });
-    }
-
-    // Strict transition validation
-    const allowedNext = DELIVERY_TRANSITIONS[delivery.status];
-    if (!allowedNext || !allowedNext.includes(newStatus)) {
-      return res.status(400).json({
-        success: false,
-        message: `Cannot transition delivery from "${delivery.status}" to "${newStatus}". Allowed transitions: ${(allowedNext || []).join(', ') || 'none'}.`,
-      });
-    }
-
-    const result = await prisma.$transaction(async (tx) => {
-      // 1. Update the delivery record
-      const updateData: any = {
-        status: newStatus,
-        updatedAt: new Date(),
-      };
-
-      if (newStatus === 'picked_up') {
-        updateData.pickedUpAt = new Date();
-      } else if (newStatus === 'delivered') {
-        updateData.deliveredAt = new Date();
-        updateData.proofImageUrl = proofImageUrl || null;
-        updateData.proofS3Key = proofS3Key || null;
-      } else if (newStatus === 'delivery_failed') {
-        updateData.failureReason = failureReason || 'Failed to deliver';
-      }
-
-      const updatedDelivery = await tx.delivery.update({
-        where: { id },
-        data: updateData,
-      });
-
-      // 2. Create Delivery Timeline event for every transition
-      await tx.deliveryTimeline.create({
-        data: {
-          deliveryId: id,
-          status: newStatus,
-          note: note || `Delivery status updated to ${newStatus}.`,
-          lat: lat !== undefined && lat !== null ? new Prisma.Decimal(lat) : null,
-          lng: lng !== undefined && lng !== null ? new Prisma.Decimal(lng) : null,
-        },
-      });
-
-      // 3. Map delivery status to Order status
-      let orderStatus: string | null = null;
-      const currentOrderStatus = delivery.order?.status;
-
-      // Handle policy flows (return/replacement/refund)
-      if (currentOrderStatus === 'return_approved') {
-        if (newStatus === 'delivered') {
-          orderStatus = 'returned_to_origin';
-        }
-      } else if (currentOrderStatus === 'replacement_approved' || currentOrderStatus === 'replacement_shipped') {
-        if (newStatus === 'picked_up') {
-          orderStatus = 'replacement_shipped';
-        } else if (newStatus === 'out_for_delivery') {
-          orderStatus = 'replacement_shipped';
-        } else if (newStatus === 'delivered') {
-          orderStatus = 'replaced';
-        } else if (newStatus === 'delivery_failed') {
-          orderStatus = 'delivery_failed';
-        }
-      } else if (currentOrderStatus === 'refund_approved') {
-        if (newStatus === 'delivered') {
-          orderStatus = 'refunded';
-        } else if (newStatus === 'delivery_failed') {
-          orderStatus = 'delivery_failed';
-        }
-      } else {
-        // Standard delivery flow
-        if (newStatus === 'picked_up') {
-          orderStatus = 'shipped';
-        } else if (newStatus === 'out_for_delivery') {
-          orderStatus = 'out_for_delivery';
-        } else if (newStatus === 'delivered') {
-          orderStatus = 'delivered';
-        } else if (newStatus === 'delivery_failed') {
-          orderStatus = 'delivery_failed';
-        }
-      }
-
-      if (orderStatus) {
-        const orderData: any = { status: orderStatus as any };
-        if (orderStatus === 'delivered') {
-          orderData.deliveredAt = new Date();
-        }
-        await tx.order.update({
-          where: { id: delivery.orderId },
-          data: orderData,
-        });
-
-        await tx.orderTimeline.create({
-          data: {
-            orderId: delivery.orderId,
-            status: orderStatus as any,
-            note: `Delivery update: Partner marked as ${newStatus}.`,
-            actorId: userId,
-            actorRole: 'delivery' as any,
-          },
-        });
-      }
-
-      // 4. Update partner statistics on terminal delivery states
-      if (newStatus === 'delivered') {
-        await tx.deliveryPartner.update({
-          where: { id: partner.id },
-          data: { totalDelivered: { increment: 1 } },
-        });
-      } else if (newStatus === 'delivery_failed') {
-        await tx.deliveryPartner.update({
-          where: { id: partner.id },
-          data: { totalFailed: { increment: 1 } },
-        });
-      }
-
-      return updatedDelivery;
+    const { DeliveryService } = await import('../services/delivery.service.js');
+    const result = await DeliveryService.updateAssignmentStatus(id, partner.id, userId, newStatus, {
+      note,
+      proofImageUrl,
+      proofS3Key,
+      failureReason,
+      lat,
+      lng,
     });
 
     res.json({

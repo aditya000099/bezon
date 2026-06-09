@@ -1,23 +1,11 @@
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, Button, Input, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@bezon/ui';
 import React, { useState, useEffect } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+;
+;
+;
 import api from "../../lib/api";
 import { useToast } from "../../context/ToastContext";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+;
 
 export const AdminSellers: React.FC = () => {
   const [applications, setApplications] = useState<any[]>([]);

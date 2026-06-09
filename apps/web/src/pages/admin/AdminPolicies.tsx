@@ -1,26 +1,19 @@
+import { Card, Button, Input } from '@bezon/ui';
 import React, { useEffect, useState } from "react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useNavigate } from "react-router-dom";
+
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import {
-  Plus,
-  PencilSimple,
-  Trash,
-  ShieldCheck,
-  Calendar,
-  Spinner,
-  ToggleLeft,
-  ToggleRight,
-  ArrowCounterClockwise,
-  Money,
-  ArrowsClockwise,
+  PlusIcon,
+  PencilSimpleIcon,
+  TrashIcon,
+  ShieldCheckIcon,
+  CalendarIcon,
+  SpinnerIcon,
+  ToggleLeftIcon,
+  ToggleRightIcon,
+  ArrowCounterClockwiseIcon,
+  MoneyIcon,
+  ArrowsClockwiseIcon,
 } from "@phosphor-icons/react";
 import api from "../../lib/api";
 import { API_ENDPOINTS } from "../../config/api.config";
@@ -47,13 +40,10 @@ const EMPTY_FORM = {
 };
 
 export const AdminPolicies: React.FC = () => {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [policies, setPolicies] = useState<Policy[]>([]);
   const [loading, setLoading] = useState(true);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingPolicy, setEditingPolicy] = useState<Policy | null>(null);
-  const [form, setForm] = useState(EMPTY_FORM);
-  const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
 
@@ -76,48 +66,11 @@ export const AdminPolicies: React.FC = () => {
   };
 
   const openCreateDialog = () => {
-    setEditingPolicy(null);
-    setForm(EMPTY_FORM);
-    setDialogOpen(true);
+    navigate('/admin/policies/create');
   };
 
   const openEditDialog = (policy: Policy) => {
-    setEditingPolicy(policy);
-    setForm({
-      type: policy.type,
-      title: policy.title,
-      description: policy.description || "",
-      durationDays: policy.durationDays,
-    });
-    setDialogOpen(true);
-  };
-
-  const handleSubmit = async () => {
-    if (!form.title.trim()) {
-      toast.error("Title is required.");
-      return;
-    }
-    if (form.durationDays < 1) {
-      toast.error("Duration must be at least 1 day.");
-      return;
-    }
-
-    setSubmitting(true);
-    try {
-      if (editingPolicy) {
-        await api.put(API_ENDPOINTS.policies.update(editingPolicy.id), form);
-        toast.success("Policy updated successfully.");
-      } else {
-        await api.post(API_ENDPOINTS.policies.create, form);
-        toast.success("Policy created successfully.");
-      }
-      setDialogOpen(false);
-      fetchPolicies();
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || "Failed to save policy.");
-    } finally {
-      setSubmitting(false);
-    }
+    navigate(`/admin/policies/${policy.id}/edit`);
   };
 
   const handleDelete = async (id: string) => {
@@ -159,9 +112,9 @@ export const AdminPolicies: React.FC = () => {
       replace: "bg-amber-50 text-amber-700 border-amber-200",
     };
     const icons: Record<string, React.ReactNode> = {
-      return: <ArrowCounterClockwise className="h-3 w-3" />,
-      refund: <Money className="h-3 w-3" />,
-      replace: <ArrowsClockwise className="h-3 w-3" />,
+      return: <ArrowCounterClockwiseIcon className="h-3 w-3" />,
+      refund: <MoneyIcon className="h-3 w-3" />,
+      replace: <ArrowsClockwiseIcon className="h-3 w-3" />,
     };
     return (
       <span
@@ -185,8 +138,8 @@ export const AdminPolicies: React.FC = () => {
             platform.
           </p>
         </div>
-        <Button onClick={openCreateDialog} className="w-full sm:w-auto">
-          <Plus className="h-4 w-4 mr-2" />
+        <Button type="button" onClick={openCreateDialog} className="w-full sm:w-auto">
+          <PlusIcon className="h-4 w-4 mr-2" />
           Create Policy
         </Button>
       </div>
@@ -194,7 +147,7 @@ export const AdminPolicies: React.FC = () => {
       <Card className="bg-white border-zinc-200 shadow-sm overflow-hidden">
         <div className="p-4 border-b border-zinc-200 bg-zinc-50/50 flex justify-between items-center">
           <div className="flex items-center gap-2 text-sm text-zinc-500">
-            <ShieldCheck className="h-4 w-4" />
+            <ShieldCheckIcon className="h-4 w-4" />
             <span className="font-medium">
               {policies.length} {policies.length === 1 ? "Policy" : "Policies"}
             </span>
@@ -207,9 +160,9 @@ export const AdminPolicies: React.FC = () => {
             className="font-medium"
           >
             {loading ? (
-              <Spinner className="h-4 w-4 animate-spin mr-2" />
+              <SpinnerIcon className="h-4 w-4 animate-spin mr-2" />
             ) : (
-              <ArrowsClockwise className="h-4 w-4 mr-2" />
+              <ArrowsClockwiseIcon className="h-4 w-4 mr-2" />
             )}
             Refresh
           </Button>
@@ -217,12 +170,12 @@ export const AdminPolicies: React.FC = () => {
 
         {loading ? (
           <div className="flex flex-col items-center justify-center p-12 text-zinc-500">
-            <Spinner className="h-8 w-8 animate-spin mb-4 text-teal-500" />
+            <SpinnerIcon className="h-8 w-8 animate-spin mb-4 text-teal-500" />
             <p className="font-medium">Loading policies...</p>
           </div>
         ) : policies.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-12 text-zinc-500 bg-zinc-50/30">
-            <ShieldCheck className="h-12 w-12 text-zinc-300 mb-3" />
+            <ShieldCheckIcon className="h-12 w-12 text-zinc-300 mb-3" />
             <p className="font-bold text-zinc-700">No policies yet</p>
             <p className="text-sm text-zinc-400">
               Create your first policy to get started.
@@ -262,7 +215,7 @@ export const AdminPolicies: React.FC = () => {
                     <td className="px-6 py-4">{typeBadge(policy.type)}</td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-1.5 text-zinc-600">
-                        <Calendar className="h-3.5 w-3.5 text-zinc-400" />
+                        <CalendarIcon className="h-3.5 w-3.5 text-zinc-400" />
                         <span className="font-semibold">
                           {policy.durationDays}
                         </span>
@@ -299,11 +252,11 @@ export const AdminPolicies: React.FC = () => {
                           title={policy.isActive ? "Deactivate" : "Activate"}
                         >
                           {togglingId === policy.id ? (
-                            <Spinner className="h-4 w-4 animate-spin" />
+                            <SpinnerIcon className="h-4 w-4 animate-spin" />
                           ) : policy.isActive ? (
-                            <ToggleRight className="h-4 w-4 text-emerald-600" />
+                            <ToggleRightIcon className="h-4 w-4 text-emerald-600" />
                           ) : (
-                            <ToggleLeft className="h-4 w-4 text-zinc-400" />
+                            <ToggleLeftIcon className="h-4 w-4 text-zinc-400" />
                           )}
                         </Button>
                         <Button
@@ -313,7 +266,7 @@ export const AdminPolicies: React.FC = () => {
                           onClick={() => openEditDialog(policy)}
                           title="Edit"
                         >
-                          <PencilSimple className="h-4 w-4 text-zinc-500" />
+                          <PencilSimpleIcon className="h-4 w-4 text-zinc-500" />
                         </Button>
                         <Button
                           variant="ghost"
@@ -324,9 +277,9 @@ export const AdminPolicies: React.FC = () => {
                           title="Delete"
                         >
                           {deletingId === policy.id ? (
-                            <Spinner className="h-4 w-4 animate-spin" />
+                            <SpinnerIcon className="h-4 w-4 animate-spin" />
                           ) : (
-                            <Trash className="h-4 w-4" />
+                            <TrashIcon className="h-4 w-4" />
                           )}
                         </Button>
                       </div>
@@ -338,80 +291,6 @@ export const AdminPolicies: React.FC = () => {
           </div>
         )}
       </Card>
-
-      {/* Create / Edit Dialog */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle>
-              {editingPolicy ? "Edit Policy" : "Create Policy"}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="flex flex-col gap-4 py-4">
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold text-zinc-500 uppercase">
-                Type *
-              </label>
-              <select
-                className="flex h-10 w-full items-center justify-between rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-700 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-2"
-                value={form.type}
-                onChange={(e) =>
-                  setForm({ ...form, type: e.target.value as PolicyType })
-                }
-              >
-                <option value="return">Return</option>
-                <option value="refund">Refund</option>
-                <option value="replace">Replace</option>
-              </select>
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold text-zinc-500 uppercase">
-                Title *
-              </label>
-              <Input
-                value={form.title}
-                onChange={(e) => setForm({ ...form, title: e.target.value })}
-                placeholder="e.g. 30-Day Easy Return"
-              />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold text-zinc-500 uppercase">
-                Description
-              </label>
-              <textarea
-                className="flex min-h-20 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-2"
-                placeholder="Describe the policy terms..."
-                value={form.description}
-                onChange={(e) =>
-                  setForm({ ...form, description: e.target.value })
-                }
-              />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold text-zinc-500 uppercase">
-                Duration (Days) *
-              </label>
-              <Input
-                type="number"
-                value={form.durationDays}
-                onChange={(e) =>
-                  setForm({ ...form, durationDays: Number(e.target.value) })
-                }
-                min={1}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSubmit} disabled={submitting}>
-              {submitting && <Spinner className="h-4 w-4 animate-spin mr-2" />}
-              {editingPolicy ? "Save Changes" : "Create Policy"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

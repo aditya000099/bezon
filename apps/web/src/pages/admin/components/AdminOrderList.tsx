@@ -1,7 +1,8 @@
+import { Card, CardContent, Button } from '@bezon/ui';
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Clock, Info, Truck } from '@phosphor-icons/react';
+;
+;
+import { ClockIcon, InfoIcon, TruckIcon } from '@phosphor-icons/react';
 import { getOrderStatusBadgeClass, getPaymentStatusBadgeClass, formatStatusText } from '../../../utils/statusFormatter';
 
 export interface AdminOrderListProps {
@@ -23,12 +24,12 @@ export const AdminOrderList: React.FC<AdminOrderListProps> = ({
         <div className="overflow-x-auto">
           {loading ? (
             <div className="py-20 text-center text-zinc-500">
-              <Clock className="h-8 w-8 animate-spin mx-auto text-indigo-500 mb-2" />
+              <ClockIcon className="h-8 w-8 animate-spin mx-auto text-indigo-500 mb-2" />
               <p className="text-sm font-semibold">Loading platform orders...</p>
             </div>
           ) : orders.length === 0 ? (
             <div className="py-20 text-center text-zinc-400">
-              <Info className="h-8 w-8 mx-auto mb-2 text-zinc-300" />
+              <InfoIcon className="h-8 w-8 mx-auto mb-2 text-zinc-300" />
               <p className="text-sm font-semibold">No orders matched the specified filters.</p>
             </div>
           ) : (
@@ -82,7 +83,7 @@ export const AdminOrderList: React.FC<AdminOrderListProps> = ({
                     <td className="px-6 py-4 text-xs">
                       {order.delivery?.partner?.user?.name ? (
                         <div className="flex items-center gap-1 text-zinc-700">
-                          <Truck className="h-3.5 w-3.5 text-zinc-400" />
+                          <TruckIcon className="h-3.5 w-3.5 text-zinc-400" />
                           <span className="font-medium">{order.delivery.partner.user.name}</span>
                         </div>
                       ) : (

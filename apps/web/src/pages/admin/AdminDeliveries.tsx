@@ -1,25 +1,19 @@
+import { Card, CardContent, CardHeader, CardTitle, Button, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@bezon/ui';
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+;
+;
+;
 import api from "../../lib/api";
 import { API_ENDPOINTS } from "../../config/api.config";
 import { useToast } from "../../context/ToastContext";
 import {
-  Spinner,
-  Package,
-  Truck,
-  ArrowUUpLeft,
-  Users,
-  WarningCircle,
+  SpinnerIcon,
+  PackageIcon,
+  TruckIcon,
+  ArrowUUpLeftIcon,
+  UsersIcon,
+  WarningCircleIcon,
 } from "@phosphor-icons/react";
 
 export const AdminDeliveries: React.FC = () => {
@@ -83,11 +77,11 @@ export const AdminDeliveries: React.FC = () => {
 
       <div className="flex space-x-2 border-b pb-2 overflow-x-auto">
         {[
-          { id: "overview", label: "Overview", icon: <Package /> },
-          { id: "deliveries", label: "Deliveries", icon: <Truck /> },
-          { id: "returns", label: "Return Pickups", icon: <ArrowUUpLeft /> },
-          { id: "partners", label: "Partners", icon: <Users /> },
-          { id: "exceptions", label: "Exceptions", icon: <WarningCircle /> },
+          { id: "overview", label: "Overview", icon: <PackageIcon /> },
+          { id: "deliveries", label: "Deliveries", icon: <TruckIcon /> },
+          { id: "returns", label: "Return Pickups", icon: <ArrowUUpLeftIcon /> },
+          { id: "partners", label: "Partners", icon: <UsersIcon /> },
+          { id: "exceptions", label: "Exceptions", icon: <WarningCircleIcon /> },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -101,7 +95,7 @@ export const AdminDeliveries: React.FC = () => {
 
       {loading ? (
         <div className="flex justify-center items-center py-20">
-          <Spinner className="animate-spin text-teal-600 h-8 w-8" />
+          <SpinnerIcon className="animate-spin text-teal-600 h-8 w-8" />
         </div>
       ) : (
         <>

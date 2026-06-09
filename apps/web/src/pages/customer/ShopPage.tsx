@@ -1,21 +1,14 @@
+import { logger } from '@/utils/logger';
+import {
+  Input,
+} from '@bezon/ui';
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardFooter,
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-  ShoppingBag,
-  Star,
-  MagnifyingGlass,
-  Spinner,
-  Sparkle,
-  Heart,
+  MagnifyingGlassIcon,
+  SpinnerIcon,
+  SparkleIcon,
+  ShoppingBagIcon,
 } from '@phosphor-icons/react';
 import type { Product, Category } from '@bezon/types';
 import api from '../../lib/api';
@@ -24,6 +17,7 @@ import { useToast } from '../../context/ToastContext';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
+import { ProductCard } from './components/ProductCard';
 
 export const ShopPage: React.FC = () => {
   const { user } = useAuth();
@@ -57,12 +51,12 @@ export const ShopPage: React.FC = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await api.get(API_ENDPOINTS.categories);
+        const response = await api.get(API_ENDPOINTS.categories.base);
         if (response.data.success) {
           setCategories(response.data.data);
         }
       } catch (err) {
-        console.error('Failed to load categories', err);
+        logger.error('Failed to load categories', err);
       }
     };
     const fetchRecommendations = async () => {
@@ -74,7 +68,7 @@ export const ShopPage: React.FC = () => {
           setRecommendedProducts(res.data.data);
         }
       } catch (err) {
-        console.error('Failed to load recommendations', err);
+        logger.error('Failed to load recommendations', err);
       }
     };
 
@@ -98,6 +92,7 @@ export const ShopPage: React.FC = () => {
           setProducts(response.data.data.products || []);
         }
       } catch (err) {
+        logger.error(err);
         toast.error('Could not load products. Please check connection.');
       } finally {
         setLoading(false);
@@ -118,6 +113,7 @@ export const ShopPage: React.FC = () => {
       await addItem(product.id, 1, price);
       toast.success(`Added ${product.title} to shopping cart!`);
     } catch (err) {
+      logger.error(err);
       toast.error('Failed to add item to cart. Try again.');
     } finally {
       setAddingToCart((prev) => ({ ...prev, [product.id]: false }));
@@ -128,94 +124,21 @@ export const ShopPage: React.FC = () => {
     e.preventDefault();
     if (p.isSponsored && p.campaignId) {
       // Fire and forget click tracking
-      api.post(API_ENDPOINTS.ads.click(p.campaignId)).catch(console.error);
+      api.post(API_ENDPOINTS.ads.click(p.campaignId)).catch(logger.error);
     }
     navigate(`/products/${p.slug}`);
   };
 
   const renderProductCard = (p: any) => (
-    <Card
-      key={p.id}
-      className="overflow-hidden flex flex-col justify-between bg-card relative group"
-    >
-      <button
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          toggleWishlist(p.id, p.title);
-        }}
-        className="absolute top-2 right-2 z-10 h-8 w-8 bg-white/80 hover:bg-white text-zinc-400 hover:text-rose-500 rounded-full flex items-center justify-center backdrop-blur-sm transition-colors"
-      >
-        <Heart
-          className={`h-4 w-4 ${isInWishlist(p.id) ? 'fill-rose-500 text-rose-500' : 'text-zinc-400'}`}
-        />
-      </button>
-      {p.isSponsored && (
-        <div className="absolute top-2 left-2 z-10 px-2 py-0.5 bg-zinc-900/80 backdrop-blur text-[9px] font-bold tracking-widest text-white rounded uppercase shadow-sm">
-          Sponsored
-        </div>
-      )}
-      <div onClick={(e) => handleProductClick(e, p)}>
-        <div className="aspect-square bg-secondary flex items-center justify-center text-zinc-300 font-semibold text-xs select-none cursor-pointer overflow-hidden rounded-2xl">
-          {(() => {
-            const primaryImg =
-              p.images?.find((img: any) => img.isPrimary) || p.images?.[0];
-            return primaryImg ? (
-              <img
-                src={primaryImg.url}
-                alt={p.title}
-                className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-            ) : (
-              <ShoppingBag className="h-10 w-10 opacity-40 mb-2 block mx-auto text-zinc-400" />
-            );
-          })()}
-        </div>
-      </div>
-      <CardHeader className="p-2 pb-0">
-        <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
-          {p.brand || 'Unbranded'}
-        </span>
-        <div onClick={(e) => handleProductClick(e, p)} className="cursor-pointer">
-          <CardTitle className="text-base font-bold text-zinc-800 line-clamp-1 mt-0.5 hover:text-zinc-600 transition-colors">
-            {p.title}
-          </CardTitle>
-        </div>
-        <div className="flex items-center gap-1 mt-0.5 text-xs text-amber-500 font-bold">
-          <Star className="h-3 w-3 fill-amber-500 text-amber-500" />
-          <span>{p.avgRating ? Number(p.avgRating).toFixed(1) : '0.0'}</span>
-          <span className="text-zinc-400 font-normal">
-            ({p.reviewCount || 0})
-          </span>
-        </div>
-      </CardHeader>
-      <CardContent className="p-4 pt-3 flex items-baseline gap-2">
-        <span className="text-lg font-extrabold text-zinc-900">
-          ₹{Number(p.basePrice).toLocaleString()}
-        </span>
-      </CardContent>
-      <CardFooter className="p-4 pt-0">
-        {p.totalStock > 0 ? (
-          <Button
-            className="w-full text-xs font-bold"
-            size="sm"
-            onClick={() => handleAddToCart(p)}
-            disabled={addingToCart[p.id]}
-          >
-            {addingToCart[p.id] ? 'Adding...' : 'Add to Cart'}
-          </Button>
-        ) : (
-          <Button
-            variant="secondary"
-            className="w-full text-xs font-bold text-rose-500 cursor-not-allowed"
-            size="sm"
-            disabled
-          >
-            Out of Stock
-          </Button>
-        )}
-      </CardFooter>
-    </Card>
+    <ProductCard
+      key={p.isSponsored ? `sponsored-${p.id}` : p.id}
+      product={p}
+      addingToCart={addingToCart[p.id]}
+      isInWishlist={isInWishlist(p.id)}
+      onAddToCart={handleAddToCart}
+      onToggleWishlist={toggleWishlist}
+      onClick={handleProductClick}
+    />
   );
 
   return (
@@ -224,7 +147,7 @@ export const ShopPage: React.FC = () => {
       <div className="flex flex-col gap-4 bg-card rounded-2xl p-4">
         <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
           <div className="relative w-full sm:w-80">
-            <MagnifyingGlass className="absolute inset-y-0 left-3 flex items-center text-zinc-400 h-4 w-4 mt-3" />
+            <MagnifyingGlassIcon className="absolute inset-y-0 left-3 flex items-center text-zinc-400 h-4 w-4 mt-3" />
             <Input
               type="text"
               value={searchQuery}
@@ -283,7 +206,7 @@ export const ShopPage: React.FC = () => {
         !selectedCategory && (
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-2 px-1">
-              <Sparkle className="h-5 w-5 text-teal-500" />
+              <SparkleIcon className="h-5 w-5 text-teal-500" />
               <h2 className="text-xl font-black text-zinc-800 tracking-tight">
                 Recommended for You
               </h2>
@@ -297,12 +220,12 @@ export const ShopPage: React.FC = () => {
       {/* Catalog Grid */}
       {loading ? (
         <div className="flex flex-col items-center justify-center min-h-75 text-zinc-400 gap-2">
-          <Spinner className="h-8 w-8 animate-spin text-teal-500" />
+          <SpinnerIcon className="h-8 w-8 animate-spin text-teal-500" />
           <p className="text-sm font-semibold">Loading catalog items...</p>
         </div>
       ) : products.length === 0 ? (
         <div className="flex flex-col items-center justify-center min-h-75 text-zinc-400 border-2 border-dashed border-zinc-200 rounded-2xl p-8 bg-white/50">
-          <ShoppingBag className="h-12 w-12 text-zinc-300 mb-2" />
+          <ShoppingBagIcon className="h-12 w-12 text-zinc-300 mb-2" />
           <p className="font-bold text-zinc-700">No matching products found</p>
           <p className="text-xs text-zinc-400 mt-1">
             Try widening your search terms or changing category filters.

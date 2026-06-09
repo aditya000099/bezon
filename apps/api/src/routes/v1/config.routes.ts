@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { authenticateUser } from '../../middleware/auth.middleware.js';
+import { config } from '../../config/env.config.js';
 
 const router = Router();
 
@@ -8,7 +9,7 @@ router.get('/google-maps-key', authenticateUser, (req, res) => {
   res.json({
     success: true,
     data: {
-      googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY || '',
+      googleMapsApiKey: config.GOOGLE_MAPS_API_KEY,
     },
   });
 });

@@ -1,33 +1,34 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { useToast } from '../../context/ToastContext';
-import api from '../../lib/api';
-import { API_ENDPOINTS } from '../../config/api.config';
+import { logger } from '@/utils/logger';
 import {
-  ArrowLeft,
-  MapPin,
-  Plus,
-  Trash,
-  PencilSimple,
-  CheckCircle,
-  House,
-  Briefcase,
-  Globe,
-  Spinner,
-  User,
-  Phone,
-  Compass,
-} from '@phosphor-icons/react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
+  Button,
+  Input,
   Card,
   CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+} from '@bezon/ui';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { useToast } from '../../context/ToastContext';
+import api from '../../lib/api';
+import { API_ENDPOINTS } from '../../config/api.config';
+import {
+  ArrowLeftIcon,
+  MapPinIcon,
+  PlusIcon,
+  TrashIcon,
+  PencilSimpleIcon,
+  CheckCircleIcon,
+  HouseIcon,
+  BriefcaseIcon,
+  GlobeIcon,
+  SpinnerIcon,
+  UserIcon,
+  PhoneIcon,
+  CompassIcon,
+} from '@phosphor-icons/react';
 import { GoogleAddressInput } from '../../components/ui/GoogleAddressInput';
 
 // Types representing what an Address looks like, matching our database schema!
@@ -88,7 +89,7 @@ export const AddressesPage: React.FC = () => {
         setAddresses(response.data.data);
       }
     } catch (err: any) {
-      console.error('Failed to load addresses:', err);
+      logger.error('Failed to load addresses:', err);
       toast.error(
         err.response?.data?.message || 'Failed to load saved addresses.',
       );
@@ -156,7 +157,7 @@ export const AddressesPage: React.FC = () => {
     }
 
     if (phone.length < 7) {
-      toast.warning('Phone number must be at least 7 digits.');
+      toast.warning('PhoneIcon number must be at least 7 digits.');
       return;
     }
 
@@ -198,7 +199,7 @@ export const AddressesPage: React.FC = () => {
         }
       }
     } catch (err: any) {
-      console.error('Failed to save address:', err);
+      logger.error('Failed to save address:', err);
       toast.error(err.response?.data?.message || 'Failed to save address.');
     } finally {
       setSaving(false);
@@ -220,7 +221,7 @@ export const AddressesPage: React.FC = () => {
         fetchAddresses();
       }
     } catch (err: any) {
-      console.error('Failed to delete address:', err);
+      logger.error('Failed to delete address:', err);
       toast.error(err.response?.data?.message || 'Could not delete address.');
     }
   };
@@ -240,7 +241,7 @@ export const AddressesPage: React.FC = () => {
         fetchAddresses();
       }
     } catch (err: any) {
-      console.error('Failed to set default address:', err);
+      logger.error('Failed to set default address:', err);
       toast.error(
         err.response?.data?.message || 'Could not update default address.',
       );
@@ -255,7 +256,7 @@ export const AddressesPage: React.FC = () => {
           to="/profile"
           className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-600 hover:text-teal-600 transition-colors"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeftIcon className="h-4 w-4" />
           Back to Profile
         </Link>
         {!showForm && (
@@ -263,14 +264,14 @@ export const AddressesPage: React.FC = () => {
             onClick={() => setShowForm(true)}
             className="rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold inline-flex items-center gap-2 shadow-sm"
           >
-            <Plus className="h-4 w-4" /> Add Address
+            <PlusIcon className="h-4 w-4" /> Add Address
           </Button>
         )}
       </div>
 
       {/* Address Edit/Add Form Container */}
       {showForm && (
-        <Card className="border-0 bg-zinc-50/80 shadow-none rounded-[2rem] overflow-hidden animate-in fade-in slide-in-from-top-4 duration-250">
+        <Card className="border-0 bg-zinc-50/80 shadow-none rounded-4xl overflow-hidden animate-in fade-in slide-in-from-top-4 duration-250">
           <CardHeader className="bg-zinc-100/50 p-6">
             <CardTitle className="text-xl font-bold text-zinc-800">
               {editingAddress ? 'Edit Saved Address' : 'Add New Saved Address'}
@@ -301,16 +302,20 @@ export const AddressesPage: React.FC = () => {
                       }`}
                     >
                       <div className="flex items-center gap-1.5">
-                        {item === 'House' && <House className="h-3.5 w-3.5" />}
-                        {item === 'Work' && (
-                          <Briefcase className="h-3.5 w-3.5" />
+                        {item === 'House' && (
+                          <HouseIcon className="h-3.5 w-3.5" />
                         )}
-                        {item === 'Other' && <MapPin className="h-3.5 w-3.5" />}
+                        {item === 'Work' && (
+                          <BriefcaseIcon className="h-3.5 w-3.5" />
+                        )}
+                        {item === 'Other' && (
+                          <MapPinIcon className="h-3.5 w-3.5" />
+                        )}
                         {item}
                       </div>
                     </button>
                   ))}
-                  {label !== 'House' &&
+                  {label !== 'Housen' &&
                     label !== 'Work' &&
                     label !== 'Other' && (
                       <span className="text-xs font-bold text-teal-600 bg-teal-50 px-3 py-2 rounded-xl">
@@ -331,7 +336,7 @@ export const AddressesPage: React.FC = () => {
               {/* Google Maps Places Autocomplete Search */}
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
-                  <Compass className="h-3.5 w-3.5 text-teal-500" /> Search
+                  <CompassIcon className="h-3.5 w-3.5 text-teal-500" /> Search
                   Address on Google Maps (Auto-fills inputs)
                 </label>
                 <GoogleAddressInput
@@ -351,7 +356,7 @@ export const AddressesPage: React.FC = () => {
                 />
                 {lat && lng && (
                   <span className="text-[10px] font-bold text-emerald-600 mt-1 flex items-center gap-1 bg-emerald-50/50 self-start px-2 py-0.5 rounded-md border border-emerald-100">
-                    <CheckCircle className="h-3 w-3" /> Location Geocoded:{' '}
+                    <CheckCircleIcon className="h-3 w-3" /> Location Geocoded:{' '}
                     {lat.toFixed(5)}, {lng.toFixed(5)}
                   </span>
                 )}
@@ -365,8 +370,8 @@ export const AddressesPage: React.FC = () => {
                     htmlFor="fullname-input"
                     className="text-xs font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5"
                   >
-                    <User className="h-3.5 w-3.5 text-zinc-400" /> Receiver's
-                    Full Name *
+                    <UserIcon className="h-3.5 w-3.5 text-zinc-400" />{' '}
+                    Receiver's Full Name *
                   </label>
                   <Input
                     id="fullname-input"
@@ -378,13 +383,13 @@ export const AddressesPage: React.FC = () => {
                   />
                 </div>
 
-                {/* Phone Number input */}
+                {/* PhoneIcon Number input */}
                 <div className="flex flex-col gap-1.5">
                   <label
                     htmlFor="phone-input"
                     className="text-xs font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5"
                   >
-                    <Phone className="h-3.5 w-3.5 text-zinc-400" /> Delivery
+                    <PhoneIcon className="h-3.5 w-3.5 text-zinc-400" /> Delivery
                     Phone *
                   </label>
                   <Input
@@ -403,7 +408,7 @@ export const AddressesPage: React.FC = () => {
                     htmlFor="line1-input"
                     className="text-xs font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5"
                   >
-                    <MapPin className="h-3.5 w-3.5 text-zinc-400" /> Street
+                    <MapPinIcon className="h-3.5 w-3.5 text-zinc-400" /> Street
                     Address (Line 1) *
                   </label>
                   <Input
@@ -422,8 +427,8 @@ export const AddressesPage: React.FC = () => {
                     htmlFor="line2-input"
                     className="text-xs font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5"
                   >
-                    <MapPin className="h-3.5 w-3.5 text-zinc-300" /> Landmark /
-                    Apartment Name (Line 2)
+                    <MapPinIcon className="h-3.5 w-3.5 text-zinc-300" />{' '}
+                    Landmark / Apartment Name (Line 2)
                   </label>
                   <Input
                     id="line2-input"
@@ -476,8 +481,8 @@ export const AddressesPage: React.FC = () => {
                     htmlFor="pincode-input"
                     className="text-xs font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5"
                   >
-                    <Compass className="h-3.5 w-3.5 text-zinc-400" /> Pincode (6
-                    Digits) *
+                    <CompassIcon className="h-3.5 w-3.5 text-zinc-400" />{' '}
+                    Pincode (6 Digits) *
                   </label>
                   <Input
                     id="pincode-input"
@@ -495,7 +500,7 @@ export const AddressesPage: React.FC = () => {
                     htmlFor="country-input"
                     className="text-xs font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5"
                   >
-                    <Globe className="h-3.5 w-3.5 text-zinc-400" /> Country
+                    <GlobeIcon className="h-3.5 w-3.5 text-zinc-400" /> Country
                   </label>
                   <Input
                     id="country-input"
@@ -541,7 +546,7 @@ export const AddressesPage: React.FC = () => {
               >
                 {saving ? (
                   <>
-                    <Spinner className="h-4 w-4 animate-spin" /> Saving...
+                    <SpinnerIcon className="h-4 w-4 animate-spin" /> Saving...
                   </>
                 ) : (
                   'Save Address'
@@ -554,17 +559,17 @@ export const AddressesPage: React.FC = () => {
 
       {/* Main Address List Container */}
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-20 bg-zinc-50/80 rounded-[2rem]">
-          <Spinner className="h-10 w-10 text-teal-600 animate-spin" />
+        <div className="flex flex-col items-center justify-center py-20 bg-zinc-50/80 rounded-4xl">
+          <SpinnerIcon className="h-10 w-10 text-teal-600 animate-spin" />
           <p className="text-zinc-500 font-bold mt-4">
             Loading your saved addresses...
           </p>
         </div>
       ) : addresses.length === 0 ? (
         // Empty state UI if there are no addresses!
-        <div className="flex flex-col items-center justify-center py-16 px-6 text-center bg-zinc-50/80 rounded-[2rem]">
+        <div className="flex flex-col items-center justify-center py-16 px-6 text-center bg-zinc-50/80 rounded-4xl">
           <div className="p-4 bg-zinc-50 rounded-full text-zinc-400">
-            <MapPin className="h-12 w-12" />
+            <MapPinIcon className="h-12 w-12" />
           </div>
           <h3 className="text-lg font-bold text-zinc-800 mt-4">
             No Saved Addresses Found
@@ -577,7 +582,7 @@ export const AddressesPage: React.FC = () => {
             onClick={() => setShowForm(true)}
             className="rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold mt-6 inline-flex items-center gap-2"
           >
-            <Plus className="h-4 w-4" /> Add Your First Address
+            <PlusIcon className="h-4 w-4" /> Add Your First Address
           </Button>
         </div>
       ) : (
@@ -586,7 +591,7 @@ export const AddressesPage: React.FC = () => {
           {addresses.map((addr) => (
             <Card
               key={addr.id}
-              className={`border-0 transition-all rounded-[2rem] overflow-hidden flex flex-col justify-between ${
+              className={`border-0 transition-all rounded-4xl overflow-hidden flex flex-col justify-between ${
                 addr.isDefault
                   ? 'bg-zinc-100/80 ring-4 ring-teal-50/50'
                   : 'bg-zinc-50/80 hover:bg-zinc-100/60'
@@ -601,10 +606,14 @@ export const AddressesPage: React.FC = () => {
                         : 'bg-white text-zinc-500 border-zinc-200'
                     }`}
                   >
-                    {addr.label === 'House' && <House className="h-4 w-4" />}
-                    {addr.label === 'Work' && <Briefcase className="h-4 w-4" />}
+                    {addr.label === 'House' && (
+                      <HouseIcon className="h-4 w-4" />
+                    )}
+                    {addr.label === 'Work' && (
+                      <BriefcaseIcon className="h-4 w-4" />
+                    )}
                     {addr.label !== 'House' && addr.label !== 'Work' && (
-                      <MapPin className="h-4 w-4" />
+                      <MapPinIcon className="h-4 w-4" />
                     )}
                   </div>
                   <span className="font-extrabold text-sm text-zinc-800 uppercase tracking-wider">
@@ -613,7 +622,7 @@ export const AddressesPage: React.FC = () => {
                 </div>
                 {addr.isDefault && (
                   <span className="text-[10px] font-bold text-teal-700 bg-teal-50 px-2.5 py-1 rounded-full border border-teal-100 uppercase tracking-wider flex items-center gap-1 shadow-sm">
-                    <CheckCircle className="h-3 w-3" /> Default
+                    <CheckCircleIcon className="h-3 w-3" /> Default
                   </span>
                 )}
               </CardHeader>
@@ -621,7 +630,7 @@ export const AddressesPage: React.FC = () => {
               <CardContent className="p-6 flex-1 flex flex-col gap-4">
                 {/* Receiver Name */}
                 <div className="flex items-start gap-3">
-                  <User className="h-4.5 w-4.5 text-zinc-400 mt-0.5" />
+                  <UserIcon className="h-4.5 w-4.5 text-zinc-400 mt-0.5" />
                   <div>
                     <p className="font-extrabold text-zinc-800 text-sm">
                       {addr.fullName}
@@ -632,9 +641,9 @@ export const AddressesPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Receiver Phone */}
+                {/* Receiver PhoneIcon */}
                 <div className="flex items-start gap-3">
-                  <Phone className="h-4.5 w-4.5 text-zinc-400 mt-0.5" />
+                  <PhoneIcon className="h-4.5 w-4.5 text-zinc-400 mt-0.5" />
                   <div>
                     <p className="font-bold text-zinc-700 text-sm">
                       {addr.phone}
@@ -647,7 +656,7 @@ export const AddressesPage: React.FC = () => {
 
                 {/* Address lines */}
                 <div className="flex items-start gap-3 mt-1.5 pt-2.5 border-t border-zinc-100">
-                  <MapPin className="h-4.5 w-4.5 text-teal-500 mt-0.5" />
+                  <MapPinIcon className="h-4.5 w-4.5 text-teal-500 mt-0.5" />
                   <div className="text-zinc-600 text-xs font-semibold leading-relaxed">
                     <p>{addr.line1}</p>
                     {addr.line2 && (
@@ -674,7 +683,7 @@ export const AddressesPage: React.FC = () => {
                   </button>
                 ) : (
                   <span className="text-xs font-bold text-teal-600 flex items-center gap-1">
-                    <CheckCircle className="h-3.5 w-3.5" /> Primary Address
+                    <CheckCircleIcon className="h-3.5 w-3.5" /> Primary Address
                   </span>
                 )}
 
@@ -685,14 +694,14 @@ export const AddressesPage: React.FC = () => {
                     className="p-1.5 text-zinc-500 hover:text-teal-600 hover:bg-zinc-100 rounded-lg transition-all"
                     title="Edit Address"
                   >
-                    <PencilSimple className="h-4 w-4" />
+                    <PencilSimpleIcon className="h-4 w-4" />
                   </button>
                   <button
                     onClick={() => handleDelete(addr.id)}
                     className="p-1.5 text-zinc-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
                     title="Delete Address"
                   >
-                    <Trash className="h-4 w-4" />
+                    <TrashIcon className="h-4 w-4" />
                   </button>
                 </div>
               </CardFooter>

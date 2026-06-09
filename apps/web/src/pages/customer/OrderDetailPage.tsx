@@ -1,37 +1,38 @@
-import React, { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  Button,
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog";
+} from '@bezon/ui';
+import React, { useState, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
 import {
-  Spinner,
-  ArrowLeft,
-  Clock,
-  MapPin,
-  Package,
-  Truck,
-  ShoppingBag,
-  Star,
-  Download,
-  ArrowCounterClockwise,
-  Money,
-  ArrowsClockwise,
-} from "@phosphor-icons/react";
-import api from "../../lib/api";
-import { API_ENDPOINTS } from "../../config/api.config";
-import { RETURN_WINDOW_DAYS } from "../../utils/constants";
-import { useToast } from "../../context/ToastContext";
-import { WriteReviewModal } from "../../components/reviews/WriteReviewModal";
-import { OrderTrackingStepper } from "../../components/ui/OrderTrackingStepper";
-import { SupportChatWidget } from "../../components/SupportChatWidget";
-import type { OrderDetail } from "@bezon/types";
+  SpinnerIcon,
+  ArrowLeftIcon,
+  ClockIcon,
+  MapPinIcon,
+  PackageIcon,
+  TruckIcon,
+  ShoppingBagIcon,
+  StarIcon,
+  DownloadIcon,
+  ArrowCounterClockwiseIcon,
+  MoneyIcon,
+} from '@phosphor-icons/react';
+import api from '../../lib/api';
+import { API_ENDPOINTS } from '../../config/api.config';
+import { useToast } from '../../context/ToastContext';
+import { WriteReviewModal } from '../../components/reviews/WriteReviewModal';
+import { OrderTrackingStepper } from '../../components/ui/OrderTrackingStepper';
+import { SupportChatWidget } from '../../components/SupportChatWidget';
+import type { OrderDetail } from '@bezon/types';
 
 export const OrderDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -50,14 +51,14 @@ export const OrderDetailPage: React.FC = () => {
 
   // Return Request State
   const [returnModalOpen, setReturnModalOpen] = useState(false);
-  const [returnReason, setReturnReason] = useState("damaged");
-  const [returnNotes, setReturnNotes] = useState("");
+  const [returnReason, setReturnReason] = useState('damaged');
+  const [returnNotes, setReturnNotes] = useState('');
   const [submittingReturn, setSubmittingReturn] = useState(false);
 
   const handleReturnSubmit = async () => {
     if (!order) return;
     if (!returnReason) {
-      toast.warning("Please select a return reason.");
+      toast.warning('Please select a return reason.');
       return;
     }
 
@@ -69,14 +70,14 @@ export const OrderDetailPage: React.FC = () => {
       });
 
       if (res.data.success) {
-        toast.success("Return requested successfully.");
+        toast.success('Return requested successfully.');
         setReturnModalOpen(false);
-        setReturnReason("damaged");
-        setReturnNotes("");
+        setReturnReason('damaged');
+        setReturnNotes('');
         await fetchOrderDetail();
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Failed to request return.");
+      toast.error(err.response?.data?.message || 'Failed to request return.');
     } finally {
       setSubmittingReturn(false);
     }
@@ -84,13 +85,13 @@ export const OrderDetailPage: React.FC = () => {
 
   // Cancellation State
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
-  const [cancelReason, setCancelReason] = useState("");
+  const [cancelReason, setCancelReason] = useState('');
   const [cancelling, setCancelling] = useState(false);
 
   const handleCancelOrder = async () => {
     if (!order) return;
     if (!cancelReason) {
-      toast.warning("Please select a cancellation reason.");
+      toast.warning('Please select a cancellation reason.');
       return;
     }
 
@@ -101,13 +102,13 @@ export const OrderDetailPage: React.FC = () => {
       });
 
       if (res.data.success) {
-        toast.success("Order cancelled successfully.");
+        toast.success('Order cancelled successfully.');
         setCancelModalOpen(false);
-        setCancelReason("");
+        setCancelReason('');
         await fetchOrderDetail();
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Failed to cancel order.");
+      toast.error(err.response?.data?.message || 'Failed to cancel order.');
     } finally {
       setCancelling(false);
     }
@@ -123,7 +124,7 @@ export const OrderDetailPage: React.FC = () => {
     } catch (err: any) {
       toast.error(
         err.response?.data?.message ||
-          "Failed to fetch order tracking details.",
+          'Failed to fetch order tracking details.',
       );
     } finally {
       setLoading(false);
@@ -137,7 +138,7 @@ export const OrderDetailPage: React.FC = () => {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-100 text-zinc-400 gap-2">
-        <Spinner className="h-8 w-8 animate-spin text-teal-500" />
+        <SpinnerIcon className="h-8 w-8 animate-spin text-teal-500" />
         <p className="text-sm font-semibold">Loading order tracking...</p>
       </div>
     );
@@ -146,7 +147,7 @@ export const OrderDetailPage: React.FC = () => {
   if (!order) {
     return (
       <Card className="flex flex-col items-center justify-center min-h-75 text-zinc-400 p-8 border-dashed border-2 bg-white/50 max-w-lg mx-auto mt-12">
-        <Package className="h-12 w-12 text-rose-300 mb-2" />
+        <PackageIcon className="h-12 w-12 text-rose-300 mb-2" />
         <p className="font-bold text-zinc-700">Order not found</p>
         <Link to="/orders" className="mt-4">
           <Button size="sm">Back to History</Button>
@@ -165,11 +166,11 @@ export const OrderDetailPage: React.FC = () => {
               size="sm"
               className="gap-2 text-zinc-500 hover:text-zinc-900 -ml-2"
             >
-              <ArrowLeft className="h-4 w-4" /> Back to History
+              <ArrowLeftIcon className="h-4 w-4" /> Back to History
             </Button>
           </Link>
           <div className="flex gap-2">
-            {(order.status === "placed" || order.status === "confirmed") && (
+            {(order.status === 'placed' || order.status === 'confirmed') && (
               <Button
                 variant="outline"
                 size="sm"
@@ -179,18 +180,19 @@ export const OrderDetailPage: React.FC = () => {
                 Cancel Order
               </Button>
             )}
-            {order.status === "delivered" &&
-              (!order.returnStatus || order.returnStatus === "NONE") &&
+            {order.status === 'delivered' &&
+              (!order.returnStatus || order.returnStatus === 'NONE') &&
               (() => {
                 const deliveredAt =
                   order.deliveredAt ||
                   order.delivery?.deliveredAt ||
-                  order.timeline?.find((t) => t.status === "delivered")
+                  order.timeline?.find((t) => t.status === 'delivered')
                     ?.createdAt;
                 if (!deliveredAt) return false;
                 const deliveryTime = new Date(deliveredAt).getTime();
+                const windowDays = (order as any).returnWindowDays || 7;
                 const expirationTime =
-                  deliveryTime + RETURN_WINDOW_DAYS * 24 * 60 * 60 * 1000;
+                  deliveryTime + windowDays * 24 * 60 * 60 * 1000;
                 return Date.now() <= expirationTime;
               })() && (
                 <Button
@@ -209,7 +211,7 @@ export const OrderDetailPage: React.FC = () => {
                   size="sm"
                   className="gap-2 font-bold bg-zinc-50 text-zinc-700 border-0"
                 >
-                  <Download className="h-4 w-4" /> Download Bill
+                  <DownloadIcon className="h-4 w-4" /> Download Bill
                 </Button>
               </a>
             )}
@@ -217,19 +219,19 @@ export const OrderDetailPage: React.FC = () => {
         </div>
         <div className="flex items-center gap-3 flex-wrap">
           <h1 className="text-xl font-extrabold text-zinc-900 tracking-tight sm:text-2xl">
-            Order Tracker{" "}
+            Order Tracker{' '}
             <span className="font-mono text-zinc-400 font-normal">
               #{order.orderNumber}
             </span>
           </h1>
-          {order.returnStatus && order.returnStatus !== "NONE" && (
+          {order.returnStatus && order.returnStatus !== 'NONE' && (
             <span
               className={`inline-block px-3 py-1 rounded-full text-xs font-bold border ${
-                order.returnStatus === "REQUESTED"
-                  ? "bg-blue-50 text-blue-700 border-blue-200"
-                  : order.returnStatus === "APPROVED"
-                    ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                    : "bg-rose-50 text-rose-700 border-rose-200"
+                order.returnStatus === 'REQUESTED'
+                  ? 'bg-blue-50 text-blue-700 border-blue-200'
+                  : order.returnStatus === 'APPROVED'
+                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                    : 'bg-rose-50 text-rose-700 border-rose-200'
               }`}
             >
               RETURN {order.returnStatus.toUpperCase()}
@@ -267,7 +269,7 @@ export const OrderDetailPage: React.FC = () => {
                               className="h-full w-full object-cover"
                             />
                           ) : (
-                            <ShoppingBag className="h-6 w-6 text-zinc-300" />
+                            <ShoppingBagIcon className="h-6 w-6 text-zinc-300" />
                           )}
                         </div>
                         <div>
@@ -288,7 +290,7 @@ export const OrderDetailPage: React.FC = () => {
                             ).toLocaleString()}
                           </p>
                           <p className="text-[10px] text-zinc-400 mt-0.5">
-                            ₹{Number(item.unitPrice).toLocaleString()} &times;{" "}
+                            ₹{Number(item.unitPrice).toLocaleString()} &times;{' '}
                             {item.qty}
                           </p>
                         </div>
@@ -323,7 +325,7 @@ export const OrderDetailPage: React.FC = () => {
                           className="h-full w-full object-cover"
                         />
                       ) : (
-                        <ShoppingBag className="h-5 w-5 text-zinc-300" />
+                        <ShoppingBagIcon className="h-5 w-5 text-zinc-300" />
                       )}
                     </div>
                     <div className="min-w-0">
@@ -342,19 +344,19 @@ export const OrderDetailPage: React.FC = () => {
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-1">
                           {[...Array(5)].map((_, i) => (
-                            <Star
+                            <StarIcon
                               key={i}
-                              className={`h-3.5 w-3.5 ${i < item.review!.rating ? "text-amber-400 fill-amber-400" : "text-zinc-300 fill-zinc-300"}`}
+                              className={`h-3.5 w-3.5 ${i < item.review!.rating ? 'text-amber-400 fill-amber-400' : 'text-zinc-300 fill-zinc-300'}`}
                             />
                           ))}
                           <span className="text-[10px] text-zinc-400 ml-2">
-                            Reviewed on:{" "}
+                            Reviewed on:{' '}
                             {new Date(
                               item.review!.createdAt,
-                            ).toLocaleDateString("en-IN", {
-                              day: "numeric",
-                              month: "short",
-                              year: "numeric",
+                            ).toLocaleDateString('en-IN', {
+                              day: 'numeric',
+                              month: 'short',
+                              year: 'numeric',
                             })}
                           </span>
                         </div>
@@ -420,7 +422,7 @@ export const OrderDetailPage: React.FC = () => {
                           make better choices.
                         </p>
                       </div>
-                      {order.status === "delivered" ? (
+                      {order.status === 'delivered' ? (
                         <Button
                           variant="outline"
                           size="sm"
@@ -452,7 +454,7 @@ export const OrderDetailPage: React.FC = () => {
           {/* Delivery destination card */}
           <Card className="bg-zinc-50/80 border-0">
             <CardHeader className="flex flex-row items-center gap-2 py-4 bg-zinc-100/30 rounded-t-2xl">
-              <MapPin className="h-4 w-4 text-zinc-500" />
+              <MapPinIcon className="h-4 w-4 text-zinc-500" />
               <CardTitle className="text-base font-bold text-zinc-800">
                 Delivery Address
               </CardTitle>
@@ -466,11 +468,11 @@ export const OrderDetailPage: React.FC = () => {
                 <p>{order.addressSnapshot.line2}</p>
               )}
               <p>
-                {order.addressSnapshot.city}, {order.addressSnapshot.state} –{" "}
+                {order.addressSnapshot.city}, {order.addressSnapshot.state} –{' '}
                 {order.addressSnapshot.pincode}
               </p>
               <p className="text-xs text-zinc-400 mt-2 flex items-center gap-1.5">
-                <Truck className="h-3.5 w-3.5" /> Call:{" "}
+                <TruckIcon className="h-3.5 w-3.5" /> Call:{' '}
                 {order.addressSnapshot.phone}
               </p>
             </CardContent>
@@ -500,9 +502,9 @@ export const OrderDetailPage: React.FC = () => {
                 </span>
                 <span
                   className={`inline-block px-2.5 py-0.5 rounded-full font-bold mt-1 ${
-                    order.paymentStatus === "paid"
-                      ? "bg-emerald-50 text-emerald-700"
-                      : "bg-amber-50 text-amber-700"
+                    order.paymentStatus === 'paid'
+                      ? 'bg-emerald-50 text-emerald-700'
+                      : 'bg-amber-50 text-amber-700'
                   }`}
                 >
                   {order.paymentStatus.toUpperCase()}
@@ -519,10 +521,10 @@ export const OrderDetailPage: React.FC = () => {
             </CardContent>
           </Card>
 
-          {order.returnStatus !== "NONE" && (
+          {order.returnStatus !== 'NONE' && (
             <Card className="bg-zinc-50/80 border-0">
               <CardHeader className="py-4 flex flex-row items-center gap-2 bg-zinc-100/30 rounded-t-2xl">
-                <ArrowCounterClockwise className="h-4 w-4 text-blue-500" />
+                <ArrowCounterClockwiseIcon className="h-4 w-4 text-blue-500" />
                 <CardTitle className="text-base font-bold text-zinc-800">
                   Return Status
                 </CardTitle>
@@ -534,35 +536,35 @@ export const OrderDetailPage: React.FC = () => {
                   </span>
                   <span
                     className={`inline-block px-2.5 py-0.5 rounded-full font-bold mt-1 ${
-                      order.returnStatus === "APPROVED" ||
-                      order.returnStatus === "ASSIGNED" ||
-                      order.returnStatus === "PICKED_UP" ||
-                      order.returnStatus === "COMPLETED"
-                        ? "bg-emerald-50 text-emerald-700"
-                        : order.returnStatus === "REJECTED"
-                          ? "bg-rose-50 text-rose-700"
-                          : "bg-blue-50 text-blue-700"
+                      order.returnStatus === 'APPROVED' ||
+                      order.returnStatus === 'ASSIGNED' ||
+                      order.returnStatus === 'PICKED_UP' ||
+                      order.returnStatus === 'COMPLETED'
+                        ? 'bg-emerald-50 text-emerald-700'
+                        : order.returnStatus === 'REJECTED'
+                          ? 'bg-rose-50 text-rose-700'
+                          : 'bg-blue-50 text-blue-700'
                     }`}
                   >
                     {order.returnStatus}
                   </span>
                   {/* Detailed Description */}
-                  {order.returnStatus === "APPROVED" && (
+                  {order.returnStatus === 'APPROVED' && (
                     <p className="text-[10px] mt-1 text-emerald-600 font-medium">
                       Waiting for pickup partner assignment
                     </p>
                   )}
-                  {order.returnStatus === "ASSIGNED" && (
+                  {order.returnStatus === 'ASSIGNED' && (
                     <p className="text-[10px] mt-1 text-emerald-600 font-medium">
                       Pickup partner assigned
                     </p>
                   )}
-                  {order.returnStatus === "PICKED_UP" && (
+                  {order.returnStatus === 'PICKED_UP' && (
                     <p className="text-[10px] mt-1 text-emerald-600 font-medium">
                       Product is being returned to seller
                     </p>
                   )}
-                  {order.returnStatus === "COMPLETED" && (
+                  {order.returnStatus === 'COMPLETED' && (
                     <p className="text-[10px] mt-1 text-emerald-600 font-medium">
                       Product received by seller
                     </p>
@@ -609,10 +611,10 @@ export const OrderDetailPage: React.FC = () => {
             </Card>
           )}
 
-          {order.refundStatus && order.refundStatus !== "NONE" && (
+          {order.refundStatus && order.refundStatus !== 'NONE' && (
             <Card className="bg-zinc-50/80 border-0">
               <CardHeader className="py-4 flex flex-row items-center gap-2 bg-zinc-100/30 rounded-t-2xl">
-                <Money className="h-4 w-4 text-emerald-500" />
+                <MoneyIcon className="h-4 w-4 text-emerald-500" />
                 <CardTitle className="text-base font-bold text-zinc-800">
                   Refund Status
                 </CardTitle>
@@ -624,13 +626,13 @@ export const OrderDetailPage: React.FC = () => {
                   </span>
                   <span
                     className={`inline-block px-2.5 py-0.5 rounded-full font-bold mt-1 ${
-                      order.refundStatus === "COMPLETED"
-                        ? "bg-emerald-50 text-emerald-700"
-                        : order.refundStatus === "FAILED"
-                          ? "bg-rose-50 text-rose-700"
-                          : order.refundStatus === "READY"
-                            ? "bg-blue-50 text-blue-700"
-                            : "bg-amber-50 text-amber-700"
+                      order.refundStatus === 'COMPLETED'
+                        ? 'bg-emerald-50 text-emerald-700'
+                        : order.refundStatus === 'FAILED'
+                          ? 'bg-rose-50 text-rose-700'
+                          : order.refundStatus === 'READY'
+                            ? 'bg-blue-50 text-blue-700'
+                            : 'bg-amber-50 text-amber-700'
                     }`}
                   >
                     {order.refundStatus}
@@ -657,7 +659,7 @@ export const OrderDetailPage: React.FC = () => {
                   </div>
                 )}
                 {order.refundFailureReason &&
-                  order.refundStatus === "FAILED" && (
+                  order.refundStatus === 'FAILED' && (
                     <div className="border-t border-zinc-100 pt-3">
                       <p className="text-xs text-rose-600 bg-rose-50 p-2 rounded border border-rose-100">
                         <strong>Issue:</strong> {order.refundFailureReason}
@@ -671,7 +673,7 @@ export const OrderDetailPage: React.FC = () => {
           {/* Vertical Timeline logs */}
           <Card className="bg-zinc-50/80 border-0 flex-1">
             <CardHeader className="py-4 flex flex-row items-center gap-2 bg-zinc-100/30 rounded-t-2xl">
-              <Clock className="h-4 w-4 text-zinc-500" />
+              <ClockIcon className="h-4 w-4 text-zinc-500" />
               <CardTitle className="text-base font-bold text-zinc-800">
                 Status Logs
               </CardTitle>
@@ -690,17 +692,17 @@ export const OrderDetailPage: React.FC = () => {
                     >
                       <span className="absolute left-1 top-1 h-2.5 w-2.5 rounded-full bg-teal-500 ring-4 ring-teal-50" />
                       <p className="font-bold text-zinc-800 uppercase tracking-wider text-[10px]">
-                        {evt.status.replace(/_/g, " ")}
+                        {evt.status.replace(/_/g, ' ')}
                       </p>
                       <p className="text-zinc-500 leading-normal">
-                        {evt.note || "No description note."}
+                        {evt.note || 'No description note.'}
                       </p>
                       <p className="text-[10px] text-zinc-400">
-                        {new Date(evt.createdAt).toLocaleString("en-IN", {
-                          day: "numeric",
-                          month: "short",
-                          hour: "2-digit",
-                          minute: "2-digit",
+                        {new Date(evt.createdAt).toLocaleString('en-IN', {
+                          day: 'numeric',
+                          month: 'short',
+                          hour: '2-digit',
+                          minute: '2-digit',
                         })}
                       </p>
                     </div>
@@ -716,7 +718,7 @@ export const OrderDetailPage: React.FC = () => {
       <div className="w-full mt-4">
         <SupportChatWidget
           context={{
-            type: "order",
+            type: 'order',
             orderId: order.id,
             orderNumber: order.orderNumber,
           }}
@@ -747,7 +749,7 @@ export const OrderDetailPage: React.FC = () => {
               </DialogTitle>
               <DialogDescription>
                 Submit a return request for this order. This action is subject
-                to the {RETURN_WINDOW_DAYS}-day return window.
+                to the {(order as any).returnWindowDays || 7}-day return window.
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
@@ -788,8 +790,8 @@ export const OrderDetailPage: React.FC = () => {
                 variant="outline"
                 onClick={() => {
                   setReturnModalOpen(false);
-                  setReturnReason("damaged");
-                  setReturnNotes("");
+                  setReturnReason('damaged');
+                  setReturnNotes('');
                 }}
                 disabled={submittingReturn}
               >
@@ -801,7 +803,7 @@ export const OrderDetailPage: React.FC = () => {
                 className="font-bold bg-blue-600 hover:bg-blue-700 text-white"
               >
                 {submittingReturn ? (
-                  <Spinner className="h-4 w-4 animate-spin mr-2" />
+                  <SpinnerIcon className="h-4 w-4 animate-spin mr-2" />
                 ) : null}
                 Submit Request
               </Button>
@@ -852,7 +854,7 @@ export const OrderDetailPage: React.FC = () => {
                 variant="outline"
                 onClick={() => {
                   setCancelModalOpen(false);
-                  setCancelReason("");
+                  setCancelReason('');
                 }}
                 disabled={cancelling}
               >
@@ -864,7 +866,7 @@ export const OrderDetailPage: React.FC = () => {
                 className="font-bold bg-rose-600 hover:bg-rose-700 text-white"
               >
                 {cancelling ? (
-                  <Spinner className="h-4 w-4 animate-spin mr-2" />
+                  <SpinnerIcon className="h-4 w-4 animate-spin mr-2" />
                 ) : null}
                 Confirm Cancellation
               </Button>

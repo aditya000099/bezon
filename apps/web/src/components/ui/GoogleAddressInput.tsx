@@ -1,6 +1,7 @@
+import { logger } from "@/utils/logger";
 import React, { useEffect, useRef, useState } from 'react';
-import { Input } from './input';
-import { Spinner, MapPin } from '@phosphor-icons/react';
+import { Input } from "@bezon/ui";
+import { SpinnerIcon, MapPinIcon } from '@phosphor-icons/react';
 import api from '../../lib/api';
 
 interface SelectedAddress {
@@ -171,7 +172,7 @@ export const GoogleAddressInput: React.FC<GoogleAddressInputProps> = ({
 
         setLoading(false);
       } catch (err) {
-        console.error('Failed to initialize Google Maps Autocomplete:', err);
+        logger.error('Failed to initialize Google Maps Autocomplete:', err);
         setLoading(false);
       }
     };
@@ -187,9 +188,9 @@ export const GoogleAddressInput: React.FC<GoogleAddressInputProps> = ({
     <div className="relative w-full">
       <div className="absolute left-3 top-3.5 text-zinc-400">
         {loading ? (
-          <Spinner className="h-4 w-4 animate-spin text-teal-500" />
+          <SpinnerIcon className="h-4 w-4 animate-spin text-teal-500" />
         ) : (
-          <MapPin className="h-4 w-4" />
+          <MapPinIcon className="h-4 w-4" />
         )}
       </div>
       <Input

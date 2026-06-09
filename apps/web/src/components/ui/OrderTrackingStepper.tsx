@@ -1,19 +1,19 @@
 import React from 'react';
 import {
-  Check,
-  X,
-  ShoppingBag,
-  CheckCircle,
-  Package,
-  Truck,
-  MapPin,
-  ClipboardText,
-  ThumbsUp,
-  Warehouse,
-  Money,
-  ArrowsClockwise,
-  Handshake,
-  WarningCircle,
+  CheckIcon,
+  XIcon,
+  ShoppingBagIcon,
+  CheckCircleIcon,
+  PackageIcon,
+  TruckIcon,
+  MapPinIcon,
+  ClipboardTextIcon,
+  ThumbsUpIcon,
+  WarehouseIcon,
+  MoneyIcon,
+  ArrowsClockwiseIcon,
+  HandshakeIcon,
+  WarningCircleIcon,
 } from '@phosphor-icons/react';
 
 type StepDef = {
@@ -24,61 +24,61 @@ type StepDef = {
 };
 
 const STEPS_STANDARD: StepDef[] = [
-  { label: 'Order Placed', icon: ShoppingBag, statuses: ['placed'] },
-  { label: 'Confirmed', icon: CheckCircle, statuses: ['confirmed'] },
-  { label: 'Packed', icon: Package, statuses: ['packed'] },
-  { label: 'Shipped', icon: Truck, statuses: ['ready_for_pickup', 'shipped'] },
+  { label: 'Order Placed', icon: ShoppingBagIcon, statuses: ['placed'] },
+  { label: 'Confirmed', icon: CheckCircleIcon, statuses: ['confirmed'] },
+  { label: 'Packed', icon: PackageIcon, statuses: ['packed'] },
+  { label: 'Shipped', icon: TruckIcon, statuses: ['ready_for_pickup', 'shipped'] },
   {
     label: 'Delivered',
-    icon: MapPin,
+    icon: MapPinIcon,
     statuses: ['out_for_delivery', 'delivered'],
   },
 ];
 
 const STEPS_RETURN: StepDef[] = [
-  { label: 'Delivered', icon: MapPin, statuses: ['delivered'] },
+  { label: 'Delivered', icon: MapPinIcon, statuses: ['delivered'] },
   {
     label: 'Return Requested',
-    icon: ClipboardText,
+    icon: ClipboardTextIcon,
     statuses: ['return_requested', 'return_rejected'],
   },
-  { label: 'Approved', icon: ThumbsUp, statuses: ['return_approved'] },
-  { label: 'Item Received', icon: Warehouse, statuses: ['returned_to_origin'] },
+  { label: 'Approved', icon: ThumbsUpIcon, statuses: ['return_approved'] },
+  { label: 'Item Received', icon: WarehouseIcon, statuses: ['returned_to_origin'] },
 ];
 
 const STEPS_REFUND: StepDef[] = [
   {
     label: 'Delivered',
-    icon: MapPin,
+    icon: MapPinIcon,
     statuses: ['delivered', 'returned_to_origin'],
   },
   {
     label: 'Refund Requested',
-    icon: ClipboardText,
+    icon: ClipboardTextIcon,
     statuses: ['refund_requested', 'refund_rejected'],
   },
   {
     label: 'Approved',
-    icon: ThumbsUp,
+    icon: ThumbsUpIcon,
     statuses: ['refund_approved', 'refunding'],
   },
-  { label: 'Refunded', icon: Money, statuses: ['refunded'] },
+  { label: 'Refunded', icon: MoneyIcon, statuses: ['refunded'] },
 ];
 
 const STEPS_REPLACE: StepDef[] = [
   {
     label: 'Delivered',
-    icon: MapPin,
+    icon: MapPinIcon,
     statuses: ['delivered', 'returned_to_origin'],
   },
   {
     label: 'Replace Requested',
-    icon: ClipboardText,
+    icon: ClipboardTextIcon,
     statuses: ['replacement_requested', 'replacement_rejected'],
   },
-  { label: 'Approved', icon: ThumbsUp, statuses: ['replacement_approved'] },
-  { label: 'Repl. Shipped', icon: Truck, statuses: ['replacement_shipped'] },
-  { label: 'Replaced', icon: Handshake, statuses: ['replaced'] },
+  { label: 'Approved', icon: ThumbsUpIcon, statuses: ['replacement_approved'] },
+  { label: 'Repl. Shipped', icon: TruckIcon, statuses: ['replacement_shipped'] },
+  { label: 'Replaced', icon: HandshakeIcon, statuses: ['replaced'] },
 ];
 
 const STATUS_ORDER_STANDARD = [
@@ -276,7 +276,7 @@ const StepCircle: React.FC<{
   if (state === 'completed') {
     return (
       <div className="h-9 w-9 rounded-full bg-emerald-600 flex items-center justify-center shrink-0 shadow-md shadow-emerald-200">
-        <Check className="h-5 w-5 text-white" strokeWidth={3} />
+        <CheckIcon className="h-5 w-5 text-white" strokeWidth={3} />
       </div>
     );
   }
@@ -284,7 +284,7 @@ const StepCircle: React.FC<{
   if (state === 'cancelled') {
     return (
       <div className="h-9 w-9 rounded-full bg-rose-600 flex items-center justify-center shrink-0 shadow-md shadow-rose-200">
-        <X className="h-5 w-5 text-white" strokeWidth={3} />
+        <XIcon className="h-5 w-5 text-white" strokeWidth={3} />
       </div>
     );
   }
@@ -402,7 +402,7 @@ export const OrderTrackingStepper: React.FC<{ currentStatus: string }> = ({
       {/* Cancelled banner */}
       {isCancelled && (
         <div className="mt-5 flex items-start gap-3 rounded-lg bg-rose-50 border border-rose-200 px-4 py-3 text-sm text-rose-800">
-          <X className="h-5 w-5 text-rose-600 mt-0.5 shrink-0" />
+          <XIcon className="h-5 w-5 text-rose-600 mt-0.5 shrink-0" />
           <div>
             <p className="font-bold text-rose-900">
               This order has been cancelled.
@@ -418,7 +418,7 @@ export const OrderTrackingStepper: React.FC<{ currentStatus: string }> = ({
       {/* Rejected banner */}
       {isRejected && (
         <div className="mt-5 flex items-start gap-3 rounded-lg bg-rose-50 border border-rose-200 px-4 py-3 text-sm text-rose-800">
-          <WarningCircle className="h-5 w-5 text-rose-600 mt-0.5 shrink-0" />
+          <WarningCircleIcon className="h-5 w-5 text-rose-600 mt-0.5 shrink-0" />
           <div>
             <p className="font-bold text-rose-900">
               Your {flowName} request was rejected by the merchant.

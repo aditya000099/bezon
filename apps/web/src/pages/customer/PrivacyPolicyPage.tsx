@@ -1,20 +1,15 @@
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@bezon/ui';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import {
-  ArrowLeft,
-  Shield,
-  Eye,
-  Lock,
-  ArrowsClockwise,
-  PaperPlaneRight,
+  ArrowLeftIcon,
+  ShieldIcon,
+  EyeIcon,
+  LockIcon,
+  ArrowsClockwiseIcon,
+  PaperPlaneRightIcon,
 } from '@phosphor-icons/react';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+;
 
 export const PrivacyPolicyPage: React.FC = () => {
   return (
@@ -25,7 +20,7 @@ export const PrivacyPolicyPage: React.FC = () => {
           to="/profile"
           className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-600 hover:text-teal-600 transition-colors"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeftIcon className="h-4 w-4" />
           Back to Profile
         </Link>
       </div>
@@ -34,7 +29,7 @@ export const PrivacyPolicyPage: React.FC = () => {
         <CardHeader className="bg-zinc-50 border-b border-zinc-100 p-6 sm:p-8">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-emerald-50 text-emerald-600 rounded-xl">
-              <Shield className="h-6 w-6" />
+              <ShieldIcon className="h-6 w-6" />
             </div>
             <div>
               <CardTitle className="text-2xl font-extrabold text-zinc-800">
@@ -50,7 +45,7 @@ export const PrivacyPolicyPage: React.FC = () => {
         <CardContent className="p-6 sm:p-8 flex flex-col gap-8 text-zinc-600 text-sm sm:text-base leading-relaxed">
           {/* Policy commitment box */}
           <div className="bg-emerald-50/50 rounded-2xl border border-emerald-100 p-5 flex gap-4">
-            <Lock className="h-6 w-6 text-emerald-600 shrink-0 mt-0.5" />
+            <LockIcon className="h-6 w-6 text-emerald-600 shrink-0 mt-0.5" />
             <div className="text-zinc-700 text-xs sm:text-sm font-medium">
               Your privacy is extremely important to us! At Bezon, we are fully
               committed to protecting your personal information and being

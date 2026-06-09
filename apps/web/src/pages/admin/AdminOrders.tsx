@@ -1,6 +1,7 @@
+import { Button } from '@bezon/ui';
 import React, { useState, useEffect, useMemo } from 'react';
-import { Button } from '@/components/ui/button';
-import { ArrowCounterClockwise } from '@phosphor-icons/react';
+;
+import { ArrowCounterClockwiseIcon } from '@phosphor-icons/react';
 import api from '../../lib/api';
 import { useToast } from '../../context/ToastContext';
 import { AdminOrderMetrics } from './components/AdminOrderMetrics';
@@ -28,12 +29,22 @@ export const AdminOrders: React.FC = () => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  const fetchOrders = async () => {
+  // Pagination State
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [limit] = useState(20);
+
+  const fetchOrders = async (currentPage: number = page) => {
     try {
       setLoading(true);
-      const response = await api.get('/api/v1/orders');
+      const response = await api.get('/api/v1/orders', {
+        params: { page: currentPage, limit }
+      });
       if (response.data.success) {
         setOrders(response.data.data);
+        if (response.data.pagination) {
+          setTotalPages(response.data.pagination.totalPages);
+        }
       }
     } catch (err: any) {
       toast.error('Failed to load platform orders');
@@ -41,6 +52,10 @@ export const AdminOrders: React.FC = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchOrders(page);
+  }, [page]);
 
   const fetchOrderDetail = async (orderId: string) => {
     try {
@@ -56,10 +71,6 @@ export const AdminOrders: React.FC = () => {
       setLoadingDetails(false);
     }
   };
-
-  useEffect(() => {
-    fetchOrders();
-  }, []);
 
   useEffect(() => {
     if (selectedOrderId) {
@@ -94,7 +105,7 @@ export const AdminOrders: React.FC = () => {
         toast.success('Order force cancelled successfully.');
         // Refresh details & list
         fetchOrderDetail(selectedOrderId);
-        fetchOrders();
+        fetchOrders(page);
       }
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Failed to cancel order');
@@ -226,7 +237,6 @@ export const AdminOrders: React.FC = () => {
   };
 
 
-
   // formatters removed, using centralized utilities in subcomponents
 
   return (
@@ -252,8 +262,8 @@ export const AdminOrders: React.FC = () => {
               endDate,
             }}
           />
-          <Button onClick={fetchOrders} variant="outline" className="flex items-center gap-2">
-            <ArrowCounterClockwise className="h-4 w-4" />
+          <Button onClick={() => fetchOrders(page)} variant="outline" className="flex items-center gap-2">
+            <ArrowCounterClockwiseIcon className="h-4 w-4" />
             Refresh
           </Button>
         </div>
@@ -293,6 +303,30 @@ export const AdminOrders: React.FC = () => {
         formatCurrency={formatCurrency}
         setSelectedOrderId={setSelectedOrderId}
       />
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-4 mt-6">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1}
+          >
+            Previous
+          </Button>
+          <span className="text-sm font-semibold text-zinc-500">
+            Page {page} of {totalPages}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page === totalPages}
+          >
+            Next
+          </Button>
+        </div>
+      )}
 
       <AdminOrderDetailModal
         selectedOrderId={selectedOrderId}

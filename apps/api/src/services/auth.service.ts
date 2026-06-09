@@ -2,8 +2,9 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import prisma from '../db/client.js';
 import type { UserRole } from '@bezon/types';
+import { config } from '../config/env.config.js';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'bezon-jwt-secret-key';
+const JWT_SECRET = config.JWT_SECRET;
 
 export class AuthService {
   /**

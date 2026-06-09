@@ -50,11 +50,14 @@ export const getProducts = async (
     let organicIdx = 0;
     let sponsoredIdx = 0;
 
-    for (let i = 0; i < organicProducts.length + sponsored.length; i++) {
+    const sponsoredIds = new Set(sponsored.map((s: any) => s.id));
+    const deduplicatedOrganic = organicProducts.filter((p: any) => !sponsoredIds.has(p.id));
+
+    for (let i = 0; i < deduplicatedOrganic.length + sponsored.length; i++) {
       if (i % 5 === 0 && sponsoredIdx < sponsored.length) {
         mixedProducts.push(sponsored[sponsoredIdx++]);
-      } else if (organicIdx < organicProducts.length) {
-        mixedProducts.push(organicProducts[organicIdx++]);
+      } else if (organicIdx < deduplicatedOrganic.length) {
+        mixedProducts.push(deduplicatedOrganic[organicIdx++]);
       }
     }
 

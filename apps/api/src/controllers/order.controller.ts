@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { OrderService } from '../services/order.service.js';
+import { CustomerOrderService } from '../services/order/customer.order.service.js';
+import { SellerOrderService } from '../services/order/seller.order.service.js';
+import { AdminOrderService } from '../services/order/admin.order.service.js';
 
 /**
  * Retrieve order history list depending on caller role
@@ -11,14 +13,25 @@ export const getOrders = async (req: Request, res: Response, next: NextFunction)
     }
 
     const filters = req.query;
-    const orders = await OrderService.getOrders({
-      id: req.user.id,
-      role: req.user.role,
-    }, filters);
+    const page = parseInt(filters.page as string) || 1;
+    const limit = parseInt(filters.limit as string) || 10;
+    
+    let result;
+
+    if (req.user.role === 'customer') {
+      result = await CustomerOrderService.getOrders(req.user.id, page, limit);
+    } else if (req.user.role === 'seller') {
+      result = await SellerOrderService.getOrders(req.user.id, filters, page, limit);
+    } else if (req.user.role === 'admin') {
+      result = await AdminOrderService.getOrders(filters, page, limit);
+    } else {
+      return res.status(403).json({ success: false, message: 'Role not supported for order history.' });
+    }
 
     res.json({
       success: true,
-      data: orders,
+      data: result.data,
+      pagination: result.pagination,
     });
   } catch (err) {
     next(err);
@@ -36,10 +49,16 @@ export const getOrderById = async (req: Request, res: Response, next: NextFuncti
       return res.status(401).json({ success: false, message: 'Unauthorized session.' });
     }
 
-    const order = await OrderService.getOrderById(id, {
-      id: req.user.id,
-      role: req.user.role,
-    });
+    let order;
+    if (req.user.role === 'customer') {
+      order = await CustomerOrderService.getOrderById(id, req.user.id);
+    } else if (req.user.role === 'seller') {
+      order = await SellerOrderService.getOrderById(id, req.user.id);
+    } else if (req.user.role === 'admin') {
+      order = await AdminOrderService.getOrderById(id);
+    } else {
+      return res.status(403).json({ success: false, message: 'Role not supported for order details.' });
+    }
 
     res.json({
       success: true,
@@ -66,10 +85,14 @@ export const updateOrderStatus = async (req: Request, res: Response, next: NextF
       return res.status(400).json({ success: false, message: 'Status is required.' });
     }
 
-    const order = await OrderService.updateOrderStatus(id, status, {
-      id: req.user.id,
-      role: req.user.role,
-    });
+    let order;
+    if (req.user.role === 'seller') {
+      order = await SellerOrderService.updateOrderStatus(id, status, req.user.id);
+    } else if (req.user.role === 'admin') {
+      order = await AdminOrderService.updateOrderStatus(id, status, req.user.id);
+    } else {
+      return res.status(403).json({ success: false, message: 'Only sellers and admins can update order status.' });
+    }
 
     res.json({
       success: true,
@@ -89,7 +112,7 @@ export const requestOrderPolicyAction = async (req: Request, res: Response, next
     const id = req.params.id as string;
     const { actionType, itemId, reason } = req.body;
 
-    if (!req.user) {
+    if (!req.user || req.user.role !== 'customer') {
       return res.status(401).json({ success: false, message: 'Unauthorized session.' });
     }
 
@@ -97,10 +120,7 @@ export const requestOrderPolicyAction = async (req: Request, res: Response, next
       return res.status(400).json({ success: false, message: 'actionType and itemId are required.' });
     }
 
-    const order = await OrderService.requestOrderPolicyAction(id, actionType, itemId, reason, {
-      id: req.user.id,
-      role: req.user.role,
-    });
+    const order = await CustomerOrderService.requestPolicyAction(id, actionType, itemId, reason, req.user.id);
 
     res.json({
       success: true,
@@ -116,19 +136,28 @@ export const requestOrderPolicyAction = async (req: Request, res: Response, next
  */
 export const getSellerOrders = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    if (!req.user) {
+    if (!req.user || req.user.role !== 'seller') {
       return res.status(401).json({ success: false, message: 'Unauthorized session.' });
     }
 
     const { returnStatus, returnInspectionStatus } = req.query;
-    const orders = await OrderService.getSellerOrders(req.user.id, {
-      returnStatus: returnStatus as string,
-      returnInspectionStatus: returnInspectionStatus as string,
-    });
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    
+    const result = await SellerOrderService.getOrders(
+      req.user.id, 
+      {
+        returnStatus: returnStatus as string,
+        returnInspectionStatus: returnInspectionStatus as string,
+      },
+      page,
+      limit
+    );
 
     res.json({
       success: true,
-      data: orders,
+      data: result.data,
+      pagination: result.pagination,
     });
   } catch (err) {
     next(err);
@@ -142,17 +171,16 @@ export const getSellerOrderById = async (req: Request, res: Response, next: Next
   try {
     const id = req.params.id as string;
 
-    // Validate UUID to prevent Prisma Validation Errors
     const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
     if (!id || id === 'undefined' || !uuidRegex.test(id)) {
       return res.status(400).json({ success: false, message: 'Invalid order ID format.' });
     }
 
-    if (!req.user) {
+    if (!req.user || req.user.role !== 'seller') {
       return res.status(401).json({ success: false, message: 'Unauthorized session.' });
     }
 
-    const order = await OrderService.getSellerOrderById(id, req.user.id);
+    const order = await SellerOrderService.getOrderById(id, req.user.id);
 
     res.json({
       success: true,
@@ -162,7 +190,6 @@ export const getSellerOrderById = async (req: Request, res: Response, next: Next
     next(err);
   }
 };
-
 
 /**
  * Cancel a customer order
@@ -176,7 +203,7 @@ export const cancelCustomerOrder = async (req: Request, res: Response, next: Nex
       return res.status(401).json({ success: false, message: 'Unauthorized session.' });
     }
 
-    const order = await OrderService.cancelCustomerOrder(id, req.user.id, cancelReason);
+    const order = await CustomerOrderService.cancelOrder(id, req.user.id, cancelReason);
 
     res.json({
       success: true,
@@ -196,7 +223,6 @@ export const cancelSellerOrder = async (req: Request, res: Response, next: NextF
     const id = req.params.id as string;
     const { cancelReason } = req.body;
 
-    // Validate UUID to prevent Prisma Validation Errors
     const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
     if (!id || id === 'undefined' || !uuidRegex.test(id)) {
       return res.status(400).json({ success: false, message: 'Invalid order ID format.' });
@@ -206,7 +232,7 @@ export const cancelSellerOrder = async (req: Request, res: Response, next: NextF
       return res.status(401).json({ success: false, message: 'Unauthorized session.' });
     }
 
-    const order = await OrderService.cancelSellerOrder(id, req.user.id, cancelReason);
+    const order = await SellerOrderService.cancelOrder(id, req.user.id, cancelReason);
 
     res.json({
       success: true,
@@ -225,7 +251,6 @@ export const markRefundCompleted = async (req: Request, res: Response, next: Nex
   try {
     const id = req.params.id as string;
 
-    // Validate UUID to prevent Prisma Validation Errors
     const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
     if (!id || id === 'undefined' || !uuidRegex.test(id)) {
       return res.status(400).json({ success: false, message: 'Invalid order ID format.' });
@@ -235,7 +260,7 @@ export const markRefundCompleted = async (req: Request, res: Response, next: Nex
       return res.status(401).json({ success: false, message: 'Unauthorized session.' });
     }
 
-    const order = await OrderService.markRefundCompleted(id, req.user.id);
+    const order = await AdminOrderService.markRefundCompleted(id, req.user.id);
 
     res.json({
       success: true,
@@ -248,7 +273,7 @@ export const markRefundCompleted = async (req: Request, res: Response, next: Nex
 };
 
 /**
- * Phase 5 - Request a return
+ * Request a return (Legacy fallback handled in CustomerOrderService now but keeping for compatibility if frontend uses it)
  */
 export const requestReturn = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -268,7 +293,14 @@ export const requestReturn = async (req: Request, res: Response, next: NextFunct
       return res.status(400).json({ success: false, message: 'Return reason is required.' });
     }
 
-    const order = await OrderService.requestReturn(id, req.user.id, reason, notes);
+    // Notice: The newer requestPolicyAction API replaced this in V2, but this keeps backwards compat.
+    // We map it to requestPolicyAction on the first item in the order as a fallback.
+    const orderDetails = await CustomerOrderService.getOrderById(id, req.user.id);
+    if (!orderDetails.items[0]) {
+       return res.status(400).json({ success: false, message: 'No items found in order.' });
+    }
+
+    const order = await CustomerOrderService.requestPolicyAction(id, 'return', orderDetails.items[0].id, reason, req.user.id);
 
     res.json({
       success: true,
@@ -281,7 +313,7 @@ export const requestReturn = async (req: Request, res: Response, next: NextFunct
 };
 
 /**
- * Phase 5 - Approve a return
+ * Approve a return
  */
 export const approveReturn = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -296,7 +328,7 @@ export const approveReturn = async (req: Request, res: Response, next: NextFunct
       return res.status(401).json({ success: false, message: 'Unauthorized session.' });
     }
 
-    const order = await OrderService.approveReturn(id, req.user.id);
+    const order = await SellerOrderService.approveReturn(id, req.user.id);
 
     res.json({
       success: true,
@@ -309,7 +341,7 @@ export const approveReturn = async (req: Request, res: Response, next: NextFunct
 };
 
 /**
- * Phase 5 - Reject a return
+ * Reject a return
  */
 export const rejectReturn = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -329,7 +361,7 @@ export const rejectReturn = async (req: Request, res: Response, next: NextFuncti
       return res.status(400).json({ success: false, message: 'Rejection reason is required.' });
     }
 
-    const order = await OrderService.rejectReturn(id, req.user.id, rejectionReason);
+    const order = await SellerOrderService.rejectReturn(id, req.user.id, rejectionReason);
 
     res.json({
       success: true,
@@ -362,7 +394,7 @@ export const inspectReturn = async (req: Request, res: Response, next: NextFunct
       return res.status(400).json({ success: false, message: 'Invalid inspection status.' });
     }
 
-    const order = await OrderService.inspectReturnedProduct(id, req.user.id, status, notes);
+    const order = await SellerOrderService.inspectReturnedProduct(id, req.user.id, status, notes);
 
     res.json({
       success: true,
@@ -375,7 +407,7 @@ export const inspectReturn = async (req: Request, res: Response, next: NextFunct
 };
 
 /**
- * Phase 7 - Simulate Refund Processing
+ * Simulate Refund Processing
  */
 export const simulateRefundProcessing = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -385,7 +417,7 @@ export const simulateRefundProcessing = async (req: Request, res: Response, next
       return res.status(401).json({ success: false, message: 'Unauthorized session. Admin only.' });
     }
 
-    const order = await OrderService.simulateRefundProcessing(id, req.user.id);
+    const order = await AdminOrderService.simulateRefundProcessing(id, req.user.id);
     
     res.json({
       success: true,
@@ -398,7 +430,7 @@ export const simulateRefundProcessing = async (req: Request, res: Response, next
 };
 
 /**
- * Phase 7 - Simulate Refund Completed
+ * Simulate Refund Completed
  */
 export const simulateRefundCompleted = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -408,7 +440,7 @@ export const simulateRefundCompleted = async (req: Request, res: Response, next:
       return res.status(401).json({ success: false, message: 'Unauthorized session. Admin only.' });
     }
 
-    const order = await OrderService.simulateRefundCompleted(id, req.user.id);
+    const order = await AdminOrderService.simulateRefundCompleted(id, req.user.id);
     
     res.json({
       success: true,
@@ -421,7 +453,7 @@ export const simulateRefundCompleted = async (req: Request, res: Response, next:
 };
 
 /**
- * Phase 7 - Simulate Refund Failed
+ * Simulate Refund Failed
  */
 export const simulateRefundFailed = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -436,7 +468,7 @@ export const simulateRefundFailed = async (req: Request, res: Response, next: Ne
       return res.status(400).json({ success: false, message: 'Failure reason is required.' });
     }
 
-    const order = await OrderService.simulateRefundFailed(id, req.user.id, reason);
+    const order = await AdminOrderService.simulateRefundFailed(id, req.user.id, reason);
     
     res.json({
       success: true,
@@ -447,4 +479,3 @@ export const simulateRefundFailed = async (req: Request, res: Response, next: Ne
     next(err);
   }
 };
-

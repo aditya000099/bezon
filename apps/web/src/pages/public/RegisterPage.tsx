@@ -1,25 +1,19 @@
+import { Button, Input, Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@bezon/ui';
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api.config';
 import { useToast } from '../../context/ToastContext';
 import { registerSchema } from '@bezon/validation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+;
+;
+;
 import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
-} from '@/components/ui/card';
-import {
-  Storefront,
-  UserPlus,
-  Key,
-  Envelope,
-  Phone,
+  StorefrontIcon,
+  UserPlusIcon,
+  KeyIcon,
+  EnvelopeIcon,
+  PhoneIcon,
   User as UserIcon,
 } from '@phosphor-icons/react';
 
@@ -75,7 +69,7 @@ export const RegisterPage: React.FC = () => {
           <div className="absolute bottom-0 left-0 w-80 h-80 bg-black/40 rounded-full blur-3xl -ml-20 -mb-20 pointer-events-none"></div>
 
           <div className="relative z-10 flex items-center gap-2 font-bold text-3xl">
-            <Storefront className="h-10 w-10 text-teal-400" />
+            <StorefrontIcon className="h-10 w-10 text-teal-400" />
             <span>Bezon</span>
           </div>
 
@@ -105,7 +99,7 @@ export const RegisterPage: React.FC = () => {
         </Link>
         <div className="w-full max-w-md flex flex-col justify-center py-8">
           <div className="lg:hidden flex items-center gap-2 font-bold text-2xl text-teal-800 mb-8">
-            <Storefront className="h-8 w-8 text-teal-700" />
+            <StorefrontIcon className="h-8 w-8 text-teal-700" />
             <span>Bezon</span>
           </div>
 
@@ -143,7 +137,7 @@ export const RegisterPage: React.FC = () => {
               </label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-zinc-400">
-                  <Envelope className="h-5 w-5" />
+                  <EnvelopeIcon className="h-5 w-5" />
                 </span>
                 <Input
                   type="email"
@@ -157,12 +151,12 @@ export const RegisterPage: React.FC = () => {
             </div>
             <div className="grid gap-2">
               <label className="text-sm font-semibold text-zinc-900">
-                Phone Number{' '}
+                PhoneIcon Number{' '}
                 <span className="text-zinc-400 font-normal">(Optional)</span>
               </label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-zinc-400">
-                  <Phone className="h-5 w-5" />
+                  <PhoneIcon className="h-5 w-5" />
                 </span>
                 <Input
                   type="tel"
@@ -179,7 +173,7 @@ export const RegisterPage: React.FC = () => {
               </label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-zinc-400">
-                  <Key className="h-5 w-5" />
+                  <KeyIcon className="h-5 w-5" />
                 </span>
                 <Input
                   type="password"

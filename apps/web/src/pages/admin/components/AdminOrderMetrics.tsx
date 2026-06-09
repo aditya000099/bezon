@@ -1,6 +1,7 @@
+import { Card } from '@bezon/ui';
 import React from 'react';
-import { Card } from '@/components/ui/card';
-import { ShoppingBag, CurrencyInr, Clock, CheckCircle, XCircle, ArrowCounterClockwise } from '@phosphor-icons/react';
+;
+import { ShoppingBagIcon, CurrencyInrIcon, ClockIcon, CheckCircleIcon, XCircleIcon, ArrowCounterClockwiseIcon } from '@phosphor-icons/react';
 
 export interface AdminOrderMetricsProps {
   metrics: {
@@ -21,7 +22,7 @@ export const AdminOrderMetrics: React.FC<AdminOrderMetricsProps> = ({ metrics, l
       <Card className="bg-white border-zinc-200 shadow-sm p-4">
         <div className="flex justify-between items-start text-zinc-400">
           <span className="text-[10px] font-bold uppercase tracking-wider">Total Revenue</span>
-          <CurrencyInr className="h-4 w-4 text-indigo-500" />
+          <CurrencyInrIcon className="h-4 w-4 text-indigo-500" />
         </div>
         <h3 className="text-lg font-bold text-zinc-950 mt-2 truncate">
           {loading ? '...' : formatCurrency(metrics.revenue)}
@@ -31,7 +32,7 @@ export const AdminOrderMetrics: React.FC<AdminOrderMetricsProps> = ({ metrics, l
       <Card className="bg-white border-zinc-200 shadow-sm p-4">
         <div className="flex justify-between items-start text-zinc-400">
           <span className="text-[10px] font-bold uppercase tracking-wider">Total Orders</span>
-          <ShoppingBag className="h-4 w-4 text-blue-500" />
+          <ShoppingBagIcon className="h-4 w-4 text-blue-500" />
         </div>
         <h3 className="text-lg font-bold text-zinc-950 mt-2">
           {loading ? '...' : metrics.total}
@@ -41,7 +42,7 @@ export const AdminOrderMetrics: React.FC<AdminOrderMetricsProps> = ({ metrics, l
       <Card className="bg-white border-zinc-200 shadow-sm p-4">
         <div className="flex justify-between items-start text-zinc-400">
           <span className="text-[10px] font-bold uppercase tracking-wider">Pending</span>
-          <Clock className="h-4 w-4 text-amber-500" />
+          <ClockIcon className="h-4 w-4 text-amber-500" />
         </div>
         <h3 className="text-lg font-bold text-zinc-950 mt-2">
           {loading ? '...' : metrics.pending}
@@ -51,7 +52,7 @@ export const AdminOrderMetrics: React.FC<AdminOrderMetricsProps> = ({ metrics, l
       <Card className="bg-white border-zinc-200 shadow-sm p-4">
         <div className="flex justify-between items-start text-zinc-400">
           <span className="text-[10px] font-bold uppercase tracking-wider">Delivered</span>
-          <CheckCircle className="h-4 w-4 text-emerald-500" />
+          <CheckCircleIcon className="h-4 w-4 text-emerald-500" />
         </div>
         <h3 className="text-lg font-bold text-zinc-950 mt-2">
           {loading ? '...' : metrics.delivered}
@@ -61,7 +62,7 @@ export const AdminOrderMetrics: React.FC<AdminOrderMetricsProps> = ({ metrics, l
       <Card className="bg-white border-zinc-200 shadow-sm p-4">
         <div className="flex justify-between items-start text-zinc-400">
           <span className="text-[10px] font-bold uppercase tracking-wider">Returned</span>
-          <ArrowCounterClockwise className="h-4 w-4 text-purple-500" />
+          <ArrowCounterClockwiseIcon className="h-4 w-4 text-purple-500" />
         </div>
         <h3 className="text-lg font-bold text-zinc-950 mt-2">
           {loading ? '...' : metrics.returned}
@@ -71,7 +72,7 @@ export const AdminOrderMetrics: React.FC<AdminOrderMetricsProps> = ({ metrics, l
       <Card className="bg-white border-zinc-200 shadow-sm p-4">
         <div className="flex justify-between items-start text-zinc-400">
           <span className="text-[10px] font-bold uppercase tracking-wider">Cancelled</span>
-          <XCircle className="h-4 w-4 text-rose-500" />
+          <XCircleIcon className="h-4 w-4 text-rose-500" />
         </div>
         <h3 className="text-lg font-bold text-zinc-950 mt-2">
           {loading ? '...' : metrics.cancelled}

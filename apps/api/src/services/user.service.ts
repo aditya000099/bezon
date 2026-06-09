@@ -1,13 +1,18 @@
 import prisma from '../db/client.js';
+import { Prisma, UserRole } from '@prisma/client';
 
 export class UserService {
   /**
    * Get all users for admin dashboard, including their recommendation profile based on activities
    */
-  static async getAdminUsersList() {
+  static async getAdminUsersList(role?: string) {
+    const whereClause: Prisma.UserWhereInput = role ? { role: role as UserRole } : {};
+    
     // Fetch users with their 20 most recent activities
-    const users = await prisma.user.findMany({
-      select: {
+    const [users, roleCountsRaw] = await Promise.all([
+      prisma.user.findMany({
+        where: whereClause,
+        select: {
         id: true,
         name: true,
         email: true,
@@ -29,14 +34,28 @@ export class UserService {
         }
       },
       orderBy: { createdAt: 'desc' }
-    });
+    }),
+    prisma.user.groupBy({
+      by: ['role'],
+      _count: true
+    })
+    ]);
+
+    const roleCounts = {
+      customers: roleCountsRaw.find(r => r.role === 'customer')?._count || 0,
+      sellers: roleCountsRaw.find(r => r.role === 'seller')?._count || 0,
+      delivery: roleCountsRaw.find(r => r.role === 'delivery')?._count || 0,
+      admins: roleCountsRaw.find(r => r.role === 'admin')?._count || 0,
+      total: roleCountsRaw.reduce((acc, curr) => acc + curr._count, 0)
+    };
 
     // Map through users to build their recommendation profile
-    return users.map(user => {
+    const enrichedUsers = users.map(user => {
       const categoryCounts: Record<string, number> = {};
       const searchCounts: Record<string, number> = {};
 
-      for (const act of user.activities) {
+      const activities = (user as any).activities || [];
+      for (const act of activities) {
         if (act.product?.category?.name) {
           categoryCounts[act.product.category.name] = (categoryCounts[act.product.category.name] || 0) + 1;
         }
@@ -71,5 +90,7 @@ export class UserService {
         }
       };
     });
+
+    return { users: enrichedUsers, roleCounts };
   }
 }

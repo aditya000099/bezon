@@ -1,53 +1,53 @@
 ---
 name: Serene Commerce
 colors:
-  surface: '#fbf9f4'
-  surface-dim: '#dbdad5'
-  surface-bright: '#fbf9f4'
+  surface: '#ffffff'
+  surface-dim: '#f5f5f5'
+  surface-bright: '#ffffff'
   surface-container-lowest: '#ffffff'
-  surface-container-low: '#f5f3ee'
-  surface-container: '#f0eee9'
-  surface-container-high: '#eae8e3'
-  surface-container-highest: '#e4e2dd'
-  on-surface: '#1b1c19'
-  on-surface-variant: '#4d4540'
-  inverse-surface: '#30312e'
-  inverse-on-surface: '#f2f1ec'
-  outline: '#7e756f'
-  outline-variant: '#cfc4bd'
-  surface-tint: '#635d5a'
-  primary: '#181512'
+  surface-container-low: '#fafafa'
+  surface-container: '#f5f5f5'
+  surface-container-high: '#e5e5e5'
+  surface-container-highest: '#d4d4d4'
+  on-surface: '#000000'
+  on-surface-variant: '#525252'
+  inverse-surface: '#171717'
+  inverse-on-surface: '#f5f5f5'
+  outline: '#737373'
+  outline-variant: '#e5e5e5'
+  surface-tint: '#404040'
+  primary: '#000000'
   on-primary: '#ffffff'
-  primary-container: '#2d2926'
-  on-primary-container: '#96908b'
-  inverse-primary: '#cdc5c0'
-  secondary: '#a9372a'
+  primary-container: '#262626'
+  on-primary-container: '#a3a3a3'
+  inverse-primary: '#d4d4d4'
+  secondary: '#171717'
   on-secondary: '#ffffff'
-  secondary-container: '#fc7462'
-  on-secondary-container: '#6e0a06'
-  tertiary: '#001912'
+  secondary-container: '#404040'
+  on-secondary-container: '#d4d4d4'
+  tertiary: '#262626'
   on-tertiary: '#ffffff'
-  tertiary-container: '#003024'
-  on-tertiary-container: '#4b9f85'
+  tertiary-container: '#525252'
+  on-tertiary-container: '#e5e5e5'
   error: '#ba1a1a'
   on-error: '#ffffff'
   error-container: '#ffdad6'
   on-error-container: '#93000a'
-  primary-fixed: '#e9e1dc'
-  primary-fixed-dim: '#cdc5c0'
-  on-primary-fixed: '#1e1b18'
-  on-primary-fixed-variant: '#4b4642'
-  secondary-fixed: '#ffdad5'
-  secondary-fixed-dim: '#ffb4a9'
-  on-secondary-fixed: '#410000'
-  on-secondary-fixed-variant: '#881f16'
-  tertiary-fixed: '#9ef3d6'
-  tertiary-fixed-dim: '#82d7ba'
-  on-tertiary-fixed: '#002118'
-  on-tertiary-fixed-variant: '#00513f'
-  background: '#fbf9f4'
-  on-background: '#1b1c19'
-  surface-variant: '#e4e2dd'
+  primary-fixed: '#e5e5e5'
+  primary-fixed-dim: '#d4d4d4'
+  on-primary-fixed: '#000000'
+  on-primary-fixed-variant: '#262626'
+  secondary-fixed: '#f5f5f5'
+  secondary-fixed-dim: '#e5e5e5'
+  on-secondary-fixed: '#000000'
+  on-secondary-fixed-variant: '#404040'
+  tertiary-fixed: '#fafafa'
+  tertiary-fixed-dim: '#f5f5f5'
+  on-tertiary-fixed: '#000000'
+  on-tertiary-fixed-variant: '#525252'
+  background: '#ffffff'
+  on-background: '#000000'
+  surface-variant: '#e5e5e5'
 typography:
   display-lg:
     fontFamily: Manrope
@@ -104,19 +104,18 @@ spacing:
 ---
 ## Brand & Style
 
-This design system establishes a dialogue between European minimalist functionalism and the soulful precision of Mandarin aesthetic philosophy. The brand personality is **sophisticated, intuitive, and calm**, targeting a discerning global audience that values curated excellence over excessive choice.
+This design system embraces modern minimalism with a strict monochrome palette. The brand personality is **sophisticated, intuitive, and stark**, targeting a discerning global audience that values clarity and high contrast.
 
-The visual direction prioritizes "Ma" (the beauty of empty space), ensuring the UI feels breathable and high-end. We employ a **Modern Corporate** foundation elevated by **Glassmorphism** for AI-driven elements. This creates a "digital atelier" atmosphere—an environment that feels both technologically advanced and humanistically warm. AI features are integrated as "quiet intelligence," using subtle glows and fluid transitions rather than intrusive overlays, suggesting a platform that anticipates needs without noise.
+The visual direction prioritizes "Ma" (the beauty of empty space), ensuring the UI feels breathable and high-end. We employ a **Monochrome Corporate** foundation elevated by **Glassmorphism** for AI-driven elements. This creates a digital environment that feels technologically advanced but extremely clean.
 
 ## Colors
 
-The palette is rooted in warm neutrals to evoke a sense of premium paper and organic materials, contrasted by three culturally significant accents.
+The palette is strictly black, white, and shades of gray, prioritizing high contrast and readability.
 
-- **Primary (Charcoal):** Used for core typography and structural lines, providing a grounded, authoritative weight.
-- **Secondary (Cinnabar):** A deep, sophisticated red used sparingly for call-to-actions and critical notifications, representing energy and precision.
-- **Tertiary (Imperial Jade):** A muted green reserved for "success" states, sustainability markers, and premium membership indicators.
-- **Neutrals (Cream & Soft Grey):** The backbone of the interface. We avoid pure white (#FFFFFF) in favor of #F9F7F2 to reduce eye strain and increase the feeling of luxury.
-- **AI Signature:** A soft, ethereal blue-tinted glow (#E0F2FE) is used exclusively for machine-learning-driven suggestions and "smart" interface states.
+- **Primary (Black):** Used for core typography, buttons, and structural lines, providing a grounded, authoritative weight.
+- **Secondary (Dark Grays):** Used for secondary text, borders, and subtle backgrounds.
+- **Neutrals (White & Light Grays):** The backbone of the interface. White (#FFFFFF) provides maximum contrast against black elements.
+- **AI Signature:** A soft, ethereal blur/glassmorphism layer is used exclusively for machine-learning-driven suggestions and "smart" interface states. No distinct colors, just elevated depth.
 
 ## Typography
 

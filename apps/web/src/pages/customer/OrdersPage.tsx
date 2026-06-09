@@ -1,14 +1,10 @@
+import { Card, CardContent, Button } from '@bezon/ui';
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import {
-  Spinner,
-  Clipboard,
-  ArrowRight,
-  Clock,
-  ShieldCheck,
-  Question,
+  SpinnerIcon,
+  ClipboardIcon,
+  ArrowRightIcon,
 } from '@phosphor-icons/react';
 import api from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api.config';
@@ -19,13 +15,23 @@ export const OrdersPage: React.FC = () => {
   const { toast } = useToast();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Pagination State
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [limit] = useState(10);
 
-  const fetchOrders = async () => {
+  const fetchOrders = async (currentPage: number) => {
     setLoading(true);
     try {
-      const res = await api.get(API_ENDPOINTS.orders.base);
+      const res = await api.get(API_ENDPOINTS.orders.base, {
+        params: { page: currentPage, limit },
+      });
       if (res.data.success) {
         setOrders(res.data.data);
+        if (res.data.pagination) {
+          setTotalPages(res.data.pagination.totalPages);
+        }
       }
     } catch (err: any) {
       toast.error(
@@ -37,8 +43,8 @@ export const OrdersPage: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchOrders();
-  }, []);
+    fetchOrders(page);
+  }, [page]);
 
   const getStatusStyle = (status: string) => {
     switch (status) {
@@ -69,13 +75,13 @@ export const OrdersPage: React.FC = () => {
       </h1>
 
       {loading ? (
-        <div className="flex flex-col items-center justify-center min-h-[300px] text-zinc-400 gap-2">
-          <Spinner className="h-8 w-8 animate-spin text-teal-500" />
+        <div className="flex flex-col items-center justify-center min-h-75 text-zinc-400 gap-2">
+          <SpinnerIcon className="h-8 w-8 animate-spin text-teal-500" />
           <p className="text-sm font-semibold">Loading orders history...</p>
         </div>
       ) : orders.length === 0 ? (
-        <Card className="flex flex-col items-center justify-center min-h-[300px] text-zinc-400 p-8 border-dashed border-2 bg-white/50">
-          <Clipboard className="h-12 w-12 text-zinc-300 mb-2" />
+        <Card className="flex flex-col items-center justify-center min-h-75 text-zinc-400 p-8 border-dashed border-2 bg-white/50">
+          <ClipboardIcon className="h-12 w-12 text-zinc-300 mb-2" />
           <p className="font-bold text-zinc-700">No orders placed yet</p>
           <p className="text-xs text-zinc-400 mt-1">
             Browse our shop catalog to place your first order.
@@ -178,17 +184,36 @@ export const OrdersPage: React.FC = () => {
                 </div>
 
                 <CardContent className="p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                  <div className="space-y-1">
-                    <p className="text-xs text-zinc-400 font-semibold uppercase tracking-wider">
-                      Merchant shop
-                    </p>
-                    <p className="font-bold text-zinc-800 text-sm">
-                      {(order as any).seller?.shopName || 'Marketplace Seller'}
-                    </p>
-                    <p className="text-xs text-zinc-500 mt-0.5">
-                      Contains {itemsCount}{' '}
-                      {itemsCount === 1 ? 'item' : 'items'}
-                    </p>
+                  <div className="flex items-center gap-4">
+                    <div className="flex -space-x-3">
+                      {order.items?.slice(0, 2).map((item: any, idx: number) => (
+                        <div key={idx} className="h-12 w-12 rounded-full border-2 border-white bg-zinc-100 overflow-hidden flex items-center justify-center relative z-[2] shadow-sm shadow-zinc-200">
+                          {item.imageUrl ? (
+                            <img src={item.imageUrl} alt={item.productTitle} className="h-full w-full object-cover" />
+                          ) : (
+                            <span className="text-[10px] text-zinc-400 font-bold">N/A</span>
+                          )}
+                        </div>
+                      ))}
+                      {order.items && order.items.length > 2 && (
+                        <div className="h-12 w-12 rounded-full border-2 border-white bg-zinc-50 overflow-hidden flex items-center justify-center relative z-[1] shadow-sm shadow-zinc-200">
+                          <span className="text-xs text-zinc-500 font-bold">+{order.items.length - 2}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="space-y-1">
+                      <p className="text-xs text-zinc-400 font-semibold uppercase tracking-wider">
+                        Merchant shop
+                      </p>
+                      <p className="font-bold text-zinc-800 text-sm">
+                        {(order as any).seller?.shopName || 'Marketplace Seller'}
+                      </p>
+                      <p className="text-xs text-zinc-500 mt-0.5">
+                        Contains {itemsCount}{' '}
+                        {itemsCount === 1 ? 'item' : 'items'}
+                      </p>
+                    </div>
                   </div>
 
                   <Link to={`/orders/${order.id}`}>
@@ -197,13 +222,37 @@ export const OrdersPage: React.FC = () => {
                       size="sm"
                       className="font-bold flex items-center gap-1.5 text-xs"
                     >
-                      Track Details <ArrowRight className="h-3.5 w-3.5" />
+                      Track Details <ArrowRightIcon className="h-3.5 w-3.5" />
                     </Button>
                   </Link>
                 </CardContent>
               </Card>
             );
           })}
+          
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-4 mt-6">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+              >
+                Previous
+              </Button>
+              <span className="text-sm font-semibold text-zinc-500">
+                Page {page} of {totalPages}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+              >
+                Next
+              </Button>
+            </div>
+          )}
         </div>
       )}
     </div>

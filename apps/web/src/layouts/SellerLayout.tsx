@@ -1,26 +1,28 @@
+import { logger } from '@/utils/logger';
+// import { Button } from '@bezon/ui';
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../lib/api';
 import { API_ENDPOINTS } from '../config/api.config';
 import {
-  SquaresFour,
-  ShoppingBag,
-  ClipboardText,
-  Package,
-  Gear,
-  SignOut,
-  Storefront,
-  Tag,
-  Bell,
-  ChatTeardropText,
-  Checks,
-  ArrowSquareOut,
-  Wallet,
-  Megaphone,
+  SquaresFourIcon,
+  ShoppingBagIcon,
+  ClipboardTextIcon,
+  PackageIcon,
+  GearIcon,
+  SignOutIcon,
+  StorefrontIcon,
+  TagIcon,
+  BellIcon,
+  ChatTeardropTextIcon,
+  ChecksIcon,
+  ArrowSquareOutIcon,
+  WalletIcon,
+  MegaphoneIcon,
+  ListIcon,
 } from '@phosphor-icons/react';
-import { Button } from '@/components/ui/button';
-
+import { Sheet, SheetContent, SheetTrigger } from '@bezon/ui';
 export const SellerLayout: React.FC = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
@@ -51,7 +53,7 @@ export const SellerLayout: React.FC = () => {
         setUnreadCount(res.data.data?.count ?? res.data.data ?? 0);
       }
     } catch (err) {
-      console.error('Failed to fetch unread count', err);
+      logger.error('Failed to fetch unread count', err);
     }
   };
 
@@ -63,7 +65,7 @@ export const SellerLayout: React.FC = () => {
         setNotifications(res.data.data.notifications || []);
       }
     } catch (err) {
-      console.error('Failed to fetch notifications', err);
+      logger.error('Failed to fetch notifications', err);
     } finally {
       setNotificationsLoading(false);
     }
@@ -84,7 +86,7 @@ export const SellerLayout: React.FC = () => {
           prev.map((n) => (n.id === notif.id ? { ...n, isRead: true } : n)),
         );
       } catch (err) {
-        console.error('Failed to mark as read', err);
+        logger.error('Failed to mark as read', err);
       }
     }
     setShowNotifications(false);
@@ -99,29 +101,29 @@ export const SellerLayout: React.FC = () => {
       setUnreadCount(0);
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
     } catch (err) {
-      console.error('Failed to mark all as read', err);
+      logger.error('Failed to mark all as read', err);
     }
   };
 
   const links = [
-    { to: '/seller', label: 'Dashboard', icon: SquaresFour },
-    { to: '/seller/products', label: 'My Products', icon: ShoppingBag },
-    { to: '/seller/coupons', label: 'Coupons', icon: Tag },
-    { to: '/seller/wallet', label: 'Wallet', icon: Wallet },
-    { to: '/seller/ads', label: 'Ads', icon: Megaphone },
-    { to: '/seller/qa', label: 'Q&A', icon: ChatTeardropText },
-    { to: '/seller/orders', label: 'Order Queue', icon: ClipboardText },
-    { to: '/seller/returns', label: 'Returns', icon: ArrowSquareOut },
-    { to: '/seller/inventory', label: 'Inventory', icon: Package },
-    { to: '/seller/settings', label: 'Shop Gear', icon: Gear },
+    { to: '/seller', label: 'Dashboard', icon: SquaresFourIcon },
+    { to: '/seller/products', label: 'My Products', icon: ShoppingBagIcon },
+    { to: '/seller/coupons', label: 'Coupons', icon: TagIcon },
+    { to: '/seller/wallet', label: 'Wallet', icon: WalletIcon },
+    { to: '/seller/ads', label: 'Ads', icon: MegaphoneIcon },
+    { to: '/seller/qa', label: 'Q&A', icon: ChatTeardropTextIcon },
+    { to: '/seller/orders', label: 'Order Queue', icon: ClipboardTextIcon },
+    { to: '/seller/returns', label: 'Returns', icon: ArrowSquareOutIcon },
+    { to: '/seller/inventory', label: 'Inventory', icon: PackageIcon },
+    { to: '/seller/settings', label: 'Shop', icon: GearIcon },
   ];
 
   return (
-    <div className="h-screen bg-zinc-50 flex overflow-hidden">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-zinc-200 flex flex-col shrink-0 h-full">
+    <div className="h-screen bg-[#f5f5f5] flex overflow-hidden font-sans">
+      {/* Desktop Sidebar */}
+      <aside className="hidden md:flex w-64 bg-[#ffffff] border-r border-[#EAE4DC] flex-col shrink-0 h-full">
         <div className="h-16 flex items-center px-6 border-b border-zinc-200 gap-2 overflow-hidden">
-          <Storefront className="h-6 w-6 text-primary shrink-0" />
+          <StorefrontIcon className="h-6 w-6 text-primary shrink-0" />
           <span
             className="font-bold text-lg text-zinc-800 truncate"
             title={user?.seller?.shopName || 'Bezon Seller'}
@@ -157,7 +159,7 @@ export const SellerLayout: React.FC = () => {
             onClick={logout}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-zinc-600 hover:bg-rose-50 hover:text-rose-600 transition-colors"
           >
-            <SignOut className="h-5 w-5" />
+            <SignOutIcon className="h-5 w-5" />
             <span>Logout</span>
           </button>
         </div>
@@ -166,8 +168,64 @@ export const SellerLayout: React.FC = () => {
       {/* Main Panel */}
       <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
         {/* Top Header */}
-        <header className="h-16 bg-white border-b border-zinc-200 flex items-center justify-between px-8">
-          <h2 className="text-xl font-bold text-zinc-800">Seller Dashboard</h2>
+        <header className="h-16 bg-[#ffffff] border-b border-[#EAE4DC] flex items-center justify-between px-4 md:px-8">
+          <div className="flex items-center gap-3">
+            <div className="md:hidden">
+              <Sheet>
+                <SheetTrigger asChild>
+                  <button className="p-2 -ml-2 text-zinc-600 hover:text-zinc-900 focus:outline-none">
+                    <ListIcon className="h-6 w-6" />
+                  </button>
+                </SheetTrigger>
+                <SheetContent
+                  side="left"
+                  className="p-0 w-64 flex flex-col bg-white"
+                >
+                  <div className="h-16 flex items-center px-6 border-b border-[#EAE4DC] gap-2">
+                    <StorefrontIcon className="h-6 w-6 text-primary shrink-0" />
+                    <span className="font-bold text-lg text-zinc-800 truncate">
+                      {user?.seller?.shopName || 'Bezon Seller'}
+                    </span>
+                  </div>
+                  <nav className="flex-1 px-4 py-6 flex flex-col gap-1 overflow-y-auto">
+                    {links.map((link) => {
+                      const Icon = link.icon;
+                      const isActive =
+                        location.pathname === link.to ||
+                        (link.to === '/seller/products' &&
+                          location.pathname.startsWith('/seller/add-product'));
+                      return (
+                        <Link
+                          key={link.to}
+                          to={link.to}
+                          className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                            isActive
+                              ? 'bg-primary/10 text-primary'
+                              : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-800'
+                          }`}
+                        >
+                          <Icon className="h-5 w-5" />
+                          <span>{link.label}</span>
+                        </Link>
+                      );
+                    })}
+                  </nav>
+                  <div className="p-4 border-t border-[#EAE4DC]">
+                    <button
+                      onClick={logout}
+                      className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-zinc-600 hover:bg-rose-50 hover:text-rose-600 transition-colors"
+                    >
+                      <SignOutIcon className="h-5 w-5" />
+                      <span>Logout</span>
+                    </button>
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
+            <h2 className="text-xl font-bold text-zinc-800">
+              Seller Dashboard
+            </h2>
+          </div>
           <div className="flex items-center gap-4">
             <div className="relative" ref={dropdownRef}>
               <button
@@ -183,7 +241,7 @@ export const SellerLayout: React.FC = () => {
                 className="relative p-2 rounded-lg text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 transition-colors"
                 title="Notifications"
               >
-                <Bell className="h-5 w-5" />
+                <BellIcon className="h-5 w-5" />
                 {unreadCount > 0 && (
                   <span className="absolute -top-0.5 -right-0.5 h-4 min-w-4 px-1 flex items-center justify-center rounded-full bg-rose-500 text-white text-[10px] font-bold leading-none">
                     {unreadCount > 99 ? '99+' : unreadCount}
@@ -201,7 +259,7 @@ export const SellerLayout: React.FC = () => {
                         onClick={markAllAsRead}
                         className="text-xs text-teal-600 hover:text-teal-800 font-medium flex items-center gap-1"
                       >
-                        <Checks className="h-3 w-3" /> Mark all read
+                        <ChecksIcon className="h-3 w-3" /> Mark all read
                       </button>
                     )}
                   </div>

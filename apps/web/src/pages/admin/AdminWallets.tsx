@@ -1,23 +1,23 @@
-import React, { useState, useEffect } from 'react';
 import {
-  Wallet,
-  MagnifyingGlass,
-  Plus,
-  CaretLeft,
-  CaretRight,
-  CurrencyDollar,
-  SpinnerIcon,
-} from '@phosphor-icons/react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import {
+  Card,
+  CardContent,
+  Button,
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
+  Input,
+} from '@bezon/ui';
+import React, { useState, useEffect } from 'react';
+import {
+  WalletIcon,
+  MagnifyingGlassIcon,
+  PlusIcon,
+  CaretLeftIcon,
+  CaretRightIcon,
+  SpinnerIcon,
+} from '@phosphor-icons/react';
 import api from '../../lib/api';
 import API_ENDPOINTS from '../../config/api.config';
 import { useToast } from '../../context/ToastContext';
@@ -111,7 +111,7 @@ export const AdminWallets: React.FC = () => {
         </div>
 
         <form onSubmit={handleSearch} className="relative w-72">
-          <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 w-4 h-4" />
+          <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 w-4 h-4" />
           <Input
             placeholder="Search by name or email..."
             className="pl-9 bg-white"
@@ -210,7 +210,7 @@ export const AdminWallets: React.FC = () => {
                           onClick={() => openCreditDialog(wallet)}
                           className="gap-2"
                         >
-                          <Plus weight="bold" /> Credit
+                          <PlusIcon weight="bold" /> Credit
                         </Button>
                       </td>
                     </tr>
@@ -233,7 +233,7 @@ export const AdminWallets: React.FC = () => {
                   disabled={page === 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                 >
-                  <CaretLeft className="w-4 h-4 mr-1" /> Prev
+                  <CaretLeftIcon className="w-4 h-4 mr-1" /> Prev
                 </Button>
                 <Button
                   variant="outline"
@@ -241,7 +241,7 @@ export const AdminWallets: React.FC = () => {
                   disabled={page === totalPages}
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 >
-                  Next <CaretRight className="w-4 h-4 ml-1" />
+                  Next <CaretRightIcon className="w-4 h-4 ml-1" />
                 </Button>
               </div>
             </div>
@@ -253,11 +253,11 @@ export const AdminWallets: React.FC = () => {
       <Dialog open={showCredit} onOpenChange={setShowCredit}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Manual Wallet Credit</DialogTitle>
+            <DialogTitle>Manual WalletIcon Credit</DialogTitle>
           </DialogHeader>
           <div className="py-4 space-y-4">
             <div className="bg-zinc-50 p-3 rounded-lg border border-zinc-200 flex items-center gap-3">
-              <Wallet className="w-6 h-6 text-zinc-400" />
+              <WalletIcon className="w-6 h-6 text-zinc-400" />
               <div>
                 <p className="text-sm text-zinc-500">Crediting wallet for:</p>
                 <p className="font-semibold text-zinc-900">

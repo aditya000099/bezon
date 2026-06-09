@@ -1,54 +1,26 @@
+import { Card, CardContent, CardFooter, Button } from '@bezon/ui';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
-  Megaphone,
-  Plus,
-  Pause,
-  Play,
-  Trash,
-  Eye,
-  CursorClick,
-  CurrencyDollar,
+  MegaphoneIcon,
+  PlusIcon,
+  PauseIcon,
+  PlayIcon,
+  TrashIcon,
+  EyeIcon,
+  CursorClickIcon,
   SpinnerIcon,
 } from '@phosphor-icons/react';
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardDescription,
-  CardFooter,
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import api from '../../lib/api';
 import API_ENDPOINTS from '../../config/api.config';
 import { useToast } from '../../context/ToastContext';
+import { logger } from '@/utils/logger';
 
 export const SellerAds: React.FC = () => {
   const [campaigns, setCampaigns] = useState<any[]>([]);
-  const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showCreate, setShowCreate] = useState(false);
-  const [creating, setCreating] = useState(false);
   const { toast } = useToast();
-
-  const [form, setForm] = useState({
-    productId: '',
-    title: '',
-    dailyBudget: '',
-    totalBudget: '',
-    costPerClick: '',
-    endDate: '',
-    tags: '',
-  });
+  const navigate = useNavigate();
 
   const fetchData = async () => {
     setLoading(true);
@@ -61,10 +33,8 @@ export const SellerAds: React.FC = () => {
       if (campRes.data.success) {
         setCampaigns(campRes.data.data);
       }
-      if (prodRes.data.success) {
-        setProducts(prodRes.data.data.products || prodRes.data.data);
-      }
     } catch (err: any) {
+      logger.error(err);
       toast.error('Failed to load campaigns data');
     } finally {
       setLoading(false);
@@ -74,50 +44,6 @@ export const SellerAds: React.FC = () => {
   useEffect(() => {
     fetchData();
   }, []);
-
-  const handleCreate = async () => {
-    if (
-      !form.productId ||
-      !form.title ||
-      !form.dailyBudget ||
-      !form.totalBudget ||
-      !form.costPerClick
-    ) {
-      return toast.error('Please fill all required fields');
-    }
-
-    setCreating(true);
-    try {
-      const res = await api.post(API_ENDPOINTS.ads.campaigns, {
-        productId: form.productId,
-        title: form.title,
-        dailyBudget: Number(form.dailyBudget),
-        totalBudget: Number(form.totalBudget),
-        costPerClick: Number(form.costPerClick),
-        endDate: form.endDate || undefined,
-        tags: form.tags ? form.tags.split(',').map(t => t.trim().toLowerCase()).filter(Boolean) : [],
-      });
-
-      if (res.data.success) {
-        toast.success('Campaign created successfully!');
-        setShowCreate(false);
-        setForm({
-          productId: '',
-          title: '',
-          dailyBudget: '',
-          totalBudget: '',
-          costPerClick: '',
-          endDate: '',
-          tags: '',
-        });
-        fetchData();
-      }
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to create campaign');
-    } finally {
-      setCreating(false);
-    }
-  };
 
   const toggleStatus = async (id: string, currentStatus: string) => {
     const newStatus = currentStatus === 'active' ? 'paused' : 'active';
@@ -166,20 +92,22 @@ export const SellerAds: React.FC = () => {
             Boost your product visibility
           </p>
         </div>
-        <Button onClick={() => setShowCreate(true)} className="gap-2">
-          <Plus weight="bold" /> Create Campaign
+        <Button onClick={() => navigate('/seller/ads/new')} className="gap-2">
+          <PlusIcon weight="bold" /> Create Campaign
         </Button>
       </div>
 
       {campaigns.length === 0 ? (
         <Card className="flex flex-col items-center justify-center p-12 text-center border-dashed">
-          <Megaphone className="w-16 h-16 text-zinc-300 mb-4" />
+          <MegaphoneIcon className="w-16 h-16 text-zinc-300 mb-4" />
           <h3 className="text-lg font-bold text-zinc-900">No campaigns yet</h3>
           <p className="text-zinc-500 max-w-sm mt-2 mb-6">
             Create your first sponsored ad campaign to boost your products to
             the top of search results.
           </p>
-          <Button onClick={() => setShowCreate(true)}>Start Advertising</Button>
+          <Button onClick={() => navigate('/seller/ads/new')}>
+            Start Advertising
+          </Button>
         </Card>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -239,11 +167,11 @@ export const SellerAds: React.FC = () => {
 
                       <div className="flex flex-wrap gap-x-4 gap-y-2 mt-3">
                         <div className="flex items-center gap-1.5 text-sm text-zinc-600">
-                          <Eye className="w-4 h-4" />{' '}
+                          <EyeIcon className="w-4 h-4" />{' '}
                           <span>{campaign.totalImpressions} views</span>
                         </div>
                         <div className="flex items-center gap-1.5 text-sm text-zinc-600">
-                          <CursorClick className="w-4 h-4" />{' '}
+                          <CursorClickIcon className="w-4 h-4" />{' '}
                           <span>{campaign.totalClicks} clicks</span>
                         </div>
                         <div className="flex items-center gap-1.5 text-sm font-medium text-emerald-600">
@@ -300,7 +228,7 @@ export const SellerAds: React.FC = () => {
                         onClick={() => deleteCampaign(campaign.id)}
                         className="text-rose-600 hover:text-rose-700 hover:bg-rose-50"
                       >
-                        <Trash className="w-4 h-4" />
+                        <TrashIcon className="w-4 h-4" />
                       </Button>
                     )}
                     {(campaign.status === 'active' ||
@@ -315,11 +243,11 @@ export const SellerAds: React.FC = () => {
                       >
                         {campaign.status === 'active' ? (
                           <>
-                            <Pause weight="fill" /> Pause
+                            <PauseIcon weight="fill" /> PauseIcon
                           </>
                         ) : (
                           <>
-                            <Play weight="fill" /> Resume
+                            <PlayIcon weight="fill" /> Resume
                           </>
                         )}
                       </Button>
@@ -331,129 +259,6 @@ export const SellerAds: React.FC = () => {
           })}
         </div>
       )}
-
-      {/* Create Campaign Dialog */}
-      <Dialog open={showCreate} onOpenChange={setShowCreate}>
-        <DialogContent className="sm:max-w-125">
-          <DialogHeader>
-            <DialogTitle>Create Ad Campaign</DialogTitle>
-            <DialogDescription>
-              Set up a sponsored product campaign. You are charged per click
-              directly from your wallet balance.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Select Product</label>
-              <select
-                className="w-full h-10 px-3 py-2 rounded-md border border-input bg-background text-sm ring-offset-background"
-                value={form.productId}
-                onChange={(e) =>
-                  setForm({ ...form, productId: e.target.value })
-                }
-              >
-                <option value="">-- Choose a published product --</option>
-                {products
-                  .filter((p) => p.status === 'published')
-                  .map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.title} (₹{p.basePrice})
-                    </option>
-                  ))}
-              </select>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Campaign Name</label>
-              <Input
-                placeholder="e.g., Summer Sale Boost"
-                value={form.title}
-                onChange={(e) => setForm({ ...form, title: e.target.value })}
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Daily Budget (₹)</label>
-                <Input
-                  type="number"
-                  min="10"
-                  placeholder="100"
-                  value={form.dailyBudget}
-                  onChange={(e) =>
-                    setForm({ ...form, dailyBudget: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Total Budget (₹)</label>
-                <Input
-                  type="number"
-                  min="10"
-                  placeholder="1000"
-                  value={form.totalBudget}
-                  onChange={(e) =>
-                    setForm({ ...form, totalBudget: e.target.value })
-                  }
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">
-                  Cost Per Click Bid (₹)
-                </label>
-                <Input
-                  type="number"
-                  min="1"
-                  step="0.5"
-                  placeholder="2.50"
-                  value={form.costPerClick}
-                  onChange={(e) =>
-                    setForm({ ...form, costPerClick: e.target.value })
-                  }
-                />
-                <p className="text-xs text-zinc-500">
-                  Higher bid = better placement
-                </p>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">
-                  End Date (Optional)
-                </label>
-                <Input
-                  type="date"
-                  value={form.endDate}
-                  onChange={(e) =>
-                    setForm({ ...form, endDate: e.target.value })
-                  }
-                  min={new Date().toISOString().split('T')[0]}
-                />
-              </div>
-              <div className="space-y-2 col-span-2">
-                <label className="text-sm font-medium">Search Tags (Comma separated)</label>
-                <Input
-                  placeholder="e.g. running, sports, shoes"
-                  value={form.tags}
-                  onChange={(e) => setForm({ ...form, tags: e.target.value })}
-                />
-                <p className="text-xs text-zinc-500">
-                  Customers searching for these exact tags will see your sponsored product.
-                </p>
-              </div>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCreate(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleCreate} disabled={creating}>
-              {creating ? (
-                <SpinnerIcon className="w-4 h-4 animate-spin mr-2" />
-              ) : null}
-              Launch Campaign
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

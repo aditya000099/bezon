@@ -1,15 +1,13 @@
+import { Card, Button, Input } from '@bezon/ui';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
-  Spinner,
-  Package,
-  MagnifyingGlass,
-  Warning,
-  ArrowsClockwise,
-  Check,
+  SpinnerIcon,
+  PackageIcon,
+  MagnifyingGlassIcon,
+  WarningIcon,
+  ArrowsClockwiseIcon,
+  CheckIcon,
 } from '@phosphor-icons/react';
 import api from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api.config';
@@ -155,7 +153,7 @@ export const SellerInventory: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="bg-white border border-zinc-200 shadow-sm flex items-center gap-4 p-5">
           <div className="h-10 w-10 bg-primary/10 rounded-lg flex items-center justify-center text-primary shrink-0">
-            <Package className="h-5 w-5" />
+            <PackageIcon className="h-5 w-5" />
           </div>
           <div>
             <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block">
@@ -171,7 +169,7 @@ export const SellerInventory: React.FC = () => {
           <div
             className={`h-10 w-10 rounded-lg flex items-center justify-center shrink-0 ${lowStockCount > 0 ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600'}`}
           >
-            <Warning className="h-5 w-5" />
+            <WarningIcon className="h-5 w-5" />
           </div>
           <div>
             <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block">
@@ -189,7 +187,7 @@ export const SellerInventory: React.FC = () => {
       {/* Top Filter Controls */}
       <div className="flex flex-col sm:flex-row gap-4 justify-between items-center bg-white border border-zinc-200 rounded-xl p-4 shadow-sm">
         <div className="relative w-full sm:w-80">
-          <MagnifyingGlass className="absolute inset-y-0 left-3 flex items-center text-zinc-400 h-4 w-4 mt-3" />
+          <MagnifyingGlassIcon className="absolute inset-y-0 left-3 flex items-center text-zinc-400 h-4 w-4 mt-3" />
           <Input
             type="text"
             className="pl-9"
@@ -204,7 +202,7 @@ export const SellerInventory: React.FC = () => {
             className="text-xs font-bold flex items-center gap-1.5"
             onClick={() => setFilterLowStock(!filterLowStock)}
           >
-            <Warning className="h-3.5 w-3.5" />
+            <WarningIcon className="h-3.5 w-3.5" />
             {filterLowStock ? 'Show All Items' : 'Show Low Stock'}
           </Button>
           <Button
@@ -213,7 +211,7 @@ export const SellerInventory: React.FC = () => {
             className="h-10 w-10"
             onClick={fetchInventory}
           >
-            <ArrowsClockwise className="h-4 w-4" />
+            <ArrowsClockwiseIcon className="h-4 w-4" />
           </Button>
         </div>
       </div>
@@ -221,12 +219,12 @@ export const SellerInventory: React.FC = () => {
       {/* Inventory Listings Table */}
       {loading ? (
         <div className="flex flex-col items-center justify-center min-h-75 text-zinc-400 gap-2">
-          <Spinner className="h-8 w-8 animate-spin text-teal-500" />
+          <SpinnerIcon className="h-8 w-8 animate-spin text-teal-500" />
           <p className="text-sm font-semibold">Loading stock levels...</p>
         </div>
       ) : filteredItems.length === 0 ? (
         <Card className="flex flex-col items-center justify-center min-h-75 text-zinc-400 p-8 border-dashed border-2 bg-white/50">
-          <Package className="h-12 w-12 text-zinc-300 mb-2" />
+          <PackageIcon className="h-12 w-12 text-zinc-300 mb-2" />
           <p className="font-bold text-zinc-700">No matching items found</p>
           <p className="text-xs text-zinc-400 mt-1">
             Inventory list matches all standard criteria.
@@ -245,7 +243,7 @@ export const SellerInventory: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100 text-sm text-zinc-700">
-              {filteredItems.map((item, idx) => {
+              {filteredItems.map((item) => {
                 const globalIndex = items.findIndex(
                   (i) => i.variantId === item.variantId,
                 );
@@ -310,7 +308,7 @@ export const SellerInventory: React.FC = () => {
                         </Button>
                         {isLow && (
                           <span className="bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-0.5 shrink-0">
-                            <Warning className="h-3 w-3" /> Low
+                            <WarningIcon className="h-3 w-3" /> Low
                           </span>
                         )}
                       </div>
@@ -350,10 +348,10 @@ export const SellerInventory: React.FC = () => {
                             disabled={item.updating}
                           >
                             {item.updating ? (
-                              <Spinner className="h-3.5 w-3.5 animate-spin" />
+                              <SpinnerIcon className="h-3.5 w-3.5 animate-spin" />
                             ) : (
                               <>
-                                <Check className="h-3.5 w-3.5" /> Save
+                                <CheckIcon className="h-3.5 w-3.5" /> Save
                               </>
                             )}
                           </Button>

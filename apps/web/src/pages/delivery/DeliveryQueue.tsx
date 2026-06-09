@@ -1,36 +1,23 @@
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@bezon/ui';
 import React, { useEffect, useState } from 'react';
 import {
-  Truck,
-  MapPin,
-  NavigationArrow,
-  CheckCircle,
-  Camera,
-  WarningCircle,
-  Spinner,
-  Phone,
-  Package,
-  ClockCounterClockwise,
-  ArrowRight,
-  CaretLeft,
-  CaretRight,
+  TruckIcon,
+  MapPinIcon,
+  NavigationArrowIcon,
+  CheckCircleIcon,
+  CameraIcon,
+  WarningCircleIcon,
+  SpinnerIcon,
+  PhoneIcon,
+  PackageIcon,
+  ClockCounterClockwiseIcon,
+  ArrowRightIcon,
+  CaretLeftIcon,
+  CaretRightIcon,
 } from '@phosphor-icons/react';
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/components/ui/dialog';
+;
+;
+;
 import { useToast } from '../../context/ToastContext';
 import api from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api.config';
@@ -291,7 +278,7 @@ export const DeliveryQueue: React.FC = () => {
         API_ENDPOINTS.delivery.updateStatus(proofDelivery.id),
         {
           status: 'delivered',
-          note: 'Package successfully handed over to customer.',
+          note: 'PackageIcon successfully handed over to customer.',
           proofImageUrl,
         },
       );
@@ -324,7 +311,7 @@ export const DeliveryQueue: React.FC = () => {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[300px] text-zinc-500">
-        <Spinner className="h-8 w-8 animate-spin mb-4 text-teal-600" />
+        <SpinnerIcon className="h-8 w-8 animate-spin mb-4 text-teal-600" />
         <p className="font-bold">Syncing active assignments...</p>
       </div>
     );
@@ -364,7 +351,7 @@ export const DeliveryQueue: React.FC = () => {
       {/* ======================= */}
       <div className="flex flex-col gap-3">
         <h3 className="font-extrabold text-zinc-800 text-sm tracking-wider uppercase flex items-center gap-2 pl-1">
-          <Package className="h-4 w-4 text-amber-600" />
+          <PackageIcon className="h-4 w-4 text-amber-600" />
           Available Assignments
           {availableTasks.length > 0 && (
             <span className="bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
@@ -374,7 +361,7 @@ export const DeliveryQueue: React.FC = () => {
         </h3>
         {availableTasks.length === 0 ? (
           <div className="bg-white border border-zinc-200 rounded-2xl p-6 text-center shadow-sm">
-            <WarningCircle className="h-8 w-8 text-zinc-300 mx-auto" />
+            <WarningCircleIcon className="h-8 w-8 text-zinc-300 mx-auto" />
             <p className="text-zinc-400 text-xs mt-2 font-medium">
               No unassigned orders available for pickup right now.
             </p>
@@ -396,7 +383,7 @@ export const DeliveryQueue: React.FC = () => {
                     </span>
                   </div>
                   <CardDescription className="text-xs font-semibold text-zinc-500 mt-1 flex items-center gap-1">
-                    <Package className="h-3.5 w-3.5 text-zinc-400" />
+                    <PackageIcon className="h-3.5 w-3.5 text-zinc-400" />
                     {formatItemsString(t)}
                   </CardDescription>
                 </CardHeader>
@@ -430,7 +417,7 @@ export const DeliveryQueue: React.FC = () => {
       {/* ======================= */}
       <div className="flex flex-col gap-3">
         <h3 className="font-extrabold text-zinc-800 text-sm tracking-wider uppercase flex items-center gap-2 pl-1">
-          <Truck className="h-4 w-4 text-teal-600" />
+          <TruckIcon className="h-4 w-4 text-teal-600" />
           My Active Deliveries
           {activeDeliveries.length > 0 && (
             <span className="bg-teal-100 text-teal-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
@@ -440,7 +427,7 @@ export const DeliveryQueue: React.FC = () => {
         </h3>
         {activeDeliveries.length === 0 ? (
           <div className="bg-white border border-zinc-200 rounded-2xl p-6 text-center shadow-sm">
-            <WarningCircle className="h-8 w-8 text-zinc-300 mx-auto" />
+            <WarningCircleIcon className="h-8 w-8 text-zinc-300 mx-auto" />
             <p className="text-zinc-400 text-xs mt-2 font-medium">
               No active deliveries. Accept an assignment above to get started.
             </p>
@@ -462,14 +449,14 @@ export const DeliveryQueue: React.FC = () => {
                     </span>
                   </div>
                   <CardDescription className="text-xs font-semibold text-zinc-500 mt-1.5 flex items-center gap-1">
-                    <Package className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
+                    <PackageIcon className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
                     {formatItemsString(trip.order)}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="p-5 space-y-4">
                   <div className="flex items-start gap-3">
                     <div className="bg-amber-100 text-amber-700 rounded-lg p-1.5 mt-0.5 shrink-0">
-                      <MapPin className="h-4 w-4" />
+                      <MapPinIcon className="h-4 w-4" />
                     </div>
                     <div>
                       <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
@@ -486,7 +473,7 @@ export const DeliveryQueue: React.FC = () => {
 
                   <div className="flex items-start gap-3 border-t border-zinc-100 pt-3.5">
                     <div className="bg-emerald-100 text-emerald-700 rounded-lg p-1.5 mt-0.5 shrink-0">
-                      <NavigationArrow className="h-4 w-4" />
+                      <NavigationArrowIcon className="h-4 w-4" />
                     </div>
                     <div>
                       <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
@@ -503,7 +490,7 @@ export const DeliveryQueue: React.FC = () => {
                           href={`tel:${trip.order.customer.phone}`}
                           className="inline-flex items-center gap-1.5 text-teal-600 hover:text-teal-700 text-xs font-bold mt-2 bg-teal-50 px-2.5 py-1 rounded-lg border border-teal-100"
                         >
-                          <Phone className="h-3.5 w-3.5" /> Call Client
+                          <PhoneIcon className="h-3.5 w-3.5" /> Call Client
                         </a>
                       )}
                     </div>
@@ -517,7 +504,7 @@ export const DeliveryQueue: React.FC = () => {
                         handleUpdateStatus(trip, 'picked_up', 'Courier picked up the parcel from the merchant warehouse.')
                       }
                     >
-                      Confirm Package Pickup
+                      Confirm PackageIcon Pickup
                     </Button>
                   )}
                   {trip.status === 'picked_up' && (
@@ -527,7 +514,7 @@ export const DeliveryQueue: React.FC = () => {
                         handleUpdateStatus(trip, 'out_for_delivery', 'Courier is now out for delivery.')
                       }
                     >
-                      <ArrowRight className="h-4 w-4 mr-2" />
+                      <ArrowRightIcon className="h-4 w-4 mr-2" />
                       Mark Out For Delivery
                     </Button>
                   )}
@@ -536,7 +523,7 @@ export const DeliveryQueue: React.FC = () => {
                       className="w-full rounded-xl font-bold bg-emerald-600 hover:bg-emerald-700 text-white"
                       onClick={() => openProofModal(trip)}
                     >
-                      <Camera className="h-4 w-4 mr-2" /> Complete & Capture Proof
+                      <CameraIcon className="h-4 w-4 mr-2" /> Complete & Capture Proof
                     </Button>
                   )}
                 </CardFooter>
@@ -551,12 +538,12 @@ export const DeliveryQueue: React.FC = () => {
       {/* ======================= */}
       <div className="flex flex-col gap-3">
         <h3 className="font-extrabold text-zinc-800 text-sm tracking-wider uppercase flex items-center gap-2 pl-1">
-          <ClockCounterClockwise className="h-4 w-4 text-zinc-500" />
+          <ClockCounterClockwiseIcon className="h-4 w-4 text-zinc-500" />
           Completed Deliveries
         </h3>
         {completedDeliveries.length === 0 ? (
           <div className="bg-white border border-zinc-200 rounded-2xl p-6 text-center shadow-sm">
-            <WarningCircle className="h-8 w-8 text-zinc-300 mx-auto" />
+            <WarningCircleIcon className="h-8 w-8 text-zinc-300 mx-auto" />
             <p className="text-zinc-400 text-xs mt-2 font-medium">
               No completed deliveries yet.
             </p>
@@ -578,9 +565,9 @@ export const DeliveryQueue: React.FC = () => {
                       }`}
                     >
                       {d.status === 'delivered' ? (
-                        <CheckCircle className="h-4 w-4" />
+                        <CheckCircleIcon className="h-4 w-4" />
                       ) : (
-                        <WarningCircle className="h-4 w-4" />
+                        <WarningCircleIcon className="h-4 w-4" />
                       )}
                     </div>
                     <div>
@@ -628,7 +615,7 @@ export const DeliveryQueue: React.FC = () => {
                   disabled={historyPage <= 1}
                   onClick={() => setHistoryPage((p) => Math.max(1, p - 1))}
                 >
-                  <CaretLeft className="h-4 w-4" />
+                  <CaretLeftIcon className="h-4 w-4" />
                 </Button>
                 <span className="text-xs font-bold text-zinc-500">
                   Page {historyPage} of {historyTotalPages}
@@ -640,7 +627,7 @@ export const DeliveryQueue: React.FC = () => {
                   disabled={historyPage >= historyTotalPages}
                   onClick={() => setHistoryPage((p) => Math.min(historyTotalPages, p + 1))}
                 >
-                  <CaretRight className="h-4 w-4" />
+                  <CaretRightIcon className="h-4 w-4" />
                 </Button>
               </div>
             )}
@@ -653,7 +640,7 @@ export const DeliveryQueue: React.FC = () => {
       {/* ======================= */}
       <div className="flex flex-col gap-3">
         <h3 className="font-extrabold text-zinc-800 text-sm tracking-wider uppercase flex items-center gap-2 pl-1">
-          <Package className="h-4 w-4 text-rose-600" />
+          <PackageIcon className="h-4 w-4 text-rose-600" />
           Available Return Pickups
           {availableReturns.length > 0 && (
             <span className="bg-rose-100 text-rose-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
@@ -663,7 +650,7 @@ export const DeliveryQueue: React.FC = () => {
         </h3>
         {availableReturns.length === 0 ? (
           <div className="bg-white border border-zinc-200 rounded-2xl p-6 text-center shadow-sm">
-            <WarningCircle className="h-8 w-8 text-zinc-300 mx-auto" />
+            <WarningCircleIcon className="h-8 w-8 text-zinc-300 mx-auto" />
             <p className="text-zinc-400 text-xs mt-2 font-medium">
               No return pickups available.
             </p>
@@ -682,7 +669,7 @@ export const DeliveryQueue: React.FC = () => {
                     </span>
                   </div>
                   <CardDescription className="text-xs font-semibold text-zinc-500 mt-1 flex items-center gap-1">
-                    <Package className="h-3.5 w-3.5 text-zinc-400" />
+                    <PackageIcon className="h-3.5 w-3.5 text-zinc-400" />
                     {formatItemsString(t)}
                   </CardDescription>
                 </CardHeader>
@@ -716,7 +703,7 @@ export const DeliveryQueue: React.FC = () => {
       {/* ======================= */}
       <div className="flex flex-col gap-3">
         <h3 className="font-extrabold text-zinc-800 text-sm tracking-wider uppercase flex items-center gap-2 pl-1">
-          <Truck className="h-4 w-4 text-purple-600" />
+          <TruckIcon className="h-4 w-4 text-purple-600" />
           Assigned Return Pickups
           {activeReturns.length > 0 && (
             <span className="bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
@@ -726,7 +713,7 @@ export const DeliveryQueue: React.FC = () => {
         </h3>
         {activeReturns.length === 0 ? (
           <div className="bg-white border border-zinc-200 rounded-2xl p-6 text-center shadow-sm">
-            <WarningCircle className="h-8 w-8 text-zinc-300 mx-auto" />
+            <WarningCircleIcon className="h-8 w-8 text-zinc-300 mx-auto" />
             <p className="text-zinc-400 text-xs mt-2 font-medium">
               No active return pickups.
             </p>
@@ -745,14 +732,14 @@ export const DeliveryQueue: React.FC = () => {
                     </span>
                   </div>
                   <CardDescription className="text-xs font-semibold text-zinc-500 mt-1.5 flex items-center gap-1">
-                    <Package className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
+                    <PackageIcon className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
                     {formatItemsString(trip)}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="p-5 space-y-4">
                   <div className="flex items-start gap-3">
                     <div className="bg-amber-100 text-amber-700 rounded-lg p-1.5 mt-0.5 shrink-0">
-                      <MapPin className="h-4 w-4" />
+                      <MapPinIcon className="h-4 w-4" />
                     </div>
                     <div>
                       <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
@@ -766,14 +753,14 @@ export const DeliveryQueue: React.FC = () => {
                       </p>
                       {trip.customer?.phone && (
                         <a href={`tel:${trip.customer.phone}`} className="inline-flex items-center gap-1.5 text-purple-600 hover:text-purple-700 text-xs font-bold mt-2 bg-purple-50 px-2.5 py-1 rounded-lg border border-purple-100">
-                          <Phone className="h-3.5 w-3.5" /> Call Customer
+                          <PhoneIcon className="h-3.5 w-3.5" /> Call Customer
                         </a>
                       )}
                     </div>
                   </div>
                   <div className="flex items-start gap-3 border-t border-zinc-100 pt-3.5">
                     <div className="bg-emerald-100 text-emerald-700 rounded-lg p-1.5 mt-0.5 shrink-0">
-                      <NavigationArrow className="h-4 w-4" />
+                      <NavigationArrowIcon className="h-4 w-4" />
                     </div>
                     <div>
                       <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
@@ -802,7 +789,7 @@ export const DeliveryQueue: React.FC = () => {
                       className="w-full rounded-xl font-bold bg-emerald-600 hover:bg-emerald-700 text-white"
                       onClick={() => handleMarkReturnCompleted(trip)}
                     >
-                      <CheckCircle className="h-4 w-4 mr-2" />
+                      <CheckCircleIcon className="h-4 w-4 mr-2" />
                       Mark Returned to Seller
                     </Button>
                   )}
@@ -818,12 +805,12 @@ export const DeliveryQueue: React.FC = () => {
       {/* ======================= */}
       <div className="flex flex-col gap-3">
         <h3 className="font-extrabold text-zinc-800 text-sm tracking-wider uppercase flex items-center gap-2 pl-1">
-          <ClockCounterClockwise className="h-4 w-4 text-zinc-500" />
+          <ClockCounterClockwiseIcon className="h-4 w-4 text-zinc-500" />
           Return Pickup History
         </h3>
         {completedReturns.length === 0 ? (
           <div className="bg-white border border-zinc-200 rounded-2xl p-6 text-center shadow-sm">
-            <WarningCircle className="h-8 w-8 text-zinc-300 mx-auto" />
+            <WarningCircleIcon className="h-8 w-8 text-zinc-300 mx-auto" />
             <p className="text-zinc-400 text-xs mt-2 font-medium">
               No completed return pickups.
             </p>
@@ -835,7 +822,7 @@ export const DeliveryQueue: React.FC = () => {
                 <CardContent className="p-4 flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="p-2 rounded-lg shrink-0 bg-emerald-100 text-emerald-700">
-                      <CheckCircle className="h-4 w-4" />
+                      <CheckCircleIcon className="h-4 w-4" />
                     </div>
                     <div>
                       <p className="text-sm font-extrabold text-zinc-800">
@@ -866,7 +853,7 @@ export const DeliveryQueue: React.FC = () => {
                   disabled={returnHistoryPage <= 1}
                   onClick={() => setReturnHistoryPage((p) => Math.max(1, p - 1))}
                 >
-                  <CaretLeft className="h-4 w-4" />
+                  <CaretLeftIcon className="h-4 w-4" />
                 </Button>
                 <span className="text-xs font-bold text-zinc-500">
                   Page {returnHistoryPage} of {returnHistoryTotalPages}
@@ -878,7 +865,7 @@ export const DeliveryQueue: React.FC = () => {
                   disabled={returnHistoryPage >= returnHistoryTotalPages}
                   onClick={() => setReturnHistoryPage((p) => Math.min(returnHistoryTotalPages, p + 1))}
                 >
-                  <CaretRight className="h-4 w-4" />
+                  <CaretRightIcon className="h-4 w-4" />
                 </Button>
               </div>
             )}
@@ -901,7 +888,7 @@ export const DeliveryQueue: React.FC = () => {
           <div className="my-6 flex flex-col items-center justify-center border-2 border-dashed border-zinc-200 rounded-2xl p-6 bg-zinc-50/50 min-h-[160px]">
             {photoCaptured ? (
               <div className="flex flex-col items-center gap-2 text-center text-emerald-600 animate-in zoom-in-95 duration-200">
-                <CheckCircle className="h-10 w-10 text-emerald-500 fill-emerald-50" />
+                <CheckCircleIcon className="h-10 w-10 text-emerald-500 fill-emerald-50" />
                 <p className="font-bold text-sm">Receipt Photo Verified</p>
                 <p className="text-[9px] text-zinc-400 leading-tight">
                   Timestamp: {new Date().toLocaleTimeString()} <br /> Location
@@ -910,7 +897,7 @@ export const DeliveryQueue: React.FC = () => {
               </div>
             ) : (
               <div className="flex flex-col items-center gap-3.5 text-center">
-                <Camera className="h-10 w-10 text-zinc-300" />
+                <CameraIcon className="h-10 w-10 text-zinc-300" />
                 <div className="flex flex-col sm:flex-row gap-2">
                   <label className="inline-flex items-center justify-center rounded-xl font-bold text-xs border border-teal-200 bg-white hover:bg-zinc-50 text-teal-600 px-4 py-2 cursor-pointer shadow-sm">
                     {isUploading ? 'Uploading...' : 'Upload Photo'}
