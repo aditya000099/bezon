@@ -1,5 +1,12 @@
 import React from 'react';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter, Button } from '@bezon/ui';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardFooter,
+  Button,
+} from '@bezon/ui';
 import { HeartIcon, ShoppingBagIcon, StarIcon } from '@phosphor-icons/react';
 import { Link } from 'react-router-dom';
 
@@ -20,7 +27,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   onToggleWishlist,
   onClick,
 }) => {
-  const primaryImg = p.images?.find((img: any) => img.isPrimary) || p.images?.[0];
+  const primaryImg =
+    p.images?.find((img: any) => img.isPrimary) || p.images?.[0];
 
   const handleImageClick = (e: React.MouseEvent) => {
     if (onClick) onClick(e, p);
@@ -41,7 +49,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   );
 
   return (
-    <Card className="overflow-hidden flex flex-col justify-between bg-card relative group border border-zinc-200 shadow-sm hover:shadow-md hover:border-zinc-300 transition-all rounded-2xl">
+    <Card className="overflow-hidden flex flex-col justify-between bg-card relative group border border-zinc-100 hover:border-zinc-300 transition-all rounded-2xl">
       <button
         onClick={(e) => {
           e.preventDefault();
@@ -111,7 +119,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           <div>
             {p.comparePrice && Number(p.comparePrice) > Number(p.basePrice) && (
               <span className="bg-emerald-100 text-emerald-800 text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded">
-                Save {Math.round(((p.comparePrice - p.basePrice) / p.comparePrice) * 100)}%
+                Save{' '}
+                {Math.round(
+                  ((p.comparePrice - p.basePrice) / p.comparePrice) * 100,
+                )}
+                %
               </span>
             )}
           </div>
