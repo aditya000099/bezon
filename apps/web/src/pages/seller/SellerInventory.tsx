@@ -1,9 +1,6 @@
-import { Card, CardHeader, CardTitle, CardContent, Button, Input } from '@bezon/ui';
+import { Card, Button, Input } from '@bezon/ui';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-;
-;
-;
 import {
   SpinnerIcon,
   PackageIcon,
@@ -241,12 +238,12 @@ export const SellerInventory: React.FC = () => {
                 <th className="px-6 py-3.5">SKU / Item</th>
                 <th className="px-6 py-3.5">Price</th>
                 <th className="px-6 py-3.5">Stock Level</th>
-                <th className="px-6 py-3.5">WarningIcon Alert</th>
+                <th className="px-6 py-3.5">Warning Alert</th>
                 <th className="px-6 py-3.5 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100 text-sm text-zinc-700">
-              {filteredItems.map((item, idx) => {
+              {filteredItems.map((item) => {
                 const globalIndex = items.findIndex(
                   (i) => i.variantId === item.variantId,
                 );

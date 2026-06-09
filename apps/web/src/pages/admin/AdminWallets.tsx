@@ -1,4 +1,14 @@
-import { Card, CardHeader, CardTitle, CardContent, Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input } from '@bezon/ui';
+import {
+  Card,
+  CardContent,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  Input,
+} from '@bezon/ui';
 import React, { useState, useEffect } from 'react';
 import {
   WalletIcon,
@@ -6,13 +16,8 @@ import {
   PlusIcon,
   CaretLeftIcon,
   CaretRightIcon,
-  CurrencyDollarIcon,
   SpinnerIcon,
 } from '@phosphor-icons/react';
-;
-;
-;
-;
 import api from '../../lib/api';
 import API_ENDPOINTS from '../../config/api.config';
 import { useToast } from '../../context/ToastContext';
@@ -98,7 +103,7 @@ export const AdminWallets: React.FC = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-zinc-900">
-            WalletIcon Management
+            Wallet Management
           </h1>
           <p className="text-zinc-500 text-sm mt-1">
             Monitor and manage platform wallets

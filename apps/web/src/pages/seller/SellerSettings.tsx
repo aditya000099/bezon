@@ -6,8 +6,8 @@ import {
   CardDescription,
   Input,
   Button,
-} from "@bezon/ui";
-import React, { useEffect, useState } from "react";
+} from '@bezon/ui';
+import React, { useEffect, useState } from 'react';
 import {
   SpinnerIcon,
   StorefrontIcon,
@@ -16,11 +16,11 @@ import {
   ShieldCheckIcon,
   MapPinIcon,
   CompassIcon,
-} from "@phosphor-icons/react";
-import api from "../../lib/api";
-import { API_ENDPOINTS } from "../../config/api.config";
-import { useToast } from "../../context/ToastContext";
-import { GoogleAddressInput } from "../../components/ui/GoogleAddressInput";
+} from '@phosphor-icons/react';
+import api from '../../lib/api';
+import { API_ENDPOINTS } from '../../config/api.config';
+import { useToast } from '../../context/ToastContext';
+import { GoogleAddressInput } from '../../components/ui/GoogleAddressInput';
 
 export const SellerSettings: React.FC = () => {
   const { toast } = useToast();
@@ -28,19 +28,19 @@ export const SellerSettings: React.FC = () => {
   const [saving, setSaving] = useState(false);
 
   const [formData, setFormData] = useState({
-    shopName: "",
-    description: "",
-    panNumber: "",
-    gstin: "",
-    addressLine: "",
-    city: "",
-    state: "",
-    pincode: "",
+    shopName: '',
+    description: '',
+    panNumber: '',
+    gstin: '',
+    addressLine: '',
+    city: '',
+    state: '',
+    pincode: '',
     lat: null as number | null,
     lng: null as number | null,
-    bankName: "",
-    bankAccount: "",
-    ifsc: "",
+    bankName: '',
+    bankAccount: '',
+    ifsc: '',
   });
 
   useEffect(() => {
@@ -53,26 +53,26 @@ export const SellerSettings: React.FC = () => {
       const res = await api.get(API_ENDPOINTS.sellers.settings);
       if (res.data.success) {
         setFormData({
-          shopName: res.data.data.shopName || "",
-          description: res.data.data.description || "",
-          panNumber: res.data.data.panNumber || "",
-          gstin: res.data.data.gstin || "",
-          addressLine: res.data.data.addressLine || "",
-          city: res.data.data.city || "",
-          state: res.data.data.state || "",
-          pincode: res.data.data.pincode || "",
+          shopName: res.data.data.shopName || '',
+          description: res.data.data.description || '',
+          panNumber: res.data.data.panNumber || '',
+          gstin: res.data.data.gstin || '',
+          addressLine: res.data.data.addressLine || '',
+          city: res.data.data.city || '',
+          state: res.data.data.state || '',
+          pincode: res.data.data.pincode || '',
           lat: res.data.data.lat || null,
           lng: res.data.data.lng || null,
-          bankName: res.data.data.bankName || "",
-          bankAccount: res.data.data.bankAccount || "",
-          ifsc: res.data.data.ifsc || "",
+          bankName: res.data.data.bankName || '',
+          bankAccount: res.data.data.bankAccount || '',
+          ifsc: res.data.data.ifsc || '',
         });
       }
     } catch (err: any) {
       const errorMessage =
         err.response?.data?.message ||
         err.message ||
-        "Failed to load shop settings";
+        'Failed to load shop settings';
       toast.error(errorMessage);
     } finally {
       setLoading(false);
@@ -85,13 +85,13 @@ export const SellerSettings: React.FC = () => {
       setSaving(true);
       const res = await api.patch(API_ENDPOINTS.sellers.settings, formData);
       if (res.data.success) {
-        toast.success("Shop settings updated successfully");
+        toast.success('Shop settings updated successfully');
       }
     } catch (err: any) {
       const errorMessage =
         err.response?.data?.message ||
         err.message ||
-        "Failed to update settings";
+        'Failed to update settings';
       toast.error(errorMessage);
     } finally {
       setSaving(false);
@@ -187,7 +187,7 @@ export const SellerSettings: React.FC = () => {
                 defaultValue={
                   formData.addressLine
                     ? `${formData.addressLine}, ${formData.city}, ${formData.state}`
-                    : ""
+                    : ''
                 }
               />
             </div>
@@ -248,8 +248,7 @@ export const SellerSettings: React.FC = () => {
             {formData.lat && formData.lng && (
               <div className="text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 p-2.5 rounded-xl self-start inline-flex items-center gap-1.5 mt-2">
                 <CompassIcon className="h-4 w-4 text-emerald-500 animate-spin-slow" />
-                StorefrontIcon Geolocation Configured: {formData.lat},{" "}
-                {formData.lng}
+                Store Geolocation Configured: {formData.lat}, {formData.lng}
               </div>
             )}
           </CardContent>
@@ -315,7 +314,7 @@ export const SellerSettings: React.FC = () => {
           <CardContent className="p-6 space-y-4">
             <div className="grid gap-2">
               <label className="text-sm font-bold text-zinc-700">
-                BankIcon Name
+                Bank Name
               </label>
               <Input
                 value={formData.bankName}

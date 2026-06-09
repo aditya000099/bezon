@@ -1,14 +1,11 @@
 import { Button, Input, Card } from '@bezon/ui';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-;
-;
-;
 import {
   PlusIcon,
   PencilSimpleIcon,
   TrashIcon,
-  Image as ImageIcon,
+  ImageIcon,
   SpinnerIcon,
   SparkleIcon,
 } from '@phosphor-icons/react';

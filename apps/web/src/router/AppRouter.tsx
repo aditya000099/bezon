@@ -56,6 +56,8 @@ const SellerOrderDetail = React.lazy(() => import('../pages/seller/SellerOrderDe
 const SellerAddProduct = React.lazy(() => import('../pages/seller/SellerAddProduct').then(module => ({ default: module.SellerAddProduct })));
 const SellerWallet = React.lazy(() => import('../pages/seller/SellerWallet').then(module => ({ default: module.SellerWallet })));
 const SellerAds = React.lazy(() => import('../pages/seller/SellerAds').then(module => ({ default: module.SellerAds })));
+const SellerAdForm = React.lazy(() => import('../pages/seller/SellerAdForm').then(module => ({ default: module.SellerAdForm })));
+const SellerCouponForm = React.lazy(() => import('../pages/seller/SellerCouponForm').then(module => ({ default: module.SellerCouponForm })));
 // Delivery Pages
 const DeliveryQueue = React.lazy(() => import('../pages/delivery/DeliveryQueue').then(module => ({ default: module.DeliveryQueue })));
 const DeliveryHistory = React.lazy(() => import('../pages/delivery/DeliveryHistory').then(module => ({ default: module.DeliveryHistory })));
@@ -160,8 +162,11 @@ export const AppRouter: React.FC = () => {
           <Route path="inventory" element={<SellerInventory />} />
           <Route path="settings" element={<SellerSettings />} />
           <Route path="coupons" element={<SellerCoupons />} />
+          <Route path="coupons/new" element={<SellerCouponForm />} />
+          <Route path="coupons/:id/edit" element={<SellerCouponForm />} />
           <Route path="wallet" element={<SellerWallet />} />
           <Route path="ads" element={<SellerAds />} />
+          <Route path="ads/new" element={<SellerAdForm />} />
           <Route path="qa" element={<SellerQA />} />
         </Route>
 

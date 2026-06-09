@@ -1,6 +1,5 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, Input, Button } from '@bezon/ui';
-import React, { useEffect, useState } from "react";
-;
+import { Card, CardContent, Input, Button } from '@bezon/ui';
+import React, { useEffect, useState } from 'react';
 import {
   SpinnerIcon,
   UsersIcon,
@@ -10,12 +9,10 @@ import {
   ShieldIcon,
   PulseIcon,
   TagIcon,
-} from "@phosphor-icons/react";
-;
-;
-import api from "../../lib/api";
-import { API_ENDPOINTS } from "../../config/api.config";
-import { useToast } from "../../context/ToastContext";
+} from '@phosphor-icons/react';
+import api from '../../lib/api';
+import { API_ENDPOINTS } from '../../config/api.config';
+import { useToast } from '../../context/ToastContext';
 
 interface AdminUser {
   id: string;
@@ -34,7 +31,7 @@ export const AdminUsers: React.FC = () => {
   const { toast } = useToast();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [roleCounts, setRoleCounts] = useState<any>(null);
 
@@ -46,14 +43,14 @@ export const AdminUsers: React.FC = () => {
     try {
       setLoading(true);
       const res = await api.get(API_ENDPOINTS.users.adminList, {
-        params: roleFilter !== 'all' ? { role: roleFilter } : {}
+        params: roleFilter !== 'all' ? { role: roleFilter } : {},
       });
       if (res.data.success) {
         setUsers(res.data.data);
         setRoleCounts(res.data.roleCounts);
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Failed to fetch users");
+      toast.error(err.response?.data?.message || 'Failed to fetch users');
     } finally {
       setLoading(false);
     }
@@ -70,7 +67,7 @@ export const AdminUsers: React.FC = () => {
       <div className="flex flex-col sm:flex-row justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-zinc-800 tracking-tight">
-            Platform UsersIcon
+            Platform Users
           </h1>
           <p className="text-sm text-zinc-500 mt-1">
             Manage user accounts and view behavioral insights.
@@ -80,34 +77,69 @@ export const AdminUsers: React.FC = () => {
 
       {roleCounts && (
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <Card className={`cursor-pointer transition-colors ${roleFilter === 'all' ? 'border-indigo-500 bg-indigo-50/30' : 'hover:border-zinc-300'}`} onClick={() => setRoleFilter('all')}>
+          <Card
+            className={`cursor-pointer transition-colors ${roleFilter === 'all' ? 'border-indigo-500 bg-indigo-50/30' : 'hover:border-zinc-300'}`}
+            onClick={() => setRoleFilter('all')}
+          >
             <CardContent className="p-4 flex flex-col justify-center items-center">
-              <span className="text-xl font-bold text-zinc-900">{roleCounts.total}</span>
-              <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider mt-1">Total UsersIcon</span>
+              <span className="text-xl font-bold text-zinc-900">
+                {roleCounts.total}
+              </span>
+              <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider mt-1">
+                Total Users
+              </span>
             </CardContent>
           </Card>
-          <Card className={`cursor-pointer transition-colors ${roleFilter === 'customer' ? 'border-teal-500 bg-teal-50/30' : 'hover:border-zinc-300'}`} onClick={() => setRoleFilter('customer')}>
+          <Card
+            className={`cursor-pointer transition-colors ${roleFilter === 'customer' ? 'border-teal-500 bg-teal-50/30' : 'hover:border-zinc-300'}`}
+            onClick={() => setRoleFilter('customer')}
+          >
             <CardContent className="p-4 flex flex-col justify-center items-center">
-              <span className="text-xl font-bold text-teal-600">{roleCounts.customers}</span>
-              <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider mt-1">Customers</span>
+              <span className="text-xl font-bold text-teal-600">
+                {roleCounts.customers}
+              </span>
+              <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider mt-1">
+                Customers
+              </span>
             </CardContent>
           </Card>
-          <Card className={`cursor-pointer transition-colors ${roleFilter === 'seller' ? 'border-amber-500 bg-amber-50/30' : 'hover:border-zinc-300'}`} onClick={() => setRoleFilter('seller')}>
+          <Card
+            className={`cursor-pointer transition-colors ${roleFilter === 'seller' ? 'border-amber-500 bg-amber-50/30' : 'hover:border-zinc-300'}`}
+            onClick={() => setRoleFilter('seller')}
+          >
             <CardContent className="p-4 flex flex-col justify-center items-center">
-              <span className="text-xl font-bold text-amber-600">{roleCounts.sellers}</span>
-              <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider mt-1">Sellers</span>
+              <span className="text-xl font-bold text-amber-600">
+                {roleCounts.sellers}
+              </span>
+              <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider mt-1">
+                Sellers
+              </span>
             </CardContent>
           </Card>
-          <Card className={`cursor-pointer transition-colors ${roleFilter === 'delivery' ? 'border-blue-500 bg-blue-50/30' : 'hover:border-zinc-300'}`} onClick={() => setRoleFilter('delivery')}>
+          <Card
+            className={`cursor-pointer transition-colors ${roleFilter === 'delivery' ? 'border-blue-500 bg-blue-50/30' : 'hover:border-zinc-300'}`}
+            onClick={() => setRoleFilter('delivery')}
+          >
             <CardContent className="p-4 flex flex-col justify-center items-center">
-              <span className="text-xl font-bold text-blue-600">{roleCounts.delivery}</span>
-              <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider mt-1">Delivery</span>
+              <span className="text-xl font-bold text-blue-600">
+                {roleCounts.delivery}
+              </span>
+              <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider mt-1">
+                Delivery
+              </span>
             </CardContent>
           </Card>
-          <Card className={`cursor-pointer transition-colors ${roleFilter === 'admin' ? 'border-rose-500 bg-rose-50/30' : 'hover:border-zinc-300'}`} onClick={() => setRoleFilter('admin')}>
+          <Card
+            className={`cursor-pointer transition-colors ${roleFilter === 'admin' ? 'border-rose-500 bg-rose-50/30' : 'hover:border-zinc-300'}`}
+            onClick={() => setRoleFilter('admin')}
+          >
             <CardContent className="p-4 flex flex-col justify-center items-center">
-              <span className="text-xl font-bold text-rose-600">{roleCounts.admins}</span>
-              <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider mt-1">Admins</span>
+              <span className="text-xl font-bold text-rose-600">
+                {roleCounts.admins}
+              </span>
+              <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider mt-1">
+                Admins
+              </span>
             </CardContent>
           </Card>
         </div>
@@ -118,7 +150,7 @@ export const AdminUsers: React.FC = () => {
           <div className="relative w-full sm:w-80">
             <MagnifyingGlassIcon className="absolute left-3 top-2.5 h-4 w-4 text-zinc-400" />
             <Input
-              placeholder="MagnifyingGlassIcon users by name or email..."
+              placeholder="Search users by name or email..."
               className="pl-9 bg-white"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -190,16 +222,16 @@ export const AdminUsers: React.FC = () => {
                       <div className="flex flex-col gap-1.5">
                         <div className="flex items-center gap-1.5">
                           <ShieldIcon
-                            className={`h-3.5 w-3.5 ${user.role === "admin" ? "text-rose-500" : user.role === "seller" ? "text-amber-500" : "text-zinc-400"}`}
+                            className={`h-3.5 w-3.5 ${user.role === 'admin' ? 'text-rose-500' : user.role === 'seller' ? 'text-amber-500' : 'text-zinc-400'}`}
                           />
                           <span className="font-semibold text-zinc-700 capitalize text-xs">
                             {user.role}
                           </span>
                         </div>
                         <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold w-fit ${user.isActive ? "bg-emerald-100 text-emerald-700" : "bg-zinc-100 text-zinc-500"}`}
+                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold w-fit ${user.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-zinc-100 text-zinc-500'}`}
                         >
-                          {user.isActive ? "Active" : "Inactive"}
+                          {user.isActive ? 'Active' : 'Inactive'}
                         </span>
                       </div>
                     </td>
@@ -257,10 +289,10 @@ export const AdminUsers: React.FC = () => {
                     <td className="px-6 py-4 text-right text-xs text-zinc-500 whitespace-nowrap">
                       <div className="flex items-center justify-end gap-1">
                         <CalendarIcon className="h-3 w-3" />
-                        {new Date(user.createdAt).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
+                        {new Date(user.createdAt).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric',
                         })}
                       </div>
                     </td>
