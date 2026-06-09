@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter, Button, Input } from '@bezon/ui';
+import { Card, CardContent, CardFooter, Button, Input } from '@bezon/ui';
 import React, { useState, useEffect } from 'react';
 import { SpinnerIcon } from '@phosphor-icons/react';
 import { useNavigate } from 'react-router-dom';
@@ -91,12 +91,15 @@ export const SellerAdForm: React.FC = () => {
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900">Create Ad Campaign</h1>
+          <h1 className="text-2xl font-bold text-zinc-900">
+            Create Ad Campaign
+          </h1>
           <p className="text-zinc-500 text-sm mt-1">
-            Set up a sponsored product campaign. You are charged per click directly from your wallet balance.
+            Set up a sponsored product campaign. You are charged per click
+            directly from your wallet balance.
           </p>
         </div>
       </div>
@@ -105,7 +108,9 @@ export const SellerAdForm: React.FC = () => {
         <CardContent className="pt-6">
           <div className="grid gap-6">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-zinc-700">Select Product</label>
+              <label className="text-sm font-medium text-zinc-700">
+                Select Product
+              </label>
               <select
                 className="w-full h-10 px-3 py-2 rounded-md border border-zinc-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
                 value={form.productId}
@@ -124,7 +129,9 @@ export const SellerAdForm: React.FC = () => {
               </select>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-zinc-700">Campaign Name</label>
+              <label className="text-sm font-medium text-zinc-700">
+                Campaign Name
+              </label>
               <Input
                 placeholder="e.g., Summer Sale Boost"
                 value={form.title}
@@ -133,7 +140,9 @@ export const SellerAdForm: React.FC = () => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-zinc-700">Daily Budget (₹)</label>
+                <label className="text-sm font-medium text-zinc-700">
+                  Daily Budget (₹)
+                </label>
                 <Input
                   type="number"
                   min="10"
@@ -145,7 +154,9 @@ export const SellerAdForm: React.FC = () => {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-zinc-700">Total Budget (₹)</label>
+                <label className="text-sm font-medium text-zinc-700">
+                  Total Budget (₹)
+                </label>
                 <Input
                   type="number"
                   min="10"
@@ -190,14 +201,17 @@ export const SellerAdForm: React.FC = () => {
                 />
               </div>
               <div className="space-y-2 col-span-1 md:col-span-2">
-                <label className="text-sm font-medium text-zinc-700">Search Tags (Comma separated)</label>
+                <label className="text-sm font-medium text-zinc-700">
+                  Search Tags (Comma separated)
+                </label>
                 <Input
                   placeholder="e.g. running, sports, shoes"
                   value={form.tags}
                   onChange={(e) => setForm({ ...form, tags: e.target.value })}
                 />
                 <p className="text-xs text-zinc-500">
-                  Customers searching for these exact tags will see your sponsored product.
+                  Customers searching for these exact tags will see your
+                  sponsored product.
                 </p>
               </div>
             </div>
@@ -207,7 +221,11 @@ export const SellerAdForm: React.FC = () => {
           <Button variant="outline" onClick={() => navigate('/seller/ads')}>
             Cancel
           </Button>
-          <Button onClick={handleCreate} disabled={creating} className="bg-teal-600 hover:bg-teal-700 text-white">
+          <Button
+            onClick={handleCreate}
+            disabled={creating}
+            className="bg-teal-600 hover:bg-teal-700 text-white"
+          >
             {creating ? (
               <SpinnerIcon className="w-4 h-4 animate-spin mr-2" />
             ) : null}

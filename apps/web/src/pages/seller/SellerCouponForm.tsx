@@ -50,7 +50,8 @@ export const SellerCouponForm: React.FC = () => {
           api.get(API_ENDPOINTS.products.sellerMe),
         ]);
         if (catRes.data.success) setCategories(catRes.data.data);
-        if (prodRes.data.success) setProducts(prodRes.data.data.products || prodRes.data.data);
+        if (prodRes.data.success)
+          setProducts(prodRes.data.data.products || prodRes.data.data);
 
         if (isEditMode) {
           const couponRes = await api.get(API_ENDPOINTS.coupons.sellerMe);
@@ -67,15 +68,22 @@ export const SellerCouponForm: React.FC = () => {
                 minOrderValue: coupon.minOrderValue.toString(),
                 maxUses: coupon.maxUses.toString(),
                 maxUsesPerUser: coupon.maxUsesPerUser.toString(),
-                validFrom: coupon.validFrom ? coupon.validFrom.slice(0, 16) : '',
-                validUntil: coupon.validUntil ? coupon.validUntil.slice(0, 16) : '',
+                validFrom: coupon.validFrom
+                  ? coupon.validFrom.slice(0, 16)
+                  : '',
+                validUntil: coupon.validUntil
+                  ? coupon.validUntil.slice(0, 16)
+                  : '',
                 scopeType:
-                  coupon.scopeType === 'variantGroup' ? 'product' : coupon.scopeType,
+                  coupon.scopeType === 'variantGroup'
+                    ? 'product'
+                    : coupon.scopeType,
                 scopeCategoryId: coupon.scopeCategoryId || '',
                 scopeProductId:
                   coupon.scopeType === 'variantGroup' && prodRes.data.success
                     ? (prodRes.data.data.products || prodRes.data.data).find(
-                        (p: any) => p.variantGroupId === coupon.scopeVariantGroupId
+                        (p: any) =>
+                          p.variantGroupId === coupon.scopeVariantGroupId,
                       )?.id || ''
                     : coupon.scopeProductId || '',
                 applyToAllVariants: coupon.scopeType === 'variantGroup',
@@ -111,7 +119,9 @@ export const SellerCouponForm: React.FC = () => {
       let finalScopeVariantGroupId = undefined;
 
       if (form.scopeType === 'product' && form.applyToAllVariants) {
-        const selectedProduct = products.find((p) => p.id === form.scopeProductId);
+        const selectedProduct = products.find(
+          (p) => p.id === form.scopeProductId,
+        );
         if (selectedProduct && selectedProduct.variantGroupId) {
           finalScopeType = 'variantGroup' as any;
           finalScopeVariantGroupId = selectedProduct.variantGroupId;
@@ -132,10 +142,15 @@ export const SellerCouponForm: React.FC = () => {
         minOrderValue: Number(form.minOrderValue),
         maxUses: Number(form.maxUses),
         maxUsesPerUser: Number(form.maxUsesPerUser),
-        validFrom: form.validFrom ? new Date(form.validFrom).toISOString() : undefined,
-        validUntil: form.validUntil ? new Date(form.validUntil).toISOString() : undefined,
+        validFrom: form.validFrom
+          ? new Date(form.validFrom).toISOString()
+          : undefined,
+        validUntil: form.validUntil
+          ? new Date(form.validUntil).toISOString()
+          : undefined,
         scopeType: finalScopeType,
-        scopeCategoryId: finalScopeType === 'category' ? form.scopeCategoryId : undefined,
+        scopeCategoryId:
+          finalScopeType === 'category' ? form.scopeCategoryId : undefined,
         scopeProductId: finalScopeProductId,
         scopeVariantGroupId: finalScopeVariantGroupId,
       };
@@ -169,7 +184,7 @@ export const SellerCouponForm: React.FC = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-zinc-900">
           {isEditMode ? 'Edit Coupon' : 'Create New Coupon'}
@@ -189,7 +204,9 @@ export const SellerCouponForm: React.FC = () => {
                 </label>
                 <Input
                   value={form.code}
-                  onChange={(e) => updateForm('code', e.target.value.toUpperCase())}
+                  onChange={(e) =>
+                    updateForm('code', e.target.value.toUpperCase())
+                  }
                   placeholder="e.g. SUMMER25"
                   className="uppercase font-mono focus:ring-teal-500"
                   required
@@ -231,7 +248,9 @@ export const SellerCouponForm: React.FC = () => {
                   min="0"
                   value={form.discountValue}
                   onChange={(e) => updateForm('discountValue', e.target.value)}
-                  placeholder={form.discountType === 'percentage' ? 'e.g. 25' : 'e.g. 500'}
+                  placeholder={
+                    form.discountType === 'percentage' ? 'e.g. 25' : 'e.g. 500'
+                  }
                   className="focus:ring-teal-500"
                   required
                 />
@@ -341,7 +360,9 @@ export const SellerCouponForm: React.FC = () => {
                   </label>
                   <select
                     value={form.scopeCategoryId}
-                    onChange={(e) => updateForm('scopeCategoryId', e.target.value)}
+                    onChange={(e) =>
+                      updateForm('scopeCategoryId', e.target.value)
+                    }
                     className="w-full bg-white border border-zinc-200 rounded-md text-sm px-3 py-2 outline-none font-semibold text-zinc-700 cursor-pointer h-10 focus:ring-2 focus:ring-teal-500"
                   >
                     <option value="">Select Category</option>
@@ -361,7 +382,9 @@ export const SellerCouponForm: React.FC = () => {
                   </label>
                   <select
                     value={form.scopeProductId}
-                    onChange={(e) => updateForm('scopeProductId', e.target.value)}
+                    onChange={(e) =>
+                      updateForm('scopeProductId', e.target.value)
+                    }
                     className="w-full bg-white border border-zinc-200 rounded-md text-sm px-3 py-2 outline-none font-semibold text-zinc-700 cursor-pointer h-10 focus:ring-2 focus:ring-teal-500"
                   >
                     <option value="">Select Product</option>
@@ -373,16 +396,22 @@ export const SellerCouponForm: React.FC = () => {
                   </select>
 
                   {form.scopeProductId &&
-                    products.find((p) => p.id === form.scopeProductId)?.variantGroupId && (
+                    products.find((p) => p.id === form.scopeProductId)
+                      ?.variantGroupId && (
                       <div className="flex items-center gap-2 mt-3">
                         <input
                           type="checkbox"
                           id="applyAll"
                           checked={form.applyToAllVariants}
-                          onChange={(e) => updateForm('applyToAllVariants', e.target.checked)}
+                          onChange={(e) =>
+                            updateForm('applyToAllVariants', e.target.checked)
+                          }
                           className="rounded border-zinc-300 text-teal-600 focus:ring-teal-600 h-4 w-4"
                         />
-                        <label htmlFor="applyAll" className="text-sm font-medium text-zinc-700">
+                        <label
+                          htmlFor="applyAll"
+                          className="text-sm font-medium text-zinc-700"
+                        >
                           Apply to all variants in this product's family
                         </label>
                       </div>
@@ -400,7 +429,11 @@ export const SellerCouponForm: React.FC = () => {
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={submitting} className="bg-teal-600 hover:bg-teal-700 text-white">
+            <Button
+              type="submit"
+              disabled={submitting}
+              className="bg-teal-600 hover:bg-teal-700 text-white"
+            >
               {submitting ? (
                 <>
                   <SpinnerIcon className="w-4 h-4 animate-spin mr-2" />

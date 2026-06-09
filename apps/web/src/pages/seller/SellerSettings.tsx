@@ -108,7 +108,7 @@ export const SellerSettings: React.FC = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-zinc-800 tracking-tight">
           Shop Settings
