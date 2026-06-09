@@ -24,6 +24,7 @@ import walletRouter from "./wallet.routes.js";
 import adsRouter from "./ads.routes.js";
 import adminSettlementRouter from "./admin_settlement.routes.js";
 import logRouter from "./log.routes.js";
+import emailRouter from "./email.routes.js";
 
 const router = Router();
 
@@ -53,5 +54,6 @@ router.use("/admin-settlements", adminSettlementRouter);
 router.use("/wallet", walletRouter);
 router.use("/ads", adsRouter);
 router.use("/logs", logRouter);
+router.use("/email", emailRouter);
 
 export default router;
