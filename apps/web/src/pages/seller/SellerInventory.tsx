@@ -238,7 +238,7 @@ export const SellerInventory: React.FC = () => {
                 <th className="px-6 py-3.5">SKU / Item</th>
                 <th className="px-6 py-3.5">Price</th>
                 <th className="px-6 py-3.5">Stock Level</th>
-                <th className="px-6 py-3.5">WarningIcon Alert</th>
+                <th className="px-6 py-3.5">Warning Alert</th>
                 <th className="px-6 py-3.5 text-right">Actions</th>
               </tr>
             </thead>

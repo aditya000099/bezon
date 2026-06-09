@@ -77,7 +77,7 @@ export const SellerWallet: React.FC = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-zinc-900">
-            WalletIcon & Earnings
+            Wallet & Earnings
           </h1>
           <p className="text-zinc-500 text-sm mt-1">
             Manage your payouts and ad spends
@@ -86,7 +86,7 @@ export const SellerWallet: React.FC = () => {
       </div>
 
       {/* Balance Card */}
-      <Card className="bg-gradient-to-br from-zinc-900 to-zinc-800 text-white border-0 shadow-lg relative overflow-hidden">
+      <Card className="bg-linear-to-br from-zinc-900 to-zinc-800 text-white border-0 shadow-lg relative overflow-hidden">
         <div className="absolute top-0 right-0 p-6 opacity-10">
           <WalletIcon weight="duotone" className="w-32 h-32" />
         </div>

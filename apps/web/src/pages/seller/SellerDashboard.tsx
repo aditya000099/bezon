@@ -55,7 +55,7 @@ export const SellerDashboard: React.FC = () => {
     <div className="flex flex-col gap-6">
       {/* Metric cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="bg-white border border-zinc-200 shadow-sm flex items-center justify-between p-6">
+        <Card className="bg-white border border-[#EAE4DC] shadow-none flex items-center justify-between p-6">
           <div className="space-y-1">
             <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
               Total Revenue
@@ -69,7 +69,7 @@ export const SellerDashboard: React.FC = () => {
           </div>
         </Card>
 
-        <Card className="bg-white border border-zinc-200 shadow-sm flex items-center justify-between p-6">
+        <Card className="bg-white border border-[#EAE4DC] shadow-none flex items-center justify-between p-6">
           <div className="space-y-1">
             <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
               Incoming Orders
@@ -86,7 +86,7 @@ export const SellerDashboard: React.FC = () => {
           </div>
         </Card>
 
-        <Card className="bg-white border border-zinc-200 shadow-sm flex items-center justify-between p-6">
+        <Card className="bg-white border border-[#EAE4DC] shadow-none flex items-center justify-between p-6">
           <div className="space-y-1">
             <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
               Pending Settlements
@@ -103,7 +103,7 @@ export const SellerDashboard: React.FC = () => {
           </div>
         </Card>
 
-        <Card className="bg-white border border-zinc-200 shadow-sm flex items-center justify-between p-6">
+        <Card className="bg-white border border-[#EAE4DC] shadow-none flex items-center justify-between p-6">
           <div className="space-y-1">
             <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
               Low Stock Alerts
@@ -122,8 +122,8 @@ export const SellerDashboard: React.FC = () => {
       </div>
 
       {/* Main Panel */}
-      <Card className="bg-white border border-zinc-200 shadow-sm p-6 mb-6">
-        <CardHeader className="p-0 pb-3 border-b border-zinc-100">
+      <Card className="bg-white border border-[#EAE4DC] shadow-none p-6 mb-6">
+        <CardHeader className="p-0 pb-3 border-b border-[#EAE4DC]">
           <CardTitle className="text-lg font-bold text-zinc-800">
             Shop Performance
           </CardTitle>
@@ -135,8 +135,8 @@ export const SellerDashboard: React.FC = () => {
       </Card>
 
       {/* Returns Operations */}
-      <Card className="bg-white border border-zinc-200 shadow-sm p-6">
-        <CardHeader className="p-0 pb-3 border-b border-zinc-100">
+      <Card className="bg-white border border-[#EAE4DC] shadow-none p-6">
+        <CardHeader className="p-0 pb-3 border-b border-[#EAE4DC]">
           <CardTitle className="text-lg font-bold text-zinc-800">
             Returns Operations
           </CardTitle>

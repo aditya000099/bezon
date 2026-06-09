@@ -5,7 +5,7 @@ import {
   PlusIcon,
   PencilSimpleIcon,
   TrashIcon,
-  Image as ImageIcon,
+  ImageIcon,
   SpinnerIcon,
   SparkleIcon,
 } from "@phosphor-icons/react";

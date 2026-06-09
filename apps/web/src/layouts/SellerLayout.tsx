@@ -1,10 +1,10 @@
-import { logger } from "@/utils/logger";
+import { logger } from '@/utils/logger';
 // import { Button } from '@bezon/ui';
-import React, { useState, useEffect, useRef } from "react";
-import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import api from "../lib/api";
-import { API_ENDPOINTS } from "../config/api.config";
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import api from '../lib/api';
+import { API_ENDPOINTS } from '../config/api.config';
 import {
   SquaresFourIcon,
   ShoppingBagIcon,
@@ -20,7 +20,9 @@ import {
   ArrowSquareOutIcon,
   WalletIcon,
   MegaphoneIcon,
-} from "@phosphor-icons/react";
+  ListIcon,
+} from '@phosphor-icons/react';
+import { Sheet, SheetContent, SheetTrigger } from '@bezon/ui';
 export const SellerLayout: React.FC = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
@@ -40,8 +42,8 @@ export const SellerLayout: React.FC = () => {
         setShowNotifications(false);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const fetchUnreadCount = async () => {
@@ -51,7 +53,7 @@ export const SellerLayout: React.FC = () => {
         setUnreadCount(res.data.data?.count ?? res.data.data ?? 0);
       }
     } catch (err) {
-      logger.error("Failed to fetch unread count", err);
+      logger.error('Failed to fetch unread count', err);
     }
   };
 
@@ -63,7 +65,7 @@ export const SellerLayout: React.FC = () => {
         setNotifications(res.data.data.notifications || []);
       }
     } catch (err) {
-      logger.error("Failed to fetch notifications", err);
+      logger.error('Failed to fetch notifications', err);
     } finally {
       setNotificationsLoading(false);
     }
@@ -84,7 +86,7 @@ export const SellerLayout: React.FC = () => {
           prev.map((n) => (n.id === notif.id ? { ...n, isRead: true } : n)),
         );
       } catch (err) {
-        logger.error("Failed to mark as read", err);
+        logger.error('Failed to mark as read', err);
       }
     }
     setShowNotifications(false);
@@ -95,38 +97,38 @@ export const SellerLayout: React.FC = () => {
 
   const markAllAsRead = async () => {
     try {
-      await api.patch("/api/v1/notifications/read-all");
+      await api.patch('/api/v1/notifications/read-all');
       setUnreadCount(0);
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
     } catch (err) {
-      logger.error("Failed to mark all as read", err);
+      logger.error('Failed to mark all as read', err);
     }
   };
 
   const links = [
-    { to: "/seller", label: "Dashboard", icon: SquaresFourIcon },
-    { to: "/seller/products", label: "My Products", icon: ShoppingBagIcon },
-    { to: "/seller/coupons", label: "Coupons", icon: TagIcon },
-    { to: "/seller/wallet", label: "WalletIcon", icon: WalletIcon },
-    { to: "/seller/ads", label: "Ads", icon: MegaphoneIcon },
-    { to: "/seller/qa", label: "Q&A", icon: ChatTeardropTextIcon },
-    { to: "/seller/orders", label: "Order Queue", icon: ClipboardTextIcon },
-    { to: "/seller/returns", label: "Returns", icon: ArrowSquareOutIcon },
-    { to: "/seller/inventory", label: "Inventory", icon: PackageIcon },
-    { to: "/seller/settings", label: "Shop", icon: GearIcon },
+    { to: '/seller', label: 'Dashboard', icon: SquaresFourIcon },
+    { to: '/seller/products', label: 'My Products', icon: ShoppingBagIcon },
+    { to: '/seller/coupons', label: 'Coupons', icon: TagIcon },
+    { to: '/seller/wallet', label: 'Wallet', icon: WalletIcon },
+    { to: '/seller/ads', label: 'Ads', icon: MegaphoneIcon },
+    { to: '/seller/qa', label: 'Q&A', icon: ChatTeardropTextIcon },
+    { to: '/seller/orders', label: 'Order Queue', icon: ClipboardTextIcon },
+    { to: '/seller/returns', label: 'Returns', icon: ArrowSquareOutIcon },
+    { to: '/seller/inventory', label: 'Inventory', icon: PackageIcon },
+    { to: '/seller/settings', label: 'Shop', icon: GearIcon },
   ];
 
   return (
-    <div className="h-screen bg-zinc-50 flex overflow-hidden">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-zinc-200 flex flex-col shrink-0 h-full">
+    <div className="h-screen bg-[#f5f5f5] flex overflow-hidden font-sans">
+      {/* Desktop Sidebar */}
+      <aside className="hidden md:flex w-64 bg-[#ffffff] border-r border-[#EAE4DC] flex-col shrink-0 h-full">
         <div className="h-16 flex items-center px-6 border-b border-zinc-200 gap-2 overflow-hidden">
           <StorefrontIcon className="h-6 w-6 text-primary shrink-0" />
           <span
             className="font-bold text-lg text-zinc-800 truncate"
-            title={user?.seller?.shopName || "Bezon Seller"}
+            title={user?.seller?.shopName || 'Bezon Seller'}
           >
-            {user?.seller?.shopName || "Bezon Seller"}
+            {user?.seller?.shopName || 'Bezon Seller'}
           </span>
         </div>
         <nav className="flex-1 px-4 py-6 flex flex-col gap-1">
@@ -134,16 +136,16 @@ export const SellerLayout: React.FC = () => {
             const Icon = link.icon;
             const isActive =
               location.pathname === link.to ||
-              (link.to === "/seller/products" &&
-                location.pathname.startsWith("/seller/add-product"));
+              (link.to === '/seller/products' &&
+                location.pathname.startsWith('/seller/add-product'));
             return (
               <Link
                 key={link.to}
                 to={link.to}
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
                   isActive
-                    ? "bg-primary/10 text-primary"
-                    : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-800"
+                    ? 'bg-primary/10 text-primary'
+                    : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-800'
                 }`}
               >
                 <Icon className="h-5 w-5" />
@@ -166,8 +168,64 @@ export const SellerLayout: React.FC = () => {
       {/* Main Panel */}
       <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
         {/* Top Header */}
-        <header className="h-16 bg-white border-b border-zinc-200 flex items-center justify-between px-8">
-          <h2 className="text-xl font-bold text-zinc-800">Seller Dashboard</h2>
+        <header className="h-16 bg-[#ffffff] border-b border-[#EAE4DC] flex items-center justify-between px-4 md:px-8">
+          <div className="flex items-center gap-3">
+            <div className="md:hidden">
+              <Sheet>
+                <SheetTrigger asChild>
+                  <button className="p-2 -ml-2 text-zinc-600 hover:text-zinc-900 focus:outline-none">
+                    <ListIcon className="h-6 w-6" />
+                  </button>
+                </SheetTrigger>
+                <SheetContent
+                  side="left"
+                  className="p-0 w-64 flex flex-col bg-white"
+                >
+                  <div className="h-16 flex items-center px-6 border-b border-[#EAE4DC] gap-2">
+                    <StorefrontIcon className="h-6 w-6 text-primary shrink-0" />
+                    <span className="font-bold text-lg text-zinc-800 truncate">
+                      {user?.seller?.shopName || 'Bezon Seller'}
+                    </span>
+                  </div>
+                  <nav className="flex-1 px-4 py-6 flex flex-col gap-1 overflow-y-auto">
+                    {links.map((link) => {
+                      const Icon = link.icon;
+                      const isActive =
+                        location.pathname === link.to ||
+                        (link.to === '/seller/products' &&
+                          location.pathname.startsWith('/seller/add-product'));
+                      return (
+                        <Link
+                          key={link.to}
+                          to={link.to}
+                          className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                            isActive
+                              ? 'bg-primary/10 text-primary'
+                              : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-800'
+                          }`}
+                        >
+                          <Icon className="h-5 w-5" />
+                          <span>{link.label}</span>
+                        </Link>
+                      );
+                    })}
+                  </nav>
+                  <div className="p-4 border-t border-[#EAE4DC]">
+                    <button
+                      onClick={logout}
+                      className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-zinc-600 hover:bg-rose-50 hover:text-rose-600 transition-colors"
+                    >
+                      <SignOutIcon className="h-5 w-5" />
+                      <span>Logout</span>
+                    </button>
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
+            <h2 className="text-xl font-bold text-zinc-800">
+              Seller Dashboard
+            </h2>
+          </div>
           <div className="flex items-center gap-4">
             <div className="relative" ref={dropdownRef}>
               <button
@@ -186,7 +244,7 @@ export const SellerLayout: React.FC = () => {
                 <BellIcon className="h-5 w-5" />
                 {unreadCount > 0 && (
                   <span className="absolute -top-0.5 -right-0.5 h-4 min-w-4 px-1 flex items-center justify-center rounded-full bg-rose-500 text-white text-[10px] font-bold leading-none">
-                    {unreadCount > 99 ? "99+" : unreadCount}
+                    {unreadCount > 99 ? '99+' : unreadCount}
                   </span>
                 )}
               </button>
@@ -220,11 +278,11 @@ export const SellerLayout: React.FC = () => {
                           <div
                             key={notif.id}
                             onClick={() => handleNotificationClick(notif)}
-                            className={`p-4 cursor-pointer transition-colors hover:bg-zinc-50 ${!notif.isRead ? "bg-teal-50/50" : ""}`}
+                            className={`p-4 cursor-pointer transition-colors hover:bg-zinc-50 ${!notif.isRead ? 'bg-teal-50/50' : ''}`}
                           >
                             <div className="flex justify-between items-start mb-1">
                               <h4
-                                className={`text-sm ${!notif.isRead ? "font-bold text-zinc-900" : "font-medium text-zinc-700"}`}
+                                className={`text-sm ${!notif.isRead ? 'font-bold text-zinc-900' : 'font-medium text-zinc-700'}`}
                               >
                                 {notif.title}
                               </h4>
@@ -239,10 +297,10 @@ export const SellerLayout: React.FC = () => {
                               {new Date(notif.createdAt).toLocaleString(
                                 undefined,
                                 {
-                                  month: "short",
-                                  day: "numeric",
-                                  hour: "2-digit",
-                                  minute: "2-digit",
+                                  month: 'short',
+                                  day: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit',
                                 },
                               )}
                             </span>

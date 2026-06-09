@@ -103,7 +103,7 @@ export const AdminWallets: React.FC = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-zinc-900">
-            WalletIcon Management
+            Wallet Management
           </h1>
           <p className="text-zinc-500 text-sm mt-1">
             Monitor and manage platform wallets

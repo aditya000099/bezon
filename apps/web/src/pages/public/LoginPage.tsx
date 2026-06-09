@@ -41,8 +41,18 @@ export const LoginPage: React.FC = () => {
       else if (user.role === "seller") redirectPath = "/seller";
       else if (user.role === "delivery") redirectPath = "/delivery";
 
-      const finalRedirect =
+      let finalRedirect =
         from === "/" || from === "/login" ? redirectPath : from;
+
+      // Validate redirect path against user role to prevent cross-role redirects from history
+      if (
+        (user.role !== "admin" && finalRedirect.startsWith("/admin")) ||
+        (user.role !== "seller" && finalRedirect.startsWith("/seller")) ||
+        (user.role !== "delivery" && finalRedirect.startsWith("/delivery"))
+      ) {
+        finalRedirect = redirectPath;
+      }
+
       navigate(finalRedirect, { replace: true });
     } catch (err: any) {
       toast.error(

@@ -67,7 +67,7 @@ export const AdminUsers: React.FC = () => {
       <div className="flex flex-col sm:flex-row justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-zinc-800 tracking-tight">
-            Platform UsersIcon
+            Platform Users
           </h1>
           <p className="text-sm text-zinc-500 mt-1">
             Manage user accounts and view behavioral insights.
@@ -86,7 +86,7 @@ export const AdminUsers: React.FC = () => {
                 {roleCounts.total}
               </span>
               <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider mt-1">
-                Total UsersIcon
+                Total Users
               </span>
             </CardContent>
           </Card>
@@ -150,7 +150,7 @@ export const AdminUsers: React.FC = () => {
           <div className="relative w-full sm:w-80">
             <MagnifyingGlassIcon className="absolute left-3 top-2.5 h-4 w-4 text-zinc-400" />
             <Input
-              placeholder="MagnifyingGlassIcon users by name or email..."
+              placeholder="Search users by name or email..."
               className="pl-9 bg-white"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}

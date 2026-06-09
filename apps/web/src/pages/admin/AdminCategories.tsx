@@ -1,5 +1,5 @@
-import { Button, Input, Card } from "@bezon/ui";
-import React, { useState, useEffect } from "react";
+import { Button, Input, Card } from '@bezon/ui';
+import React, { useState, useEffect } from 'react';
 import {
   PlusIcon,
   PencilSimpleIcon,
@@ -10,10 +10,10 @@ import {
   ToggleRightIcon,
   MagnifyingGlassIcon,
   PackageIcon,
-} from "@phosphor-icons/react";
-import api from "../../lib/api";
-import { API_ENDPOINTS } from "../../config/api.config";
-import { useToast } from "../../context/ToastContext";
+} from '@phosphor-icons/react';
+import api from '../../lib/api';
+import { API_ENDPOINTS } from '../../config/api.config';
+import { useToast } from '../../context/ToastContext';
 
 interface Category {
   id: string;
@@ -32,9 +32,9 @@ interface Category {
 }
 
 const defaultForm = {
-  name: "",
-  description: "",
-  parentId: "",
+  name: '',
+  description: '',
+  parentId: '',
   isActive: true,
 };
 
@@ -42,10 +42,10 @@ export const AdminCategories: React.FC = () => {
   const { toast } = useToast();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [dialogMode, setDialogMode] = useState<"create" | "edit">("create");
+  const [dialogMode, setDialogMode] = useState<'create' | 'edit'>('create');
   const [currentCategoryId, setCurrentCategoryId] = useState<string | null>(
     null,
   );
@@ -65,7 +65,7 @@ export const AdminCategories: React.FC = () => {
         setCategories(res.data.data);
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Could not fetch categories.");
+      toast.error(err.response?.data?.message || 'Could not fetch categories.');
     } finally {
       setLoading(false);
     }
@@ -76,19 +76,19 @@ export const AdminCategories: React.FC = () => {
   }, []);
 
   const handleOpenCreate = () => {
-    setDialogMode("create");
+    setDialogMode('create');
     setCurrentCategoryId(null);
     setForm(defaultForm);
     setIsDialogOpen(true);
   };
 
   const handleOpenEdit = (category: Category) => {
-    setDialogMode("edit");
+    setDialogMode('edit');
     setCurrentCategoryId(category.id);
     setForm({
       name: category.name,
-      description: category.description || "",
-      parentId: category.parentId || "",
+      description: category.description || '',
+      parentId: category.parentId || '',
       isActive: category.isActive,
     });
     setIsDialogOpen(true);
@@ -97,7 +97,7 @@ export const AdminCategories: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name.trim()) {
-      toast.error("Category name is required.");
+      toast.error('Category name is required.');
       return;
     }
 
@@ -110,10 +110,10 @@ export const AdminCategories: React.FC = () => {
         isActive: form.isActive,
       };
 
-      if (dialogMode === "create") {
+      if (dialogMode === 'create') {
         const res = await api.post(API_ENDPOINTS.categories.create, payload);
         if (res.data.success) {
-          toast.success("Category created successfully.");
+          toast.success('Category created successfully.');
           setIsDialogOpen(false);
           fetchCategories();
         }
@@ -123,13 +123,13 @@ export const AdminCategories: React.FC = () => {
           payload,
         );
         if (res.data.success) {
-          toast.success("Category updated successfully.");
+          toast.success('Category updated successfully.');
           setIsDialogOpen(false);
           fetchCategories();
         }
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Failed to save category.");
+      toast.error(err.response?.data?.message || 'Failed to save category.');
     } finally {
       setSubmitting(false);
     }
@@ -138,22 +138,22 @@ export const AdminCategories: React.FC = () => {
   const handleDelete = async (category: Category) => {
     if (category._count.products > 0) {
       toast.error(
-        "Cannot delete this category because it has products assigned. Please deactivate it instead.",
+        'Cannot delete this category because it has products assigned. Please deactivate it instead.',
       );
       return;
     }
 
-    if (!confirm("Are you sure you want to delete this category?")) return;
+    if (!confirm('Are you sure you want to delete this category?')) return;
     try {
       const res = await api.delete(
         API_ENDPOINTS.categories.delete(category.id),
       );
       if (res.data.success) {
-        toast.success("Category deleted.");
+        toast.success('Category deleted.');
         fetchCategories();
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Could not delete category.");
+      toast.error(err.response?.data?.message || 'Could not delete category.');
     }
   };
 
@@ -164,12 +164,12 @@ export const AdminCategories: React.FC = () => {
       });
       if (res.data.success) {
         toast.success(
-          `Category ${!category.isActive ? "activated" : "deactivated"} successfully.`,
+          `Category ${!category.isActive ? 'activated' : 'deactivated'} successfully.`,
         );
         fetchCategories();
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Failed to toggle status.");
+      toast.error(err.response?.data?.message || 'Failed to toggle status.');
     }
   };
 
@@ -182,7 +182,7 @@ export const AdminCategories: React.FC = () => {
       <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-zinc-800 tracking-tight flex items-center gap-2">
-            <ListIcon className="h-6 w-6 text-primary" /> Categories Management
+            Categories Management
           </h1>
           <p className="text-sm text-zinc-500 mt-1">
             Organize products and control category availability across the
@@ -271,7 +271,7 @@ export const AdminCategories: React.FC = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-zinc-600 font-medium">
-                      {category.parent ? category.parent.name : "—"}
+                      {category.parent ? category.parent.name : '—'}
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-1.5 font-bold text-zinc-700">
@@ -284,8 +284,8 @@ export const AdminCategories: React.FC = () => {
                         onClick={() => handleToggleStatus(category)}
                         className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition-colors border ${
                           category.isActive
-                            ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
-                            : "bg-zinc-50 text-zinc-500 border-zinc-200 hover:bg-zinc-100"
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+                            : 'bg-zinc-50 text-zinc-500 border-zinc-200 hover:bg-zinc-100'
                         }`}
                       >
                         {category.isActive ? (
@@ -332,9 +332,9 @@ export const AdminCategories: React.FC = () => {
           <div className="bg-white w-full max-w-md rounded-xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
             <div className="p-6 border-b border-zinc-100">
               <h2 className="text-xl font-bold text-zinc-800">
-                {dialogMode === "create"
-                  ? "Create New Category"
-                  : "Edit Category"}
+                {dialogMode === 'create'
+                  ? 'Create New Category'
+                  : 'Edit Category'}
               </h2>
               <p className="text-zinc-500 text-sm mt-1">
                 Categories allow sellers to classify their products effectively.
@@ -353,7 +353,7 @@ export const AdminCategories: React.FC = () => {
                   </label>
                   <Input
                     value={form.name}
-                    onChange={(e) => updateForm("name", e.target.value)}
+                    onChange={(e) => updateForm('name', e.target.value)}
                     placeholder="e.g. Electronics"
                     required
                   />
@@ -367,7 +367,7 @@ export const AdminCategories: React.FC = () => {
                     className="flex min-h-20 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-2"
                     placeholder="Brief description of what goes in this category..."
                     value={form.description}
-                    onChange={(e) => updateForm("description", e.target.value)}
+                    onChange={(e) => updateForm('description', e.target.value)}
                   />
                 </div>
 
@@ -377,7 +377,7 @@ export const AdminCategories: React.FC = () => {
                   </label>
                   <select
                     value={form.parentId}
-                    onChange={(e) => updateForm("parentId", e.target.value)}
+                    onChange={(e) => updateForm('parentId', e.target.value)}
                     className="w-full bg-white border border-zinc-200 rounded-lg text-sm px-3 py-2 outline-none font-semibold text-zinc-600 cursor-pointer h-10 focus:ring-2 focus:ring-zinc-900"
                   >
                     <option value="">None (Top-Level)</option>
@@ -400,11 +400,11 @@ export const AdminCategories: React.FC = () => {
                   </div>
                   <button
                     type="button"
-                    onClick={() => updateForm("isActive", !form.isActive)}
+                    onClick={() => updateForm('isActive', !form.isActive)}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-colors ${
                       form.isActive
-                        ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200"
-                        : "bg-zinc-200 text-zinc-600 hover:bg-zinc-300"
+                        ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                        : 'bg-zinc-200 text-zinc-600 hover:bg-zinc-300'
                     }`}
                   >
                     {form.isActive ? (
@@ -433,10 +433,10 @@ export const AdminCategories: React.FC = () => {
               <Button form="category-form" type="submit" disabled={submitting}>
                 {submitting ? (
                   <SpinnerIcon className="h-4 w-4 animate-spin" />
-                ) : dialogMode === "create" ? (
-                  "Create Category"
+                ) : dialogMode === 'create' ? (
+                  'Create Category'
                 ) : (
-                  "Save Changes"
+                  'Save Changes'
                 )}
               </Button>
             </div>
