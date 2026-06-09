@@ -1,5 +1,5 @@
 import { Button } from '@bezon/ui';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import {
@@ -9,13 +9,10 @@ import {
   HeartIcon,
   FileTextIcon,
   ShieldIcon,
-  ShieldWarningIcon,
-  SignOutIcon,
   CaretRightIcon,
-  TruckIcon,
 } from '@phosphor-icons/react';
 export const ProfilePage: React.FC = () => {
-  const { user, logout, checkAuth } = useAuth();
+  const { user } = useAuth();
 
   return (
     <div className="max-w-4xl mx-auto flex flex-col gap-8">
