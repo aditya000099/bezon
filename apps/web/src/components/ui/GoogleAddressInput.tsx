@@ -1,8 +1,8 @@
 import { logger } from "@/utils/logger";
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from "react";
 import { Input } from "@bezon/ui";
-import { SpinnerIcon, MapPinIcon } from '@phosphor-icons/react';
-import api from '../../lib/api';
+import { SpinnerIcon, MapPinIcon } from "@phosphor-icons/react";
+import api from "../../lib/api";
 
 interface SelectedAddress {
   addressLine: string;
@@ -24,7 +24,7 @@ interface GoogleAddressInputProps {
 let scriptLoadingPromise: Promise<void> | null = null;
 
 function loadGoogleMapsScript(apiKey: string): Promise<void> {
-  if (typeof window !== 'undefined' && (window as any).google?.maps?.places) {
+  if (typeof window !== "undefined" && (window as any).google?.maps?.places) {
     return Promise.resolve();
   }
   if (scriptLoadingPromise) {
@@ -32,7 +32,7 @@ function loadGoogleMapsScript(apiKey: string): Promise<void> {
   }
 
   scriptLoadingPromise = new Promise((resolve, reject) => {
-    const script = document.createElement('script');
+    const script = document.createElement("script");
     script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
     script.async = true;
     script.defer = true;
@@ -49,9 +49,9 @@ function loadGoogleMapsScript(apiKey: string): Promise<void> {
 
 export const GoogleAddressInput: React.FC<GoogleAddressInputProps> = ({
   onAddressSelect,
-  placeholder = 'Search for a location or address...',
-  className = '',
-  defaultValue = '',
+  placeholder = "Search for a location or address...",
+  className = "",
+  defaultValue = "",
 }) => {
   const [loading, setLoading] = useState(false);
   const [inputValue, setInputValue] = useState(defaultValue);
@@ -69,11 +69,11 @@ export const GoogleAddressInput: React.FC<GoogleAddressInputProps> = ({
       try {
         setLoading(true);
         // Fetch API key from configuration endpoint
-        const res = await api.get('/api/v1/config/google-maps-key');
+        const res = await api.get("/api/v1/config/google-maps-key");
         const apiKey = res.data.data.googleMapsApiKey;
 
         if (!apiKey) {
-          console.warn('Google Maps API Key missing in backend configuration.');
+          console.warn("Google Maps API Key missing in backend configuration.");
           setLoading(false);
           return;
         }
@@ -90,80 +90,80 @@ export const GoogleAddressInput: React.FC<GoogleAddressInputProps> = ({
         autocompleteRef.current = new google.maps.places.Autocomplete(
           inputRef.current,
           {
-            types: ['geocode', 'establishment'],
+            types: ["geocode", "establishment"],
             fields: [
-              'address_components',
-              'geometry',
-              'formatted_address',
-              'name',
+              "address_components",
+              "geometry",
+              "formatted_address",
+              "name",
             ],
           },
         );
 
-        autocompleteRef.current.addListener('place_changed', () => {
+        autocompleteRef.current.addListener("place_changed", () => {
           const place = autocompleteRef.current.getPlace();
           if (!place.geometry || !place.geometry.location) {
-            console.warn('No geometry returned for selected place.');
+            console.warn("No geometry returned for selected place.");
             return;
           }
 
           const lat = place.geometry.location.lat();
           const lng = place.geometry.location.lng();
 
-          let streetNumber = '';
-          let route = '';
-          let sublocality = '';
-          let locality = '';
-          let administrativeArea = '';
-          let postalCode = '';
+          let streetNumber = "";
+          let route = "";
+          let sublocality = "";
+          let locality = "";
+          let administrativeArea = "";
+          let postalCode = "";
 
           if (place.address_components) {
             for (const component of place.address_components) {
               const types = component.types;
-              if (types.includes('street_number')) {
+              if (types.includes("street_number")) {
                 streetNumber = component.long_name;
               }
-              if (types.includes('route')) {
+              if (types.includes("route")) {
                 route = component.long_name;
               }
               if (
-                types.includes('sublocality') ||
-                types.includes('sublocality_level_1')
+                types.includes("sublocality") ||
+                types.includes("sublocality_level_1")
               ) {
                 sublocality = component.long_name;
               }
-              if (types.includes('locality')) {
+              if (types.includes("locality")) {
                 locality = component.long_name;
               }
-              if (types.includes('administrative_area_level_1')) {
+              if (types.includes("administrative_area_level_1")) {
                 administrativeArea = component.long_name;
               }
-              if (types.includes('postal_code')) {
+              if (types.includes("postal_code")) {
                 postalCode = component.long_name;
               }
             }
           }
 
           // Build clean street address line
-          let addressParts = [];
+          const addressParts = [];
           if (streetNumber) addressParts.push(streetNumber);
           if (route) addressParts.push(route);
           if (sublocality && addressParts.length < 2)
             addressParts.push(sublocality);
 
-          let addressLine = addressParts.join(', ');
+          let addressLine = addressParts.join(", ");
           if (!addressLine) {
-            addressLine = place.name || '';
+            addressLine = place.name || "";
           }
 
-          const formattedAddress = place.formatted_address || '';
+          const formattedAddress = place.formatted_address || "";
           setInputValue(formattedAddress);
 
           onAddressSelect({
             addressLine,
-            city: locality || '',
-            state: administrativeArea || '',
-            pincode: postalCode || '',
+            city: locality || "",
+            state: administrativeArea || "",
+            pincode: postalCode || "",
             lat,
             lng,
             formattedAddress,
@@ -172,7 +172,7 @@ export const GoogleAddressInput: React.FC<GoogleAddressInputProps> = ({
 
         setLoading(false);
       } catch (err) {
-        logger.error('Failed to initialize Google Maps Autocomplete:', err);
+        logger.error("Failed to initialize Google Maps Autocomplete:", err);
         setLoading(false);
       }
     };

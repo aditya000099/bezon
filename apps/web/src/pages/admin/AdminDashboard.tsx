@@ -1,4 +1,11 @@
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button } from '@bezon/ui';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  Button,
+} from "@bezon/ui";
 import { formatStatusText } from "../../utils/statusFormatter";
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
@@ -8,21 +15,18 @@ import {
   ShieldCheckIcon,
   CurrencyInrIcon,
   ActivityIcon,
-  FileTextIcon,
   WarningCircleIcon,
   DatabaseIcon,
   HardDrivesIcon,
   ClockIcon,
   ListDashesIcon,
   ArrowRightIcon,
-  PackageIcon,
   ArrowCounterClockwiseIcon,
   SpinnerIcon,
 } from "@phosphor-icons/react";
-;
-;
 import { useToast } from "../../context/ToastContext";
 import api from "../../lib/api";
+import { logger } from "@/utils/logger";
 
 export const AdminDashboard: React.FC = () => {
   const { toast } = useToast();
@@ -246,6 +250,7 @@ export const AdminDashboard: React.FC = () => {
           activityList.length > 0 ? activityList.slice(0, 5) : [],
         );
       } catch (err) {
+        logger.error(err);
         toast.error("Failed to load dashboard metrics");
       } finally {
         setLoadingApps(false);
@@ -425,7 +430,8 @@ export const AdminDashboard: React.FC = () => {
                 size="sm"
                 className="font-semibold text-xs border-zinc-300"
               >
-                View Settlement Queue <ArrowRightIcon className="ml-2 h-3 w-3" />
+                View Settlement Queue{" "}
+                <ArrowRightIcon className="ml-2 h-3 w-3" />
               </Button>
             </Link>
           </div>

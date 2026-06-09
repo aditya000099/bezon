@@ -1,12 +1,21 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, Button, Input, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@bezon/ui';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@bezon/ui";
 import React, { useState, useEffect } from "react";
-;
-;
-;
 import api from "../../lib/api";
 import { useToast } from "../../context/ToastContext";
-;
-
+import { logger } from "@/utils/logger";
 export const AdminSellers: React.FC = () => {
   const [applications, setApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -26,6 +35,7 @@ export const AdminSellers: React.FC = () => {
         setApplications(response.data.data);
       }
     } catch (err: any) {
+      logger.error(err);
       toast.error("Failed to load applications");
     } finally {
       setLoading(false);

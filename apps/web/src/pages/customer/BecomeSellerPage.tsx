@@ -1,14 +1,19 @@
-import { Button, Input, Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@bezon/ui';
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { useToast } from '../../context/ToastContext';
-import api from '../../lib/api';
-import { API_ENDPOINTS } from '../../config/api.config';
-;
-;
-;
-import { ShieldWarningIcon } from '@phosphor-icons/react';
+import {
+  Button,
+  Input,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@bezon/ui";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { useToast } from "../../context/ToastContext";
+import api from "../../lib/api";
+import { ShieldWarningIcon } from "@phosphor-icons/react";
 
 export const BecomeSellerPage: React.FC = () => {
   const { user, checkAuth } = useAuth();
@@ -17,37 +22,37 @@ export const BecomeSellerPage: React.FC = () => {
 
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    shopName: '',
-    shopSlug: '',
-    description: '',
-    gstin: '',
-    panNumber: '',
-    addressLine: '',
-    city: '',
-    state: '',
-    pincode: '',
+    shopName: "",
+    shopSlug: "",
+    description: "",
+    gstin: "",
+    panNumber: "",
+    addressLine: "",
+    city: "",
+    state: "",
+    pincode: "",
   });
 
   useEffect(() => {
     if (user?.seller) {
       setFormData({
-        shopName: user.seller.shopName || '',
-        shopSlug: user.seller.shopSlug || '',
-        description: user.seller.description || '',
-        gstin: user.seller.gstin || '',
-        panNumber: user.seller.panNumber || '',
-        addressLine: user.seller.addressLine || '',
-        city: user.seller.city || '',
-        state: user.seller.state || '',
-        pincode: user.seller.pincode || '',
+        shopName: user.seller.shopName || "",
+        shopSlug: user.seller.shopSlug || "",
+        description: user.seller.description || "",
+        gstin: user.seller.gstin || "",
+        panNumber: user.seller.panNumber || "",
+        addressLine: user.seller.addressLine || "",
+        city: user.seller.city || "",
+        state: user.seller.state || "",
+        pincode: user.seller.pincode || "",
       });
     }
   }, [user]);
 
   // If already approved, redirect to seller dashboard
   useEffect(() => {
-    if (user?.seller?.status === 'approved') {
-      navigate('/seller');
+    if (user?.seller?.status === "approved") {
+      navigate("/seller");
     }
   }, [user, navigate]);
 
@@ -69,8 +74,8 @@ export const BecomeSellerPage: React.FC = () => {
         ...prev,
         shopSlug: formData.shopName
           .toLowerCase()
-          .replace(/[^a-z0-9]+/g, '-')
-          .replace(/(^-|-$)+/g, ''),
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/(^-|-$)+/g, ""),
       }));
     }
   };
@@ -79,22 +84,22 @@ export const BecomeSellerPage: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await api.post('/api/v1/applications/apply', formData);
+      const response = await api.post("/api/v1/applications/apply", formData);
       if (response.data.success) {
         toast.success(response.data.message);
         await checkAuth(); // Refresh user data to get updated seller status
-        navigate('/profile');
+        navigate("/profile");
       }
     } catch (err: any) {
       toast.error(
-        err.response?.data?.message || 'Failed to submit application.',
+        err.response?.data?.message || "Failed to submit application.",
       );
     } finally {
       setLoading(false);
     }
   };
 
-  if (user?.seller?.status === 'suspended') {
+  if (user?.seller?.status === "suspended") {
     return (
       <div className="max-w-2xl mx-auto py-10 px-4">
         <Card className="border-rose-100 bg-rose-50/10 shadow-sm">
@@ -119,7 +124,7 @@ export const BecomeSellerPage: React.FC = () => {
           </CardContent>
           <CardFooter>
             <Button
-              onClick={() => navigate('/profile')}
+              onClick={() => navigate("/profile")}
               variant="outline"
               className="w-full"
             >
@@ -131,7 +136,7 @@ export const BecomeSellerPage: React.FC = () => {
     );
   }
 
-  if (user?.seller?.status === 'pending') {
+  if (user?.seller?.status === "pending") {
     return (
       <div className="max-w-2xl mx-auto py-10 px-4">
         <Card>
@@ -149,7 +154,7 @@ export const BecomeSellerPage: React.FC = () => {
             </p>
           </CardContent>
           <CardFooter>
-            <Button onClick={() => navigate('/profile')} variant="outline">
+            <Button onClick={() => navigate("/profile")} variant="outline">
               Return to Profile
             </Button>
           </CardFooter>
@@ -164,11 +169,11 @@ export const BecomeSellerPage: React.FC = () => {
         <CardHeader>
           <CardTitle className="text-2xl">Become a Seller</CardTitle>
           <CardDescription>
-            {user?.seller?.status === 'rejected'
-              ? 'Your previous application was rejected. You can re-apply by submitting updated information below.'
-              : 'Fill out the form below to apply to sell your products on our platform.'}
+            {user?.seller?.status === "rejected"
+              ? "Your previous application was rejected. You can re-apply by submitting updated information below."
+              : "Fill out the form below to apply to sell your products on our platform."}
           </CardDescription>
-          {user?.seller?.status === 'rejected' &&
+          {user?.seller?.status === "rejected" &&
             user?.seller?.rejectionReason && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mt-4">
                 <span className="font-semibold">Rejection Reason: </span>
@@ -301,12 +306,12 @@ export const BecomeSellerPage: React.FC = () => {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate('/profile')}
+                onClick={() => navigate("/profile")}
               >
                 Cancel
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? 'Submitting...' : 'Submit Application'}
+                {loading ? "Submitting..." : "Submit Application"}
               </Button>
             </div>
           </form>

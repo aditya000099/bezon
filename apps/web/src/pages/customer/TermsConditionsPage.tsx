@@ -1,16 +1,13 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@bezon/ui';
-import React from 'react';
-import { Link } from 'react-router-dom';
 import {
-  ArrowLeftIcon,
-  FileTextIcon,
-  ScalesIcon,
-  BankIcon,
-  ShieldWarningIcon,
-  MedalIcon,
-} from '@phosphor-icons/react';
-;
-
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@bezon/ui";
+import React from "react";
+import { Link } from "react-router-dom";
+import { ArrowLeftIcon, FileTextIcon, ScalesIcon } from "@phosphor-icons/react";
 export const TermsConditionsPage: React.FC = () => {
   return (
     <div className="max-w-3xl mx-auto flex flex-col gap-6">

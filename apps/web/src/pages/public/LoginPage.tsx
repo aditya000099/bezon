@@ -1,31 +1,26 @@
-import { Button, Input } from '@bezon/ui';
-import React, { useState } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { useToast } from '../../context/ToastContext';
-import { loginSchema } from '@bezon/validation';
-;
-;
-
+import { Button, Input } from "@bezon/ui";
+import React, { useState } from "react";
+import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { useToast } from "../../context/ToastContext";
+import { loginSchema } from "@bezon/validation";
 import {
   EnvelopeIcon,
   KeyIcon,
   InfoIcon,
-  ShieldCheckIcon,
-  LightningIcon,
   StorefrontIcon,
-} from '@phosphor-icons/react';
+} from "@phosphor-icons/react";
 
 export const LoginPage: React.FC = () => {
   const { login } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const from = location.state?.from?.pathname || '/';
+  const from = location.state?.from?.pathname || "/";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,20 +34,20 @@ export const LoginPage: React.FC = () => {
     setLoading(true);
     try {
       const user = await login(email, password);
-      toast.success('Successfully logged in!');
+      toast.success("Successfully logged in!");
 
-      let redirectPath = '/';
-      if (user.role === 'admin') redirectPath = '/admin';
-      else if (user.role === 'seller') redirectPath = '/seller';
-      else if (user.role === 'delivery') redirectPath = '/delivery';
+      let redirectPath = "/";
+      if (user.role === "admin") redirectPath = "/admin";
+      else if (user.role === "seller") redirectPath = "/seller";
+      else if (user.role === "delivery") redirectPath = "/delivery";
 
       const finalRedirect =
-        from === '/' || from === '/login' ? redirectPath : from;
+        from === "/" || from === "/login" ? redirectPath : from;
       navigate(finalRedirect, { replace: true });
     } catch (err: any) {
       toast.error(
         err.response?.data?.message ||
-          'Login failed. Please check credentials.',
+          "Login failed. Please check credentials.",
       );
     } finally {
       setLoading(false);
@@ -83,7 +78,8 @@ export const LoginPage: React.FC = () => {
               Your Ultimate Shopping Destination.
             </h1>
             <p className="text-teal-100/70 text-lg leading-relaxed">
-              Discover millions of products, unbeatable deals, and fast delivery—all in one place.
+              Discover millions of products, unbeatable deals, and fast
+              delivery—all in one place.
             </p>
           </div>
 
@@ -166,7 +162,7 @@ export const LoginPage: React.FC = () => {
               className="w-full h-12 font-bold text-base mt-4 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl shadow-lg shadow-zinc-900/10 transition-all active:scale-[0.98]"
               disabled={loading}
             >
-              {loading ? 'Signing in...' : 'Sign In'}
+              {loading ? "Signing in..." : "Sign In"}
             </Button>
           </form>
 
@@ -179,42 +175,42 @@ export const LoginPage: React.FC = () => {
             <div className="grid grid-cols-2 gap-3">
               <button
                 onClick={() =>
-                  fillCredentials('customer1@bezon.app', 'Customer@1234')
+                  fillCredentials("customer1@bezon.app", "Customer@1234")
                 }
                 className="bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 text-zinc-700 text-sm px-4 py-2.5 rounded-xl font-bold transition-colors text-left flex items-center justify-between group"
               >
-                Customer{' '}
+                Customer{" "}
                 <span className="text-[10px] text-zinc-400 font-semibold uppercase opacity-0 group-hover:opacity-100 transition-opacity">
                   Fill
                 </span>
               </button>
               <button
                 onClick={() =>
-                  fillCredentials('seller1@bezon.app', 'Seller@1234')
+                  fillCredentials("seller1@bezon.app", "Seller@1234")
                 }
                 className="bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 text-zinc-700 text-sm px-4 py-2.5 rounded-xl font-bold transition-colors text-left flex items-center justify-between group"
               >
-                Seller{' '}
+                Seller{" "}
                 <span className="text-[10px] text-zinc-400 font-semibold uppercase opacity-0 group-hover:opacity-100 transition-opacity">
                   Fill
                 </span>
               </button>
               <button
                 onClick={() =>
-                  fillCredentials('delivery1@bezon.app', 'Delivery@1234')
+                  fillCredentials("delivery1@bezon.app", "Delivery@1234")
                 }
                 className="bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 text-zinc-700 text-sm px-4 py-2.5 rounded-xl font-bold transition-colors text-left flex items-center justify-between group"
               >
-                Delivery{' '}
+                Delivery{" "}
                 <span className="text-[10px] text-zinc-400 font-semibold uppercase opacity-0 group-hover:opacity-100 transition-opacity">
                   Fill
                 </span>
               </button>
               <button
-                onClick={() => fillCredentials('admin@bezon.app', 'Admin@1234')}
+                onClick={() => fillCredentials("admin@bezon.app", "Admin@1234")}
                 className="bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 text-zinc-700 text-sm px-4 py-2.5 rounded-xl font-bold transition-colors text-left flex items-center justify-between group"
               >
-                Admin{' '}
+                Admin{" "}
                 <span className="text-[10px] text-zinc-400 font-semibold uppercase opacity-0 group-hover:opacity-100 transition-opacity">
                   Fill
                 </span>
@@ -223,7 +219,7 @@ export const LoginPage: React.FC = () => {
           </div>
 
           <p className="text-sm text-zinc-500 text-center mt-8">
-            New to Bezon?{' '}
+            New to Bezon?{" "}
             <Link
               to="/register"
               className="text-teal-700 font-extrabold hover:text-teal-800 transition-colors hover:underline underline-offset-4"

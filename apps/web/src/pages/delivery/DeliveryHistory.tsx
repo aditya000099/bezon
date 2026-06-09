@@ -1,18 +1,16 @@
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@bezon/ui';
-import React, { useEffect, useState } from 'react';
-;
+import { Card, CardHeader, CardContent } from "@bezon/ui";
+import React, { useEffect, useState } from "react";
 import {
   SpinnerIcon,
   CalendarIcon,
-  MapPinIcon,
   PackageIcon,
   CheckCircleIcon,
   XCircleIcon,
   EyeIcon,
-} from '@phosphor-icons/react';
-import api from '../../lib/api';
-import { API_ENDPOINTS } from '../../config/api.config';
-import { useToast } from '../../context/ToastContext';
+} from "@phosphor-icons/react";
+import api from "../../lib/api";
+import { API_ENDPOINTS } from "../../config/api.config";
+import { useToast } from "../../context/ToastContext";
 
 export const DeliveryHistory: React.FC = () => {
   const { toast } = useToast();
@@ -31,28 +29,28 @@ export const DeliveryHistory: React.FC = () => {
         setTrips(res.data.data);
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to load past trips.');
+      toast.error(err.response?.data?.message || "Failed to load past trips.");
     } finally {
       setLoading(false);
     }
   };
 
   const formatDate = (dateStr: string) => {
-    if (!dateStr) return '';
-    return new Date(dateStr).toLocaleDateString('en-IN', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    if (!dateStr) return "";
+    return new Date(dateStr).toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   const formatItemsString = (order: any) => {
-    if (!order || !order.items) return '';
+    if (!order || !order.items) return "";
     return order.items
       .map((i: any) => `${i.qty}x ${i.productTitle}`)
-      .join(', ');
+      .join(", ");
   };
 
   if (loading) {
@@ -85,7 +83,7 @@ export const DeliveryHistory: React.FC = () => {
       ) : (
         <div className="flex flex-col gap-4">
           {trips.map((trip) => {
-            const isSuccess = trip.status === 'delivered';
+            const isSuccess = trip.status === "delivered";
             return (
               <Card
                 key={trip.id}
@@ -99,8 +97,8 @@ export const DeliveryHistory: React.FC = () => {
                     <span
                       className={`text-[9px] font-bold px-2 py-0.5 rounded-full border uppercase tracking-wider flex items-center gap-1 shadow-sm ${
                         isSuccess
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
-                          : 'bg-rose-50 text-rose-700 border-rose-100'
+                          ? "bg-emerald-50 text-emerald-700 border-emerald-100"
+                          : "bg-rose-50 text-rose-700 border-rose-100"
                       }`}
                     >
                       {isSuccess ? (
@@ -135,7 +133,7 @@ export const DeliveryHistory: React.FC = () => {
                         <strong className="text-zinc-700 font-bold block">
                           Pickup Merchant:
                         </strong>
-                        {trip.order?.seller?.shopName} —{' '}
+                        {trip.order?.seller?.shopName} —{" "}
                         {trip.order?.seller?.city}
                       </div>
                     </div>
@@ -145,8 +143,8 @@ export const DeliveryHistory: React.FC = () => {
                         <strong className="text-zinc-700 font-bold block">
                           Drop Address:
                         </strong>
-                        {trip.order?.customer?.name} —{' '}
-                        {trip.order?.addressSnapshot?.line1},{' '}
+                        {trip.order?.customer?.name} —{" "}
+                        {trip.order?.addressSnapshot?.line1},{" "}
                         {trip.order?.addressSnapshot?.city}
                       </div>
                     </div>

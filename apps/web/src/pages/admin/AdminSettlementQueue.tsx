@@ -1,5 +1,5 @@
-import { Card, CardHeader, CardTitle, CardContent, Button, Input } from '@bezon/ui';
-import React, { useState, useEffect } from 'react';
+import { Card, CardContent, Button, Input } from "@bezon/ui";
+import React, { useState, useEffect } from "react";
 import {
   DatabaseIcon,
   MagnifyingGlassIcon,
@@ -8,36 +8,33 @@ import {
   SpinnerIcon,
   CaretLeftIcon,
   CaretRightIcon,
-  ReceiptIcon,
-  DownloadSimpleIcon
-} from '@phosphor-icons/react';
-;
-;
-;
-import api from '../../lib/api';
-import { useToast } from '../../context/ToastContext';
+} from "@phosphor-icons/react";
+import api from "../../lib/api";
+import { useToast } from "../../context/ToastContext";
 
 export const AdminSettlementQueue: React.FC = () => {
   const [queue, setQueue] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [search, setSearch] = useState('');
-  const [searchInput, setSearchInput] = useState('');
+  const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState("");
   const { toast } = useToast();
 
   const fetchQueue = async () => {
     setLoading(true);
     try {
-      const res = await api.get('/api/v1/admin-settlements/queue', {
-        params: { page, limit: 15, search }
+      const res = await api.get("/api/v1/admin-settlements/queue", {
+        params: { page, limit: 15, search },
       });
       if (res.data.success) {
         setQueue(res.data.data?.queue || []);
         setTotalPages(res.data.data?.totalPages || 1);
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to fetch settlement queue');
+      toast.error(
+        err.response?.data?.message || "Failed to fetch settlement queue",
+      );
     } finally {
       setLoading(false);
     }
@@ -58,7 +55,8 @@ export const AdminSettlementQueue: React.FC = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-zinc-900 flex items-center gap-2">
-            <DatabaseIcon className="h-6 w-6 text-indigo-600" /> Settlement Queue
+            <DatabaseIcon className="h-6 w-6 text-indigo-600" /> Settlement
+            Queue
           </h1>
           <p className="text-zinc-500 text-sm mt-1">
             View orders awaiting settlement and expected payout timelines
@@ -94,28 +92,41 @@ export const AdminSettlementQueue: React.FC = () => {
                     <th className="px-6 py-3 font-medium">Order</th>
                     <th className="px-6 py-3 font-medium">Seller</th>
                     <th className="px-6 py-3 font-medium">Status</th>
-                    <th className="px-6 py-3 font-medium text-right">Gross Amount</th>
-                    <th className="px-6 py-3 font-medium text-right text-rose-300">Commission</th>
-                    <th className="px-6 py-3 font-medium text-right text-emerald-300">Settlement</th>
+                    <th className="px-6 py-3 font-medium text-right">
+                      Gross Amount
+                    </th>
+                    <th className="px-6 py-3 font-medium text-right text-rose-300">
+                      Commission
+                    </th>
+                    <th className="px-6 py-3 font-medium text-right text-emerald-300">
+                      Settlement
+                    </th>
                     <th className="px-6 py-3 font-medium">Expected Date</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-200 bg-white">
                   {queue.map((item) => (
-                    <tr key={item.id} className="hover:bg-zinc-50 transition-colors">
+                    <tr
+                      key={item.id}
+                      className="hover:bg-zinc-50 transition-colors"
+                    >
                       <td className="px-6 py-4">
-                        <div className="font-mono font-bold text-indigo-600">#{item.orderNumber}</div>
-                        <div className="text-xs text-zinc-500 mt-1">{new Date(item.createdAt).toLocaleDateString()}</div>
+                        <div className="font-mono font-bold text-indigo-600">
+                          #{item.orderNumber}
+                        </div>
+                        <div className="text-xs text-zinc-500 mt-1">
+                          {new Date(item.createdAt).toLocaleDateString()}
+                        </div>
                       </td>
                       <td className="px-6 py-4 font-semibold text-zinc-800">
                         {item.seller.shopName}
                       </td>
                       <td className="px-6 py-4">
-                        {item.settlementStatus === 'HOLDING' ? (
+                        {item.settlementStatus === "HOLDING" ? (
                           <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-800">
                             <ClockIcon weight="bold" /> Holding
                           </span>
-                        ) : item.settlementStatus === 'SETTLED' ? (
+                        ) : item.settlementStatus === "SETTLED" ? (
                           <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800">
                             <CheckCircleIcon weight="bold" /> Settled
                           </span>
@@ -135,7 +146,11 @@ export const AdminSettlementQueue: React.FC = () => {
                         ₹{Number(item.settlementAmount).toLocaleString()}
                       </td>
                       <td className="px-6 py-4 font-medium text-zinc-800">
-                        {item.expectedSettlementDate ? new Date(item.expectedSettlementDate).toLocaleDateString() : 'N/A'}
+                        {item.expectedSettlementDate
+                          ? new Date(
+                              item.expectedSettlementDate,
+                            ).toLocaleDateString()
+                          : "N/A"}
                       </td>
                     </tr>
                   ))}

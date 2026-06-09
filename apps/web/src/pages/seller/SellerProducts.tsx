@@ -1,9 +1,6 @@
-import { Button, Input, Card } from '@bezon/ui';
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-;
-;
-;
+import { Button, Input, Card } from "@bezon/ui";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   PlusIcon,
   PencilSimpleIcon,
@@ -11,19 +8,19 @@ import {
   Image as ImageIcon,
   SpinnerIcon,
   SparkleIcon,
-} from '@phosphor-icons/react';
-import api from '../../lib/api';
-import { API_ENDPOINTS } from '../../config/api.config';
-import { useToast } from '../../context/ToastContext';
-import type { Product } from '@bezon/types';
+} from "@phosphor-icons/react";
+import api from "../../lib/api";
+import { API_ENDPOINTS } from "../../config/api.config";
+import { useToast } from "../../context/ToastContext";
+import type { Product } from "@bezon/types";
 
 export const SellerProducts: React.FC = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Fetch data
   const fetchData = async () => {
@@ -35,7 +32,7 @@ export const SellerProducts: React.FC = () => {
       }
     } catch (err: any) {
       toast.error(
-        err.response?.data?.message || 'Could not fetch shop listings.',
+        err.response?.data?.message || "Could not fetch shop listings.",
       );
     } finally {
       setLoading(false);
@@ -48,7 +45,7 @@ export const SellerProducts: React.FC = () => {
 
   // Handle edit query parameter from other views (like Inventory)
   useEffect(() => {
-    const editId = searchParams.get('edit');
+    const editId = searchParams.get("edit");
     if (editId) {
       navigate(`/seller/products/${editId}/edit`);
     }
@@ -58,7 +55,7 @@ export const SellerProducts: React.FC = () => {
   const handleArchive = async (id: string) => {
     if (
       !confirm(
-        'Are you sure you want to archive this product list? This will remove it from the customer catalogue.',
+        "Are you sure you want to archive this product list? This will remove it from the customer catalogue.",
       )
     )
       return;
@@ -66,11 +63,11 @@ export const SellerProducts: React.FC = () => {
     try {
       const res = await api.delete(API_ENDPOINTS.products.delete(id));
       if (res.data.success) {
-        toast.success('Product successfully archived.');
+        toast.success("Product successfully archived.");
         fetchData();
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Could not archive product.');
+      toast.error(err.response?.data?.message || "Could not archive product.");
     }
   };
 
@@ -93,7 +90,7 @@ export const SellerProducts: React.FC = () => {
           />
         </div>
         <Button
-          onClick={() => navigate('/seller/add-product')}
+          onClick={() => navigate("/seller/add-product")}
           className="w-full sm:w-auto font-bold flex items-center gap-2  hover:cursor-pointer"
         >
           <PlusIcon className="h-4 w-4" /> Add Product
@@ -154,13 +151,13 @@ export const SellerProducts: React.FC = () => {
                           {p.title}
                         </p>
                         <p className="text-[10px] text-teal-600 font-bold uppercase tracking-wider">
-                          {p.brand || 'Unbranded'}
+                          {p.brand || "Unbranded"}
                         </p>
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <span className="bg-zinc-100 text-zinc-600 font-semibold px-2.5 py-1 rounded-full text-xs">
-                        {p.category?.name || 'General'}
+                        {p.category?.name || "General"}
                       </span>
                     </td>
                     <td className="px-6 py-4 font-bold text-zinc-900">
@@ -168,7 +165,7 @@ export const SellerProducts: React.FC = () => {
                     </td>
                     <td className="px-6 py-4">
                       <span
-                        className={`font-semibold ${p.totalStock === 0 ? 'text-rose-600 font-bold' : 'text-zinc-600'}`}
+                        className={`font-semibold ${p.totalStock === 0 ? "text-rose-600 font-bold" : "text-zinc-600"}`}
                       >
                         {p.totalStock} units
                       </span>
@@ -176,9 +173,9 @@ export const SellerProducts: React.FC = () => {
                     <td className="px-6 py-4">
                       <span
                         className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                          p.status === 'published'
-                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                            : 'bg-amber-50 text-amber-700 border border-amber-200'
+                          p.status === "published"
+                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                            : "bg-amber-50 text-amber-700 border border-amber-200"
                         }`}
                       >
                         {p.status}

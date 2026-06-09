@@ -1,34 +1,39 @@
-import { Card, CardHeader, CardTitle, CardContent, Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input } from '@bezon/ui';
-import React, { useState, useEffect } from 'react';
+import {
+  Card,
+  CardContent,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  Input,
+} from "@bezon/ui";
+import React, { useState, useEffect } from "react";
 import {
   WalletIcon,
   MagnifyingGlassIcon,
   PlusIcon,
   CaretLeftIcon,
   CaretRightIcon,
-  CurrencyDollarIcon,
   SpinnerIcon,
-} from '@phosphor-icons/react';
-;
-;
-;
-;
-import api from '../../lib/api';
-import API_ENDPOINTS from '../../config/api.config';
-import { useToast } from '../../context/ToastContext';
+} from "@phosphor-icons/react";
+import api from "../../lib/api";
+import API_ENDPOINTS from "../../config/api.config";
+import { useToast } from "../../context/ToastContext";
 
 export const AdminWallets: React.FC = () => {
   const [wallets, setWallets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [search, setSearch] = useState('');
-  const [searchInput, setSearchInput] = useState('');
+  const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState("");
 
   const [showCredit, setShowCredit] = useState(false);
   const [selectedWallet, setSelectedWallet] = useState<any>(null);
-  const [creditAmount, setCreditAmount] = useState('');
-  const [creditDesc, setCreditDesc] = useState('');
+  const [creditAmount, setCreditAmount] = useState("");
+  const [creditDesc, setCreditDesc] = useState("");
   const [crediting, setCrediting] = useState(false);
 
   const { toast } = useToast();
@@ -44,7 +49,7 @@ export const AdminWallets: React.FC = () => {
         setTotalPages(res.data.data.totalPages);
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to fetch wallets');
+      toast.error(err.response?.data?.message || "Failed to fetch wallets");
     } finally {
       setLoading(false);
     }
@@ -62,7 +67,7 @@ export const AdminWallets: React.FC = () => {
 
   const handleManualCredit = async () => {
     if (!creditAmount || !creditDesc || !selectedWallet) {
-      return toast.error('Amount and description are required');
+      return toast.error("Amount and description are required");
     }
 
     setCrediting(true);
@@ -75,12 +80,12 @@ export const AdminWallets: React.FC = () => {
       if (res.data.success) {
         toast.success(res.data.message);
         setShowCredit(false);
-        setCreditAmount('');
-        setCreditDesc('');
+        setCreditAmount("");
+        setCreditDesc("");
         fetchWallets(); // Refresh balance
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to credit wallet');
+      toast.error(err.response?.data?.message || "Failed to credit wallet");
     } finally {
       setCrediting(false);
     }
@@ -88,8 +93,8 @@ export const AdminWallets: React.FC = () => {
 
   const openCreditDialog = (wallet: any) => {
     setSelectedWallet(wallet);
-    setCreditAmount('');
-    setCreditDesc('');
+    setCreditAmount("");
+    setCreditDesc("");
     setShowCredit(true);
   };
 
@@ -174,11 +179,11 @@ export const AdminWallets: React.FC = () => {
                         <div className="flex flex-col gap-1">
                           <span
                             className={`inline-flex w-fit items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                              wallet.user.role === 'seller'
-                                ? 'bg-amber-100 text-amber-800'
-                                : wallet.user.role === 'admin'
-                                  ? 'bg-purple-100 text-purple-800'
-                                  : 'bg-zinc-100 text-zinc-800'
+                              wallet.user.role === "seller"
+                                ? "bg-amber-100 text-amber-800"
+                                : wallet.user.role === "admin"
+                                  ? "bg-purple-100 text-purple-800"
+                                  : "bg-zinc-100 text-zinc-800"
                             }`}
                           >
                             {wallet.user.role}
@@ -193,7 +198,7 @@ export const AdminWallets: React.FC = () => {
                       <td className="px-6 py-4 text-right">
                         <span className="font-bold text-base text-zinc-900">
                           ₹
-                          {Number(wallet.balance).toLocaleString('en-IN', {
+                          {Number(wallet.balance).toLocaleString("en-IN", {
                             minimumFractionDigits: 2,
                           })}
                         </span>

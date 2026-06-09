@@ -1,8 +1,17 @@
-import { Card, CardContent, CardHeader, CardTitle, Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@bezon/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@bezon/ui";
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-;
-;
 import {
   SpinnerIcon,
   ArrowLeftIcon,
@@ -12,8 +21,7 @@ import {
 import api from "../../lib/api";
 import { API_ENDPOINTS } from "../../config/api.config";
 import { useToast } from "../../context/ToastContext";
-;
-
+import { logger } from "@/utils/logger";
 export const AdminDeliveryDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [order, setOrder] = useState<any>(null);
@@ -36,6 +44,8 @@ export const AdminDeliveryDetail: React.FC = () => {
         setOrder(response.data.data);
       }
     } catch (err) {
+      logger.error(err);
+
       toast.error("Failed to load delivery details");
     } finally {
       setLoading(false);
@@ -49,6 +59,7 @@ export const AdminDeliveryDetail: React.FC = () => {
         setPartners(response.data.data);
       }
     } catch (err) {
+      logger.error(err);
       toast.error("Failed to fetch partners");
     }
   };

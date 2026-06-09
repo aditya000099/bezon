@@ -1,29 +1,25 @@
-import { Button, Input, Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@bezon/ui';
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import api from '../../lib/api';
-import { API_ENDPOINTS } from '../../config/api.config';
-import { useToast } from '../../context/ToastContext';
-import { registerSchema } from '@bezon/validation';
-;
-;
-;
+import { Button, Input } from "@bezon/ui";
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import api from "../../lib/api";
+import { API_ENDPOINTS } from "../../config/api.config";
+import { useToast } from "../../context/ToastContext";
+import { registerSchema } from "@bezon/validation";
 import {
   StorefrontIcon,
-  UserPlusIcon,
   KeyIcon,
   EnvelopeIcon,
   PhoneIcon,
   User as UserIcon,
-} from '@phosphor-icons/react';
+} from "@phosphor-icons/react";
 
 export const RegisterPage: React.FC = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [password, setPassword] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -49,11 +45,11 @@ export const RegisterPage: React.FC = () => {
         password,
       });
       if (response.data.success) {
-        toast.success('Registration successful! Please login.');
-        navigate('/login');
+        toast.success("Registration successful! Please login.");
+        navigate("/login");
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Registration failed');
+      toast.error(err.response?.data?.message || "Registration failed");
     } finally {
       setLoading(false);
     }
@@ -151,7 +147,7 @@ export const RegisterPage: React.FC = () => {
             </div>
             <div className="grid gap-2">
               <label className="text-sm font-semibold text-zinc-900">
-                PhoneIcon Number{' '}
+                PhoneIcon Number{" "}
                 <span className="text-zinc-400 font-normal">(Optional)</span>
               </label>
               <div className="relative">
@@ -190,12 +186,12 @@ export const RegisterPage: React.FC = () => {
               className="w-full h-12 font-bold text-base mt-4 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl shadow-lg shadow-zinc-900/10 transition-all active:scale-[0.98]"
               disabled={loading}
             >
-              {loading ? 'Registering...' : 'Register'}
+              {loading ? "Registering..." : "Register"}
             </Button>
           </form>
 
           <p className="text-sm text-zinc-500 text-center mt-8">
-            Already have an account?{' '}
+            Already have an account?{" "}
             <Link
               to="/login"
               className="text-teal-700 font-extrabold hover:text-teal-800 transition-colors hover:underline underline-offset-4"

@@ -1,5 +1,19 @@
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@bezon/ui';
-import React, { useEffect, useState } from 'react';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@bezon/ui";
+import React, { useEffect, useState } from "react";
 import {
   TruckIcon,
   MapPinIcon,
@@ -14,14 +28,12 @@ import {
   ArrowRightIcon,
   CaretLeftIcon,
   CaretRightIcon,
-} from '@phosphor-icons/react';
-;
-;
-;
-import { useToast } from '../../context/ToastContext';
-import api from '../../lib/api';
-import { API_ENDPOINTS } from '../../config/api.config';
-import { formatStatusText } from '../../utils/statusFormatter';
+} from "@phosphor-icons/react";
+import { useToast } from "../../context/ToastContext";
+import api from "../../lib/api";
+import { API_ENDPOINTS } from "../../config/api.config";
+import { formatStatusText } from "../../utils/statusFormatter";
+import { logger } from "@/utils/logger";
 
 export const DeliveryQueue: React.FC = () => {
   const { toast } = useToast();
@@ -51,7 +63,7 @@ export const DeliveryQueue: React.FC = () => {
   const [showProofModal, setShowProofModal] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [photoCaptured, setPhotoCaptured] = useState(false);
-  const [proofImageUrl, setProofImageUrl] = useState('');
+  const [proofImageUrl, setProofImageUrl] = useState("");
 
   useEffect(() => {
     fetchAll();
@@ -67,8 +79,13 @@ export const DeliveryQueue: React.FC = () => {
 
       // Fetch profile, available, queue, and history in parallel
       const [
-        profileRes, availableRes, queueRes, historyRes,
-        availableRetRes, queueRetRes, historyRetRes
+        profileRes,
+        availableRes,
+        queueRes,
+        historyRes,
+        availableRetRes,
+        queueRetRes,
+        historyRetRes,
       ] = await Promise.all([
         api.get(API_ENDPOINTS.delivery.profile),
         api.get(API_ENDPOINTS.delivery.available),
@@ -113,7 +130,9 @@ export const DeliveryQueue: React.FC = () => {
         }
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to sync dispatcher queue.');
+      toast.error(
+        err.response?.data?.message || "Failed to sync dispatcher queue.",
+      );
     } finally {
       setLoading(false);
     }
@@ -121,7 +140,9 @@ export const DeliveryQueue: React.FC = () => {
 
   const fetchHistory = async () => {
     try {
-      const res = await api.get(`${API_ENDPOINTS.delivery.history}?page=${historyPage}&limit=5`);
+      const res = await api.get(
+        `${API_ENDPOINTS.delivery.history}?page=${historyPage}&limit=5`,
+      );
       if (res.data.success) {
         setCompletedDeliveries(res.data.data);
         if (res.data.pagination) {
@@ -129,13 +150,15 @@ export const DeliveryQueue: React.FC = () => {
         }
       }
     } catch (err: any) {
-      // silent
+      logger.error(err);
     }
   };
 
   const fetchReturnHistory = async () => {
     try {
-      const res = await api.get(`${API_ENDPOINTS.delivery.returnHistory}?page=${returnHistoryPage}&limit=5`);
+      const res = await api.get(
+        `${API_ENDPOINTS.delivery.returnHistory}?page=${returnHistoryPage}&limit=5`,
+      );
       if (res.data.success) {
         setCompletedReturns(res.data.data);
         if (res.data.pagination) {
@@ -143,7 +166,7 @@ export const DeliveryQueue: React.FC = () => {
         }
       }
     } catch (err: any) {
-      // silent
+      logger.error(err);
     }
   };
 
@@ -159,62 +182,81 @@ export const DeliveryQueue: React.FC = () => {
       });
       if (res.data.success) {
         setIsAvailable(nextStatus);
-        toast.success(`You are now ${nextStatus ? 'ONLINE' : 'OFFLINE'}.`);
+        toast.success(`You are now ${nextStatus ? "ONLINE" : "OFFLINE"}.`);
       }
     } catch (err: any) {
-      toast.error('Could not update availability status.');
+      logger.error(err);
+      toast.error("Could not update availability status.");
     }
   };
 
   const handleAcceptAssignment = async (task: any) => {
     try {
-      const res = await api.post(API_ENDPOINTS.delivery.acceptAssignment(task.id));
+      const res = await api.post(
+        API_ENDPOINTS.delivery.acceptAssignment(task.id),
+      );
       if (res.data.success) {
-        toast.success('Assignment accepted! Proceed to pickup location.');
+        toast.success("Assignment accepted! Proceed to pickup location.");
         fetchAll();
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to accept assignment.');
+      toast.error(
+        err.response?.data?.message || "Failed to accept assignment.",
+      );
     }
   };
 
   const handleAcceptReturnPickup = async (order: any) => {
     try {
-      const res = await api.post(API_ENDPOINTS.delivery.acceptReturnPickup(order.id));
+      const res = await api.post(
+        API_ENDPOINTS.delivery.acceptReturnPickup(order.id),
+      );
       if (res.data.success) {
-        toast.success('Return Pickup accepted! Proceed to customer location.');
+        toast.success("Return Pickup accepted! Proceed to customer location.");
         fetchAll();
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to accept return pickup.');
+      toast.error(
+        err.response?.data?.message || "Failed to accept return pickup.",
+      );
     }
   };
 
   const handleMarkReturnPickedUp = async (order: any) => {
     try {
-      const res = await api.patch(API_ENDPOINTS.delivery.markReturnPickedUp(order.id));
+      const res = await api.patch(
+        API_ENDPOINTS.delivery.markReturnPickedUp(order.id),
+      );
       if (res.data.success) {
-        toast.success('Return marked as picked up.');
+        toast.success("Return marked as picked up.");
         fetchAll();
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to update return status.');
+      toast.error(
+        err.response?.data?.message || "Failed to update return status.",
+      );
     }
   };
 
   const handleMarkReturnCompleted = async (order: any) => {
     try {
-      const res = await api.patch(API_ENDPOINTS.delivery.markReturnCompleted(order.id));
+      const res = await api.patch(
+        API_ENDPOINTS.delivery.markReturnCompleted(order.id),
+      );
       if (res.data.success) {
-        toast.success('Return completed successfully.');
+        toast.success("Return completed successfully.");
         fetchAll();
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to complete return.');
+      toast.error(err.response?.data?.message || "Failed to complete return.");
     }
   };
 
-  const handleUpdateStatus = async (delivery: any, newStatus: string, note: string) => {
+  const handleUpdateStatus = async (
+    delivery: any,
+    newStatus: string,
+    note: string,
+  ) => {
     try {
       const res = await api.patch(
         API_ENDPOINTS.delivery.updateStatus(delivery.id),
@@ -225,7 +267,7 @@ export const DeliveryQueue: React.FC = () => {
         fetchAll();
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to update status.');
+      toast.error(err.response?.data?.message || "Failed to update status.");
     }
   };
 
@@ -236,19 +278,19 @@ export const DeliveryQueue: React.FC = () => {
     try {
       setIsUploading(true);
       const payload = new FormData();
-      payload.append('image', file);
+      payload.append("image", file);
 
       const res = await api.post(API_ENDPOINTS.media.upload, payload, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
       if (res.data.success) {
         setProofImageUrl(res.data.data.url);
         setPhotoCaptured(true);
-        toast.success('Photographic proof uploaded successfully.');
+        toast.success("Photographic proof uploaded successfully.");
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to upload image.');
+      toast.error(err.response?.data?.message || "Failed to upload image.");
     } finally {
       setIsUploading(false);
     }
@@ -258,18 +300,18 @@ export const DeliveryQueue: React.FC = () => {
     setIsUploading(true);
     setTimeout(() => {
       setProofImageUrl(
-        'https://s3.ap-south-1.amazonaws.com/bezon-mock-sandbox/uploads/mock_proof.jpg',
+        "https://s3.ap-south-1.amazonaws.com/bezon-mock-sandbox/uploads/mock_proof.jpg",
       );
       setPhotoCaptured(true);
       setIsUploading(false);
-      toast.success('Photographic proof simulated successfully.');
+      toast.success("Photographic proof simulated successfully.");
     }, 3000);
   };
 
   const handleCompleteDelivery = async () => {
     if (!proofDelivery) return;
     if (!proofImageUrl) {
-      toast.warning('Please capture photographic proof before signing off.');
+      toast.warning("Please capture photographic proof before signing off.");
       return;
     }
 
@@ -277,40 +319,45 @@ export const DeliveryQueue: React.FC = () => {
       const res = await api.patch(
         API_ENDPOINTS.delivery.updateStatus(proofDelivery.id),
         {
-          status: 'delivered',
-          note: 'PackageIcon successfully handed over to customer.',
+          status: "delivered",
+          note: "PackageIcon successfully handed over to customer.",
           proofImageUrl,
         },
       );
 
       if (res.data.success) {
-        toast.success('Fulfillment Complete! Order successfully delivered.');
+        toast.success("Fulfillment Complete! Order successfully delivered.");
         setProofDelivery(null);
         setPhotoCaptured(false);
-        setProofImageUrl('');
+        setProofImageUrl("");
         setShowProofModal(false);
         fetchAll();
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to submit delivery confirmation.');
+      toast.error(
+        err.response?.data?.message ||
+          "Failed to submit delivery confirmation.",
+      );
     }
   };
 
   const openProofModal = (delivery: any) => {
     setProofDelivery(delivery);
     setPhotoCaptured(false);
-    setProofImageUrl('');
+    setProofImageUrl("");
     setShowProofModal(true);
   };
 
   const formatItemsString = (order: any) => {
-    if (!order || !order.items) return '';
-    return order.items.map((i: any) => `${i.qty}x ${i.productTitle}`).join(', ');
+    if (!order || !order.items) return "";
+    return order.items
+      .map((i: any) => `${i.qty}x ${i.productTitle}`)
+      .join(", ");
   };
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[300px] text-zinc-500">
+      <div className="flex flex-col items-center justify-center min-h-75 text-zinc-500">
         <SpinnerIcon className="h-8 w-8 animate-spin mb-4 text-teal-600" />
         <p className="font-bold">Syncing active assignments...</p>
       </div>
@@ -323,26 +370,26 @@ export const DeliveryQueue: React.FC = () => {
       <div className="flex justify-between items-center bg-white border border-zinc-200 rounded-2xl p-4 shadow-sm">
         <div className="flex items-center gap-3">
           <div
-            className={`h-3 w-3 rounded-full ${isAvailable ? 'bg-emerald-500 animate-pulse' : 'bg-zinc-300'}`}
+            className={`h-3 w-3 rounded-full ${isAvailable ? "bg-emerald-500 animate-pulse" : "bg-zinc-300"}`}
           ></div>
           <div>
             <p className="text-sm font-extrabold text-zinc-800">
-              Duty Status: {isAvailable ? 'ONLINE & ACTIVE' : 'OFFLINE'}
+              Duty Status: {isAvailable ? "ONLINE & ACTIVE" : "OFFLINE"}
             </p>
             <p className="text-[10px] text-zinc-400 mt-0.5">
               {isAvailable
-                ? 'You are visible to local order assigners'
-                : 'Go online to receive jobs'}
+                ? "You are visible to local order assigners"
+                : "Go online to receive jobs"}
             </p>
           </div>
         </div>
         <Button
-          variant={isAvailable ? 'outline' : 'default'}
+          variant={isAvailable ? "outline" : "default"}
           size="sm"
           className="rounded-xl font-bold"
           onClick={handleToggleAvailability}
         >
-          {isAvailable ? 'Go Offline' : 'Go Online'}
+          {isAvailable ? "Go Offline" : "Go Online"}
         </Button>
       </div>
 
@@ -389,12 +436,18 @@ export const DeliveryQueue: React.FC = () => {
                 </CardHeader>
                 <CardContent className="p-5 pt-0 pb-4 space-y-2.5">
                   <div className="text-xs text-zinc-600 leading-relaxed">
-                    <strong className="text-zinc-800 font-bold block mb-0.5">Pickup:</strong>
-                    {t.seller?.shopName} — {t.seller?.addressLine}, {t.seller?.city}
+                    <strong className="text-zinc-800 font-bold block mb-0.5">
+                      Pickup:
+                    </strong>
+                    {t.seller?.shopName} — {t.seller?.addressLine},{" "}
+                    {t.seller?.city}
                   </div>
                   <div className="text-xs text-zinc-600 leading-relaxed border-t border-zinc-50 pt-2">
-                    <strong className="text-zinc-800 font-bold block mb-0.5">Drop:</strong>
-                    {t.customer?.name} — {t.addressSnapshot?.line1}, {t.addressSnapshot?.city}
+                    <strong className="text-zinc-800 font-bold block mb-0.5">
+                      Drop:
+                    </strong>
+                    {t.customer?.name} — {t.addressSnapshot?.line1},{" "}
+                    {t.addressSnapshot?.city}
                   </div>
                 </CardContent>
                 <CardFooter className="border-t border-zinc-100 p-4">
@@ -466,7 +519,8 @@ export const DeliveryQueue: React.FC = () => {
                         {trip.order?.seller?.shopName}
                       </p>
                       <p className="text-xs text-zinc-500 mt-0.5 leading-relaxed">
-                        {trip.order?.seller?.addressLine}, {trip.order?.seller?.city}, {trip.order?.seller?.state}
+                        {trip.order?.seller?.addressLine},{" "}
+                        {trip.order?.seller?.city}, {trip.order?.seller?.state}
                       </p>
                     </div>
                   </div>
@@ -483,7 +537,9 @@ export const DeliveryQueue: React.FC = () => {
                         {trip.order?.customer?.name}
                       </p>
                       <p className="text-xs text-zinc-500 mt-0.5 leading-relaxed">
-                        {trip.order?.addressSnapshot?.line1}, {trip.order?.addressSnapshot?.city}, {trip.order?.addressSnapshot?.state}
+                        {trip.order?.addressSnapshot?.line1},{" "}
+                        {trip.order?.addressSnapshot?.city},{" "}
+                        {trip.order?.addressSnapshot?.state}
                       </p>
                       {trip.order?.customer?.phone && (
                         <a
@@ -497,33 +553,44 @@ export const DeliveryQueue: React.FC = () => {
                   </div>
                 </CardContent>
                 <CardFooter className="flex gap-3 border-t border-zinc-100 p-4 bg-white/50">
-                  {(trip.status === 'accepted' || trip.status === 'assigned') && (
+                  {(trip.status === "accepted" ||
+                    trip.status === "assigned") && (
                     <Button
                       className="w-full rounded-xl font-bold"
                       onClick={() =>
-                        handleUpdateStatus(trip, 'picked_up', 'Courier picked up the parcel from the merchant warehouse.')
+                        handleUpdateStatus(
+                          trip,
+                          "picked_up",
+                          "Courier picked up the parcel from the merchant warehouse.",
+                        )
                       }
                     >
                       Confirm PackageIcon Pickup
                     </Button>
                   )}
-                  {trip.status === 'picked_up' && (
+                  {trip.status === "picked_up" && (
                     <Button
                       className="w-full rounded-xl font-bold bg-indigo-600 hover:bg-indigo-700 text-white"
                       onClick={() =>
-                        handleUpdateStatus(trip, 'out_for_delivery', 'Courier is now out for delivery.')
+                        handleUpdateStatus(
+                          trip,
+                          "out_for_delivery",
+                          "Courier is now out for delivery.",
+                        )
                       }
                     >
                       <ArrowRightIcon className="h-4 w-4 mr-2" />
                       Mark Out For Delivery
                     </Button>
                   )}
-                  {(trip.status === 'out_for_delivery' || trip.status === 'in_transit') && (
+                  {(trip.status === "out_for_delivery" ||
+                    trip.status === "in_transit") && (
                     <Button
                       className="w-full rounded-xl font-bold bg-emerald-600 hover:bg-emerald-700 text-white"
                       onClick={() => openProofModal(trip)}
                     >
-                      <CameraIcon className="h-4 w-4 mr-2" /> Complete & Capture Proof
+                      <CameraIcon className="h-4 w-4 mr-2" /> Complete & Capture
+                      Proof
                     </Button>
                   )}
                 </CardFooter>
@@ -559,12 +626,12 @@ export const DeliveryQueue: React.FC = () => {
                   <div className="flex items-center gap-3">
                     <div
                       className={`p-2 rounded-lg shrink-0 ${
-                        d.status === 'delivered'
-                          ? 'bg-emerald-100 text-emerald-700'
-                          : 'bg-rose-100 text-rose-700'
+                        d.status === "delivered"
+                          ? "bg-emerald-100 text-emerald-700"
+                          : "bg-rose-100 text-rose-700"
                       }`}
                     >
-                      {d.status === 'delivered' ? (
+                      {d.status === "delivered" ? (
                         <CheckCircleIcon className="h-4 w-4" />
                       ) : (
                         <WarningCircleIcon className="h-4 w-4" />
@@ -579,24 +646,30 @@ export const DeliveryQueue: React.FC = () => {
                       </p>
                       <p className="text-[10px] text-zinc-400">
                         {d.deliveredAt
-                          ? new Date(d.deliveredAt).toLocaleDateString(undefined, {
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric',
-                            })
-                          : new Date(d.updatedAt).toLocaleDateString(undefined, {
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric',
-                            })}
+                          ? new Date(d.deliveredAt).toLocaleDateString(
+                              undefined,
+                              {
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                              },
+                            )
+                          : new Date(d.updatedAt).toLocaleDateString(
+                              undefined,
+                              {
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                              },
+                            )}
                       </p>
                     </div>
                   </div>
                   <span
                     className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider whitespace-nowrap border ${
-                      d.status === 'delivered'
-                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                        : 'bg-rose-50 text-rose-700 border-rose-200'
+                      d.status === "delivered"
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                        : "bg-rose-50 text-rose-700 border-rose-200"
                     }`}
                   >
                     {formatStatusText(d.status)}
@@ -625,7 +698,9 @@ export const DeliveryQueue: React.FC = () => {
                   size="sm"
                   className="rounded-xl font-bold text-xs"
                   disabled={historyPage >= historyTotalPages}
-                  onClick={() => setHistoryPage((p) => Math.min(historyTotalPages, p + 1))}
+                  onClick={() =>
+                    setHistoryPage((p) => Math.min(historyTotalPages, p + 1))
+                  }
                 >
                   <CaretRightIcon className="h-4 w-4" />
                 </Button>
@@ -658,7 +733,10 @@ export const DeliveryQueue: React.FC = () => {
         ) : (
           <div className="flex flex-col gap-4">
             {availableReturns.map((t) => (
-              <Card key={t.id} className="bg-white border-zinc-200 shadow-sm rounded-2xl overflow-hidden">
+              <Card
+                key={t.id}
+                className="bg-white border-zinc-200 shadow-sm rounded-2xl overflow-hidden"
+              >
                 <CardHeader className="p-5 pb-3">
                   <div className="flex justify-between items-start">
                     <span className="font-extrabold text-zinc-900 text-base">
@@ -675,12 +753,18 @@ export const DeliveryQueue: React.FC = () => {
                 </CardHeader>
                 <CardContent className="p-5 pt-0 pb-4 space-y-2.5">
                   <div className="text-xs text-zinc-600 leading-relaxed">
-                    <strong className="text-zinc-800 font-bold block mb-0.5">Pickup from Customer:</strong>
-                    {t.customer?.name} — {t.addressSnapshot?.line1}, {t.addressSnapshot?.city}
+                    <strong className="text-zinc-800 font-bold block mb-0.5">
+                      Pickup from Customer:
+                    </strong>
+                    {t.customer?.name} — {t.addressSnapshot?.line1},{" "}
+                    {t.addressSnapshot?.city}
                   </div>
                   <div className="text-xs text-zinc-600 leading-relaxed border-t border-zinc-50 pt-2">
-                    <strong className="text-zinc-800 font-bold block mb-0.5">Drop to Seller:</strong>
-                    {t.seller?.shopName} — {t.seller?.addressLine}, {t.seller?.city}
+                    <strong className="text-zinc-800 font-bold block mb-0.5">
+                      Drop to Seller:
+                    </strong>
+                    {t.seller?.shopName} — {t.seller?.addressLine},{" "}
+                    {t.seller?.city}
                   </div>
                 </CardContent>
                 <CardFooter className="border-t border-zinc-100 p-4">
@@ -721,7 +805,10 @@ export const DeliveryQueue: React.FC = () => {
         ) : (
           <div className="flex flex-col gap-4">
             {activeReturns.map((trip) => (
-              <Card key={trip.id} className="border-purple-100 bg-purple-50/5 shadow-md rounded-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
+              <Card
+                key={trip.id}
+                className="border-purple-100 bg-purple-50/5 shadow-md rounded-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300"
+              >
                 <CardHeader className="border-b border-purple-50/50 pb-4 p-5">
                   <div className="flex justify-between items-center">
                     <CardTitle className="text-base font-extrabold text-zinc-900">
@@ -749,10 +836,15 @@ export const DeliveryQueue: React.FC = () => {
                         {trip.customer?.name}
                       </p>
                       <p className="text-xs text-zinc-500 mt-0.5 leading-relaxed">
-                        {trip.addressSnapshot?.line1}, {trip.addressSnapshot?.city}, {trip.addressSnapshot?.state}
+                        {trip.addressSnapshot?.line1},{" "}
+                        {trip.addressSnapshot?.city},{" "}
+                        {trip.addressSnapshot?.state}
                       </p>
                       {trip.customer?.phone && (
-                        <a href={`tel:${trip.customer.phone}`} className="inline-flex items-center gap-1.5 text-purple-600 hover:text-purple-700 text-xs font-bold mt-2 bg-purple-50 px-2.5 py-1 rounded-lg border border-purple-100">
+                        <a
+                          href={`tel:${trip.customer.phone}`}
+                          className="inline-flex items-center gap-1.5 text-purple-600 hover:text-purple-700 text-xs font-bold mt-2 bg-purple-50 px-2.5 py-1 rounded-lg border border-purple-100"
+                        >
                           <PhoneIcon className="h-3.5 w-3.5" /> Call Customer
                         </a>
                       )}
@@ -770,13 +862,14 @@ export const DeliveryQueue: React.FC = () => {
                         {trip.seller?.shopName}
                       </p>
                       <p className="text-xs text-zinc-500 mt-0.5 leading-relaxed">
-                        {trip.seller?.addressLine}, {trip.seller?.city}, {trip.seller?.state}
+                        {trip.seller?.addressLine}, {trip.seller?.city},{" "}
+                        {trip.seller?.state}
                       </p>
                     </div>
                   </div>
                 </CardContent>
                 <CardFooter className="flex gap-3 border-t border-zinc-100 p-4 bg-white/50">
-                  {trip.returnStatus === 'ASSIGNED' && (
+                  {trip.returnStatus === "ASSIGNED" && (
                     <Button
                       className="w-full rounded-xl font-bold bg-amber-600 hover:bg-amber-700 text-white"
                       onClick={() => handleMarkReturnPickedUp(trip)}
@@ -784,7 +877,7 @@ export const DeliveryQueue: React.FC = () => {
                       Mark Picked Up from Customer
                     </Button>
                   )}
-                  {trip.returnStatus === 'PICKED_UP' && (
+                  {trip.returnStatus === "PICKED_UP" && (
                     <Button
                       className="w-full rounded-xl font-bold bg-emerald-600 hover:bg-emerald-700 text-white"
                       onClick={() => handleMarkReturnCompleted(trip)}
@@ -818,7 +911,10 @@ export const DeliveryQueue: React.FC = () => {
         ) : (
           <div className="flex flex-col gap-3">
             {completedReturns.map((d) => (
-              <Card key={d.id} className="bg-white border-zinc-200 shadow-sm rounded-2xl overflow-hidden">
+              <Card
+                key={d.id}
+                className="bg-white border-zinc-200 shadow-sm rounded-2xl overflow-hidden"
+              >
                 <CardContent className="p-4 flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="p-2 rounded-lg shrink-0 bg-emerald-100 text-emerald-700">
@@ -832,7 +928,11 @@ export const DeliveryQueue: React.FC = () => {
                         {d.customer?.name} → {d.seller?.shopName}
                       </p>
                       <p className="text-[10px] text-zinc-400">
-                        {d.returnCompletedAt && new Date(d.returnCompletedAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                        {d.returnCompletedAt &&
+                          new Date(d.returnCompletedAt).toLocaleDateString(
+                            undefined,
+                            { year: "numeric", month: "short", day: "numeric" },
+                          )}
                       </p>
                     </div>
                   </div>
@@ -842,7 +942,7 @@ export const DeliveryQueue: React.FC = () => {
                 </CardContent>
               </Card>
             ))}
-            
+
             {/* Pagination for Returns */}
             {returnHistoryTotalPages > 1 && (
               <div className="flex justify-center items-center gap-3 pt-2">
@@ -851,7 +951,9 @@ export const DeliveryQueue: React.FC = () => {
                   size="sm"
                   className="rounded-xl font-bold text-xs"
                   disabled={returnHistoryPage <= 1}
-                  onClick={() => setReturnHistoryPage((p) => Math.max(1, p - 1))}
+                  onClick={() =>
+                    setReturnHistoryPage((p) => Math.max(1, p - 1))
+                  }
                 >
                   <CaretLeftIcon className="h-4 w-4" />
                 </Button>
@@ -863,7 +965,11 @@ export const DeliveryQueue: React.FC = () => {
                   size="sm"
                   className="rounded-xl font-bold text-xs"
                   disabled={returnHistoryPage >= returnHistoryTotalPages}
-                  onClick={() => setReturnHistoryPage((p) => Math.min(returnHistoryTotalPages, p + 1))}
+                  onClick={() =>
+                    setReturnHistoryPage((p) =>
+                      Math.min(returnHistoryTotalPages, p + 1),
+                    )
+                  }
                 >
                   <CaretRightIcon className="h-4 w-4" />
                 </Button>
@@ -885,7 +991,7 @@ export const DeliveryQueue: React.FC = () => {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="my-6 flex flex-col items-center justify-center border-2 border-dashed border-zinc-200 rounded-2xl p-6 bg-zinc-50/50 min-h-[160px]">
+          <div className="my-6 flex flex-col items-center justify-center border-2 border-dashed border-zinc-200 rounded-2xl p-6 bg-zinc-50/50 min-h-40">
             {photoCaptured ? (
               <div className="flex flex-col items-center gap-2 text-center text-emerald-600 animate-in zoom-in-95 duration-200">
                 <CheckCircleIcon className="h-10 w-10 text-emerald-500 fill-emerald-50" />
@@ -900,7 +1006,7 @@ export const DeliveryQueue: React.FC = () => {
                 <CameraIcon className="h-10 w-10 text-zinc-300" />
                 <div className="flex flex-col sm:flex-row gap-2">
                   <label className="inline-flex items-center justify-center rounded-xl font-bold text-xs border border-teal-200 bg-white hover:bg-zinc-50 text-teal-600 px-4 py-2 cursor-pointer shadow-sm">
-                    {isUploading ? 'Uploading...' : 'Upload Photo'}
+                    {isUploading ? "Uploading..." : "Upload Photo"}
                     <input
                       type="file"
                       accept="image/*"

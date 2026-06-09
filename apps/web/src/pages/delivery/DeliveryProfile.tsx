@@ -1,22 +1,25 @@
-import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter, Input, Button } from '@bezon/ui';
-import React, { useEffect, useState } from 'react';
-;
-;
-;
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  Input,
+  Button,
+} from "@bezon/ui";
+import React, { useEffect, useState } from "react";
 import {
   SpinnerIcon,
   TruckIcon,
-  ShieldCheckIcon,
-  UserIcon,
   CompassIcon,
   StarIcon,
   NavigationArrowIcon,
-  MapPinIcon,
-} from '@phosphor-icons/react';
-import api from '../../lib/api';
-import { API_ENDPOINTS } from '../../config/api.config';
-import { useToast } from '../../context/ToastContext';
-import { GoogleAddressInput } from '../../components/ui/GoogleAddressInput';
+} from "@phosphor-icons/react";
+import api from "../../lib/api";
+import { API_ENDPOINTS } from "../../config/api.config";
+import { useToast } from "../../context/ToastContext";
+import { GoogleAddressInput } from "../../components/ui/GoogleAddressInput";
 
 export const DeliveryProfile: React.FC = () => {
   const { toast } = useToast();
@@ -24,13 +27,13 @@ export const DeliveryProfile: React.FC = () => {
   const [saving, setSaving] = useState(false);
 
   const [formData, setFormData] = useState({
-    vehicleType: 'bike',
-    vehicleNumber: '',
+    vehicleType: "bike",
+    vehicleNumber: "",
     isAvailable: true,
-    addressLine: '',
-    city: '',
-    state: '',
-    pincode: '',
+    addressLine: "",
+    city: "",
+    state: "",
+    pincode: "",
     lat: null as number | null,
     lng: null as number | null,
   });
@@ -39,9 +42,9 @@ export const DeliveryProfile: React.FC = () => {
     totalDelivered: 0,
     totalFailed: 0,
     rating: 5.0,
-    userName: '',
-    userEmail: '',
-    userPhone: '',
+    userName: "",
+    userEmail: "",
+    userPhone: "",
   });
 
   useEffect(() => {
@@ -55,13 +58,13 @@ export const DeliveryProfile: React.FC = () => {
       if (res.data.success) {
         const data = res.data.data;
         setFormData({
-          vehicleType: data.vehicleType || 'bike',
-          vehicleNumber: data.vehicleNumber || '',
+          vehicleType: data.vehicleType || "bike",
+          vehicleNumber: data.vehicleNumber || "",
           isAvailable: data.isAvailable !== undefined ? data.isAvailable : true,
-          addressLine: data.addressLine || '',
-          city: data.city || '',
-          state: data.state || '',
-          pincode: data.pincode || '',
+          addressLine: data.addressLine || "",
+          city: data.city || "",
+          state: data.state || "",
+          pincode: data.pincode || "",
           lat: data.lat || null,
           lng: data.lng || null,
         });
@@ -70,14 +73,14 @@ export const DeliveryProfile: React.FC = () => {
           totalDelivered: data.totalDelivered || 0,
           totalFailed: data.totalFailed || 0,
           rating: data.rating ? parseFloat(data.rating) : 5.0,
-          userName: data.user?.name || '',
-          userEmail: data.user?.email || '',
-          userPhone: data.user?.phone || '',
+          userName: data.user?.name || "",
+          userEmail: data.user?.email || "",
+          userPhone: data.user?.phone || "",
         });
       }
     } catch (err: any) {
       toast.error(
-        err.response?.data?.message || 'Failed to load delivery profile.',
+        err.response?.data?.message || "Failed to load delivery profile.",
       );
     } finally {
       setLoading(false);
@@ -90,11 +93,11 @@ export const DeliveryProfile: React.FC = () => {
       setSaving(true);
       const res = await api.patch(API_ENDPOINTS.delivery.profile, formData);
       if (res.data.success) {
-        toast.success('Courier profile updated successfully.');
+        toast.success("Courier profile updated successfully.");
         fetchProfile();
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to update profile.');
+      toast.error(err.response?.data?.message || "Failed to update profile.");
     } finally {
       setSaving(false);
     }
@@ -122,7 +125,7 @@ export const DeliveryProfile: React.FC = () => {
               {stats.userName}
             </h2>
             <p className="text-zinc-400 text-xs mt-0.5">
-              {stats.userEmail} • {stats.userPhone || 'No Phone'}
+              {stats.userEmail} • {stats.userPhone || "No Phone"}
             </p>
           </div>
         </div>
@@ -150,7 +153,7 @@ export const DeliveryProfile: React.FC = () => {
               Rating
             </span>
             <span className="text-base font-extrabold text-amber-400 mt-0.5 flex items-center gap-0.5 justify-center">
-              <StarIcon className="h-3.5 w-3.5 fill-amber-400" />{' '}
+              <StarIcon className="h-3.5 w-3.5 fill-amber-400" />{" "}
               {stats.rating.toFixed(1)}
             </span>
           </div>
@@ -161,28 +164,28 @@ export const DeliveryProfile: React.FC = () => {
       <div className="flex justify-between items-center bg-white border border-zinc-200 rounded-2xl p-4 shadow-sm animate-in fade-in slide-in-from-top-3 duration-200">
         <div className="flex items-center gap-3">
           <div
-            className={`h-3 w-3 rounded-full ${formData.isAvailable ? 'bg-emerald-500 animate-pulse' : 'bg-zinc-300'}`}
+            className={`h-3 w-3 rounded-full ${formData.isAvailable ? "bg-emerald-500 animate-pulse" : "bg-zinc-300"}`}
           ></div>
           <div>
             <p className="text-sm font-extrabold text-zinc-800">
-              Duty Status: {formData.isAvailable ? 'ONLINE' : 'OFFLINE'}
+              Duty Status: {formData.isAvailable ? "ONLINE" : "OFFLINE"}
             </p>
             <p className="text-[10px] text-zinc-400 mt-0.5">
               {formData.isAvailable
-                ? 'You are visible for location matching'
-                : 'You are currently resting'}
+                ? "You are visible for location matching"
+                : "You are currently resting"}
             </p>
           </div>
         </div>
         <Button
-          variant={formData.isAvailable ? 'outline' : 'default'}
+          variant={formData.isAvailable ? "outline" : "default"}
           size="sm"
           className="rounded-xl font-bold"
           onClick={() =>
             setFormData((prev) => ({ ...prev, isAvailable: !prev.isAvailable }))
           }
         >
-          {formData.isAvailable ? 'Go Offline' : 'Go Online'}
+          {formData.isAvailable ? "Go Offline" : "Go Online"}
         </Button>
       </div>
 
@@ -192,7 +195,8 @@ export const DeliveryProfile: React.FC = () => {
         <Card className="bg-white border-zinc-200 shadow-sm rounded-2xl overflow-hidden">
           <CardHeader className="border-b border-zinc-100 pb-3 p-5">
             <CardTitle className="text-base font-extrabold text-zinc-800 flex items-center gap-2">
-              <TruckIcon className="h-5 w-5 text-teal-600" /> Vehicle Information
+              <TruckIcon className="h-5 w-5 text-teal-600" /> Vehicle
+              Information
             </CardTitle>
           </CardHeader>
           <CardContent className="p-5 flex flex-col gap-4">
@@ -236,8 +240,8 @@ export const DeliveryProfile: React.FC = () => {
         <Card className="bg-white border-zinc-200 shadow-sm rounded-2xl overflow-hidden">
           <CardHeader className="border-b border-zinc-100 pb-3 p-5">
             <CardTitle className="text-base font-extrabold text-zinc-800 flex items-center gap-2">
-              <NavigationArrowIcon className="h-5 w-5 text-teal-600" /> Base Address
-              (Google Maps)
+              <NavigationArrowIcon className="h-5 w-5 text-teal-600" /> Base
+              Address (Google Maps)
             </CardTitle>
             <CardDescription className="text-xs font-medium">
               Used for calculating distance matching thresholds.
@@ -263,7 +267,7 @@ export const DeliveryProfile: React.FC = () => {
                 defaultValue={
                   formData.addressLine
                     ? `${formData.addressLine}, ${formData.city}, ${formData.state}`
-                    : ''
+                    : ""
                 }
               />
             </div>

@@ -1,4 +1,4 @@
-import { Card, Button, Input } from '@bezon/ui';
+import { Card, Button } from "@bezon/ui";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -30,15 +30,6 @@ interface Policy {
   _count?: { products: number };
 }
 
-type PolicyType = "return" | "refund" | "replace";
-
-const EMPTY_FORM = {
-  type: "return" as PolicyType,
-  title: "",
-  description: "",
-  durationDays: 7,
-};
-
 export const AdminPolicies: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -66,7 +57,7 @@ export const AdminPolicies: React.FC = () => {
   };
 
   const openCreateDialog = () => {
-    navigate('/admin/policies/create');
+    navigate("/admin/policies/create");
   };
 
   const openEditDialog = (policy: Policy) => {
@@ -138,7 +129,11 @@ export const AdminPolicies: React.FC = () => {
             platform.
           </p>
         </div>
-        <Button type="button" onClick={openCreateDialog} className="w-full sm:w-auto">
+        <Button
+          type="button"
+          onClick={openCreateDialog}
+          className="w-full sm:w-auto"
+        >
           <PlusIcon className="h-4 w-4 mr-2" />
           Create Policy
         </Button>

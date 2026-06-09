@@ -1,9 +1,18 @@
-import { Card, CardContent, CardHeader, CardTitle, Button, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@bezon/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@bezon/ui";
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-;
-;
-;
 import api from "../../lib/api";
 import { API_ENDPOINTS } from "../../config/api.config";
 import { useToast } from "../../context/ToastContext";
@@ -15,6 +24,7 @@ import {
   UsersIcon,
   WarningCircleIcon,
 } from "@phosphor-icons/react";
+import { logger } from "@/utils/logger";
 
 export const AdminDeliveries: React.FC = () => {
   const [activeTab, setActiveTab] = useState<
@@ -54,6 +64,7 @@ export const AdminDeliveries: React.FC = () => {
       setExceptions(excRes.data.data);
       setCityAnalytics(cityRes.data.data);
     } catch (err: any) {
+      logger.error(err);
       toast.error("Failed to load delivery operations data");
     } finally {
       setLoading(false);
@@ -79,9 +90,17 @@ export const AdminDeliveries: React.FC = () => {
         {[
           { id: "overview", label: "Overview", icon: <PackageIcon /> },
           { id: "deliveries", label: "Deliveries", icon: <TruckIcon /> },
-          { id: "returns", label: "Return Pickups", icon: <ArrowUUpLeftIcon /> },
+          {
+            id: "returns",
+            label: "Return Pickups",
+            icon: <ArrowUUpLeftIcon />,
+          },
           { id: "partners", label: "Partners", icon: <UsersIcon /> },
-          { id: "exceptions", label: "Exceptions", icon: <WarningCircleIcon /> },
+          {
+            id: "exceptions",
+            label: "Exceptions",
+            icon: <WarningCircleIcon />,
+          },
         ].map((tab) => (
           <button
             key={tab.id}

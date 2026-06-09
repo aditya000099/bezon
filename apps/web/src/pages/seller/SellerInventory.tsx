@@ -1,9 +1,6 @@
-import { Card, CardHeader, CardTitle, CardContent, Button, Input } from '@bezon/ui';
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-;
-;
-;
+import { Card, Button, Input } from "@bezon/ui";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   SpinnerIcon,
   PackageIcon,
@@ -11,11 +8,11 @@ import {
   WarningIcon,
   ArrowsClockwiseIcon,
   CheckIcon,
-} from '@phosphor-icons/react';
-import api from '../../lib/api';
-import { API_ENDPOINTS } from '../../config/api.config';
-import { useToast } from '../../context/ToastContext';
-import type { Product } from '@bezon/types';
+} from "@phosphor-icons/react";
+import api from "../../lib/api";
+import { API_ENDPOINTS } from "../../config/api.config";
+import { useToast } from "../../context/ToastContext";
+import type { Product } from "@bezon/types";
 
 interface FlatInventoryItem {
   productId: string;
@@ -39,7 +36,7 @@ export const SellerInventory: React.FC = () => {
   const { toast } = useToast();
   const [items, setItems] = useState<FlatInventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [filterLowStock, setFilterLowStock] = useState(false);
 
   const fetchInventory = async () => {
@@ -70,7 +67,7 @@ export const SellerInventory: React.FC = () => {
       }
     } catch (err: any) {
       toast.error(
-        err.response?.data?.message || 'Could not fetch shop inventory.',
+        err.response?.data?.message || "Could not fetch shop inventory.",
       );
     } finally {
       setLoading(false);
@@ -87,7 +84,7 @@ export const SellerInventory: React.FC = () => {
     const newAlert = Number(item.tempAlert);
 
     if (isNaN(newStock) || newStock < 0 || isNaN(newAlert) || newAlert < 0) {
-      toast.error('Stock and Low Stock threshold must be positive integers.');
+      toast.error("Stock and Low Stock threshold must be positive integers.");
       return;
     }
 
@@ -119,7 +116,7 @@ export const SellerInventory: React.FC = () => {
       }
     } catch (err: any) {
       toast.error(
-        err.response?.data?.message || 'Failed to update variant stock.',
+        err.response?.data?.message || "Failed to update variant stock.",
       );
       const resetLoading = [...items];
       resetLoading[index].updating = false;
@@ -170,7 +167,7 @@ export const SellerInventory: React.FC = () => {
 
         <Card className="bg-white border border-zinc-200 shadow-sm flex items-center gap-4 p-5">
           <div
-            className={`h-10 w-10 rounded-lg flex items-center justify-center shrink-0 ${lowStockCount > 0 ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600'}`}
+            className={`h-10 w-10 rounded-lg flex items-center justify-center shrink-0 ${lowStockCount > 0 ? "bg-amber-50 text-amber-600" : "bg-emerald-50 text-emerald-600"}`}
           >
             <WarningIcon className="h-5 w-5" />
           </div>
@@ -179,7 +176,7 @@ export const SellerInventory: React.FC = () => {
               Low Stock Alerts
             </span>
             <span
-              className={`text-xl font-extrabold ${lowStockCount > 0 ? 'text-amber-600' : 'text-emerald-600'}`}
+              className={`text-xl font-extrabold ${lowStockCount > 0 ? "text-amber-600" : "text-emerald-600"}`}
             >
               {lowStockCount} items low
             </span>
@@ -201,12 +198,12 @@ export const SellerInventory: React.FC = () => {
         </div>
         <div className="flex gap-3 w-full sm:w-auto justify-end">
           <Button
-            variant={filterLowStock ? 'destructive' : 'outline'}
+            variant={filterLowStock ? "destructive" : "outline"}
             className="text-xs font-bold flex items-center gap-1.5"
             onClick={() => setFilterLowStock(!filterLowStock)}
           >
             <WarningIcon className="h-3.5 w-3.5" />
-            {filterLowStock ? 'Show All Items' : 'Show Low Stock'}
+            {filterLowStock ? "Show All Items" : "Show Low Stock"}
           </Button>
           <Button
             size="icon"
@@ -246,19 +243,19 @@ export const SellerInventory: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100 text-sm text-zinc-700">
-              {filteredItems.map((item, idx) => {
+              {filteredItems.map((item) => {
                 const globalIndex = items.findIndex(
                   (i) => i.variantId === item.variantId,
                 );
                 const isLow = item.stock <= item.lowStockAlert;
                 const attributesText = Object.entries(item.attributes)
                   .map(([k, v]) => `${k}: ${v}`)
-                  .join(', ');
+                  .join(", ");
 
                 return (
                   <tr
                     key={item.variantId}
-                    className={`hover:bg-zinc-50/50 transition-colors ${isLow ? 'bg-amber-50/20' : ''}`}
+                    className={`hover:bg-zinc-50/50 transition-colors ${isLow ? "bg-amber-50/20" : ""}`}
                   >
                     <td className="px-6 py-4">
                       <p className="font-mono text-xs font-bold text-zinc-900">

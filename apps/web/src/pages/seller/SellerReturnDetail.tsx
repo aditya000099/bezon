@@ -1,8 +1,6 @@
-import { Card, CardContent, CardHeader, CardTitle, Button } from '@bezon/ui';
+import { Card, CardContent, CardHeader, CardTitle, Button } from "@bezon/ui";
 import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-;
-;
 import {
   SpinnerIcon,
   ArrowLeftIcon,
@@ -18,6 +16,7 @@ import {
 import api from "../../lib/api";
 import { API_ENDPOINTS } from "../../config/api.config";
 import { useToast } from "../../context/ToastContext";
+import { logger } from "@/utils/logger";
 
 // Note: In Bezon, Returns are currently managed entirely on the Order model via returnStatus.
 // Therefore, the :id in the route /seller/returns/:id maps directly to the Order ID.
@@ -53,6 +52,7 @@ export const SellerReturnDetail: React.FC = () => {
         }
       }
     } catch (err: any) {
+      logger.error(err);
       toast.error("Failed to fetch return details");
     } finally {
       setLoading(false);
@@ -283,7 +283,8 @@ export const SellerReturnDetail: React.FC = () => {
         <Card className="shadow-sm">
           <CardHeader className="pb-3 border-b">
             <CardTitle className="text-base flex items-center gap-2">
-              <PackageIcon className="h-5 w-5 text-teal-600" /> Product Information
+              <PackageIcon className="h-5 w-5 text-teal-600" /> Product
+              Information
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-4 space-y-4">
@@ -324,7 +325,8 @@ export const SellerReturnDetail: React.FC = () => {
           <Card className="shadow-sm">
             <CardHeader className="pb-3 border-b">
               <CardTitle className="text-base flex items-center gap-2">
-                <UserIcon className="h-5 w-5 text-teal-600" /> Customer Information
+                <UserIcon className="h-5 w-5 text-teal-600" /> Customer
+                Information
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-4 text-sm space-y-2">
@@ -363,7 +365,8 @@ export const SellerReturnDetail: React.FC = () => {
             <Card className="shadow-sm">
               <CardHeader className="pb-3 border-b">
                 <CardTitle className="text-base flex items-center gap-2">
-                  <TruckIcon className="h-5 w-5 text-teal-600" /> Delivery Partner
+                  <TruckIcon className="h-5 w-5 text-teal-600" /> Delivery
+                  Partner
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-4 text-sm space-y-2">

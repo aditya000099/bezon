@@ -1,16 +1,13 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@bezon/ui';
-import React from 'react';
-import { Link } from 'react-router-dom';
 import {
-  ArrowLeftIcon,
-  ShieldIcon,
-  EyeIcon,
-  LockIcon,
-  ArrowsClockwiseIcon,
-  PaperPlaneRightIcon,
-} from '@phosphor-icons/react';
-;
-
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@bezon/ui";
+import React from "react";
+import { Link } from "react-router-dom";
+import { ArrowLeftIcon, ShieldIcon, LockIcon } from "@phosphor-icons/react";
 export const PrivacyPolicyPage: React.FC = () => {
   return (
     <div className="max-w-3xl mx-auto flex flex-col gap-6">

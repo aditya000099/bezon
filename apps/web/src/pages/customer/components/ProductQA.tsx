@@ -1,18 +1,17 @@
-import React from 'react';
-import { Button } from '@bezon/ui';
+import React from "react";
+import { Button } from "@bezon/ui";
 import {
   ChatTeardropTextIcon,
   StorefrontIcon,
   ShieldCheckIcon,
   SpinnerIcon,
-} from '@phosphor-icons/react';
+} from "@phosphor-icons/react";
 
 interface ProductQAProps {
   user: any;
   questionsTotalCount: number;
   questionSort: string;
   setQuestionSort: (sort: string) => void;
-  questionsPage: number;
   setQuestionsPage: React.Dispatch<React.SetStateAction<number>>;
   setQuestions: React.Dispatch<React.SetStateAction<any[]>>;
   setAskModalOpen: (open: boolean) => void;
@@ -31,7 +30,6 @@ export const ProductQA: React.FC<ProductQAProps> = ({
   questionsTotalCount,
   questionSort,
   setQuestionSort,
-  questionsPage,
   setQuestionsPage,
   setQuestions,
   setAskModalOpen,
@@ -54,7 +52,7 @@ export const ProductQA: React.FC<ProductQAProps> = ({
           </h2>
           <p className="text-sm text-zinc-500 mt-1">
             {questionsTotalCount} question
-            {questionsTotalCount !== 1 ? 's' : ''} about this product
+            {questionsTotalCount !== 1 ? "s" : ""} about this product
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -108,15 +106,15 @@ export const ProductQA: React.FC<ProductQAProps> = ({
                     {q.question}
                   </p>
                   <p className="text-xs text-zinc-400 mt-1">
-                    Asked by{' '}
+                    Asked by{" "}
                     <span className="font-medium text-zinc-500">
-                      {q.user?.name || 'Anonymous'}
+                      {q.user?.name || "Anonymous"}
                     </span>
-                    {' · '}
-                    {new Date(q.createdAt).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'short',
-                      day: 'numeric',
+                    {" · "}
+                    {new Date(q.createdAt).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
                     })}
                   </p>
                 </div>
@@ -129,23 +127,24 @@ export const ProductQA: React.FC<ProductQAProps> = ({
                     <div key={a.id} className="bg-white/60 rounded-xl p-4">
                       <div className="flex items-center gap-2 mb-2">
                         <span className="text-sm font-semibold text-zinc-700">
-                          {a.user?.name || 'Anonymous'}
+                          {a.user?.name || "Anonymous"}
                         </span>
-                        {a.badge === 'seller' && (
+                        {a.badge === "seller" && (
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-100 text-teal-700">
                             <StorefrontIcon className="h-3 w-3" /> Seller
                           </span>
                         )}
-                        {a.badge === 'verified_buyer' && (
+                        {a.badge === "verified_buyer" && (
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">
-                            <ShieldCheckIcon className="h-3 w-3" /> Verified Buyer
+                            <ShieldCheckIcon className="h-3 w-3" /> Verified
+                            Buyer
                           </span>
                         )}
                         <span className="text-xs text-zinc-400">
-                          {new Date(a.createdAt).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric',
+                          {new Date(a.createdAt).toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
                           })}
                         </span>
                       </div>
@@ -170,14 +169,18 @@ export const ProductQA: React.FC<ProductQAProps> = ({
                     onClick={() => handleSubmitAnswer(q.id)}
                     disabled={submittingAnswer || !answerText.trim()}
                   >
-                    {submittingAnswer ? <SpinnerIcon className="h-4 w-4 animate-spin" /> : 'Submit'}
+                    {submittingAnswer ? (
+                      <SpinnerIcon className="h-4 w-4 animate-spin" />
+                    ) : (
+                      "Submit"
+                    )}
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => {
                       setAnsweringId(null);
-                      setAnswerText('');
+                      setAnswerText("");
                     }}
                   >
                     Cancel
@@ -187,7 +190,7 @@ export const ProductQA: React.FC<ProductQAProps> = ({
                 <button
                   onClick={() => {
                     setAnsweringId(q.id);
-                    setAnswerText('');
+                    setAnswerText("");
                   }}
                   className="ml-11 text-xs font-bold text-teal-600 hover:text-teal-800"
                 >
@@ -206,7 +209,7 @@ export const ProductQA: React.FC<ProductQAProps> = ({
             onClick={() => setQuestionsPage((prev) => prev + 1)}
             disabled={loadingQuestions}
           >
-            {loadingQuestions ? 'Loading...' : 'Load More Questions'}
+            {loadingQuestions ? "Loading..." : "Load More Questions"}
           </Button>
         </div>
       )}

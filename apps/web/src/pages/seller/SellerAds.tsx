@@ -1,5 +1,17 @@
-import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter, Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Input } from '@bezon/ui';
-import React, { useState, useEffect } from 'react';
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  Input,
+} from "@bezon/ui";
+import React, { useState, useEffect } from "react";
 import {
   MegaphoneIcon,
   PlusIcon,
@@ -8,16 +20,12 @@ import {
   TrashIcon,
   EyeIcon,
   CursorClickIcon,
-  CurrencyDollarIcon,
   SpinnerIcon,
-} from '@phosphor-icons/react';
-;
-;
-;
-;
-import api from '../../lib/api';
-import API_ENDPOINTS from '../../config/api.config';
-import { useToast } from '../../context/ToastContext';
+} from "@phosphor-icons/react";
+import api from "../../lib/api";
+import API_ENDPOINTS from "../../config/api.config";
+import { useToast } from "../../context/ToastContext";
+import { logger } from "@/utils/logger";
 
 export const SellerAds: React.FC = () => {
   const [campaigns, setCampaigns] = useState<any[]>([]);
@@ -28,13 +36,13 @@ export const SellerAds: React.FC = () => {
   const { toast } = useToast();
 
   const [form, setForm] = useState({
-    productId: '',
-    title: '',
-    dailyBudget: '',
-    totalBudget: '',
-    costPerClick: '',
-    endDate: '',
-    tags: '',
+    productId: "",
+    title: "",
+    dailyBudget: "",
+    totalBudget: "",
+    costPerClick: "",
+    endDate: "",
+    tags: "",
   });
 
   const fetchData = async () => {
@@ -52,7 +60,8 @@ export const SellerAds: React.FC = () => {
         setProducts(prodRes.data.data.products || prodRes.data.data);
       }
     } catch (err: any) {
-      toast.error('Failed to load campaigns data');
+      logger.error(err);
+      toast.error("Failed to load campaigns data");
     } finally {
       setLoading(false);
     }
@@ -70,7 +79,7 @@ export const SellerAds: React.FC = () => {
       !form.totalBudget ||
       !form.costPerClick
     ) {
-      return toast.error('Please fill all required fields');
+      return toast.error("Please fill all required fields");
     }
 
     setCreating(true);
@@ -82,32 +91,37 @@ export const SellerAds: React.FC = () => {
         totalBudget: Number(form.totalBudget),
         costPerClick: Number(form.costPerClick),
         endDate: form.endDate || undefined,
-        tags: form.tags ? form.tags.split(',').map(t => t.trim().toLowerCase()).filter(Boolean) : [],
+        tags: form.tags
+          ? form.tags
+              .split(",")
+              .map((t) => t.trim().toLowerCase())
+              .filter(Boolean)
+          : [],
       });
 
       if (res.data.success) {
-        toast.success('Campaign created successfully!');
+        toast.success("Campaign created successfully!");
         setShowCreate(false);
         setForm({
-          productId: '',
-          title: '',
-          dailyBudget: '',
-          totalBudget: '',
-          costPerClick: '',
-          endDate: '',
-          tags: '',
+          productId: "",
+          title: "",
+          dailyBudget: "",
+          totalBudget: "",
+          costPerClick: "",
+          endDate: "",
+          tags: "",
         });
         fetchData();
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to create campaign');
+      toast.error(err.response?.data?.message || "Failed to create campaign");
     } finally {
       setCreating(false);
     }
   };
 
   const toggleStatus = async (id: string, currentStatus: string) => {
-    const newStatus = currentStatus === 'active' ? 'paused' : 'active';
+    const newStatus = currentStatus === "active" ? "paused" : "active";
     try {
       const res = await api.put(API_ENDPOINTS.ads.updateCampaign(id), {
         status: newStatus,
@@ -119,20 +133,20 @@ export const SellerAds: React.FC = () => {
         );
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to update campaign');
+      toast.error(err.response?.data?.message || "Failed to update campaign");
     }
   };
 
   const deleteCampaign = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this campaign?')) return;
+    if (!confirm("Are you sure you want to delete this campaign?")) return;
     try {
       const res = await api.delete(API_ENDPOINTS.ads.deleteCampaign(id));
       if (res.data.success) {
-        toast.success('Campaign deleted');
+        toast.success("Campaign deleted");
         setCampaigns(campaigns.filter((c) => c.id !== id));
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to delete campaign');
+      toast.error(err.response?.data?.message || "Failed to delete campaign");
     }
   };
 
@@ -182,7 +196,7 @@ export const SellerAds: React.FC = () => {
                     (campaign.totalClicks / campaign.totalImpressions) *
                     100
                   ).toFixed(2)
-                : '0.00';
+                : "0.00";
 
             return (
               <Card key={campaign.id} className="overflow-hidden flex flex-col">
@@ -208,13 +222,13 @@ export const SellerAds: React.FC = () => {
                         </h3>
                         <span
                           className={`text-xs px-2 py-0.5 rounded-full font-semibold capitalize ${
-                            campaign.status === 'active'
-                              ? 'bg-emerald-100 text-emerald-700'
-                              : campaign.status === 'paused'
-                                ? 'bg-amber-100 text-amber-700'
-                                : campaign.status === 'exhausted'
-                                  ? 'bg-rose-100 text-rose-700'
-                                  : 'bg-zinc-100 text-zinc-700'
+                            campaign.status === "active"
+                              ? "bg-emerald-100 text-emerald-700"
+                              : campaign.status === "paused"
+                                ? "bg-amber-100 text-amber-700"
+                                : campaign.status === "exhausted"
+                                  ? "bg-rose-100 text-rose-700"
+                                  : "bg-zinc-100 text-zinc-700"
                           }`}
                         >
                           {campaign.status}
@@ -226,11 +240,11 @@ export const SellerAds: React.FC = () => {
 
                       <div className="flex flex-wrap gap-x-4 gap-y-2 mt-3">
                         <div className="flex items-center gap-1.5 text-sm text-zinc-600">
-                          <EyeIcon className="w-4 h-4" />{' '}
+                          <EyeIcon className="w-4 h-4" />{" "}
                           <span>{campaign.totalImpressions} views</span>
                         </div>
                         <div className="flex items-center gap-1.5 text-sm text-zinc-600">
-                          <CursorClickIcon className="w-4 h-4" />{' '}
+                          <CursorClickIcon className="w-4 h-4" />{" "}
                           <span>{campaign.totalClicks} clicks</span>
                         </div>
                         <div className="flex items-center gap-1.5 text-sm font-medium text-emerald-600">
@@ -252,7 +266,7 @@ export const SellerAds: React.FC = () => {
                     </div>
                     <div className="h-2 w-full bg-zinc-200 rounded-full overflow-hidden mb-4">
                       <div
-                        className={`h-full rounded-full ${spentPercent > 90 ? 'bg-rose-500' : 'bg-primary'}`}
+                        className={`h-full rounded-full ${spentPercent > 90 ? "bg-rose-500" : "bg-primary"}`}
                         style={{ width: `${spentPercent}%` }}
                       ></div>
                     </div>
@@ -277,10 +291,10 @@ export const SellerAds: React.FC = () => {
                   <div className="text-xs text-zinc-500">
                     {campaign.endDate
                       ? `Ends ${new Date(campaign.endDate).toLocaleDateString()}`
-                      : 'Runs continuously'}
+                      : "Runs continuously"}
                   </div>
                   <div className="flex gap-2">
-                    {campaign.status !== 'active' && (
+                    {campaign.status !== "active" && (
                       <Button
                         variant="ghost"
                         size="sm"
@@ -290,8 +304,8 @@ export const SellerAds: React.FC = () => {
                         <TrashIcon className="w-4 h-4" />
                       </Button>
                     )}
-                    {(campaign.status === 'active' ||
-                      campaign.status === 'paused') && (
+                    {(campaign.status === "active" ||
+                      campaign.status === "paused") && (
                       <Button
                         variant="outline"
                         size="sm"
@@ -300,7 +314,7 @@ export const SellerAds: React.FC = () => {
                         }
                         className="gap-2"
                       >
-                        {campaign.status === 'active' ? (
+                        {campaign.status === "active" ? (
                           <>
                             <PauseIcon weight="fill" /> PauseIcon
                           </>
@@ -341,7 +355,7 @@ export const SellerAds: React.FC = () => {
               >
                 <option value="">-- Choose a published product --</option>
                 {products
-                  .filter((p) => p.status === 'published')
+                  .filter((p) => p.status === "published")
                   .map((p) => (
                     <option key={p.id} value={p.id}>
                       {p.title} (₹{p.basePrice})
@@ -412,18 +426,21 @@ export const SellerAds: React.FC = () => {
                   onChange={(e) =>
                     setForm({ ...form, endDate: e.target.value })
                   }
-                  min={new Date().toISOString().split('T')[0]}
+                  min={new Date().toISOString().split("T")[0]}
                 />
               </div>
               <div className="space-y-2 col-span-2">
-                <label className="text-sm font-medium">Search Tags (Comma separated)</label>
+                <label className="text-sm font-medium">
+                  Search Tags (Comma separated)
+                </label>
                 <Input
                   placeholder="e.g. running, sports, shoes"
                   value={form.tags}
                   onChange={(e) => setForm({ ...form, tags: e.target.value })}
                 />
                 <p className="text-xs text-zinc-500">
-                  Customers searching for these exact tags will see your sponsored product.
+                  Customers searching for these exact tags will see your
+                  sponsored product.
                 </p>
               </div>
             </div>

@@ -1,9 +1,18 @@
-import { Card, CardHeader, CardTitle, CardContent, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Button, Input } from '@bezon/ui';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+  Button,
+  Input,
+} from "@bezon/ui";
 import React, { useState, useEffect, useMemo } from "react";
-;
-;
-;
-;
 import {
   SpinnerIcon,
   ArrowCounterClockwiseIcon,
@@ -11,7 +20,6 @@ import {
   TruckIcon,
   WarningCircleIcon,
   MagnifyingGlassIcon,
-  ChartBarIcon,
   StorefrontIcon,
   PackageIcon,
   ClockIcon,
@@ -21,7 +29,8 @@ import {
 import api from "../../lib/api";
 import { API_ENDPOINTS } from "../../config/api.config";
 import { useToast } from "../../context/ToastContext";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { logger } from "@/utils/logger";
 
 type TabType = "ACTION_REQUIRED" | "LOGISTICS" | "COMPLETED" | "REFUND_READY";
 
@@ -34,9 +43,9 @@ export const AdminReturns: React.FC = () => {
 
   // Filters
   const [searchQuery, setSearchQuery] = useState("");
-  const [sellerFilter, setSellerFilter] = useState("");
-  const [reasonFilter, setReasonFilter] = useState("");
-  const [inspectionFilter, setInspectionFilter] = useState("");
+  const [sellerFilter] = useState("");
+  const [reasonFilter] = useState("");
+  const [inspectionFilter] = useState("");
   const [sortOption, setSortOption] = useState("Newest");
 
   const fetchReturns = async () => {
@@ -75,6 +84,7 @@ export const AdminReturns: React.FC = () => {
 
       setAllReturns(data);
     } catch (err: any) {
+      logger.error(err);
       toast.error("Failed to fetch returns data");
     } finally {
       setLoading(false);
@@ -431,7 +441,8 @@ export const AdminReturns: React.FC = () => {
                 : "text-zinc-500 hover:text-zinc-700"
             }`}
           >
-            <CheckCircleIcon weight="fill" /> Refund Ready ({refundReady.length})
+            <CheckCircleIcon weight="fill" /> Refund Ready ({refundReady.length}
+            )
           </button>
         </div>
 
@@ -555,7 +566,8 @@ export const AdminReturns: React.FC = () => {
                               <CheckCircleIcon weight="fill" /> Return Completed
                             </span>
                             <span className="flex items-center gap-1 text-emerald-600">
-                              <CheckCircleIcon weight="fill" /> Inspection Completed
+                              <CheckCircleIcon weight="fill" /> Inspection
+                              Completed
                             </span>
                             <span className="flex items-center gap-1 font-bold text-teal-700 mt-1 bg-teal-50 w-fit px-1.5 py-0.5 rounded border border-teal-200">
                               Refund Ready

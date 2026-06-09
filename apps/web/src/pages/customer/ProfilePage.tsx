@@ -1,7 +1,7 @@
-import { Button } from '@bezon/ui';
-import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { Button } from "@bezon/ui";
+import React from "react";
+import { Link } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import {
   UserIcon,
   MapPinIcon,
@@ -9,13 +9,10 @@ import {
   HeartIcon,
   FileTextIcon,
   ShieldIcon,
-  ShieldWarningIcon,
-  SignOutIcon,
   CaretRightIcon,
-  TruckIcon,
-} from '@phosphor-icons/react';
+} from "@phosphor-icons/react";
 export const ProfilePage: React.FC = () => {
-  const { user, logout, checkAuth } = useAuth();
+  const { user } = useAuth();
 
   return (
     <div className="max-w-4xl mx-auto flex flex-col gap-8">
@@ -167,7 +164,7 @@ export const ProfilePage: React.FC = () => {
               </div>
             )}
 
-            {user?.seller?.status === 'pending' && (
+            {user?.seller?.status === "pending" && (
               <div className="text-center">
                 <div className="inline-flex items-center justify-center p-3 bg-amber-50 text-amber-500 rounded-full mb-3">
                   <FileTextIcon className="h-6 w-6" />
@@ -181,7 +178,7 @@ export const ProfilePage: React.FC = () => {
               </div>
             )}
 
-            {user?.seller?.status === 'rejected' && (
+            {user?.seller?.status === "rejected" && (
               <div className="text-center">
                 <div className="bg-red-50 text-red-700 p-3 rounded text-sm text-left mb-4">
                   <p className="font-semibold mb-1">Application Rejected</p>
@@ -216,7 +213,7 @@ export const ProfilePage: React.FC = () => {
               </div>
             )}
 
-            {user?.deliveryPartner?.status === 'pending' && (
+            {user?.deliveryPartner?.status === "pending" && (
               <div className="text-center">
                 <div className="inline-flex items-center justify-center p-3 bg-amber-50 text-amber-500 rounded-full mb-3">
                   <FileTextIcon className="h-6 w-6" />
@@ -230,7 +227,7 @@ export const ProfilePage: React.FC = () => {
               </div>
             )}
 
-            {user?.deliveryPartner?.status === 'rejected' && (
+            {user?.deliveryPartner?.status === "rejected" && (
               <div className="text-center">
                 <div className="bg-red-50 text-red-700 p-3 rounded text-sm text-left mb-4">
                   <p className="font-semibold mb-1">Application Rejected</p>

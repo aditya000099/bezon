@@ -1,26 +1,26 @@
-import React from 'react';
-import { Link, Outlet, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import React from "react";
+import { Link, Outlet, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import {
   CompassIcon,
   CheckSquareIcon,
   ClockCounterClockwiseIcon,
   UserIcon,
   SignOutIcon,
-} from '@phosphor-icons/react';
+} from "@phosphor-icons/react";
 
 export const DeliveryLayout: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
   const location = useLocation();
 
   const bottomNavItems = [
-    { to: '/delivery', label: 'Tasks Queue', icon: CheckSquareIcon },
+    { to: "/delivery", label: "Tasks Queue", icon: CheckSquareIcon },
     {
-      to: '/delivery/history',
-      label: 'Past Trips',
+      to: "/delivery/history",
+      label: "Past Trips",
       icon: ClockCounterClockwiseIcon,
     },
-    { to: '/delivery/profile', label: 'My Status', icon: UserIcon },
+    { to: "/delivery/profile", label: "My Status", icon: UserIcon },
   ];
 
   return (
@@ -55,7 +55,7 @@ export const DeliveryLayout: React.FC = () => {
               key={item.to}
               to={item.to}
               className={`flex flex-col items-center justify-center gap-1 w-full h-full text-xs font-semibold transition-colors ${
-                isActive ? 'text-primary' : 'text-zinc-500 hover:text-zinc-800'
+                isActive ? "text-primary" : "text-zinc-500 hover:text-zinc-800"
               }`}
             >
               <Icon className="h-5 w-5" />

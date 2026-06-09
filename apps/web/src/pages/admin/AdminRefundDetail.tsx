@@ -1,8 +1,6 @@
-import { Card, CardContent, CardHeader, CardTitle, Button } from '@bezon/ui';
+import { Card, CardContent, CardHeader, CardTitle, Button } from "@bezon/ui";
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-;
-;
 import {
   ArrowLeftIcon,
   MoneyIcon,
@@ -11,14 +9,13 @@ import {
   UserIcon,
   StorefrontIcon,
   ClockIcon,
-  CheckCircleIcon,
-  WarningCircleIcon,
   XCircleIcon,
   SpinnerIcon,
 } from "@phosphor-icons/react";
 import api from "../../lib/api";
 import { API_ENDPOINTS } from "../../config/api.config";
 import { useToast } from "../../context/ToastContext";
+import { logger } from "@/utils/logger";
 
 export const AdminRefundDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -34,6 +31,7 @@ export const AdminRefundDetail: React.FC = () => {
         const response = await api.get(`${API_ENDPOINTS.orders.base}/${id}`);
         setOrder(response.data.data);
       } catch (err: any) {
+        logger.error(err);
         toast.error("Failed to fetch refund details");
       } finally {
         setLoading(false);
