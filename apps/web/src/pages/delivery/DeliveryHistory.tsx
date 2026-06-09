@@ -55,7 +55,7 @@ export const DeliveryHistory: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[300px] text-zinc-500">
+      <div className="flex flex-col items-center justify-center min-h-75 text-zinc-500">
         <SpinnerIcon className="h-8 w-8 animate-spin mb-4 text-teal-600" />
         <p className="font-bold">Loading delivery logs...</p>
       </div>
@@ -167,7 +167,7 @@ export const DeliveryHistory: React.FC = () => {
                           alt="Delivery Proof"
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-250"
                         />
-                        <div className="absolute inset-0 bg-zinc-950/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-1 bg-black/30">
+                        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-1">
                           <EyeIcon className="h-4 w-4" /> View Image
                         </div>
                       </a>
