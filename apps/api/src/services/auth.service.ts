@@ -75,6 +75,29 @@ export class AuthService {
       return user;
     });
 
+    // Send Welcome Email
+    try {
+      const { sendEmail } = await import("./email.service.js");
+      const subject = "Welcome to Bezon!";
+      const html = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
+          <h2 style="color: #0f766e; text-align: center;">Welcome to Bezon!</h2>
+          <p>Hi ${newUser.name},</p>
+          <p>Thank you for creating an account with Bezon. We are thrilled to have you on board!</p>
+          <p>Get ready to explore the best products at the best prices.</p>
+          <p>Happy Shopping!</p>
+          <p style="color: #6b7280; font-size: 12px; margin-top: 40px; text-align: center;">&copy; ${new Date().getFullYear()} Bezon Inc.</p>
+        </div>
+      `;
+      // We don't want to fail the registration if the email fails to send,
+      // so we use .catch() to handle the promise rejection.
+      sendEmail(newUser.email, subject, html).catch((err) => {
+        console.error("Failed to send welcome email:", err);
+      });
+    } catch (error) {
+      console.error("Error setting up welcome email:", error);
+    }
+
     return {
       id: newUser.id,
       name: newUser.name,
