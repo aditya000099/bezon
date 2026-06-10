@@ -1,21 +1,21 @@
-import prisma from '../db/client.js';
-import { Prisma } from '@prisma/client';
+import prisma from "../db/client.js";
+import { Prisma } from "@prisma/client";
 
 /**
  * Strict delivery status transition map.
  */
 const DELIVERY_TRANSITIONS: Record<string, string[]> = {
-  assigned: ['picked_up', 'accepted'],
-  accepted: ['picked_up'],
-  picked_up: ['out_for_delivery'],
-  out_for_delivery: ['delivered', 'delivery_failed'],
+  assigned: ["picked_up", "accepted"],
+  accepted: ["picked_up"],
+  picked_up: ["out_for_delivery"],
+  out_for_delivery: ["delivered", "delivery_failed"],
 };
 
 /** Terminal delivery statuses — no further actions allowed */
 const TERMINAL_DELIVERY_STATUSES = [
-  'delivered',
-  'delivery_failed',
-  'returned_to_origin',
+  "delivered",
+  "delivery_failed",
+  "returned_to_origin",
 ];
 
 export class DeliveryService {
@@ -34,18 +34,18 @@ export class DeliveryService {
       });
 
       if (!order) {
-        throw Object.assign(new Error('Order not found.'), { status: 404 });
+        throw Object.assign(new Error("Order not found."), { status: 404 });
       }
 
-      if (order.status !== 'ready_for_pickup') {
+      if (order.status !== "ready_for_pickup") {
         throw Object.assign(
-          new Error('This order is no longer available for assignment.'),
+          new Error("This order is no longer available for assignment."),
           { status: 400 },
         );
       }
 
       if (order.delivery !== null) {
-        throw Object.assign(new Error('Order already assigned.'), {
+        throw Object.assign(new Error("Order already assigned."), {
           status: 409,
         });
       }
@@ -54,20 +54,20 @@ export class DeliveryService {
         data: {
           orderId: order.id,
           partnerId,
-          status: 'assigned',
+          status: "assigned",
           acceptedAt: new Date(),
         },
       });
 
       await tx.order.update({
         where: { id: order.id },
-        data: { status: 'assigned' },
+        data: { status: "assigned" },
       });
 
       await tx.deliveryTimeline.create({
         data: {
           deliveryId: newDelivery.id,
-          status: 'assigned',
+          status: "assigned",
           note: `Delivery partner accepted the assignment.`,
         },
       });
@@ -75,19 +75,19 @@ export class DeliveryService {
       await tx.orderTimeline.create({
         data: {
           orderId: order.id,
-          status: 'assigned',
+          status: "assigned",
           note: `Delivery partner accepted the trip assignment. Awaiting package pickup.`,
           actorId: partnerUserId,
-          actorRole: 'delivery',
+          actorRole: "delivery",
         },
       });
 
       await tx.notification.create({
         data: {
           userId: partnerUserId,
-          title: 'Assignment Accepted',
+          title: "Assignment Accepted",
           body: `You accepted delivery for order ${order.orderNumber}. Proceed to pickup.`,
-          type: 'new_task_assigned',
+          type: "new_task_assigned",
         },
       });
 
@@ -114,18 +114,18 @@ export class DeliveryService {
   ) {
     const delivery = await prisma.delivery.findUnique({
       where: { id: deliveryId },
-      include: { order: true },
+      include: { order: { include: { customer: true } } },
     });
 
     if (!delivery) {
-      throw Object.assign(new Error('Delivery assignment not found.'), {
+      throw Object.assign(new Error("Delivery assignment not found."), {
         status: 404,
       });
     }
 
     if (delivery.partnerId === null || delivery.partnerId !== partnerId) {
       throw Object.assign(
-        new Error('You are not the assigned delivery partner for this order.'),
+        new Error("You are not the assigned delivery partner for this order."),
         { status: 403 },
       );
     }
@@ -143,7 +143,7 @@ export class DeliveryService {
     if (!allowedNext || !allowedNext.includes(newStatus)) {
       throw Object.assign(
         new Error(
-          `Cannot transition delivery from "${delivery.status}" to "${newStatus}". Allowed transitions: ${(allowedNext || []).join(', ') || 'none'}.`,
+          `Cannot transition delivery from "${delivery.status}" to "${newStatus}". Allowed transitions: ${(allowedNext || []).join(", ") || "none"}.`,
         ),
         { status: 400 },
       );
@@ -155,14 +155,14 @@ export class DeliveryService {
         updatedAt: new Date(),
       };
 
-      if (newStatus === 'picked_up') {
+      if (newStatus === "picked_up") {
         updateData.pickedUpAt = new Date();
-      } else if (newStatus === 'delivered') {
+      } else if (newStatus === "delivered") {
         updateData.deliveredAt = new Date();
         updateData.proofImageUrl = payload.proofImageUrl || null;
         updateData.proofS3Key = payload.proofS3Key || null;
-      } else if (newStatus === 'delivery_failed') {
-        updateData.failureReason = payload.failureReason || 'Failed to deliver';
+      } else if (newStatus === "delivery_failed") {
+        updateData.failureReason = payload.failureReason || "Failed to deliver";
       }
 
       const updatedDelivery = await tx.delivery.update({
@@ -189,34 +189,34 @@ export class DeliveryService {
       let orderStatus: string | null = null;
       const currentOrderStatus = delivery.order?.status;
 
-      if (currentOrderStatus === 'return_approved') {
-        if (newStatus === 'delivered') orderStatus = 'returned_to_origin';
+      if (currentOrderStatus === "return_approved") {
+        if (newStatus === "delivered") orderStatus = "returned_to_origin";
       } else if (
-        currentOrderStatus === 'replacement_approved' ||
-        currentOrderStatus === 'replacement_shipped'
+        currentOrderStatus === "replacement_approved" ||
+        currentOrderStatus === "replacement_shipped"
       ) {
-        if (newStatus === 'picked_up') orderStatus = 'replacement_shipped';
-        else if (newStatus === 'out_for_delivery')
-          orderStatus = 'replacement_shipped';
-        else if (newStatus === 'delivered') orderStatus = 'replaced';
-        else if (newStatus === 'delivery_failed')
-          orderStatus = 'delivery_failed';
-      } else if (currentOrderStatus === 'refund_approved') {
-        if (newStatus === 'delivered') orderStatus = 'refunded';
-        else if (newStatus === 'delivery_failed')
-          orderStatus = 'delivery_failed';
+        if (newStatus === "picked_up") orderStatus = "replacement_shipped";
+        else if (newStatus === "out_for_delivery")
+          orderStatus = "replacement_shipped";
+        else if (newStatus === "delivered") orderStatus = "replaced";
+        else if (newStatus === "delivery_failed")
+          orderStatus = "delivery_failed";
+      } else if (currentOrderStatus === "refund_approved") {
+        if (newStatus === "delivered") orderStatus = "refunded";
+        else if (newStatus === "delivery_failed")
+          orderStatus = "delivery_failed";
       } else {
-        if (newStatus === 'picked_up') orderStatus = 'shipped';
-        else if (newStatus === 'out_for_delivery')
-          orderStatus = 'out_for_delivery';
-        else if (newStatus === 'delivered') orderStatus = 'delivered';
-        else if (newStatus === 'delivery_failed')
-          orderStatus = 'delivery_failed';
+        if (newStatus === "picked_up") orderStatus = "shipped";
+        else if (newStatus === "out_for_delivery")
+          orderStatus = "out_for_delivery";
+        else if (newStatus === "delivered") orderStatus = "delivered";
+        else if (newStatus === "delivery_failed")
+          orderStatus = "delivery_failed";
       }
 
       if (orderStatus) {
         const orderData: any = { status: orderStatus as any };
-        if (orderStatus === 'delivered') {
+        if (orderStatus === "delivered") {
           orderData.deliveredAt = new Date();
         }
         await tx.order.update({
@@ -230,17 +230,45 @@ export class DeliveryService {
             status: orderStatus as any,
             note: `Delivery update: Partner marked as ${newStatus}.`,
             actorId: partnerUserId,
-            actorRole: 'delivery' as any,
+            actorRole: "delivery" as any,
           },
         });
+
+        // Send Order Shipped Email
+        if (orderStatus === "shipped") {
+          setTimeout(async () => {
+            try {
+              const { sendEmail } = await import("./email.service.js");
+              const subject = `Your Order has Shipped! - ${delivery.order.orderNumber}`;
+              const trackingInfo = delivery.id
+                ? `Delivery Reference: ${delivery.id}`
+                : `Your package is on the way.`;
+              const html = `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
+                  <h2 style="color: #0f766e; text-align: center;">Order Shipped!</h2>
+                  <p>Hi ${delivery.order.customer.name},</p>
+                  <p>Good news! Your order <strong>${delivery.order.orderNumber}</strong> has been shipped and is on its way to you.</p>
+                  <p><strong>Status:</strong> Shipped</p>
+                  <p>${trackingInfo}</p>
+                  <p>You can track your order status in your orders history.</p>
+                  <p>Thank you for shopping with Bezon!</p>
+                  <p style="color: #6b7280; font-size: 12px; margin-top: 40px; text-align: center;">&copy; ${new Date().getFullYear()} Bezon Inc.</p>
+                </div>
+              `;
+              await sendEmail(delivery.order.customer.email, subject, html);
+            } catch (err) {
+              console.error("Failed to send order shipped email:", err);
+            }
+          }, 0);
+        }
       }
 
-      if (newStatus === 'delivered') {
+      if (newStatus === "delivered") {
         await tx.deliveryPartner.update({
           where: { id: partnerId },
           data: { totalDelivered: { increment: 1 } },
         });
-      } else if (newStatus === 'delivery_failed') {
+      } else if (newStatus === "delivery_failed") {
         await tx.deliveryPartner.update({
           where: { id: partnerId },
           data: { totalFailed: { increment: 1 } },
