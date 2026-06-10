@@ -260,6 +260,27 @@ export class DeliveryService {
               console.error("Failed to send order shipped email:", err);
             }
           }, 0);
+        } else if (orderStatus === 'delivered') {
+          // Send Order Delivered Email
+          setTimeout(async () => {
+            try {
+              const { sendEmail } = await import('./email.service.js');
+              const subject = `Your Order has been Delivered! - ${delivery.order.orderNumber}`;
+              const html = `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
+                  <h2 style="color: #0f766e; text-align: center;">Order Delivered!</h2>
+                  <p>Hi ${delivery.order.customer.name},</p>
+                  <p>Great news! Your order <strong>${delivery.order.orderNumber}</strong> has been successfully delivered.</p>
+                  <p>We hope you enjoy your purchase! If you have any issues with your items, you can initiate a return or replacement from your dashboard based on the product's return policy.</p>
+                  <p>Thank you for shopping with Bezon!</p>
+                  <p style="color: #6b7280; font-size: 12px; margin-top: 40px; text-align: center;">&copy; ${new Date().getFullYear()} Bezon Inc.</p>
+                </div>
+              `;
+              await sendEmail(delivery.order.customer.email, subject, html);
+            } catch (err) {
+              console.error("Failed to send order delivered email:", err);
+            }
+          }, 0);
         }
       }
 

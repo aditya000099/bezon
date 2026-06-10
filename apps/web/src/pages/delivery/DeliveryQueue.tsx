@@ -565,7 +565,7 @@ export const DeliveryQueue: React.FC = () => {
                         )
                       }
                     >
-                      Confirm PackageIcon Pickup
+                      Confirm Pickup
                     </Button>
                   )}
                   {trip.status === "picked_up" && (
