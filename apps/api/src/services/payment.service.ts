@@ -511,7 +511,7 @@ export class PaymentService {
             items: {
               include: { product: { select: { title: true } } }
             },
-            customer: { select: { name: true, phone: true } },
+            customer: { select: { name: true, phone: true, email: true } },
             seller: { 
               select: { 
                 shopName: true,
@@ -542,6 +542,38 @@ export class PaymentService {
               note: `Invoice generated and attached successfully.`,
             }
           });
+
+          // Send Order Confirmation Email
+          try {
+            const { sendEmail } = await import('./email.service.js');
+            const subject = `Order Confirmation - ${o.orderNumber}`;
+            let itemsHtml = `<ul>`;
+            for (const item of o.items) {
+              itemsHtml += `<li>${item.qty}x ${item.productTitle} - ₹${item.totalPrice}</li>`;
+            }
+            itemsHtml += `</ul>`;
+            
+            const html = `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
+                <h2 style="color: #0f766e; text-align: center;">Order Confirmed!</h2>
+                <p>Hi ${o.customer.name},</p>
+                <p>Thank you for shopping with Bezon. Your order <strong>${o.orderNumber}</strong> has been successfully placed.</p>
+                <p><strong>Order Date:</strong> ${new Date(o.createdAt).toLocaleString()}</p>
+                <p><strong>Total Amount:</strong> ₹${o.total}</p>
+                <h3>Purchased Items:</h3>
+                ${itemsHtml}
+                <p>You can view your invoice and track your order status in your dashboard.</p>
+                <p>Thank you!</p>
+                <p style="color: #6b7280; font-size: 12px; margin-top: 40px; text-align: center;">&copy; ${new Date().getFullYear()} Bezon Inc.</p>
+              </div>
+            `;
+            
+            sendEmail(o.customer.email, subject, html).catch(err => {
+              console.error("Failed to send order confirmation email:", err);
+            });
+          } catch (err) {
+            console.error("Failed to initialize order confirmation email:", err);
+          }
         }
       } catch (err) {
         console.error('Failed to generate PDF bills for orders:', err);
