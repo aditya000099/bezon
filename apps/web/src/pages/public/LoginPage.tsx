@@ -147,7 +147,7 @@ export const LoginPage: React.FC = () => {
                   Password
                 </label>
                 <Link
-                  to="#"
+                  to="/forgot-password"
                   className="text-xs font-bold text-teal-600 hover:text-teal-700"
                 >
                   Forgot password?

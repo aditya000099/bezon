@@ -12,6 +12,7 @@ interface ProductQAProps {
   questionsTotalCount: number;
   questionSort: string;
   setQuestionSort: (sort: string) => void;
+  questionsPage: number;
   setQuestionsPage: React.Dispatch<React.SetStateAction<number>>;
   setQuestions: React.Dispatch<React.SetStateAction<any[]>>;
   setAskModalOpen: (open: boolean) => void;
@@ -30,6 +31,7 @@ export const ProductQA: React.FC<ProductQAProps> = ({
   questionsTotalCount,
   questionSort,
   setQuestionSort,
+  questionsPage,
   setQuestionsPage,
   setQuestions,
   setAskModalOpen,

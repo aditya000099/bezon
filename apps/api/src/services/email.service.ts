@@ -1,19 +1,28 @@
-import FormData from "form-data";
-import Mailgun from "mailgun.js";
-
-const mailgun = new Mailgun(FormData);
-
-const mg = mailgun.client({
-  username: "api",
-  key: process.env.MAIL_GUN_API!,
-  url: process.env.MAIL_GUN_BASE_URL,
-});
+import nodemailer from "nodemailer";
 
 export const sendEmail = async (to: string, subject: string, html: string) => {
-  return mg.messages.create(process.env.MAILGUN_DOMAIN!, {
-    from: process.env.MAIL_FROM!,
-    to,
-    subject,
-    html,
-  });
+  try {
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST || "smtp.gmail.com",
+      port: Number(process.env.SMTP_PORT) || 587,
+      secure: Number(process.env.SMTP_PORT) === 465, // true for 465, false for other ports
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    });
+
+    const info = await transporter.sendMail({
+      from: process.env.SMTP_FROM || `"Bezon" <${process.env.SMTP_USER}>`,
+      to,
+      subject,
+      html,
+    });
+
+    console.log("Message sent: %s", info.messageId);
+    return info;
+  } catch (error) {
+    console.error("Error sending email via Nodemailer:", error);
+    throw error;
+  }
 };

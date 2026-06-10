@@ -22,6 +22,7 @@ import { DeliveryLayout } from "../layouts/DeliveryLayout";
 // Public Pages
 const LoginPage = React.lazy(() => import('../pages/public/LoginPage').then(module => ({ default: module.LoginPage })));
 const RegisterPage = React.lazy(() => import('../pages/public/RegisterPage').then(module => ({ default: module.RegisterPage })));
+const ForgotPasswordPage = React.lazy(() => import('../pages/public/ForgotPasswordPage').then(module => ({ default: module.ForgotPasswordPage })));
 
 // Customer Pages
 const ShopPage = React.lazy(() => import('../pages/customer/ShopPage').then(module => ({ default: module.ShopPage })));
@@ -107,6 +108,14 @@ export const AppRouter: React.FC = () => {
           element={
             <GuestGuard>
               <RegisterPage />
+            </GuestGuard>
+          }
+        />
+        <Route
+          path="/forgot-password"
+          element={
+            <GuestGuard>
+              <ForgotPasswordPage />
             </GuestGuard>
           }
         />

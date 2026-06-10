@@ -146,3 +146,70 @@ export const updateProfile = async (req: Request, res: Response, next: NextFunct
   }
 };
 
+/**
+ * Handle password reset OTP request
+ */
+export const forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Email is required.' });
+    }
+
+    await AuthService.generatePasswordResetOtp(email);
+
+    res.json({
+      success: true,
+      message: 'If an account exists with this email, an OTP has been sent.',
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Handle OTP verification (optional step, useful for step-by-step UI)
+ */
+export const verifyOtp = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { email, otp } = req.body;
+    if (!email || !otp) {
+      return res.status(400).json({ success: false, message: 'Email and OTP are required.' });
+    }
+
+    AuthService.verifyPasswordResetOtp(email, otp);
+
+    res.json({
+      success: true,
+      message: 'OTP verified successfully.',
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Handle actual password reset
+ */
+export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { email, otp, password } = req.body;
+    if (!email || !otp || !password) {
+      return res.status(400).json({ success: false, message: 'Email, OTP, and new password are required.' });
+    }
+
+    if (password.length < 8) {
+      return res.status(400).json({ success: false, message: 'Password must be at least 8 characters long.' });
+    }
+
+    await AuthService.resetPasswordWithOtp(email, otp, password);
+
+    res.json({
+      success: true,
+      message: 'Password has been reset successfully. You can now sign in.',
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+

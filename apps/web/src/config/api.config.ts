@@ -11,6 +11,9 @@ export const API_ENDPOINTS = {
     logout: `${API_V1}/auth/logout`,
     me: `${API_V1}/auth/me`,
     updateProfile: `${API_V1}/auth/profile`,
+    forgotPassword: `${API_V1}/auth/forgot-password`,
+    verifyOtp: `${API_V1}/auth/verify-otp`,
+    resetPassword: `${API_V1}/auth/reset-password`,
   },
   // Cart
   cart: {

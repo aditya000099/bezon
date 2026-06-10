@@ -25,7 +25,7 @@ export const SellerAds: React.FC = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [campRes, prodRes] = await Promise.all([
+      const [campRes] = await Promise.all([
         api.get(API_ENDPOINTS.ads.myCampaigns),
         api.get(API_ENDPOINTS.products.sellerMe),
       ]);
