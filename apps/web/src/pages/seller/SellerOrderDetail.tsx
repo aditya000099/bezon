@@ -1,7 +1,19 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@bezon/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@bezon/ui';
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-;
 import {
   SpinnerIcon,
   ArrowLeftIcon,
@@ -18,8 +30,6 @@ import {
   DownloadIcon,
   DatabaseIcon,
 } from '@phosphor-icons/react';
-;
-;
 import api from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api.config';
 import { useToast } from '../../context/ToastContext';
@@ -77,13 +87,13 @@ export const SellerOrderDetail: React.FC = () => {
       toast.error('Please provide a reason for cancellation.');
       return;
     }
-    
+
     try {
       setUpdating(true);
       const res = await api.post(API_ENDPOINTS.orders.sellerCancel(id!), {
         cancelReason,
       });
-      
+
       if (res.data.success) {
         toast.success('Order cancelled successfully');
         setCancelModalOpen(false);
@@ -172,15 +182,6 @@ export const SellerOrderDetail: React.FC = () => {
   );
   const discount = Number(order.discount || 0);
   const total = subtotal - discount;
-
-  const orderStatuses = [
-    'placed',
-    'confirmed',
-    'ready_for_pickup',
-    'out_for_delivery',
-    'delivered',
-    'cancelled',
-  ];
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -499,15 +500,19 @@ export const SellerOrderDetail: React.FC = () => {
             <CardContent className="p-4 space-y-4 text-sm">
               <div className="flex justify-between items-center text-zinc-600">
                 <span>Settlement Status</span>
-                <span className={`px-2.5 py-0.5 text-[10px] font-bold rounded uppercase tracking-wider ${
-                  order.settlementStatus === 'SETTLED' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
-                  order.settlementStatus === 'HOLDING' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
-                  'bg-zinc-50 text-zinc-700 border border-zinc-200'
-                }`}>
+                <span
+                  className={`px-2.5 py-0.5 text-[10px] font-bold rounded uppercase tracking-wider ${
+                    order.settlementStatus === 'SETTLED'
+                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                      : order.settlementStatus === 'HOLDING'
+                        ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                        : 'bg-zinc-50 text-zinc-700 border border-zinc-200'
+                  }`}
+                >
                   {order.settlementStatus || 'PENDING'}
                 </span>
               </div>
-              
+
               <div className="pt-2 space-y-2">
                 <div className="flex justify-between text-zinc-600">
                   <span>Gross Order Amount</span>
@@ -515,36 +520,47 @@ export const SellerOrderDetail: React.FC = () => {
                     ₹{total.toLocaleString()}
                   </span>
                 </div>
-                
-                {order.commissionAmount && Number(order.commissionAmount) > 0 && (
-                  <div className="flex justify-between text-rose-600">
-                    <span>Platform Commission</span>
-                    <span className="font-semibold">
-                      -₹{Number(order.commissionAmount).toLocaleString()}
-                    </span>
-                  </div>
-                )}
-                
+
+                {order.commissionAmount &&
+                  Number(order.commissionAmount) > 0 && (
+                    <div className="flex justify-between text-rose-600">
+                      <span>Platform Commission</span>
+                      <span className="font-semibold">
+                        -₹{Number(order.commissionAmount).toLocaleString()}
+                      </span>
+                    </div>
+                  )}
+
                 <div className="border-t border-zinc-100 pt-2 flex justify-between font-bold text-zinc-900 text-base">
                   <span>Final Settlement Amount</span>
                   <span className="text-emerald-600">
-                    ₹{order.settlementAmount ? Number(order.settlementAmount).toLocaleString() : '0'}
+                    ₹
+                    {order.settlementAmount
+                      ? Number(order.settlementAmount).toLocaleString()
+                      : '0'}
                   </span>
                 </div>
               </div>
 
-              {order.settlementStatus === 'HOLDING' && order.expectedSettlementDate && (
-                <div className="flex justify-between text-zinc-600 bg-amber-50/50 p-2 rounded-md border border-amber-100">
-                  <span className="text-amber-800 font-medium text-xs">Expected Release</span>
-                  <span className="font-bold text-amber-600 text-xs">
-                    {new Date(order.expectedSettlementDate).toLocaleDateString()}
-                  </span>
-                </div>
-              )}
-              
+              {order.settlementStatus === 'HOLDING' &&
+                order.expectedSettlementDate && (
+                  <div className="flex justify-between text-zinc-600 bg-amber-50/50 p-2 rounded-md border border-amber-100">
+                    <span className="text-amber-800 font-medium text-xs">
+                      Expected Release
+                    </span>
+                    <span className="font-bold text-amber-600 text-xs">
+                      {new Date(
+                        order.expectedSettlementDate,
+                      ).toLocaleDateString()}
+                    </span>
+                  </div>
+                )}
+
               {order.settledAt && (
                 <div className="flex justify-between text-zinc-600 bg-emerald-50/50 p-2 rounded-md border border-emerald-100">
-                  <span className="text-emerald-800 font-medium text-xs">Settled On</span>
+                  <span className="text-emerald-800 font-medium text-xs">
+                    Settled On
+                  </span>
                   <span className="font-bold text-emerald-600 text-xs">
                     {new Date(order.settledAt).toLocaleDateString()}
                   </span>
@@ -648,7 +664,7 @@ export const SellerOrderDetail: React.FC = () => {
                       <p className="text-xs text-zinc-700 capitalize font-semibold">
                         {order.delivery.partner.vehicleType}{' '}
                         {order.delivery.partner.vehicleNumber
-                          ? `— ${order.delivery.partner.vehicleNumber}`
+                          ? `- ${order.delivery.partner.vehicleNumber}`
                           : ''}
                       </p>
                     </div>
@@ -678,60 +694,64 @@ export const SellerOrderDetail: React.FC = () => {
             </CardContent>
           </Card>
 
-          {order.returnPartner && order.returnStatus && order.returnStatus !== 'NONE' && (
-            <Card className="bg-white border-zinc-200 shadow-sm animate-in fade-in slide-in-from-top-4 duration-250">
-              <CardHeader className="border-b border-zinc-100 pb-4">
-                <CardTitle className="text-base font-bold text-zinc-800 flex items-center gap-2">
-                  <TruckIcon className="h-5 w-5 text-rose-500" />
-                  Return Fulfillment Courier
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 space-y-4">
-                <div>
-                  <div className="flex justify-between items-center mb-3">
-                    <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
-                      Return Status
-                    </span>
-                    <span
-                      className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border uppercase tracking-wider ${
-                        order.returnStatus === 'COMPLETED'
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                          : 'bg-rose-50 text-rose-700 border-rose-200 animate-pulse'
-                      }`}
-                    >
-                      {order.returnStatus.replace(/_/g, ' ')}
-                    </span>
-                  </div>
+          {order.returnPartner &&
+            order.returnStatus &&
+            order.returnStatus !== 'NONE' && (
+              <Card className="bg-white border-zinc-200 shadow-sm animate-in fade-in slide-in-from-top-4 duration-250">
+                <CardHeader className="border-b border-zinc-100 pb-4">
+                  <CardTitle className="text-base font-bold text-zinc-800 flex items-center gap-2">
+                    <TruckIcon className="h-5 w-5 text-rose-500" />
+                    Return Fulfillment Courier
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-4 space-y-4">
+                  <div>
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
+                        Return Status
+                      </span>
+                      <span
+                        className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border uppercase tracking-wider ${
+                          order.returnStatus === 'COMPLETED'
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                            : 'bg-rose-50 text-rose-700 border-rose-200 animate-pulse'
+                        }`}
+                      >
+                        {order.returnStatus.replace(/_/g, ' ')}
+                      </span>
+                    </div>
 
-                  <div className="space-y-2 text-sm">
-                    <div>
-                      <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-0.5">
-                        Assigned Courier
-                      </p>
-                      <p className="font-semibold text-zinc-800">
-                        {order.returnPartner.user?.name}
-                      </p>
-                      {order.returnPartner.user?.phone && (
-                        <p className="text-xs text-zinc-500 font-medium">
-                          Phone: {order.returnPartner.user.phone}
+                    <div className="space-y-2 text-sm">
+                      <div>
+                        <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-0.5">
+                          Assigned Courier
                         </p>
+                        <p className="font-semibold text-zinc-800">
+                          {order.returnPartner.user?.name}
+                        </p>
+                        {order.returnPartner.user?.phone && (
+                          <p className="text-xs text-zinc-500 font-medium">
+                            Phone: {order.returnPartner.user.phone}
+                          </p>
+                        )}
+                      </div>
+                      {order.returnAssignedAt && (
+                        <div className="border-t border-zinc-50 pt-2 flex justify-between items-center">
+                          <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
+                            Assigned Date
+                          </span>
+                          <span className="text-xs text-zinc-700 font-semibold">
+                            {new Date(
+                              order.returnAssignedAt,
+                            ).toLocaleDateString()}
+                          </span>
+                        </div>
                       )}
                     </div>
-                    {order.returnAssignedAt && (
-                      <div className="border-t border-zinc-50 pt-2 flex justify-between items-center">
-                        <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
-                          Assigned Date
-                        </span>
-                        <span className="text-xs text-zinc-700 font-semibold">
-                          {new Date(order.returnAssignedAt).toLocaleDateString()}
-                        </span>
-                      </div>
-                    )}
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+                </CardContent>
+              </Card>
+            )}
         </div>
       </div>
 
@@ -743,7 +763,8 @@ export const SellerOrderDetail: React.FC = () => {
                 Cancel Order
               </DialogTitle>
               <DialogDescription>
-                Are you sure you want to cancel this order? Once cancelled, this action cannot be undone.
+                Are you sure you want to cancel this order? Once cancelled, this
+                action cannot be undone.
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
@@ -756,7 +777,9 @@ export const SellerOrderDetail: React.FC = () => {
                   onChange={(e) => setCancelReason(e.target.value)}
                   className="w-full rounded-md border border-zinc-200 p-3 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500 bg-white"
                 >
-                  <option value="" disabled>Select a reason...</option>
+                  <option value="" disabled>
+                    Select a reason...
+                  </option>
                   <option value="Out of stock">Out of stock</option>
                   <option value="Damaged product">Damaged product</option>
                   <option value="Inventory mismatch">Inventory mismatch</option>

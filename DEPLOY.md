@@ -1,4 +1,4 @@
-# Bezon — EC2 Deployment Guide
+# Bezon - EC2 Deployment Guide
 
 Stack: **Node.js API** + **React (Vite)** + **Neon PostgreSQL** + **Nginx**
 
@@ -35,7 +35,7 @@ cp apps/api/.env.example apps/api/.env
 nano apps/api/.env
 ```
 
-Fill in these values — everything else can stay as the example:
+Fill in these values - everything else can stay as the example:
 
 ```env
 NODE_ENV=production

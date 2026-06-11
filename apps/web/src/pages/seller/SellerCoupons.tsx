@@ -1,7 +1,6 @@
-import { logger } from "@/utils/logger";
 import { Button, Card, CardHeader, CardTitle, CardContent } from '@bezon/ui';
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
   PlusIcon,
   PencilSimpleIcon,
@@ -17,7 +16,6 @@ import {
 import api from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api.config';
 import { useToast } from '../../context/ToastContext';
-import type { Category, Product } from '@bezon/types';
 
 interface Coupon {
   id: string;
@@ -40,26 +38,8 @@ interface Coupon {
   scopeProduct?: { title: string };
 }
 
-const defaultForm = {
-  code: '',
-  description: '',
-  discountType: 'percentage' as 'percentage' | 'fixed',
-  discountValue: '',
-  maxDiscount: '',
-  minOrderValue: '0',
-  maxUses: '100',
-  maxUsesPerUser: '1',
-  validFrom: '',
-  validUntil: '',
-  scopeType: 'all' as 'all' | 'category' | 'product' | 'variantGroup',
-  scopeCategoryId: '',
-  scopeProductId: '',
-  applyToAllVariants: false,
-};
-
 export const SellerCoupons: React.FC = () => {
   const { toast } = useToast();
-  const navigate = useNavigate();
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -95,7 +75,7 @@ export const SellerCoupons: React.FC = () => {
   };
 
   const formatDate = (dateStr: string) => {
-    if (!dateStr) return '—';
+    if (!dateStr) return '-';
     return new Date(dateStr).toLocaleDateString('en-IN', {
       day: 'numeric',
       month: 'short',
@@ -110,10 +90,12 @@ export const SellerCoupons: React.FC = () => {
           My Coupons
         </h1>
         <Button
-          onClick={() => navigate('/seller/coupons/new')}
+          asChild
           className="w-full sm:w-auto font-bold flex items-center gap-2"
         >
-          <PlusIcon className="h-4 w-4" /> Create Coupon
+          <Link to="/seller/coupons/new">
+            <PlusIcon className="h-4 w-4" /> Create Coupon
+          </Link>
         </Button>
       </div>
 
@@ -245,9 +227,11 @@ export const SellerCoupons: React.FC = () => {
                     size="icon"
                     variant="ghost"
                     className="h-8 w-8 text-zinc-500 hover:text-zinc-800"
-                    onClick={() => navigate(`/seller/coupons/${coupon.id}/edit`)}
+                    asChild
                   >
-                    <PencilSimpleIcon className="h-4 w-4" />
+                    <Link to={`/seller/coupons/${coupon.id}/edit`}>
+                      <PencilSimpleIcon className="h-4 w-4" />
+                    </Link>
                   </Button>
                   <Button
                     size="icon"
@@ -263,8 +247,6 @@ export const SellerCoupons: React.FC = () => {
           ))}
         </div>
       )}
-
-
     </div>
   );
 };

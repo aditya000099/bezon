@@ -5,7 +5,11 @@ import prisma from '../db/client.js';
 /**
  * Fetch delivery partner profile
  */
-export const getProfile = async (req: Request, res: Response, next: NextFunction) => {
+export const getProfile = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const userId = req.user!.id;
     const partner = await prisma.deliveryPartner.findUnique({
@@ -41,10 +45,24 @@ export const getProfile = async (req: Request, res: Response, next: NextFunction
 /**
  * Update delivery partner settings and home address details
  */
-export const updateProfile = async (req: Request, res: Response, next: NextFunction) => {
+export const updateProfile = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const userId = req.user!.id;
-    const { vehicleType, vehicleNumber, isAvailable, addressLine, city, state, pincode, lat, lng } = req.body;
+    const {
+      vehicleType,
+      vehicleNumber,
+      isAvailable,
+      addressLine,
+      city,
+      state,
+      pincode,
+      lat,
+      lng,
+    } = req.body;
 
     const partner = await prisma.deliveryPartner.findUnique({
       where: { userId },
@@ -60,15 +78,25 @@ export const updateProfile = async (req: Request, res: Response, next: NextFunct
     const updated = await prisma.deliveryPartner.update({
       where: { id: partner.id },
       data: {
-        vehicleType: vehicleType !== undefined ? vehicleType : partner.vehicleType,
-        vehicleNumber: vehicleNumber !== undefined ? vehicleNumber : partner.vehicleNumber,
-        isAvailable: isAvailable !== undefined ? !!isAvailable : partner.isAvailable,
-        addressLine: addressLine !== undefined ? addressLine : partner.addressLine,
+        vehicleType:
+          vehicleType !== undefined ? vehicleType : partner.vehicleType,
+        vehicleNumber:
+          vehicleNumber !== undefined ? vehicleNumber : partner.vehicleNumber,
+        isAvailable:
+          isAvailable !== undefined ? !!isAvailable : partner.isAvailable,
+        addressLine:
+          addressLine !== undefined ? addressLine : partner.addressLine,
         city: city !== undefined ? city : partner.city,
         state: state !== undefined ? state : partner.state,
         pincode: pincode !== undefined ? pincode : partner.pincode,
-        lat: lat !== undefined && lat !== null ? new Prisma.Decimal(lat) : partner.lat,
-        lng: lng !== undefined && lng !== null ? new Prisma.Decimal(lng) : partner.lng,
+        lat:
+          lat !== undefined && lat !== null
+            ? new Prisma.Decimal(lat)
+            : partner.lat,
+        lng:
+          lng !== undefined && lng !== null
+            ? new Prisma.Decimal(lng)
+            : partner.lng,
       },
       include: {
         user: {
@@ -94,7 +122,11 @@ export const updateProfile = async (req: Request, res: Response, next: NextFunct
 /**
  * Update current geocoded coordinates in real-time
  */
-export const updateLocation = async (req: Request, res: Response, next: NextFunction) => {
+export const updateLocation = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const userId = req.user!.id;
     const { lat, lng } = req.body;
@@ -143,10 +175,16 @@ export const updateLocation = async (req: Request, res: Response, next: NextFunc
  * Returns Delivery records where partnerId IS NULL and the linked Order
  * is in READY_FOR_PICKUP status.
  */
-export const getAvailableAssignments = async (req: Request, res: Response, next: NextFunction) => {
+export const getAvailableAssignments = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const userId = req.user!.id;
-    const partner = await prisma.deliveryPartner.findUnique({ where: { userId } });
+    const partner = await prisma.deliveryPartner.findUnique({
+      where: { userId },
+    });
 
     if (!partner) {
       return res.status(404).json({
@@ -155,8 +193,11 @@ export const getAvailableAssignments = async (req: Request, res: Response, next:
       });
     }
 
-    const { DeliveryPoolService } = await import('../services/delivery_pool.service.js');
-    const available = await DeliveryPoolService.getAvailableOrdersForPartner(partner.id);
+    const { DeliveryPoolService } =
+      await import('../services/delivery_pool.service.js');
+    const available = await DeliveryPoolService.getAvailableOrdersForPartner(
+      partner.id,
+    );
 
     res.json({
       success: true,
@@ -172,18 +213,27 @@ export const getAvailableAssignments = async (req: Request, res: Response, next:
  * Claims a delivery for the calling partner. The Order remains at
  * READY_FOR_PICKUP until the partner physically picks up the package.
  */
-export const acceptAssignment = async (req: Request, res: Response, next: NextFunction) => {
+export const acceptAssignment = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const userId = req.user!.id;
     const orderId = req.params.orderId as string;
 
     // Validate UUID to prevent Prisma Validation Errors
-    const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+    const uuidRegex =
+      /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
     if (!orderId || orderId === 'undefined' || !uuidRegex.test(orderId)) {
-      return res.status(400).json({ success: false, message: 'Invalid order ID format.' });
+      return res
+        .status(400)
+        .json({ success: false, message: 'Invalid order ID format.' });
     }
 
-    const partner = await prisma.deliveryPartner.findUnique({ where: { userId } });
+    const partner = await prisma.deliveryPartner.findUnique({
+      where: { userId },
+    });
     if (!partner || !partner.isAvailable || partner.status !== 'approved') {
       return res.status(403).json({
         success: false,
@@ -192,7 +242,11 @@ export const acceptAssignment = async (req: Request, res: Response, next: NextFu
     }
 
     const { DeliveryService } = await import('../services/delivery.service.js');
-    const result = await DeliveryService.acceptAssignment(orderId, partner.id, userId);
+    const result = await DeliveryService.acceptAssignment(
+      orderId,
+      partner.id,
+      userId,
+    );
 
     res.json({
       success: true,
@@ -201,7 +255,9 @@ export const acceptAssignment = async (req: Request, res: Response, next: NextFu
     });
   } catch (err: any) {
     if (err.status) {
-      return res.status(err.status).json({ success: false, message: err.message });
+      return res
+        .status(err.status)
+        .json({ success: false, message: err.message });
     }
     next(err);
   }
@@ -211,10 +267,16 @@ export const acceptAssignment = async (req: Request, res: Response, next: NextFu
  * Get active assigned/accepted task queue for the logged-in partner.
  * Excludes deliveries whose linked Order is in a terminal state.
  */
-export const getQueue = async (req: Request, res: Response, next: NextFunction) => {
+export const getQueue = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const userId = req.user!.id;
-    const partner = await prisma.deliveryPartner.findUnique({ where: { userId } });
+    const partner = await prisma.deliveryPartner.findUnique({
+      where: { userId },
+    });
 
     if (!partner) {
       return res.status(404).json({
@@ -236,7 +298,13 @@ export const getQueue = async (req: Request, res: Response, next: NextFunction) 
       where: {
         partnerId: partner.id,
         status: {
-          in: ['assigned', 'accepted', 'picked_up', 'in_transit', 'out_for_delivery'],
+          in: [
+            'assigned',
+            'accepted',
+            'picked_up',
+            'in_transit',
+            'out_for_delivery',
+          ],
         },
         order: {
           status: {
@@ -285,10 +353,16 @@ export const getQueue = async (req: Request, res: Response, next: NextFunction) 
 /**
  * Get past trips (delivered / failed / returned) with pagination
  */
-export const getHistory = async (req: Request, res: Response, next: NextFunction) => {
+export const getHistory = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const userId = req.user!.id;
-    const partner = await prisma.deliveryPartner.findUnique({ where: { userId } });
+    const partner = await prisma.deliveryPartner.findUnique({
+      where: { userId },
+    });
 
     if (!partner) {
       return res.status(404).json({
@@ -370,20 +444,38 @@ const DELIVERY_TRANSITIONS: Record<string, string[]> = {
   out_for_delivery: ['delivered', 'delivery_failed'],
 };
 
-/** Terminal delivery statuses — no further actions allowed */
-const TERMINAL_DELIVERY_STATUSES = ['delivered', 'delivery_failed', 'returned_to_origin'];
+/** Terminal delivery statuses - no further actions allowed */
+const TERMINAL_DELIVERY_STATUSES = [
+  'delivered',
+  'delivery_failed',
+  'returned_to_origin',
+];
 
 /**
  * Update delivery assignment status and sync corresponding Order state.
  * Enforces strict transition validation and ownership checks.
  */
-export const updateAssignmentStatus = async (req: Request, res: Response, next: NextFunction) => {
+export const updateAssignmentStatus = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const userId = req.user!.id;
     const id = req.params.id as string; // delivery id
-    const { status: newStatus, note, proofImageUrl, proofS3Key, failureReason, lat, lng } = req.body;
+    const {
+      status: newStatus,
+      note,
+      proofImageUrl,
+      proofS3Key,
+      failureReason,
+      lat,
+      lng,
+    } = req.body;
 
-    const partner = await prisma.deliveryPartner.findUnique({ where: { userId } });
+    const partner = await prisma.deliveryPartner.findUnique({
+      where: { userId },
+    });
     if (!partner) {
       return res.status(404).json({
         success: false,
@@ -392,14 +484,20 @@ export const updateAssignmentStatus = async (req: Request, res: Response, next: 
     }
 
     const { DeliveryService } = await import('../services/delivery.service.js');
-    const result = await DeliveryService.updateAssignmentStatus(id, partner.id, userId, newStatus, {
-      note,
-      proofImageUrl,
-      proofS3Key,
-      failureReason,
-      lat,
-      lng,
-    });
+    const result = await DeliveryService.updateAssignmentStatus(
+      id,
+      partner.id,
+      userId,
+      newStatus,
+      {
+        note,
+        proofImageUrl,
+        proofS3Key,
+        failureReason,
+        lat,
+        lng,
+      },
+    );
 
     res.json({
       success: true,
@@ -414,10 +512,16 @@ export const updateAssignmentStatus = async (req: Request, res: Response, next: 
 /**
  * Get available return pickups for the logged-in partner.
  */
-export const getAvailableReturnPickups = async (req: Request, res: Response, next: NextFunction) => {
+export const getAvailableReturnPickups = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const userId = req.user!.id;
-    const partner = await prisma.deliveryPartner.findUnique({ where: { userId } });
+    const partner = await prisma.deliveryPartner.findUnique({
+      where: { userId },
+    });
 
     if (!partner) {
       return res.status(404).json({
@@ -426,8 +530,11 @@ export const getAvailableReturnPickups = async (req: Request, res: Response, nex
       });
     }
 
-    const { ReturnDeliveryService } = await import('../services/return_delivery.service.js');
-    const available = await ReturnDeliveryService.getAvailableReturnPickups(partner.id);
+    const { ReturnDeliveryService } =
+      await import('../services/return_delivery.service.js');
+    const available = await ReturnDeliveryService.getAvailableReturnPickups(
+      partner.id,
+    );
 
     res.json({
       success: true,
@@ -441,18 +548,34 @@ export const getAvailableReturnPickups = async (req: Request, res: Response, nex
 /**
  * Accept an available return pickup assignment.
  */
-export const acceptReturnPickup = async (req: Request, res: Response, next: NextFunction) => {
+export const acceptReturnPickup = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const userId = req.user!.id;
     const orderId = req.params.orderId as string;
 
-    const partner = await prisma.deliveryPartner.findUnique({ where: { userId } });
+    const partner = await prisma.deliveryPartner.findUnique({
+      where: { userId },
+    });
     if (!partner) {
-      return res.status(404).json({ success: false, message: 'Delivery Partner profile not found.' });
+      return res
+        .status(404)
+        .json({
+          success: false,
+          message: 'Delivery Partner profile not found.',
+        });
     }
 
-    const { ReturnDeliveryService } = await import('../services/return_delivery.service.js');
-    const order = await ReturnDeliveryService.acceptReturnPickup(orderId, partner.id, userId);
+    const { ReturnDeliveryService } =
+      await import('../services/return_delivery.service.js');
+    const order = await ReturnDeliveryService.acceptReturnPickup(
+      orderId,
+      partner.id,
+      userId,
+    );
 
     res.json({
       success: true,
@@ -461,7 +584,9 @@ export const acceptReturnPickup = async (req: Request, res: Response, next: Next
     });
   } catch (err: any) {
     if (err.status) {
-      return res.status(err.status).json({ success: false, message: err.message });
+      return res
+        .status(err.status)
+        .json({ success: false, message: err.message });
     }
     next(err);
   }
@@ -470,16 +595,28 @@ export const acceptReturnPickup = async (req: Request, res: Response, next: Next
 /**
  * Get active assigned return pickups
  */
-export const getReturnQueue = async (req: Request, res: Response, next: NextFunction) => {
+export const getReturnQueue = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const userId = req.user!.id;
-    const partner = await prisma.deliveryPartner.findUnique({ where: { userId } });
+    const partner = await prisma.deliveryPartner.findUnique({
+      where: { userId },
+    });
 
     if (!partner) {
-      return res.status(404).json({ success: false, message: 'Delivery Partner profile not found.' });
+      return res
+        .status(404)
+        .json({
+          success: false,
+          message: 'Delivery Partner profile not found.',
+        });
     }
 
-    const { ReturnDeliveryService } = await import('../services/return_delivery.service.js');
+    const { ReturnDeliveryService } =
+      await import('../services/return_delivery.service.js');
     const queue = await ReturnDeliveryService.getQueue(partner.id);
 
     res.json({
@@ -494,20 +631,36 @@ export const getReturnQueue = async (req: Request, res: Response, next: NextFunc
 /**
  * Get history of completed return pickups
  */
-export const getReturnHistory = async (req: Request, res: Response, next: NextFunction) => {
+export const getReturnHistory = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const userId = req.user!.id;
-    const partner = await prisma.deliveryPartner.findUnique({ where: { userId } });
+    const partner = await prisma.deliveryPartner.findUnique({
+      where: { userId },
+    });
 
     if (!partner) {
-      return res.status(404).json({ success: false, message: 'Delivery Partner profile not found.' });
+      return res
+        .status(404)
+        .json({
+          success: false,
+          message: 'Delivery Partner profile not found.',
+        });
     }
 
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
 
-    const { ReturnDeliveryService } = await import('../services/return_delivery.service.js');
-    const { history, total } = await ReturnDeliveryService.getHistory(partner.id, page, limit);
+    const { ReturnDeliveryService } =
+      await import('../services/return_delivery.service.js');
+    const { history, total } = await ReturnDeliveryService.getHistory(
+      partner.id,
+      page,
+      limit,
+    );
 
     res.json({
       success: true,
@@ -527,18 +680,34 @@ export const getReturnHistory = async (req: Request, res: Response, next: NextFu
 /**
  * Mark a return as picked up
  */
-export const markReturnPickedUp = async (req: Request, res: Response, next: NextFunction) => {
+export const markReturnPickedUp = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const userId = req.user!.id;
     const orderId = req.params.orderId as string;
 
-    const partner = await prisma.deliveryPartner.findUnique({ where: { userId } });
+    const partner = await prisma.deliveryPartner.findUnique({
+      where: { userId },
+    });
     if (!partner) {
-      return res.status(404).json({ success: false, message: 'Delivery Partner profile not found.' });
+      return res
+        .status(404)
+        .json({
+          success: false,
+          message: 'Delivery Partner profile not found.',
+        });
     }
 
-    const { ReturnDeliveryService } = await import('../services/return_delivery.service.js');
-    const order = await ReturnDeliveryService.markReturnPickedUp(orderId, partner.id, userId);
+    const { ReturnDeliveryService } =
+      await import('../services/return_delivery.service.js');
+    const order = await ReturnDeliveryService.markReturnPickedUp(
+      orderId,
+      partner.id,
+      userId,
+    );
 
     res.json({
       success: true,
@@ -547,7 +716,9 @@ export const markReturnPickedUp = async (req: Request, res: Response, next: Next
     });
   } catch (err: any) {
     if (err.status) {
-      return res.status(err.status).json({ success: false, message: err.message });
+      return res
+        .status(err.status)
+        .json({ success: false, message: err.message });
     }
     next(err);
   }
@@ -556,18 +727,34 @@ export const markReturnPickedUp = async (req: Request, res: Response, next: Next
 /**
  * Mark a return as completed (delivered to seller)
  */
-export const markReturnCompleted = async (req: Request, res: Response, next: NextFunction) => {
+export const markReturnCompleted = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const userId = req.user!.id;
     const orderId = req.params.orderId as string;
 
-    const partner = await prisma.deliveryPartner.findUnique({ where: { userId } });
+    const partner = await prisma.deliveryPartner.findUnique({
+      where: { userId },
+    });
     if (!partner) {
-      return res.status(404).json({ success: false, message: 'Delivery Partner profile not found.' });
+      return res
+        .status(404)
+        .json({
+          success: false,
+          message: 'Delivery Partner profile not found.',
+        });
     }
 
-    const { ReturnDeliveryService } = await import('../services/return_delivery.service.js');
-    const order = await ReturnDeliveryService.markReturnCompleted(orderId, partner.id, userId);
+    const { ReturnDeliveryService } =
+      await import('../services/return_delivery.service.js');
+    const order = await ReturnDeliveryService.markReturnCompleted(
+      orderId,
+      partner.id,
+      userId,
+    );
 
     res.json({
       success: true,
@@ -576,7 +763,9 @@ export const markReturnCompleted = async (req: Request, res: Response, next: Nex
     });
   } catch (err: any) {
     if (err.status) {
-      return res.status(err.status).json({ success: false, message: err.message });
+      return res
+        .status(err.status)
+        .json({ success: false, message: err.message });
     }
     next(err);
   }

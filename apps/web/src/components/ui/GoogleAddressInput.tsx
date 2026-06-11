@@ -2,7 +2,9 @@ import { logger } from "@/utils/logger";
 import React, { useEffect, useRef, useState } from 'react';
 import { Input } from "@bezon/ui";
 import { SpinnerIcon, MapPinIcon } from '@phosphor-icons/react';
-import api from '../../lib/api';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchGoogleMapsKey } from '../../store/configSlice';
+import type { AppDispatch, RootState } from '../../store';
 
 interface SelectedAddress {
   addressLine: string;
@@ -58,6 +60,9 @@ export const GoogleAddressInput: React.FC<GoogleAddressInputProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const autocompleteRef = useRef<any>(null);
 
+  const dispatch = useDispatch<AppDispatch>();
+  const { googleMapsApiKey } = useSelector((state: RootState) => state.config);
+
   useEffect(() => {
     setInputValue(defaultValue);
   }, [defaultValue]);
@@ -68,9 +73,10 @@ export const GoogleAddressInput: React.FC<GoogleAddressInputProps> = ({
     const initAutocomplete = async () => {
       try {
         setLoading(true);
-        // Fetch API key from configuration endpoint
-        const res = await api.get('/api/v1/config/google-maps-key');
-        const apiKey = res.data.data.googleMapsApiKey;
+        let apiKey = googleMapsApiKey;
+        if (!apiKey) {
+          apiKey = await dispatch(fetchGoogleMapsKey()).unwrap();
+        }
 
         if (!apiKey) {
           console.warn('Google Maps API Key missing in backend configuration.');

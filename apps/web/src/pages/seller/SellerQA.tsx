@@ -1,4 +1,4 @@
-import { logger } from "@/utils/logger";
+import { logger } from '@/utils/logger';
 import { Card, CardContent, CardHeader, CardTitle, Button } from '@bezon/ui';
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -58,7 +58,7 @@ interface QuestionIcon {
 const LIMIT = 10;
 
 const formatDate = (dateStr: string) => {
-  if (!dateStr) return '—';
+  if (!dateStr) return '-';
   return new Date(dateStr).toLocaleDateString('en-IN', {
     day: 'numeric',
     month: 'short',

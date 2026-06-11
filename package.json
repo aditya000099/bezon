@@ -2,7 +2,7 @@
   "name": "bezon",
   "version": "1.0.0",
   "private": true,
-  "description": "Bezon ecommerce monorepo — single unified frontend + API",
+  "description": "Bezon ecommerce monorepo - single unified frontend + API",
   "workspaces": [
     "apps/*",
     "packages/*"
