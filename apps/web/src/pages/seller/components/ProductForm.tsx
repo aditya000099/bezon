@@ -763,7 +763,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                     </div>
                     <p className="text-xs text-zinc-500 mt-1">
                       {policy.durationDays}-day window
-                      {policy.description ? ` — ${policy.description}` : ''}
+                      {policy.description ? ` - ${policy.description}` : ''}
                     </p>
                   </div>
                 </button>

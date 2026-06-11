@@ -1,6 +1,19 @@
 import React from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button, Input } from '@bezon/ui';
-import { CheckCircleIcon, XIcon, TagIcon, SpinnerIcon } from '@phosphor-icons/react';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  Button,
+  Input,
+} from '@bezon/ui';
+import {
+  CheckCircleIcon,
+  XIcon,
+  TagIcon,
+  SpinnerIcon,
+} from '@phosphor-icons/react';
 import api from '../../../lib/api';
 import { API_ENDPOINTS } from '../../../config/api.config';
 import { useToast } from '../../../context/ToastContext';
@@ -59,7 +72,7 @@ export const CheckoutCouponStep: React.FC<CheckoutCouponStepProps> = ({
                   {appliedCoupon.code}
                 </p>
                 <p className="text-xs text-emerald-600">
-                  {appliedCoupon.description} — You save ₹
+                  {appliedCoupon.description} - You save ₹
                   {appliedCoupon.discount.toLocaleString()}
                 </p>
               </div>
@@ -174,7 +187,9 @@ export const CheckoutCouponStep: React.FC<CheckoutCouponStepProps> = ({
                         setCouponCode(e.target.value.toUpperCase());
                         setCouponError('');
                       }}
-                      onKeyDown={(e) => e.key === 'Enter' && handleApplyCoupon()}
+                      onKeyDown={(e) =>
+                        e.key === 'Enter' && handleApplyCoupon()
+                      }
                     />
                   </div>
                   <Button

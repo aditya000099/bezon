@@ -4,8 +4,9 @@ import React, { useState } from 'react';
 ;
 import { SpinnerIcon, StarIcon, CloudArrowUpIcon, XIcon } from '@phosphor-icons/react';
 import { useToast } from '../../context/ToastContext';
-import api from '../../lib/api';
-import { API_ENDPOINTS } from '../../config/api.config';
+import { useDispatch, useSelector } from 'react-redux';
+import { uploadReviewImages, submitReview, updateReview } from '../../store/reviewSlice';
+import type { AppDispatch, RootState } from '../../store';
 
 interface WriteReviewModalProps {
   isOpen: boolean;
@@ -27,14 +28,15 @@ export const WriteReviewModal: React.FC<WriteReviewModalProps> = ({
   onSuccess,
 }) => {
   const { toast } = useToast();
+  const dispatch = useDispatch<AppDispatch>();
+  const { isSubmitting, isUploading } = useSelector((state: RootState) => state.review);
+
   const [rating, setRating] = useState<number>(0);
   const [hoverRating, setHoverRating] = useState<number>(0);
   const [reviewText, setReviewText] = useState('');
   const [images, setImages] = useState<
     { url: string; s3Key?: string; sortOrder: number }[]
   >([]);
-  const [isUploading, setIsUploading] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const MAX_REVIEW_IMAGES = 5;
   const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
@@ -86,27 +88,18 @@ export const WriteReviewModal: React.FC<WriteReviewModalProps> = ({
       }
     }
 
-    setIsUploading(true);
     try {
-      const uploadPromises = selectedFiles.map(async (file, index) => {
-        const formData = new FormData();
-        formData.append('image', file);
-        const res = await api.post(API_ENDPOINTS.media.upload, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
-        return {
-          url: res.data.data.url,
-          s3Key: res.data.data.s3Key,
-          sortOrder: images.length + index,
-        };
-      });
-
-      const uploadedImages = await Promise.all(uploadPromises);
-      setImages((prev) => [...prev, ...uploadedImages]);
+      const uploadedImages = await dispatch(uploadReviewImages(selectedFiles)).unwrap();
+      setImages((prev) => [
+        ...prev,
+        ...uploadedImages.map((img: any, idx: number) => ({
+          ...img,
+          sortOrder: prev.length + idx,
+        })),
+      ]);
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to upload image(s).');
+      toast.error(err || 'Failed to upload image(s).');
     } finally {
-      setIsUploading(false);
       if (e.target) e.target.value = '';
     }
   };
@@ -121,31 +114,29 @@ export const WriteReviewModal: React.FC<WriteReviewModalProps> = ({
       return;
     }
 
-    setIsSubmitting(true);
     try {
       if (existingReview) {
-        await api.patch(`/api/v1/reviews/${existingReview.id}/edit`, {
+        await dispatch(updateReview({
+          id: existingReview.id,
           rating,
           reviewText,
-          images: images.map((img, i) => ({ ...img, sortOrder: i })), // re-sort
-        });
+          images: images.map((img, i) => ({ ...img, sortOrder: i })),
+        })).unwrap();
         toast.success('Review updated successfully!');
       } else {
-        await api.post('/api/v1/reviews', {
+        await dispatch(submitReview({
           orderItemId,
           productId,
           rating,
           reviewText,
           images: images.map((img, i) => ({ ...img, sortOrder: i })),
-        });
+        })).unwrap();
         toast.success('Review submitted successfully!');
       }
       onSuccess();
       onClose();
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to submit review.');
-    } finally {
-      setIsSubmitting(false);
+      toast.error(err || 'Failed to submit review.');
     }
   };
 

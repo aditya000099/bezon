@@ -3,6 +3,9 @@ import authReducer from './authSlice';
 import cartReducer from './cartSlice';
 import wishlistReducer from './wishlistSlice';
 import toastReducer from './toastSlice';
+import configReducer from './configSlice';
+import reviewReducer from './reviewSlice';
+import orderReducer from './orderSlice';
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +13,9 @@ export const store = configureStore({
     cart: cartReducer,
     wishlist: wishlistReducer,
     toast: toastReducer,
+    config: configReducer,
+    review: reviewReducer,
+    order: orderReducer,
   },
 });
 

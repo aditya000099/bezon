@@ -1,5 +1,5 @@
 #!/bin/bash
-# Bezon — Build & Start
+# Bezon - Build & Start
 # Usage: bash start.sh
 set -e
 

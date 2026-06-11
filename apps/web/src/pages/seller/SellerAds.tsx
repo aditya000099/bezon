@@ -1,6 +1,6 @@
 import { Card, CardContent, CardFooter, Button } from '@bezon/ui';
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import {
   MegaphoneIcon,
   PlusIcon,
@@ -92,8 +92,10 @@ export const SellerAds: React.FC = () => {
             Boost your product visibility
           </p>
         </div>
-        <Button onClick={() => navigate('/seller/ads/new')} className="gap-2">
-          <PlusIcon weight="bold" /> Create Campaign
+        <Button asChild className="gap-2">
+          <Link to="/seller/ads/new">
+            <PlusIcon weight="bold" /> Create Campaign
+          </Link>
         </Button>
       </div>
 
@@ -105,8 +107,8 @@ export const SellerAds: React.FC = () => {
             Create your first sponsored ad campaign to boost your products to
             the top of search results.
           </p>
-          <Button onClick={() => navigate('/seller/ads/new')}>
-            Start Advertising
+          <Button asChild>
+            <Link to="/seller/ads/new">Start Advertising</Link>
           </Button>
         </Card>
       ) : (

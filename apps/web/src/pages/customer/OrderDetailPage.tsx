@@ -11,7 +11,24 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@bezon/ui';
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  fetchOrderDetail,
+  cancelOrder,
+  requestReturn,
+  setReviewModalOpen,
+  setSelectedOrderItem,
+  setExistingReview,
+  setReturnModalOpen,
+  setReturnReason,
+  setReturnNotes,
+  setCancelModalOpen,
+  setCancelReason,
+  resetReturnState,
+  resetCancelState,
+} from '../../store/orderSlice';
+import type { AppDispatch, RootState } from '../../store';
 import { useParams, Link } from 'react-router-dom';
 import {
   SpinnerIcon,
@@ -26,34 +43,29 @@ import {
   ArrowCounterClockwiseIcon,
   MoneyIcon,
 } from '@phosphor-icons/react';
-import api from '../../lib/api';
-import { API_ENDPOINTS } from '../../config/api.config';
 import { useToast } from '../../context/ToastContext';
 import { WriteReviewModal } from '../../components/reviews/WriteReviewModal';
 import { OrderTrackingStepper } from '../../components/ui/OrderTrackingStepper';
 import { SupportChatWidget } from '../../components/SupportChatWidget';
-import type { OrderDetail } from '@bezon/types';
 
 export const OrderDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
-  const [order, setOrder] = useState<OrderDetail | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  // Review Modal State
-  const [reviewModalOpen, setReviewModalOpen] = useState(false);
-  const [selectedOrderItem, setSelectedOrderItem] = useState<{
-    id: string;
-    productId: string;
-    title: string;
-  } | null>(null);
-  const [existingReview, setExistingReview] = useState<any>(null);
-
-  // Return Request State
-  const [returnModalOpen, setReturnModalOpen] = useState(false);
-  const [returnReason, setReturnReason] = useState('damaged');
-  const [returnNotes, setReturnNotes] = useState('');
-  const [submittingReturn, setSubmittingReturn] = useState(false);
+  const dispatch = useDispatch<AppDispatch>();
+  const {
+    order,
+    loading,
+    reviewModalOpen,
+    selectedOrderItem,
+    existingReview,
+    returnModalOpen,
+    returnReason,
+    returnNotes,
+    submittingReturn,
+    cancelModalOpen,
+    cancelReason,
+    cancelling,
+  } = useSelector((state: RootState) => state.order);
 
   const handleReturnSubmit = async () => {
     if (!order) return;
@@ -62,31 +74,20 @@ export const OrderDetailPage: React.FC = () => {
       return;
     }
 
-    setSubmittingReturn(true);
     try {
-      const res = await api.post(API_ENDPOINTS.orders.requestReturn(order.id), {
-        reason: returnReason,
-        notes: returnNotes.trim(),
-      });
-
-      if (res.data.success) {
-        toast.success('Return requested successfully.');
-        setReturnModalOpen(false);
-        setReturnReason('damaged');
-        setReturnNotes('');
-        await fetchOrderDetail();
-      }
+      await dispatch(
+        requestReturn({
+          id: order.id,
+          reason: returnReason,
+          notes: returnNotes.trim(),
+        }),
+      ).unwrap();
+      toast.success('Return requested successfully.');
+      dispatch(fetchOrderDetail(id!));
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to request return.');
-    } finally {
-      setSubmittingReturn(false);
+      toast.error(err || 'Failed to request return.');
     }
   };
-
-  // Cancellation State
-  const [cancelModalOpen, setCancelModalOpen] = useState(false);
-  const [cancelReason, setCancelReason] = useState('');
-  const [cancelling, setCancelling] = useState(false);
 
   const handleCancelOrder = async () => {
     if (!order) return;
@@ -95,45 +96,25 @@ export const OrderDetailPage: React.FC = () => {
       return;
     }
 
-    setCancelling(true);
     try {
-      const res = await api.post(API_ENDPOINTS.orders.cancel(order.id), {
-        cancelReason,
-      });
-
-      if (res.data.success) {
-        toast.success('Order cancelled successfully.');
-        setCancelModalOpen(false);
-        setCancelReason('');
-        await fetchOrderDetail();
-      }
+      await dispatch(
+        cancelOrder({
+          id: order.id,
+          cancelReason,
+        }),
+      ).unwrap();
+      toast.success('Order cancelled successfully.');
+      dispatch(fetchOrderDetail(id!));
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to cancel order.');
-    } finally {
-      setCancelling(false);
-    }
-  };
-
-  const fetchOrderDetail = async () => {
-    setLoading(true);
-    try {
-      const res = await api.get(API_ENDPOINTS.orders.detail(id!));
-      if (res.data.success) {
-        setOrder(res.data.data);
-      }
-    } catch (err: any) {
-      toast.error(
-        err.response?.data?.message ||
-          'Failed to fetch order tracking details.',
-      );
-    } finally {
-      setLoading(false);
+      toast.error(err || 'Failed to cancel order.');
     }
   };
 
   useEffect(() => {
-    fetchOrderDetail();
-  }, [id]);
+    if (id) {
+      dispatch(fetchOrderDetail(id));
+    }
+  }, [id, dispatch]);
 
   if (loading) {
     return (
@@ -175,7 +156,7 @@ export const OrderDetailPage: React.FC = () => {
                 variant="outline"
                 size="sm"
                 className="gap-2 font-bold text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-rose-200"
-                onClick={() => setCancelModalOpen(true)}
+                onClick={() => dispatch(setCancelModalOpen(true))}
               >
                 Cancel Order
               </Button>
@@ -199,7 +180,7 @@ export const OrderDetailPage: React.FC = () => {
                   variant="outline"
                   size="sm"
                   className="gap-2 font-bold text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200"
-                  onClick={() => setReturnModalOpen(true)}
+                  onClick={() => dispatch(setReturnModalOpen(true))}
                 >
                   Request Return
                 </Button>
@@ -366,13 +347,15 @@ export const OrderDetailPage: React.FC = () => {
                             size="sm"
                             className="h-7 text-[10px] text-teal-600 font-bold px-2.5 py-0 hover:bg-teal-50 border border-teal-100 hover:border-teal-200 rounded-md transition-colors"
                             onClick={() => {
-                              setSelectedOrderItem({
-                                id: item.id,
-                                productId: item.productId,
-                                title: item.productTitle,
-                              });
-                              setExistingReview(item.review);
-                              setReviewModalOpen(true);
+                              dispatch(
+                                setSelectedOrderItem({
+                                  id: item.id,
+                                  productId: item.productId,
+                                  title: item.productTitle,
+                                }),
+                              );
+                              dispatch(setExistingReview(item.review));
+                              dispatch(setReviewModalOpen(true));
                             }}
                           >
                             Edit Review
@@ -428,13 +411,15 @@ export const OrderDetailPage: React.FC = () => {
                           size="sm"
                           className="text-xs font-bold border-teal-200 text-teal-700 hover:bg-teal-50 shrink-0 self-start sm:self-auto"
                           onClick={() => {
-                            setSelectedOrderItem({
-                              id: item.id,
-                              productId: item.productId,
-                              title: item.productTitle,
-                            });
-                            setExistingReview(null);
-                            setReviewModalOpen(true);
+                            dispatch(
+                              setSelectedOrderItem({
+                                id: item.id,
+                                productId: item.productId,
+                                title: item.productTitle,
+                              }),
+                            );
+                            dispatch(setExistingReview(null));
+                            dispatch(setReviewModalOpen(true));
                           }}
                         >
                           Write Review
@@ -729,19 +714,22 @@ export const OrderDetailPage: React.FC = () => {
         <WriteReviewModal
           isOpen={reviewModalOpen}
           onClose={() => {
-            setReviewModalOpen(false);
-            setTimeout(() => setSelectedOrderItem(null), 200);
+            dispatch(setReviewModalOpen(false));
+            setTimeout(() => dispatch(setSelectedOrderItem(null)), 200);
           }}
           orderItemId={selectedOrderItem.id}
           productId={selectedOrderItem.productId}
           productTitle={selectedOrderItem.title}
           existingReview={existingReview}
-          onSuccess={fetchOrderDetail}
+          onSuccess={() => dispatch(fetchOrderDetail(id!))}
         />
       )}
 
       {returnModalOpen && (
-        <Dialog open={returnModalOpen} onOpenChange={setReturnModalOpen}>
+        <Dialog
+          open={returnModalOpen}
+          onOpenChange={(open) => dispatch(setReturnModalOpen(open))}
+        >
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
@@ -759,7 +747,7 @@ export const OrderDetailPage: React.FC = () => {
                 </label>
                 <select
                   value={returnReason}
-                  onChange={(e) => setReturnReason(e.target.value)}
+                  onChange={(e) => dispatch(setReturnReason(e.target.value))}
                   className="w-full rounded-md border border-zinc-200 p-3 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500 bg-white"
                 >
                   <option value="damaged">Damaged Product</option>
@@ -780,7 +768,7 @@ export const OrderDetailPage: React.FC = () => {
                 <textarea
                   placeholder={`Explain the issue in more detail...`}
                   value={returnNotes}
-                  onChange={(e) => setReturnNotes(e.target.value)}
+                  onChange={(e) => dispatch(setReturnNotes(e.target.value))}
                   className="w-full min-h-24 resize-none rounded-md border border-zinc-200 p-3 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
                 />
               </div>
@@ -789,9 +777,7 @@ export const OrderDetailPage: React.FC = () => {
               <Button
                 variant="outline"
                 onClick={() => {
-                  setReturnModalOpen(false);
-                  setReturnReason('damaged');
-                  setReturnNotes('');
+                  dispatch(resetReturnState());
                 }}
                 disabled={submittingReturn}
               >
@@ -813,7 +799,10 @@ export const OrderDetailPage: React.FC = () => {
       )}
 
       {cancelModalOpen && (
-        <Dialog open={cancelModalOpen} onOpenChange={setCancelModalOpen}>
+        <Dialog
+          open={cancelModalOpen}
+          onOpenChange={(open) => dispatch(setCancelModalOpen(open))}
+        >
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle className="text-rose-600 flex items-center gap-2">
@@ -831,7 +820,7 @@ export const OrderDetailPage: React.FC = () => {
                 </label>
                 <select
                   value={cancelReason}
-                  onChange={(e) => setCancelReason(e.target.value)}
+                  onChange={(e) => dispatch(setCancelReason(e.target.value))}
                   className="w-full rounded-md border border-zinc-200 p-3 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500 bg-white"
                 >
                   <option value="" disabled>
@@ -853,8 +842,7 @@ export const OrderDetailPage: React.FC = () => {
               <Button
                 variant="outline"
                 onClick={() => {
-                  setCancelModalOpen(false);
-                  setCancelReason('');
+                  dispatch(resetCancelState());
                 }}
                 disabled={cancelling}
               >
